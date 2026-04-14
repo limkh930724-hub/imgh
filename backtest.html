@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>백테스트 비교기 | 임광호 포트폴리오</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: #f0f4ff;
+            color: #1a1a2e;
+            min-height: 100vh;
+        }
+
+        /* ── topnav ── */
+        .topnav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #0f0f14;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.75rem;
+            height: 52px;
+        }
+        .topnav-logo {
+            font-weight: 800;
+            font-size: 0.92rem;
+            color: #fff;
+            text-decoration: none;
+            margin-right: auto;
+            letter-spacing: -0.01em;
+        }
+        .topnav-link {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.38);
+            text-decoration: none;
+            white-space: nowrap;
+            transition: color 0.15s;
+        }
+        .topnav-link:hover { color: rgba(255,255,255,0.75); }
+        .topnav-link.active { color: #a5b4fc; font-weight: 600; background: rgba(99,102,241,0.15); }
+        @media (max-width: 700px) { .topnav { padding: 0 1.25rem; } }
+        @media (max-width: 480px) { .topnav-link:not(.active) { display: none; } }
+        /* ── footer ── */
+        .page-footer {
+            background: #09090e; border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 1.25rem 2rem; display: flex; align-items: center;
+            justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;
+        }
+        .footer-brand {
+            display: flex; align-items: center; gap: 0.45rem;
+            font-size: 0.76rem; font-weight: 700; color: rgba(255,255,255,0.3); text-decoration: none;
+        }
+        .footer-brand-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: linear-gradient(135deg,#6366f1,#3b82f6); flex-shrink: 0;
+        }
+        .footer-copy { font-size: 0.7rem; color: rgba(255,255,255,0.18); }
+        @media (max-width: 560px) { .page-footer { flex-direction: column; gap: 0.3rem; text-align: center; } }
+
+        /* ── page header ── */
+        .page-header {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 0;
+        }
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            margin-bottom: 0.75rem;
+        }
+        .page-header h1 {
+            font-size: clamp(1.75rem, 4vw, 2.25rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.4rem;
+            color: #0f172a;
+        }
+        .page-header p { color: #64748b; font-size: 0.9rem; font-weight: 500; }
+
+        /* ── layout ── */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem 1.5rem 5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* ── cards ── */
+        .card {
+            background: #fff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 20px;
+            padding: 1.75rem;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.07), 0 8px 24px rgba(0,0,0,0.06);
+        }
+        .card-title {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+        .section-divider {
+            height: 1px;
+            background: #f1f5f9;
+            margin: 1.25rem -1.75rem;
+        }
+
+        /* ── input card ── */
+        .sym-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 0;
+        }
+        .sym-block {
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .sym-block.a { background: #eff6ff; border: 1.5px solid #bfdbfe; }
+        .sym-block.b { background: #fff7ed; border: 1.5px solid #fed7aa; }
+        .sym-block.c { background: #ecfdf5; border: 1.5px solid #a7f3d0; animation: slideIn 0.2s ease-out; }
+        .sym-block.c .sym-label { color: #059669; }
+        .sym-block.c .sym-input:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+        .sym-block.c .sym-name-tag { color: #059669; opacity: 0.8; }
+
+        .sym-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .sym-block.a .sym-label { color: #2563eb; }
+        .sym-block.b .sym-label { color: #ea580c; }
+
+        .sym-input {
+            padding: 0.625rem 0.875rem;
+            border: 1.5px solid transparent;
+            border-radius: 9px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            color: #0f172a;
+            background: #fff;
+            width: 100%;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            letter-spacing: 0.02em;
+        }
+        .sym-block.a .sym-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+        .sym-block.b .sym-input:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.12); }
+
+        .sym-name-tag {
+            font-size: 0.76rem;
+            font-weight: 500;
+            color: #64748b;
+            min-height: 1.1em;
+            padding: 0 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sym-block.a .sym-name-tag { color: #2563eb; opacity: 0.8; }
+        .sym-block.b .sym-name-tag { color: #ea580c; opacity: 0.8; }
+
+        /* ── 종목 C 추가 버튼 ── */
+        .add-sym-btn {
+            width: 100%;
+            padding: 0.85rem;
+            background: #f0f4ff;
+            border: 1.5px dashed #a5b4fc;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6366f1;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+            margin-top: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+        .add-sym-btn:hover { background: #e0e7ff; border-color: #6366f1; }
+
+        /* ── C 제거 버튼 ── */
+        .remove-sym-btn {
+            float: right;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.15s;
+        }
+        .remove-sym-btn:hover { color: #dc2626; }
+
+        /* C 블록 슬라이드인 애니메이션 */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* C 추가 시 sym-grid 3열 전환 */
+        .sym-grid.has-c { grid-template-columns: 1fr 1fr 1fr; }
+
+        /* ── amount / radio ── */
+        .input-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #475569;
+        }
+        .input-field {
+            padding: 0.625rem 0.875rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 9px;
+            font-size: 0.92rem;
+            font-family: inherit;
+            color: #0f172a;
+            background: #f8fafc;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            width: 100%;
+        }
+        .input-field:focus { outline: none; border-color: #3b82f6; background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .input-field.error { border-color: #ef4444; }
+
+        .amount-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+        .amount-row .input-group { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
+        .amount-unit { font-size: 0.85rem; color: #94a3b8; padding-bottom: 0.65rem; white-space: nowrap; }
+
+        .radio-group {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 0.25rem;
+            gap: 0.25rem;
+        }
+        .radio-group label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .radio-group input[type=radio] { display: none; }
+        .radio-group input[type=radio]:checked + span {
+            /* handled by parent label class via JS */
+        }
+        .radio-group label.selected {
+            background: #fff;
+            color: #1e40af;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        /* ── period buttons ── */
+        .period-row {
+            display: flex;
+            gap: 0.375rem;
+            flex-wrap: wrap;
+        }
+        .period-btn {
+            padding: 0.45rem 1rem;
+            border: none;
+            border-radius: 20px;
+            background: #f1f5f9;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.15s;
+            letter-spacing: 0.02em;
+        }
+        .period-btn:hover { background: #e2e8f0; color: #334155; }
+        .period-btn.active {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+        }
+
+        /* ── date picker ── */
+        .date-picker-wrap { display: flex; flex-direction: column; gap: 0.4rem; }
+        .date-picker-wrap .input-field { cursor: pointer; }
+
+        /* Flatpickr 커스텀 */
+        .flatpickr-calendar {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+            border-radius: 16px !important;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        .flatpickr-day.selected,
+        .flatpickr-day.startRange,
+        .flatpickr-day.endRange {
+            background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
+            border-color: #6366f1 !important;
+        }
+        .flatpickr-day.inRange {
+            background: #dbeafe !important;
+            border-color: #dbeafe !important;
+            color: #1e40af !important;
+            box-shadow: -5px 0 0 #dbeafe, 5px 0 0 #dbeafe !important;
+        }
+        .flatpickr-day:hover:not(.selected) { background: #eff6ff !important; border-color: #bfdbfe !important; }
+        .flatpickr-months .flatpickr-month { background: #f8fafc !important; border-radius: 16px 16px 0 0; }
+        .flatpickr-day.today:not(.selected) { border-color: #3b82f6 !important; color: #2563eb; font-weight: 700; }
+
+        .error-msg { font-size: 0.75rem; color: #ef4444; }
+
+        /* ── run button ── */
+        .run-btn {
+            width: 100%;
+            padding: 0.95rem;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.1s;
+            box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+            letter-spacing: 0.01em;
+        }
+        .run-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+        .run-btn:active { transform: translateY(0); }
+        .run-btn:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        /* ── status ── */
+        .status-box {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .status-box.error { color: #dc2626; }
+
+        /* ── summary cards ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .summary-card {
+            background: #fff;
+            border: 1.5px solid rgba(0,0,0,0.06);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.05);
+        }
+        .summary-card-header {
+            padding: 1.25rem 1.5rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+        }
+        .summary-card.a .summary-card-header { border-top: 4px solid #3b82f6; }
+        .summary-card.b .summary-card-header { border-top: 4px solid #f97316; }
+        .summary-card.c .summary-card-header { border-top: 4px solid #10b981; }
+        .summary-card.winner .summary-card-header { background: linear-gradient(135deg, #f0f7ff 0%, #faf5ff 100%); }
+
+        .summary-sym {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+        }
+        .summary-corp {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #64748b;
+            margin-top: 0.15rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #badge-a, #badge-b, #badge-c {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+        .summary-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.66rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: #fff;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .summary-hero {
+            display: flex;
+            align-items: baseline;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+        }
+        .summary-hero-num {
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .summary-hero-num.pos { color: #16a34a; }
+        .summary-hero-num.neg { color: #dc2626; }
+        .summary-hero-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #94a3b8;
+            letter-spacing: 0.04em;
+        }
+
+        .summary-metrics {
+            padding: 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .summary-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .summary-metric-label { font-size: 0.76rem; color: #94a3b8; font-weight: 500; }
+        .summary-metric-value { font-size: 0.95rem; font-weight: 700; color: #1e293b; }
+        .summary-metric-value.pos { color: #16a34a; }
+        .summary-metric-value.neg { color: #dc2626; }
+        .summary-metric-value.muted { color: #64748b; font-weight: 600; font-size: 0.88rem; }
+
+        /* ── chart ── */
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        .chart-title { font-size: 0.9rem; font-weight: 700; color: #1e293b; }
+        .chart-tabs {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 0.2rem;
+            gap: 0.2rem;
+        }
+        .chart-tab {
+            padding: 0.35rem 0.875rem;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        .chart-tab.active { background: #fff; color: #2563eb; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+        .chart-wrap { position: relative; height: 300px; }
+
+        /* ── comparison table ── */
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        .comp-table thead tr { border-bottom: 2px solid #f1f5f9; }
+        .comp-table th {
+            text-align: right;
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #94a3b8;
+            padding: 0.5rem 0.875rem 0.75rem;
+        }
+        .comp-table th:first-child { text-align: left; }
+        .comp-table td {
+            padding: 0.875rem;
+            border-bottom: 1px solid #f8fafc;
+            text-align: right;
+        }
+        .comp-table tr:last-child td { border-bottom: none; }
+        .comp-table td:first-child { color: #64748b; font-size: 0.82rem; font-weight: 500; text-align: left; }
+        .comp-table td:not(:first-child) { font-weight: 700; color: #1e293b; }
+        .comp-table tbody tr:hover { background: #fafbff; }
+        .comp-table .diff.pos { color: #16a34a; }
+        .comp-table .diff.neg { color: #dc2626; }
+        .comp-table .sym-dot {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+        .comp-table th.th-c .sym-dot { background: #10b981; }
+
+        /* ── form row helpers ── */
+        .form-row { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-rows { display: flex; flex-direction: column; gap: 1.1rem; }
+
+        @media (max-width: 600px) {
+            .sym-grid { grid-template-columns: 1fr; }
+            .sym-grid.has-c { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .summary-hero-num { font-size: 1.75rem; }
+            .comp-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .comp-table { font-size: 0.78rem; }
+            .comp-table th, .comp-table td { padding: 0.625rem 0.5rem; white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="topnav">
+    <a href="/" class="topnav-logo"><span class="topnav-logo-dot"></span>임광호 포트폴리오</a>
+    <a href="/" class="topnav-link">홈</a>
+    <a href="/fear-greed.html" class="topnav-link">공포탐욕지수</a>
+    <a href="/compound.html" class="topnav-link">복리 계산기</a>
+    <a href="/goal.html" class="topnav-link">목표 자산</a>
+    <a href="/journal.html" class="topnav-link">매매일지</a>
+    <a href="/backtest.html" class="topnav-link active">백테스트</a>
+    <a href="/workout.html" class="topnav-link">운동 루틴</a>
+    <a href="/agents.html" class="topnav-link">AI 에이전트</a>
+</nav>
+
+<div class="page-header">
+    <div class="header-badge">📈 Backtest Tool</div>
+    <h1>투자 시나리오 비교기</h1>
+    <p>두 종목을 같은 금액·기간으로 투자했을 때 수익률과 CAGR을 비교합니다</p>
+</div>
+
+<div class="container">
+
+    <!-- 입력 카드 -->
+    <div class="card">
+        <div class="card-title">투자 조건 설정</div>
+
+        <!-- 종목 선택 -->
+        <div class="sym-grid" id="sym-ab-grid" style="margin-bottom:1.25rem">
+            <div class="sym-block a">
+                <div class="sym-label">종목 A</div>
+                <input type="text" id="sym-a" class="sym-input" value="SPY"
+                       placeholder="예: AAPL, 005930.KS"
+                       autocomplete="off" spellcheck="false">
+                <div class="sym-name-tag" id="name-a">· 입력 후 자동 조회</div>
+            </div>
+            <div class="sym-block b">
+                <div class="sym-label">종목 B</div>
+                <input type="text" id="sym-b" class="sym-input" value="QQQ"
+                       placeholder="예: MSFT, BTC-USD"
+                       autocomplete="off" spellcheck="false">
+                <div class="sym-name-tag" id="name-b">· 입력 후 자동 조회</div>
+            </div>
+            <!-- 종목 C 블록 (초기 숨김) -->
+            <div id="sym-c-block" class="sym-block c" style="display:none">
+                <div class="sym-label">종목 C <button class="remove-sym-btn" onclick="hideSymC()" title="종목 C 제거">✕</button></div>
+                <input type="text" id="sym-c" class="sym-input" placeholder="예: NVDA, TSLA"
+                       autocomplete="off" spellcheck="false">
+                <div class="sym-name-tag" id="name-c">· 입력 후 자동 조회</div>
+            </div>
+        </div>
+
+        <!-- 종목 C 추가 버튼 -->
+        <button class="add-sym-btn" id="add-sym-c-btn" onclick="showSymC()">
+            ＋ 종목 C 추가하기
+        </button>
+
+        <div class="section-divider"></div>
+
+        <div class="form-rows" style="margin-top:1.25rem">
+            <!-- 투자금액 -->
+            <div class="amount-row">
+                <div class="input-group">
+                    <label class="input-label" id="amount-label">투자금액</label>
+                    <input type="text" id="amount" class="input-field" value="10,000,000"
+                           placeholder="예: 10,000,000">
+                </div>
+                <span class="amount-unit">원</span>
+            </div>
+
+            <!-- 투자방식 -->
+            <div class="form-row">
+                <div class="input-label">투자방식</div>
+                <div class="radio-group" id="invest-radio">
+                    <label class="selected" id="lbl-lump">
+                        <input type="radio" name="invest-type" value="lump" checked>
+                        <span>일괄투자</span>
+                    </label>
+                    <label id="lbl-dca">
+                        <input type="radio" name="invest-type" value="dca">
+                        <span>적립식(월)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 비교 기간 -->
+            <div class="form-row">
+                <div class="input-label">비교 기간</div>
+                <div class="period-row">
+                    <button class="period-btn active" data-years="1">1Y</button>
+                    <button class="period-btn" data-years="3">3Y</button>
+                    <button class="period-btn" data-years="5">5Y</button>
+                    <button class="period-btn" data-years="10">10Y</button>
+                    <button class="period-btn" data-years="15">15Y</button>
+                    <button class="period-btn" data-years="20">20Y</button>
+                </div>
+            </div>
+
+            <!-- 날짜 직접 선택 -->
+            <div class="date-picker-wrap">
+                <div class="input-label">날짜 직접 선택 <span style="color:#94a3b8;font-weight:400">(선택 시 위 기간 버튼 무시)</span></div>
+                <input type="text" id="date-range" class="input-field"
+                       placeholder="📅 클릭해서 날짜 범위를 선택하세요" readonly>
+            </div>
+            <div id="date-error" class="error-msg" style="display:none">날짜를 확인해주세요</div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <button class="run-btn" id="run-btn" onclick="runBacktest()" style="margin-top:1.25rem">
+            비교 시작 →
+        </button>
+    </div>
+
+    <!-- 상태/로딩 -->
+    <div id="status-box" class="status-box" style="display:none"></div>
+
+    <!-- 결과 섹션 -->
+    <div id="results" style="display:none">
+
+        <!-- 요약 카드 -->
+        <div class="summary-grid" id="summary-grid">
+            <div class="summary-card a" id="card-a">
+                <div class="summary-card-header">
+                    <div class="summary-sym" id="sym-label-a">-</div>
+                    <div class="summary-corp" id="corp-a"></div>
+                    <div id="badge-a" style="display:none">
+                        <span class="summary-badge">🏆 수익 우위</span>
+                    </div>
+                    <div class="summary-hero">
+                        <span class="summary-hero-num" id="ret-a">-</span>
+                        <span class="summary-hero-label">누적 수익률</span>
+                    </div>
+                </div>
+                <div class="summary-metrics">
+                    <div class="summary-metric">
+                        <span class="summary-metric-label">투자 원금</span>
+                        <span class="summary-metric-value muted" id="invested-a">-</span>
+                    </div>
+                    <div class="summary-metric">
+                        <span class="summary-metric-label">최종 평가금</span>
+                        <span class="summary-metric-value" id="val-a">-</span>
+                    </div>
+                    <div class="summary-metric">
+                        <span class="summary-metric-label">CAGR (연환산)</span>
+                        <span class="summary-metric-value" id="cagr-a">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-card b" id="card-b">
+                <div class="summary-card-header">
+                    <div class="summary-sym" id="sym-label-b">-</div>
+                    <div class="summary-corp" id="corp-b"></div>
+                    <div id="badge-b" style="display:none">
+                        <span class="summary-badge">🏆 수익 우위</span>
+                    </div>
+                    <div class="summary-hero">
+                        <span class="summary-hero-num" id="ret-b">-</span>
+                        <span class="summary-hero-label">누적 수익률</span>
+                    </div>
+                </div>
+                <div class="summary-metrics">
+                    <div class="summary-metric">
+                        <span class="summary-metric-label">투자 원금</span>
+                        <span class="summary-metric-value muted" id="invested-b">-</span>
+                    </div>
+                    <div class="summary-metric">
+                        <span class="summary-metric-label">최종 평가금</span>
+                        <span class="summary-metric-value" id="val-b">-</span>
+                    </div>
+                    <div class="summary-metric">
+                        <span class="summary-metric-label">CAGR (연환산)</span>
+                        <span class="summary-metric-value" id="cagr-b">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-card c" id="card-c" style="display:none">
+                <div class="summary-card-header">
+                    <div class="summary-sym" id="sym-label-c">-</div>
+                    <div class="summary-corp" id="corp-c"></div>
+                    <div id="badge-c" style="display:none">
+                        <span class="summary-badge">🏆 수익 우위</span>
+                    </div>
+                    <div class="summary-hero">
+                        <span class="summary-hero-num" id="ret-c">-</span>
+                        <span class="summary-hero-label">누적 수익률</span>
+                    </div>
+                </div>
+                <div class="summary-metrics">
+                    <div class="summary-metric">
+                        <span class="summary-metric-label">투자 원금</span>
+                        <span class="summary-metric-value muted" id="invested-c">-</span>
+                    </div>
+                    <div class="summary-metric">
+                        <span class="summary-metric-label">최종 평가금</span>
+                        <span class="summary-metric-value" id="val-c">-</span>
+                    </div>
+                    <div class="summary-metric">
+                        <span class="summary-metric-label">CAGR (연환산)</span>
+                        <span class="summary-metric-value" id="cagr-c">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 차트 카드 -->
+        <div class="card">
+            <div class="chart-header">
+                <div class="chart-title">수익률 추이</div>
+                <div class="chart-tabs">
+                    <button class="chart-tab active" id="tab-returns" onclick="switchChartMode('returns')">누적 수익률</button>
+                    <button class="chart-tab" id="tab-value" onclick="switchChartMode('value')">평가금액</button>
+                </div>
+            </div>
+            <div class="chart-wrap"><canvas id="btChart"></canvas></div>
+        </div>
+
+        <!-- 수치 비교 표 -->
+        <div class="card">
+            <div class="card-title">수치 비교</div>
+            <div class="comp-table-wrap">
+            <table class="comp-table">
+                <thead>
+                    <tr>
+                        <th>항목</th>
+                        <th id="th-a"><span class="sym-dot" style="background:#3b82f6"></span><span id="th-a-text">A</span></th>
+                        <th id="th-b"><span class="sym-dot" style="background:#f97316"></span><span id="th-b-text">B</span></th>
+                        <th id="th-c" style="display:none"><span class="sym-dot" style="background:#10b981"></span><span id="th-c-text">C</span></th>
+                        <th id="th-diff">1등 − 2등</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>누적 수익률</td>
+                        <td id="tc-ret-a">-</td>
+                        <td id="tc-ret-b">-</td>
+                        <td id="tc-ret-c" style="display:none">-</td>
+                        <td id="tc-ret-diff" class="diff">-</td>
+                    </tr>
+                    <tr>
+                        <td>투자 원금</td>
+                        <td id="tc-inv-a">-</td>
+                        <td id="tc-inv-b">-</td>
+                        <td id="tc-inv-c" style="display:none">-</td>
+                        <td id="tc-inv-diff" class="diff">-</td>
+                    </tr>
+                    <tr>
+                        <td>최종 평가금</td>
+                        <td id="tc-val-a">-</td>
+                        <td id="tc-val-b">-</td>
+                        <td id="tc-val-c" style="display:none">-</td>
+                        <td id="tc-val-diff" class="diff">-</td>
+                    </tr>
+                    <tr>
+                        <td>CAGR</td>
+                        <td id="tc-cagr-a">-</td>
+                        <td id="tc-cagr-b">-</td>
+                        <td id="tc-cagr-c" style="display:none">-</td>
+                        <td id="tc-cagr-diff" class="diff">-</td>
+                    </tr>
+                    <tr>
+                        <td>투자기간</td>
+                        <td id="tc-period" colspan="3" style="text-align:center;font-weight:500;color:#475569">-</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div><!-- /.comp-table-wrap -->
+        </div>
+
+    </div><!-- /#results -->
+
+</div>
+
+<script>
+    const CORS_PROXY = '/api/proxy?url=';
+
+    // ── 포맷 헬퍼 ──
+    function formatKRW(n) {
+        const abs = Math.abs(n);
+        const sign = n < 0 ? '-' : '';
+        if (abs >= 1e8) return sign + '₩' + (abs / 1e8).toFixed(2) + '억';
+        if (abs >= 1e4) return sign + '₩' + Math.round(abs / 1e4).toLocaleString('ko-KR') + '만';
+        return sign + '₩' + Math.round(abs).toLocaleString('ko-KR');
+    }
+    function formatPct(n, showSign = true) {
+        const sign = showSign && n > 0 ? '+' : '';
+        return sign + n.toFixed(1) + '%';
+    }
+    function formatKRWDiff(n) {
+        return (n > 0 ? '+' : '') + formatKRW(n);
+    }
+
+    // ── 종목명 조회 ──
+    async function fetchSymbolName(sym) {
+        try {
+            const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d`;
+            const res = await fetch(CORS_PROXY + encodeURIComponent(yahooUrl));
+            if (!res.ok) return null;
+            const json = await res.json();
+            const meta = json?.chart?.result?.[0]?.meta;
+            return meta?.longName || meta?.shortName || null;
+        } catch { return null; }
+    }
+
+    function setupSymbolLookup(inputId, nameId) {
+        const input = document.getElementById(inputId);
+        const nameEl = document.getElementById(nameId);
+        let lastSym = '';
+        input.addEventListener('blur', async () => {
+            const sym = input.value.trim().toUpperCase();
+            if (!sym || sym === lastSym) return;
+            lastSym = sym;
+            nameEl.textContent = '조회 중…';
+            const name = await fetchSymbolName(sym);
+            nameEl.textContent = name ? '· ' + name : '· 종목명을 찾을 수 없습니다';
+        });
+        // 포커스 시 힌트 초기화
+        input.addEventListener('focus', () => {
+            if (nameEl.textContent === '· 입력 후 자동 조회') nameEl.textContent = '';
+        });
+    }
+    setupSymbolLookup('sym-a', 'name-a');
+    setupSymbolLookup('sym-b', 'name-b');
+
+    // ── 종목 C 추가/제거 ──
+    function showSymC() {
+        document.getElementById('add-sym-c-btn').style.display = 'none';
+        document.getElementById('sym-c-block').style.display = '';
+        document.getElementById('sym-ab-grid').classList.add('has-c');
+        document.getElementById('sym-c').focus();
+    }
+
+    function hideSymC() {
+        document.getElementById('sym-c-block').style.display = 'none';
+        document.getElementById('add-sym-c-btn').style.display = '';
+        document.getElementById('sym-ab-grid').classList.remove('has-c');
+        document.getElementById('sym-c').value = '';
+        document.getElementById('name-c').textContent = '· 입력 후 자동 조회';
+    }
+
+    setupSymbolLookup('sym-c', 'name-c');
+
+    // ── 기간 버튼 ──
+    let activeYears = 1;
+    let fpInstance = null;
+
+    document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeYears = Number(btn.dataset.years);
+            if (fpInstance) fpInstance.clear();
+            document.getElementById('date-error').style.display = 'none';
+        });
+    });
+
+    // ── Flatpickr ──
+    document.addEventListener('DOMContentLoaded', () => {
+        fpInstance = flatpickr('#date-range', {
+            mode: 'range',
+            dateFormat: 'Y-m-d',
+            maxDate: 'today',
+            showMonths: 2,
+            locale: { rangeSeparator: ' ~ ' },
+            onClose(selectedDates) {
+                if (selectedDates.length === 2) {
+                    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                    activeYears = null;
+                } else if (selectedDates.length === 0) {
+                    document.querySelector('.period-btn[data-years="1"]').classList.add('active');
+                    activeYears = 1;
+                }
+            }
+        });
+    });
+
+    // ── 투자방식 라디오 ──
+    document.querySelectorAll('input[name=invest-type]').forEach(r => {
+        r.addEventListener('change', () => {
+            document.getElementById('lbl-lump').classList.toggle('selected', r.value === 'lump' && r.checked);
+            document.getElementById('lbl-dca').classList.toggle('selected', r.value === 'dca' && r.checked);
+            document.getElementById('amount-label').textContent =
+                r.value === 'dca' ? '월 투자금액' : '투자금액';
+        });
+    });
+
+    // ── 금액 콤마 포맷 ──
+    const amountInput = document.getElementById('amount');
+    amountInput.addEventListener('input', () => {
+        const raw = amountInput.value.replace(/[^0-9]/g, '');
+        amountInput.value = raw ? Number(raw).toLocaleString('ko-KR') : '';
+    });
+
+    // ── Yahoo Finance 페치 ──
+    async function fetchStockData(sym, startDate, endDate) {
+        const p1 = Math.floor(new Date(startDate).getTime() / 1000);
+        const p2 = Math.floor(new Date(endDate).getTime() / 1000) + 86400;
+        const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?period1=${p1}&period2=${p2}&interval=1d`;
+        const url = CORS_PROXY + encodeURIComponent(yahooUrl);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`${sym}: 서버 오류 (${res.status})`);
+        const json = await res.json();
+        const result = json?.chart?.result?.[0];
+        if (!result) throw new Error(`${sym}: 데이터를 찾을 수 없습니다`);
+        const meta = result.meta;
+        const timestamps = result.timestamp;
+        const prices = result.indicators?.adjclose?.[0]?.adjclose
+                    ?? result.indicators?.quote?.[0]?.close;
+        if (!timestamps || !prices || timestamps.length === 0)
+            throw new Error(`${sym}: 해당 기간에 거래 데이터가 없습니다`);
+        const filtered = timestamps.reduce((acc, ts, i) => {
+            if (prices[i] != null) {
+                acc.timestamps.push(ts * 1000);
+                acc.prices.push(prices[i]);
+            }
+            return acc;
+        }, { timestamps: [], prices: [] });
+        if (filtered.prices.length < 2) throw new Error(`${sym}: 유효한 데이터가 부족합니다`);
+        return { sym, timestamps: filtered.timestamps, prices: filtered.prices,
+                 longName: meta?.longName || meta?.shortName || sym };
+    }
+
+    // ── 계산 ──
+    function calcLumpSum(timestamps, prices, amount) {
+        const shares = amount / prices[0];
+        const values = prices.map(p => shares * p);
+        const returns = values.map(v => (v / amount - 1) * 100);
+        const dates = timestamps.map(ts => new Date(ts).toISOString().slice(0, 10));
+        const finalValue = values[values.length - 1];
+        const cumulReturn = returns[returns.length - 1];
+        const years = (timestamps[timestamps.length - 1] - timestamps[0]) / (365.25 * 24 * 3600 * 1000);
+        const cagr = years > 0 ? ((finalValue / amount) ** (1 / years) - 1) * 100 : 0;
+        return { returns, values, dates, finalValue, cumulReturn, totalInvested: amount, cagr };
+    }
+
+    function calcDCA(timestamps, prices, monthlyAmount) {
+        const monthlyIdx = new Set();
+        let lastMonth = -1;
+        timestamps.forEach((ts, i) => {
+            const d = new Date(ts);
+            const m = d.getFullYear() * 12 + d.getMonth();
+            if (m !== lastMonth) { monthlyIdx.add(i); lastMonth = m; }
+        });
+        let totalShares = 0, totalInvested = 0;
+        const values = [], returns = [];
+        prices.forEach((p, i) => {
+            if (monthlyIdx.has(i)) { totalShares += monthlyAmount / p; totalInvested += monthlyAmount; }
+            const v = totalShares * p;
+            values.push(v);
+            returns.push(totalInvested > 0 ? (v / totalInvested - 1) * 100 : 0);
+        });
+        const dates = timestamps.map(ts => new Date(ts).toISOString().slice(0, 10));
+        const finalValue = values[values.length - 1];
+        const cumulReturn = returns[returns.length - 1];
+        const years = (timestamps[timestamps.length - 1] - timestamps[0]) / (365.25 * 24 * 3600 * 1000);
+        const cagr = years > 0 && totalInvested > 0
+            ? ((finalValue / totalInvested) ** (1 / years) - 1) * 100 : 0;
+        return { returns, values, dates, finalValue, cumulReturn, totalInvested, cagr };
+    }
+
+    // ── 렌더 ──
+    function renderSummaryCards(symA, nameA, resA, symB, nameB, resB, symC, nameC, resC) {
+        const hasC = !!resC;
+        const returns = [resA.cumulReturn, resB.cumulReturn];
+        if (hasC) returns.push(resC.cumulReturn);
+        const maxRet = Math.max(...returns);
+
+        function fill(prefix, sym, name, res) {
+            const isWinner = res.cumulReturn === maxRet;
+            document.getElementById(`card-${prefix}`).classList.toggle('winner', isWinner);
+            document.getElementById(`sym-label-${prefix}`).textContent = sym;
+            document.getElementById(`corp-${prefix}`).textContent = name || '';
+            document.getElementById(`badge-${prefix}`).style.display = isWinner ? '' : 'none';
+
+            const retEl = document.getElementById(`ret-${prefix}`);
+            retEl.textContent = formatPct(res.cumulReturn);
+            retEl.className = 'summary-hero-num ' + (res.cumulReturn >= 0 ? 'pos' : 'neg');
+
+            document.getElementById(`invested-${prefix}`).textContent = formatKRW(res.totalInvested);
+
+            const valEl = document.getElementById(`val-${prefix}`);
+            valEl.textContent = formatKRW(res.finalValue);
+            valEl.className = 'summary-metric-value ' + (res.finalValue >= res.totalInvested ? 'pos' : 'neg');
+
+            const cagrEl = document.getElementById(`cagr-${prefix}`);
+            cagrEl.textContent = formatPct(res.cagr);
+            cagrEl.className = 'summary-metric-value ' + (res.cagr >= 0 ? 'pos' : 'neg');
+        }
+
+        fill('a', symA, nameA, resA);
+        fill('b', symB, nameB, resB);
+
+        const cardC = document.getElementById('card-c');
+        const summaryGrid = document.getElementById('summary-grid');
+        if (hasC) {
+            fill('c', symC, nameC, resC);
+            cardC.style.display = '';
+            summaryGrid.style.gridTemplateColumns = '1fr 1fr 1fr';
+        } else {
+            cardC.style.display = 'none';
+            summaryGrid.style.gridTemplateColumns = '';
+        }
+    }
+
+    function renderTable(symA, resA, symB, resB, symC, resC) {
+        const hasC = !!resC;
+
+        document.getElementById('th-a-text').textContent = symA;
+        document.getElementById('th-b-text').textContent = symB;
+
+        // C 컬럼 표시/숨김
+        const cEls = ['th-c', 'tc-ret-c', 'tc-inv-c', 'tc-val-c', 'tc-cagr-c'];
+        cEls.forEach(id => {
+            document.getElementById(id).style.display = hasC ? '' : 'none';
+        });
+        if (hasC) {
+            document.getElementById('th-c-text').textContent = symC;
+            document.getElementById('tc-period').colSpan = 4;
+        } else {
+            document.getElementById('tc-period').colSpan = 3;
+        }
+
+        // 1등-꼴등 기준 diff 계산
+        const allRes = hasC ? [resA, resB, resC] : [resA, resB];
+        const sorted = [...allRes].sort((a, b) => b.cumulReturn - a.cumulReturn);
+        const best = sorted[0], worst = sorted[sorted.length - 1];
+        document.getElementById('th-diff').textContent = `1등 − ${allRes.length}등`;
+
+        // 누적 수익률
+        document.getElementById('tc-ret-a').textContent = formatPct(resA.cumulReturn);
+        document.getElementById('tc-ret-b').textContent = formatPct(resB.cumulReturn);
+        if (hasC) document.getElementById('tc-ret-c').textContent = formatPct(resC.cumulReturn);
+        const retDiff = best.cumulReturn - worst.cumulReturn;
+        const rdEl = document.getElementById('tc-ret-diff');
+        rdEl.textContent = '+' + retDiff.toFixed(1) + '%p';
+        rdEl.className = 'diff pos';
+
+        // 투자 원금
+        document.getElementById('tc-inv-a').textContent = formatKRW(resA.totalInvested);
+        document.getElementById('tc-inv-b').textContent = formatKRW(resB.totalInvested);
+        if (hasC) document.getElementById('tc-inv-c').textContent = formatKRW(resC.totalInvested);
+        const invDiff = best.totalInvested - worst.totalInvested;
+        const idEl = document.getElementById('tc-inv-diff');
+        idEl.textContent = invDiff === 0 ? '동일' : '+' + formatKRW(invDiff);
+        idEl.className = 'diff ' + (invDiff > 0 ? 'pos' : '');
+
+        // 최종 평가금
+        document.getElementById('tc-val-a').textContent = formatKRW(resA.finalValue);
+        document.getElementById('tc-val-b').textContent = formatKRW(resB.finalValue);
+        if (hasC) document.getElementById('tc-val-c').textContent = formatKRW(resC.finalValue);
+        const valDiff = best.finalValue - worst.finalValue;
+        const vdEl = document.getElementById('tc-val-diff');
+        vdEl.textContent = '+' + formatKRW(valDiff);
+        vdEl.className = 'diff pos';
+
+        // CAGR
+        document.getElementById('tc-cagr-a').textContent = formatPct(resA.cagr);
+        document.getElementById('tc-cagr-b').textContent = formatPct(resB.cagr);
+        if (hasC) document.getElementById('tc-cagr-c').textContent = formatPct(resC.cagr);
+        const cagrDiff = best.cagr - worst.cagr;
+        const cdEl = document.getElementById('tc-cagr-diff');
+        cdEl.textContent = '+' + cagrDiff.toFixed(1) + '%p';
+        cdEl.className = 'diff pos';
+
+        // 투자기간
+        document.getElementById('tc-period').textContent =
+            resA.dates[0] + ' ~ ' + resA.dates[resA.dates.length - 1];
+    }
+
+    // ── 차트 ──
+    let btChartInstance = null;
+    let _chartData = null;
+
+    function renderChart(dates, resA, resB, symA, symB, mode, resC, symC) {
+        _chartData = { dates, resA, resB, symA, symB, resC, symC };
+        if (btChartInstance) btChartInstance.destroy();
+        const isReturns = mode === 'returns';
+        const dataA = isReturns ? resA.returns : resA.values;
+        const dataB = isReturns ? resB.returns : resB.values;
+
+        function downsample(arr) {
+            if (arr.length <= 500) return arr;
+            const step = arr.length / 500;
+            return Array.from({ length: 500 }, (_, i) => arr[Math.round(i * step)]);
+        }
+
+        const datasets = [
+            { label: symA, data: downsample(dataA), borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59,130,246,0.05)', fill: true,
+              borderWidth: 2.5, pointRadius: 0, tension: 0.2 },
+            { label: symB, data: downsample(dataB), borderColor: '#f97316',
+              backgroundColor: 'rgba(249,115,22,0.05)', fill: true,
+              borderWidth: 2.5, pointRadius: 0, tension: 0.2 }
+        ];
+
+        if (resC) {
+            const dataC = isReturns ? resC.returns : resC.values;
+            datasets.push({
+                label: symC, data: downsample(dataC), borderColor: '#10b981',
+                backgroundColor: 'rgba(16,185,129,0.05)', fill: true,
+                borderWidth: 2.5, pointRadius: 0, tension: 0.2
+            });
+        }
+
+        const ctx = document.getElementById('btChart').getContext('2d');
+        btChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { labels: downsample(dates), datasets },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', labels: { font: { size: 12, weight: '600' }, usePointStyle: true, pointStyle: 'line', pointStyleWidth: 24 } },
+                    tooltip: {
+                        backgroundColor: 'rgba(15,23,42,0.9)',
+                        titleFont: { size: 12 },
+                        bodyFont: { size: 13, weight: '700' },
+                        padding: 10,
+                        callbacks: {
+                            label: ctx => ` ${ctx.dataset.label}: ${isReturns ? formatPct(ctx.parsed.y) : formatKRW(ctx.parsed.y)}`
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { maxTicksLimit: 7, font: { size: 11 }, color: '#94a3b8' }, grid: { color: '#f1f5f9' }, border: { color: '#e2e8f0' } },
+                    y: { ticks: { font: { size: 11 }, color: '#94a3b8', callback: v => isReturns ? v.toFixed(0) + '%' : formatKRW(v) }, grid: { color: '#f1f5f9' }, border: { color: '#e2e8f0' } }
+                }
+            }
+        });
+    }
+
+    function switchChartMode(mode) {
+        document.getElementById('tab-returns').className = 'chart-tab' + (mode === 'returns' ? ' active' : '');
+        document.getElementById('tab-value').className = 'chart-tab' + (mode === 'value' ? ' active' : '');
+        if (_chartData) {
+            const { dates, resA, resB, symA, symB, resC, symC } = _chartData;
+            renderChart(dates, resA, resB, symA, symB, mode, resC, symC);
+        }
+    }
+
+    // ── 메인 ──
+    function showStatus(msg, isError = false) {
+        const el = document.getElementById('status-box');
+        el.textContent = msg;
+        el.className = 'status-box' + (isError ? ' error' : '');
+        el.style.display = '';
+        document.getElementById('results').style.display = 'none';
+    }
+    function hideStatus() { document.getElementById('status-box').style.display = 'none'; }
+
+    async function runBacktest() {
+        const symA = document.getElementById('sym-a').value.trim().toUpperCase();
+        const symB = document.getElementById('sym-b').value.trim().toUpperCase();
+        const symCRaw = document.getElementById('sym-c').value.trim().toUpperCase();
+        const symC = document.getElementById('sym-c-block').style.display !== 'none' && symCRaw ? symCRaw : null;
+
+        const amountRaw = document.getElementById('amount').value.replace(/[^0-9]/g, '');
+        const amount = Number(amountRaw);
+        const investType = document.querySelector('input[name=invest-type]:checked').value;
+
+        let startArg, endArg;
+        const fpDates = fpInstance ? fpInstance.selectedDates : [];
+        if (activeYears === null && fpDates.length === 2) {
+            startArg = fpDates[0].toISOString().slice(0, 10);
+            endArg   = fpDates[1].toISOString().slice(0, 10);
+        } else {
+            const end = new Date();
+            const start = new Date();
+            start.setFullYear(start.getFullYear() - (activeYears || 1));
+            startArg = start.toISOString().slice(0, 10);
+            endArg   = end.toISOString().slice(0, 10);
+        }
+
+        if (!symA || !symB) return showStatus('종목을 입력해주세요', true);
+        if (!amount || amount <= 0) return showStatus('투자금액을 입력해주세요', true);
+
+        const btn = document.getElementById('run-btn');
+        btn.disabled = true;
+        btn.textContent = '데이터 조회 중…';
+        showStatus('Yahoo Finance에서 데이터를 불러오는 중입니다…');
+
+        try {
+            const fetches = [
+                fetchStockData(symA, startArg, endArg),
+                fetchStockData(symB, startArg, endArg),
+            ];
+            if (symC) fetches.push(fetchStockData(symC, startArg, endArg));
+
+            const results = await Promise.all(fetches);
+            const [dataA, dataB] = results;
+            const dataC = results[2] || null;
+
+            document.getElementById('name-a').textContent = '· ' + dataA.longName;
+            document.getElementById('name-b').textContent = '· ' + dataB.longName;
+            if (dataC) document.getElementById('name-c').textContent = '· ' + dataC.longName;
+
+            const calcFn = investType === 'lump' ? calcLumpSum : calcDCA;
+            const resA = calcFn(dataA.timestamps, dataA.prices, amount);
+            const resB = calcFn(dataB.timestamps, dataB.prices, amount);
+            const resC = dataC ? calcFn(dataC.timestamps, dataC.prices, amount) : null;
+
+            hideStatus();
+            document.getElementById('results').style.display = '';
+            renderSummaryCards(symA, dataA.longName, resA, symB, dataB.longName, resB, symC, dataC?.longName, resC);
+            renderTable(symA, resA, symB, resB, symC, resC);
+            renderChart(resA.dates, resA, resB, symA, symB, 'returns', resC, symC);
+            document.getElementById('tab-returns').className = 'chart-tab active';
+            document.getElementById('tab-value').className = 'chart-tab';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        } catch (err) {
+            showStatus(err.message || '알 수 없는 오류가 발생했습니다', true);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '비교 시작 →';
+        }
+    }
+</script>
+<footer class="page-footer">
+    <a href="/" class="footer-brand"><span class="footer-brand-dot"></span>임광호 포트폴리오</a>
+    <span class="footer-copy">직접 제작한 금융 분석 도구 · © 2026</span>
+</footer>
+</body>
+</html>

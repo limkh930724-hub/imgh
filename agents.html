@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 에이전트 | 서울 지도 부동산 조회</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Segoe UI',Arial,sans-serif;background:radial-gradient(circle at top left,rgba(217,224,210,.35),transparent 24%),linear-gradient(180deg,#f3f0e7 0,#ebe7db 100%);color:#1f2937}
+.topnav{position:sticky;top:0;z-index:500;height:54px;padding:0 2rem;display:flex;align-items:center;gap:.25rem;background:rgba(9,9,14,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)}
+.topnav-logo{margin-right:auto;display:flex;align-items:center;gap:.45rem;color:#fff;text-decoration:none;font-size:.88rem;font-weight:800}
+.topnav-logo-dot{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#3b82f6)}
+.topnav-link{padding:.35rem .65rem;border-radius:7px;color:rgba(255,255,255,.38);text-decoration:none;white-space:nowrap;font-size:.79rem;font-weight:500}
+.topnav-link.active{color:#a5b4fc;font-weight:600;background:rgba(99,102,241,.15)}
+.page{max-width:1420px;margin:0 auto;padding:1rem 1rem 2rem}
+.hero{margin-bottom:1.15rem;padding:1.1rem 1.2rem 1rem;border:1px solid rgba(119,125,104,.14);border-radius:24px;background:linear-gradient(135deg,rgba(255,252,246,.92),rgba(242,236,225,.82));box-shadow:0 18px 36px rgba(64,56,38,.07)}
+.hero h1{font-size:clamp(1.9rem,4vw,2.7rem);letter-spacing:-.05em;margin-bottom:.3rem;max-width:none;white-space:nowrap}
+@media (max-width:900px){.hero h1{white-space:normal}}
+.hero p{color:#6b6a63;line-height:1.6;max-width:none;font-size:.95rem;word-break:keep-all}
+.panel{background:rgba(255,252,246,.88);border:1px solid rgba(119,125,104,.18);border-radius:22px;box-shadow:0 18px 40px rgba(64,56,38,.08)}
+.toolbar{padding:1rem 1.05rem;margin-bottom:1rem;background:linear-gradient(180deg,rgba(255,252,246,.96) 0,rgba(244,239,229,.92) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.toolbar-top strong{letter-spacing:-.02em}
+.toolbar-top{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:.9rem}
+.toolbar-top strong{font-size:1rem}
+.toolbar-top span{font-size:.8rem;color:#7a776d}
+.filters{display:grid;grid-template-columns:1.35fr .9fr .9fr .85fr .7fr .7fr .85fr auto auto;gap:.65rem;align-items:end}
+.field{display:grid;gap:.32rem}
+.field label{font-size:.72rem;color:#7a776d;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.field input,.field select{height:44px;padding:0 .9rem;border-radius:13px;border:1px solid rgba(120,127,107,.22);background:rgba(255,253,249,.96);font:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 1px 0 rgba(255,255,255,.5)}
+.field input:focus,.field select:focus{outline:none;border-color:#6e86a9;box-shadow:0 0 0 4px rgba(53,95,154,.12)}
+.btn{height:44px;padding:0 1rem;border-radius:13px;font:inherit;font-weight:800;cursor:pointer;align-self:end}
+.btn.primary{border:0;background:linear-gradient(135deg,#1f3f75,#355f9a);color:#fff;box-shadow:0 10px 18px rgba(31,63,117,.2)}
+.btn.secondary{border:1px solid rgba(120,127,107,.22);background:rgba(255,253,249,.96);color:#364152}
+.map-shell{padding:1rem;background:linear-gradient(180deg,rgba(255,252,246,.96) 0,rgba(244,239,229,.94) 100%);position:relative;overflow:hidden}
+.map-shell:before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at top right,rgba(53,95,154,.08),transparent 28%),radial-gradient(circle at bottom left,rgba(128,151,120,.08),transparent 24%)}
+.map-head{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:.8rem}
+.chips{display:flex;gap:.5rem;flex-wrap:wrap}
+.chip{padding:.42rem .7rem;border-radius:999px;border:1px solid rgba(120,127,107,.18);background:rgba(255,253,249,.95);color:#4f5964;font-size:.76rem;font-weight:700}
+.map-note{font-size:.8rem;color:#7a776d}
+#map{height:700px;border-radius:20px;overflow:hidden;border:1px solid rgba(120,127,107,.18);background:#e7e5dd;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.bottom{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:1rem;margin-top:1rem}
+.results{padding:1rem;background:linear-gradient(180deg,rgba(255,252,246,.94),rgba(247,243,235,.9))}
+.results-head{display:flex;justify-content:space-between;gap:1rem;align-items:center;margin-bottom:.8rem}
+.results-head strong{font-size:1rem}
+.results-head span{font-size:.8rem;color:#7a776d}
+.result-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+.item{border:1px solid rgba(120,127,107,.16);border-radius:18px;background:linear-gradient(180deg,rgba(255,252,246,.96),rgba(249,245,237,.88));padding:.9rem;cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.item:hover{transform:translateY(-1px);border-color:#8b9c8a;box-shadow:0 12px 26px rgba(64,56,38,.08)}
+.item.active{border-color:#355f9a;background:linear-gradient(180deg,rgba(229,236,245,.96),rgba(219,229,241,.88));box-shadow:0 14px 28px rgba(53,95,154,.12)}
+.row{display:flex;justify-content:space-between;gap:.75rem;align-items:flex-start}
+.name{font-size:.95rem;font-weight:800;margin-bottom:.2rem}
+.sub{font-size:.78rem;color:#706d66;line-height:1.55}
+.price{white-space:nowrap;font-size:1rem;font-weight:800}
+.meta{display:flex;gap:.45rem;flex-wrap:wrap;margin-top:.55rem}
+.tag{padding:.34rem .56rem;border-radius:999px;background:rgba(255,253,249,.95);border:1px solid rgba(120,127,107,.18);font-size:.74rem;font-weight:700;color:#4f5964}
+.detail{padding:1rem;background:linear-gradient(180deg,rgba(255,252,246,.96),rgba(244,239,229,.9))}
+.detail strong{display:block;font-size:1rem;margin-bottom:.9rem}
+.detail-grid{display:grid;gap:.7rem}
+.detail-row{display:flex;justify-content:space-between;gap:1rem;padding-bottom:.6rem;border-bottom:1px solid #edf2f7;font-size:.82rem}
+.detail-row:last-child{border-bottom:none;padding-bottom:0}
+.detail-label{color:#7a776d;font-weight:700}
+.detail-value{text-align:right;font-weight:700}
+.detail-note{margin-top:.9rem;padding:.85rem;border-radius:16px;background:rgba(246,241,232,.72);border:1px solid rgba(120,127,107,.15);color:#66645d;font-size:.8rem;line-height:1.65;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.marker,.cluster-marker{min-width:64px;padding:.38rem .5rem;border-radius:14px;text-align:center;border:1px solid rgba(120,127,107,.18);background:rgba(255,252,246,.96);box-shadow:0 10px 18px rgba(64,56,38,.12)}
+.marker.active{border-color:#355f9a;box-shadow:0 14px 24px rgba(53,95,154,.18)}
+.marker.rent .value{color:#587c63}
+.value{font-size:.82rem;font-weight:800;line-height:1.1;color:#243040}
+.cluster-marker{border-color:#1f3f75;background:rgba(31,63,117,.94);min-width:76px}
+.cluster-marker .value{color:#fff}
+.leaflet-container{font:inherit}
+.leaflet-popup-content-wrapper{border-radius:14px}
+@media (max-width:1120px){.filters{grid-template-columns:1fr 1fr 1fr 1fr}.bottom{grid-template-columns:1fr}.result-list{grid-template-columns:1fr}#map{height:620px}}
+@media (max-width:760px){.filters{grid-template-columns:1fr 1fr}.toolbar-top,.map-head,.results-head{flex-direction:column;align-items:flex-start}#map{height:520px}.topnav{padding:0 1.2rem}}
+@media (max-width:480px){.topnav-logo{width:12px;min-width:12px;overflow:hidden;font-size:0;gap:0}.topnav-link:not(.active){display:none}.page{padding:1rem .8rem 2rem}.filters{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="topnav">
+<a href="/" class="topnav-logo"><span class="topnav-logo-dot"></span>임광호 포트폴리오</a>
+<a href="/" class="topnav-link">홈</a><a href="/fear-greed.html" class="topnav-link">공포탐욕지수</a><a href="/compound.html" class="topnav-link">복리 계산기</a><a href="/goal.html" class="topnav-link">목표 자산</a><a href="/journal.html" class="topnav-link">매매일지</a><a href="/backtest.html" class="topnav-link">백테스트</a><a href="/workout.html" class="topnav-link">운동 루틴</a><a href="/agents.html" class="topnav-link active">AI 에이전트</a>
+</nav>
+
+<div class="page">
+<section class="hero">
+<h1>AI 에이전트 협업으로 구현한 서울 부동산 탐색 화면</h1>
+<p>기획, 추론, UI 설계, 구현, 검증 역할을 나눈 AI 에이전트가 협업하는 방식으로 구성한 포트폴리오 화면입니다. 사용 흐름과 정보 구조를 자율적으로 정리해, 지도 중심 탐색과 화면 내 단지 비교가 자연스럽게 이어지도록 구현했습니다.</p>
+</section>
+<section class="panel toolbar">
+<div class="toolbar-top">
+<strong>서울 지도 필터</strong>
+<span id="updatedAt">업데이트 대기중</span>
+</div>
+<div class="filters">
+<div class="field"><label for="keyword">단지명 / 주소</label><input id="keyword" type="text" placeholder="예: 잠실, 반포, 마포"></div>
+<div class="field"><label for="region">지역</label><select id="region"><option value="">전체</option><option value="서울 성동구">서울 성동구</option><option value="서울 마포구">서울 마포구</option><option value="서울 용산구">서울 용산구</option><option value="서울 영등포구">서울 영등포구</option><option value="서울 강남구">서울 강남구</option><option value="서울 서초구">서울 서초구</option><option value="서울 송파구">서울 송파구</option><option value="서울 동작구">서울 동작구</option><option value="서울 광진구">서울 광진구</option><option value="서울 강동구">서울 강동구</option></select></div>
+<div class="field"><label for="dealType">거래유형</label><select id="dealType"><option value="">전체</option><option value="SALE">매매</option><option value="RENT">전월세</option></select></div>
+<div class="field"><label for="area">전용면적</label><select id="area"><option value="">전체</option><option value="59">59㎡</option><option value="74">74㎡</option><option value="84">84㎡</option><option value="101">101㎡</option></select></div>
+<div class="field"><label for="priceRange">가격대</label><select id="priceRange"><option value="">전체</option><option value="under10">10억 미만</option><option value="10to20">10억 ~ 20억</option><option value="20to30">20억 ~ 30억</option><option value="over30">30억 이상</option></select></div>
+<div class="field"><label for="sort">정렬</label><select id="sort"><option value="latest">최신 거래순</option><option value="high">높은 가격순</option><option value="low">낮은 가격순</option></select></div>
+<button class="btn secondary" type="button" id="resetBtn">초기화</button>
+<button class="btn primary" type="button" id="searchBtn">적용</button>
+</div>
+</section>
+
+<section class="panel map-shell">
+<div class="map-head">
+<div class="chips">
+<div class="chip" id="visibleChip">보이는 단지 0개</div>
+<div class="chip" id="avgChip">평균가 -</div>
+<div class="chip" id="centerChip">서울 중심</div>
+</div>
+<div class="map-note">현재 화면 안에 있는 단지만 목록에 표시됩니다.</div>
+</div>
+<div id="map"></div>
+</section>
+
+<div class="bottom">
+<section class="panel results">
+<div class="results-head">
+<strong>현재 화면의 매물</strong>
+<span id="resultNote">지도를 움직이면 목록이 바뀝니다.</span>
+</div>
+<div class="result-list" id="resultList"><div class="item">현재 화면에 맞는 단지를 찾는 중입니다.</div></div>
+</section>
+
+<aside class="panel detail">
+<strong>선택 단지</strong>
+<div class="detail-grid">
+<div class="detail-row"><div class="detail-label">단지명</div><div class="detail-value" id="detailName">-</div></div>
+<div class="detail-row"><div class="detail-label">주소</div><div class="detail-value" id="detailAddress">-</div></div>
+<div class="detail-row"><div class="detail-label">거래유형</div><div class="detail-value" id="detailType">-</div></div>
+<div class="detail-row"><div class="detail-label">전용면적</div><div class="detail-value" id="detailArea">-</div></div>
+<div class="detail-row"><div class="detail-label">층수</div><div class="detail-value" id="detailFloor">-</div></div>
+<div class="detail-row"><div class="detail-label">거래일</div><div class="detail-value" id="detailDate">-</div></div>
+<div class="detail-row"><div class="detail-label">가격</div><div class="detail-value" id="detailPrice">-</div></div>
+</div>
+<div class="detail-note" id="detailNote">단지를 선택하면 현재 화면 안에서 비교 가능한 가격 맥락을 간단히 보여줍니다.</div>
+</aside>
+</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const STORAGE_KEY='fg-seoul-map-filters-v3';
+const BOUNDARY_CACHE_KEY='fg-seoul-boundary-cache-v1';
+const SEOUL_BOUNDS=[[37.482,126.900],[37.571,127.115]];
+const SEOUL_MAX_BOUNDS=[[37.435,126.820],[37.620,127.180]];
+const SEOUL_DISTRICT_GEOJSON_URL='https://raw.githubusercontent.com/southkorea/seoul-maps/master/kostat/2013/json/seoul_municipalities_geo_simple.json';
+const API_URL='/api/real-estate.js';
+const ITEMS=[
+{id:'deal-001',region:'서울 마포구',address:'서울특별시 마포구 염리동 498',aptName:'마포프레스티지자이',dealType:'SALE',areaSize:84,floor:19,dealAmount:1510000000,depositAmount:0,dealDate:'2026-03-21',lat:37.5499,lng:126.9451},
+{id:'deal-002',region:'서울 마포구',address:'서울특별시 마포구 공덕동 477',aptName:'공덕SK리더스뷰',dealType:'RENT',areaSize:84,floor:14,dealAmount:0,depositAmount:820000000,dealDate:'2026-01-29',lat:37.5446,lng:126.9524},
+{id:'deal-003',region:'서울 성동구',address:'서울특별시 성동구 행당동 380',aptName:'서울숲리버뷰자이',dealType:'SALE',areaSize:84,floor:15,dealAmount:1460000000,depositAmount:0,dealDate:'2026-03-18',lat:37.5612,lng:127.0373},
+{id:'deal-004',region:'서울 성동구',address:'서울특별시 성동구 성수동1가 685',aptName:'갤러리아포레',dealType:'SALE',areaSize:101,floor:27,dealAmount:3950000000,depositAmount:0,dealDate:'2026-03-19',lat:37.5448,lng:127.0436},
+{id:'deal-005',region:'서울 성동구',address:'서울특별시 성동구 옥수동 528',aptName:'e편한세상옥수파크힐스',dealType:'RENT',areaSize:84,floor:11,dealAmount:0,depositAmount:980000000,dealDate:'2026-01-31',lat:37.5402,lng:127.0176},
+{id:'deal-006',region:'서울 용산구',address:'서울특별시 용산구 한남동 829',aptName:'나인원한남',dealType:'SALE',areaSize:101,floor:8,dealAmount:4300000000,depositAmount:0,dealDate:'2026-03-05',lat:37.5336,lng:127.0054},
+{id:'deal-007',region:'서울 용산구',address:'서울특별시 용산구 이촌동 300',aptName:'래미안첼리투스',dealType:'SALE',areaSize:84,floor:24,dealAmount:2450000000,depositAmount:0,dealDate:'2026-02-19',lat:37.5228,lng:126.9724},
+{id:'deal-008',region:'서울 영등포구',address:'서울특별시 영등포구 여의도동 47',aptName:'브라이튼여의도',dealType:'SALE',areaSize:84,floor:20,dealAmount:2390000000,depositAmount:0,dealDate:'2026-02-26',lat:37.5237,lng:126.9274},
+{id:'deal-009',region:'서울 영등포구',address:'서울특별시 영등포구 당산동5가 42',aptName:'당산센트럴아이파크',dealType:'RENT',areaSize:59,floor:17,dealAmount:0,depositAmount:610000000,dealDate:'2026-01-20',lat:37.5341,lng:126.9034},
+{id:'deal-010',region:'서울 동작구',address:'서울특별시 동작구 흑석동 340',aptName:'흑석한강푸르지오',dealType:'SALE',areaSize:84,floor:12,dealAmount:1650000000,depositAmount:0,dealDate:'2026-03-12',lat:37.5059,lng:126.9643},
+{id:'deal-011',region:'서울 서초구',address:'서울특별시 서초구 반포동 2',aptName:'아크로리버파크',dealType:'SALE',areaSize:84,floor:18,dealAmount:3650000000,depositAmount:0,dealDate:'2026-03-17',lat:37.5128,lng:126.9946},
+{id:'deal-012',region:'서울 서초구',address:'서울특별시 서초구 잠원동 70',aptName:'메이플자이',dealType:'RENT',areaSize:84,floor:10,dealAmount:0,depositAmount:1350000000,dealDate:'2026-02-03',lat:37.5181,lng:127.0128},
+{id:'deal-013',region:'서울 강남구',address:'서울특별시 강남구 대치동 316',aptName:'래미안대치팰리스',dealType:'SALE',areaSize:84,floor:16,dealAmount:3210000000,depositAmount:0,dealDate:'2026-03-04',lat:37.5005,lng:127.0589},
+{id:'deal-014',region:'서울 강남구',address:'서울특별시 강남구 개포동 660',aptName:'개포래미안포레스트',dealType:'SALE',areaSize:84,floor:13,dealAmount:2780000000,depositAmount:0,dealDate:'2026-02-13',lat:37.4837,lng:127.0587},
+{id:'deal-015',region:'서울 강남구',address:'서울특별시 강남구 삼성동 143',aptName:'래미안라클래시',dealType:'RENT',areaSize:84,floor:23,dealAmount:0,depositAmount:1200000000,dealDate:'2026-03-06',lat:37.5144,lng:127.0512},
+{id:'deal-016',region:'서울 송파구',address:'서울특별시 송파구 잠실동 22',aptName:'리센츠',dealType:'SALE',areaSize:84,floor:18,dealAmount:2120000000,depositAmount:0,dealDate:'2026-03-08',lat:37.5130,lng:127.1027},
+{id:'deal-017',region:'서울 송파구',address:'서울특별시 송파구 신천동 20',aptName:'잠실엘스',dealType:'SALE',areaSize:84,floor:12,dealAmount:2190000000,depositAmount:0,dealDate:'2026-02-23',lat:37.5185,lng:127.1010},
+{id:'deal-018',region:'서울 송파구',address:'서울특별시 송파구 문정동 136',aptName:'헬리오시티',dealType:'RENT',areaSize:84,floor:21,dealAmount:0,depositAmount:950000000,dealDate:'2026-01-14',lat:37.4977,lng:127.1120},
+{id:'deal-019',region:'서울 광진구',address:'서울특별시 광진구 자양동 227',aptName:'자양우성7차',dealType:'SALE',areaSize:59,floor:14,dealAmount:1120000000,depositAmount:0,dealDate:'2026-02-28',lat:37.5347,lng:127.0823},
+{id:'deal-020',region:'서울 광진구',address:'서울특별시 광진구 구의동 631',aptName:'강변SK뷰',dealType:'RENT',areaSize:84,floor:22,dealAmount:0,depositAmount:700000000,dealDate:'2026-03-02',lat:37.5372,lng:127.0929},
+{id:'deal-021',region:'서울 강동구',address:'서울특별시 강동구 고덕동 688',aptName:'고덕그라시움',dealType:'RENT',areaSize:84,floor:9,dealAmount:0,depositAmount:730000000,dealDate:'2026-03-14',lat:37.5563,lng:127.1712},
+{id:'deal-022',region:'서울 강동구',address:'서울특별시 강동구 둔촌동 170',aptName:'올림픽파크포레온',dealType:'SALE',areaSize:84,floor:7,dealAmount:1930000000,depositAmount:0,dealDate:'2026-02-09',lat:37.5226,lng:127.1421},
+{id:'deal-023',region:'서울 마포구',address:'서울특별시 마포구 상암동 1654',aptName:'상암월드컵파크7단지',dealType:'SALE',areaSize:59,floor:11,dealAmount:895000000,depositAmount:0,dealDate:'2026-02-11',lat:37.5782,lng:126.8894},
+{id:'deal-024',region:'서울 마포구',address:'서울특별시 마포구 도화동 563',aptName:'도화현대1차',dealType:'SALE',areaSize:74,floor:8,dealAmount:980000000,depositAmount:0,dealDate:'2026-01-24',lat:37.5413,lng:126.9493},
+{id:'deal-025',region:'서울 영등포구',address:'서울특별시 영등포구 신길동 4935',aptName:'보라매SK뷰',dealType:'SALE',areaSize:59,floor:15,dealAmount:940000000,depositAmount:0,dealDate:'2026-03-03',lat:37.5042,lng:126.9209},
+{id:'deal-026',region:'서울 영등포구',address:'서울특별시 영등포구 양평동1가 20',aptName:'양평동한신',dealType:'SALE',areaSize:59,floor:10,dealAmount:865000000,depositAmount:0,dealDate:'2026-02-06',lat:37.5223,lng:126.8878},
+{id:'deal-027',region:'서울 동작구',address:'서울특별시 동작구 상도동 533',aptName:'상도더샵1차',dealType:'SALE',areaSize:84,floor:17,dealAmount:1380000000,depositAmount:0,dealDate:'2026-02-25',lat:37.5018,lng:126.9477},
+{id:'deal-028',region:'서울 동작구',address:'서울특별시 동작구 사당동 1139',aptName:'이수푸르지오더프레티움',dealType:'SALE',areaSize:84,floor:9,dealAmount:1580000000,depositAmount:0,dealDate:'2026-03-01',lat:37.4864,lng:126.9819},
+{id:'deal-029',region:'서울 광진구',address:'서울특별시 광진구 광장동 567',aptName:'워커힐아파트',dealType:'SALE',areaSize:84,floor:6,dealAmount:1290000000,depositAmount:0,dealDate:'2026-01-30',lat:37.5475,lng:127.1040},
+{id:'deal-030',region:'서울 성동구',address:'서울특별시 성동구 금호동4가 1450',aptName:'서울숲푸르지오',dealType:'SALE',areaSize:84,floor:18,dealAmount:1860000000,depositAmount:0,dealDate:'2026-02-20',lat:37.5473,lng:127.0258},
+{id:'deal-031',region:'서울 강남구',address:'서울특별시 강남구 도곡동 467',aptName:'타워팰리스1차',dealType:'SALE',areaSize:84,floor:29,dealAmount:2280000000,depositAmount:0,dealDate:'2026-02-08',lat:37.4895,lng:127.0548},
+{id:'deal-032',region:'서울 강남구',address:'서울특별시 강남구 압구정동 369',aptName:'현대아파트',dealType:'SALE',areaSize:84,floor:8,dealAmount:3380000000,depositAmount:0,dealDate:'2026-03-07',lat:37.5271,lng:127.0286},
+{id:'deal-033',region:'서울 서초구',address:'서울특별시 서초구 반포동 18-1',aptName:'래미안퍼스티지',dealType:'SALE',areaSize:84,floor:20,dealAmount:3120000000,depositAmount:0,dealDate:'2026-02-18',lat:37.5072,lng:126.9968},
+{id:'deal-034',region:'서울 용산구',address:'서울특별시 용산구 한강로3가 98',aptName:'용산시티파크',dealType:'SALE',areaSize:84,floor:21,dealAmount:2080000000,depositAmount:0,dealDate:'2026-02-27',lat:37.5297,lng:126.9670},
+{id:'deal-035',region:'서울 송파구',address:'서울특별시 송파구 방이동 89',aptName:'올림픽선수기자촌',dealType:'SALE',areaSize:84,floor:12,dealAmount:1980000000,depositAmount:0,dealDate:'2026-03-13',lat:37.5163,lng:127.1247},
+{id:'deal-036',region:'서울 송파구',address:'서울특별시 송파구 잠실동 35',aptName:'트리지움',dealType:'SALE',areaSize:59,floor:14,dealAmount:1790000000,depositAmount:0,dealDate:'2026-02-14',lat:37.5158,lng:127.0937},
+{id:'deal-037',region:'서울 강동구',address:'서울특별시 강동구 명일동 47',aptName:'삼익그린2차',dealType:'SALE',areaSize:59,floor:5,dealAmount:925000000,depositAmount:0,dealDate:'2026-01-17',lat:37.5518,lng:127.1477},
+{id:'deal-038',region:'서울 강동구',address:'서울특별시 강동구 암사동 509',aptName:'롯데캐슬퍼스트',dealType:'SALE',areaSize:84,floor:16,dealAmount:1450000000,depositAmount:0,dealDate:'2026-02-22',lat:37.5535,lng:127.1302},
+{id:'deal-039',region:'서울 서초구',address:'서울특별시 서초구 방배동 755',aptName:'방배그랑자이',dealType:'RENT',areaSize:84,floor:13,dealAmount:0,depositAmount:1480000000,dealDate:'2026-02-05',lat:37.4833,lng:126.9960},
+{id:'deal-040',region:'서울 마포구',address:'서울특별시 마포구 아현동 437',aptName:'마포자이힐스테이트',dealType:'RENT',areaSize:84,floor:18,dealAmount:0,depositAmount:930000000,dealDate:'2026-03-09',lat:37.5573,lng:126.9557}
+];
+const s={keyword,region,dealType,area,priceRange,sort,resultList,updatedAt,visibleChip,avgChip,centerChip,resultNote,detailName,detailAddress,detailType,detailArea,detailFloor,detailDate,detailPrice,detailNote};
+let map,boundaryLayer,currentItems=ITEMS.slice(),markers=[],filtered=[],visible=[],selected='',selectedPopupId='';
+function restore(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');if(saved.keyword!==undefined)s.keyword.value=saved.keyword||'';if(saved.region!==undefined)s.region.value=saved.region||'';if(saved.dealType!==undefined)s.dealType.value=saved.dealType||'';if(saved.area!==undefined)s.area.value=saved.area||'';if(saved.priceRange!==undefined)s.priceRange.value=saved.priceRange||'';if(saved.sort!==undefined)s.sort.value=saved.sort||'latest'}catch(e){localStorage.removeItem(STORAGE_KEY)}}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(getFilters()))}
+function getFilters(){return{keyword:s.keyword.value.trim().toLowerCase(),region:s.region.value,dealType:s.dealType.value,area:s.area.value,priceRange:s.priceRange.value,sort:s.sort.value}}
+function fmt(v){if(!v)return '-';const e=Math.floor(v/100000000),r=v%100000000,m=Math.floor(r/10000);if(e>0&&m>0)return e+'억 '+m.toLocaleString('ko-KR')+'만';if(e>0)return e+'억';return v.toLocaleString('ko-KR')+'원'}
+function displayPrice(item){return item.dealType==='RENT'?fmt(item.depositAmount):fmt(item.dealAmount)}
+function sortItems(arr,by){const copy=arr.slice();if(by==='high')copy.sort((a,b)=>(b.dealAmount||b.depositAmount)-(a.dealAmount||a.depositAmount));else if(by==='low')copy.sort((a,b)=>(a.dealAmount||a.depositAmount)-(b.dealAmount||b.depositAmount));else copy.sort((a,b)=>b.dealDate.localeCompare(a.dealDate));return copy}
+function getBasePrice(item){return item.dealType==='RENT'?(item.depositAmount||0):(item.dealAmount||0)}
+function matchPriceRange(item,range){const price=getBasePrice(item);if(!range)return true;if(range==='under10')return price<1000000000;if(range==='10to20')return price>=1000000000&&price<2000000000;if(range==='20to30')return price>=2000000000&&price<3000000000;if(range==='over30')return price>=3000000000;return true}
+function coordsKey(item){return[item.region,item.aptName,item.address].join('|')}
+function regionNameFromFeature(feature){const p=feature.properties||{},n=p.name||p.SIG_KOR_NM||p.sigungu_nm||p.SIGUNGU_NM||'';return n?('서울 '+String(n).replace(/^서울특별시\\s*/,'').trim()):''}
+function clusterVisible(items,zoom){const size=zoom<=11?.03:.018,bucket=new Map();items.forEach(function(item){const key=Math.round(item.lat/size)+'_'+Math.round(item.lng/size);if(!bucket.has(key))bucket.set(key,[]);bucket.get(key).push(item)});return Array.from(bucket.values())}
+function clusterHtml(count,avg){return '<div class=\"cluster-marker\"><div class=\"value\">'+count+'개<br>'+fmt(avg)+'</div></div>'}
+function applyFilters(){const f=getFilters();filtered=sortItems(currentItems.filter(function(item){if(f.region&&item.region!==f.region)return false;if(f.dealType&&item.dealType!==f.dealType)return false;if(f.area&&String(item.areaSize)!==f.area)return false;if(!matchPriceRange(item,f.priceRange))return false;if(f.keyword&&!item.aptName.toLowerCase().includes(f.keyword)&&!item.address.toLowerCase().includes(f.keyword))return false;return true}),f.sort)}
+function markerHtml(item){return '<div class="marker'+(item.id===selected?' active':'')+(item.dealType==='RENT'?' rent':'')+'"><div class="value">'+displayPrice(item)+'</div></div>'}
+function clearMarkers(){markers.forEach(function(marker){map.removeLayer(marker)});markers=[]}
+function selectItem(item,move){selected=item.id;selectedPopupId=item.id;if(move){map.flyTo([item.lat,item.lng],16,{animate:true,duration:1.05})}sync()}
+function sync(){const bounds=map.getBounds(),zoom=map.getZoom();visible=filtered.filter(function(item){return bounds.contains([item.lat,item.lng])});if(!selected||!visible.some(function(item){return item.id===selected})){selected=visible[0]?visible[0].id:'';selectedPopupId=''}clearMarkers();if(zoom<13){clusterVisible(visible,zoom).forEach(function(group){if(group.length===1){const item=group[0],marker=L.marker([item.lat,item.lng],{icon:L.divIcon({className:'',html:markerHtml(item),iconSize:[70,40],iconAnchor:[35,40]})});marker.on('click',function(){selected=item.id;selectedPopupId=item.id;sync()});marker.bindPopup('<strong>'+item.aptName+'</strong><br>'+item.region+'<br>'+displayPrice(item));marker.addTo(map);if(item.id===selectedPopupId){marker.openPopup();selectedPopupId=''}markers.push(marker);return}const lat=group.reduce((sum,item)=>sum+item.lat,0)/group.length,lng=group.reduce((sum,item)=>sum+item.lng,0)/group.length,avg=Math.round(group.reduce((sum,item)=>sum+getBasePrice(item),0)/group.length),cluster=L.marker([lat,lng],{icon:L.divIcon({className:'',html:clusterHtml(group.length,avg),iconSize:[78,46],iconAnchor:[39,46]})});cluster.on('click',function(){map.flyTo([lat,lng],Math.min(map.getZoom()+1,16),{animate:true,duration:.55})});cluster.addTo(map);markers.push(cluster)})}else{visible.forEach(function(item){const marker=L.marker([item.lat,item.lng],{icon:L.divIcon({className:'',html:markerHtml(item),iconSize:[70,40],iconAnchor:[35,40]})});marker.on('click',function(){selected=item.id;selectedPopupId=item.id;sync()});marker.bindPopup('<strong>'+item.aptName+'</strong><br>'+item.region+'<br>'+displayPrice(item));marker.addTo(map);if(item.id===selectedPopupId){marker.openPopup();selectedPopupId=''}markers.push(marker)})}renderList();renderDetail();updateInfo(bounds)}
+function renderList(){if(!visible.length){s.resultList.innerHTML='<div class="item">현재 화면 안에 보이는 단지가 없습니다. 지도를 옮기거나 줌을 조정해보세요.</div>';return}s.resultList.innerHTML=visible.map(function(item){return '<div class="item'+(item.id===selected?' active':'')+'" data-id="'+item.id+'"><div class="row"><div><div class="name">'+item.aptName+'</div><div class="sub">'+item.address+'</div></div><div class="price">'+displayPrice(item)+'</div></div><div class="meta"><div class="tag">'+item.region+'</div><div class="tag">'+(item.dealType==='SALE'?'매매':'전월세')+'</div><div class="tag">'+item.areaSize+'㎡</div><div class="tag">'+item.dealDate+'</div></div></div>'}).join('');Array.from(document.querySelectorAll('.item[data-id]')).forEach(function(node){node.addEventListener('click',function(){const item=visible.find(function(entry){return entry.id===node.dataset.id});if(item)selectItem(item,true)})})}
+function renderDetail(){const item=visible.find(function(entry){return entry.id===selected})||null;if(!item){s.detailName.textContent='-';s.detailAddress.textContent='-';s.detailType.textContent='-';s.detailArea.textContent='-';s.detailFloor.textContent='-';s.detailDate.textContent='-';s.detailPrice.textContent='-';s.detailNote.textContent='단지를 선택하면 현재 화면 안에서 비교 가능한 가격을 간단하게 보여줍니다.';return}s.detailName.textContent=item.aptName;s.detailAddress.textContent=item.address;s.detailType.textContent=item.dealType==='SALE'?'매매':'전월세';s.detailArea.textContent=item.areaSize+'㎡';s.detailFloor.textContent=item.floor+'층';s.detailDate.textContent=item.dealDate;s.detailPrice.textContent=displayPrice(item);s.detailNote.textContent=item.region+' 안에서 현재 보이는 단지들과 비교했을 때의 상대 가격을 읽기 쉬운 구조로 정리했습니다.'}
+function updateInfo(bounds){const center=bounds.getCenter(),sales=visible.filter(function(item){return item.dealType==='SALE'}).map(function(item){return item.dealAmount}).filter(Boolean),avg=sales.length?Math.round(sales.reduce(function(sum,val){return sum+val},0)/sales.length):0;s.visibleChip.textContent='보이는 단지 '+visible.length+'개';s.avgChip.textContent='평균가 '+(avg?fmt(avg):'-');s.centerChip.textContent='중심 '+center.lat.toFixed(3)+', '+center.lng.toFixed(3);s.resultNote.textContent=visible.length?'현재 화면 안의 단지만 아래에 표시됩니다.':'현재 화면 안에는 조건과 맞는 단지가 없습니다.';s.updatedAt.textContent='업데이트 '+new Date().toLocaleString('ko-KR')}
+function run(){save();applyFilters();sync()}
+function addFallbackSeoulFocus(){L.rectangle(SEOUL_BOUNDS,{color:'#f8fafc',weight:3.8,opacity:.98,fill:false,interactive:false}).addTo(map);L.rectangle(SEOUL_BOUNDS,{color:'#1d4ed8',weight:1.8,opacity:.78,fill:false,interactive:false,dashArray:'4 4'}).addTo(map)}
+function readBoundaryCache(){try{const raw=localStorage.getItem(BOUNDARY_CACHE_KEY);return raw?JSON.parse(raw):null}catch(e){return null}}
+function writeBoundaryCache(data){try{localStorage.setItem(BOUNDARY_CACHE_KEY,JSON.stringify(data))}catch(e){}}
+function addBoundaryLayers(data){boundaryLayer=L.geoJSON(data,{style:function(){return{color:'#f8fafc',weight:3.6,opacity:.98,fill:false}},interactive:true,onEachFeature:function(feature,layer){layer.on('mouseover',function(){layer.setStyle({color:'#fde68a',weight:4.2})});layer.on('mouseout',function(){boundaryLayer.resetStyle(layer)});layer.on('click',function(){const district=regionNameFromFeature(feature);if(district){s.region.value=district;run();if(layer.getBounds)map.fitBounds(layer.getBounds(),{padding:[22,22]})}})}}).addTo(map);L.geoJSON(data,{style:function(){return{color:'#1d4ed8',weight:1.5,opacity:.8,fill:false}},interactive:false}).addTo(map)}
+async function addDistrictBoundaries(){const cached=readBoundaryCache();if(cached){addBoundaryLayers(cached);return}try{const response=await fetch(SEOUL_DISTRICT_GEOJSON_URL);if(!response.ok)throw new Error('boundary fetch failed');const data=await response.json();writeBoundaryCache(data);addBoundaryLayers(data)}catch(error){addFallbackSeoulFocus()}}
+async function hydrateData(){const lookup=new Map(ITEMS.map(function(item){return[coordsKey(item),item]}));try{const response=await fetch(API_URL);if(!response.ok)throw new Error('api failed');const payload=await response.json();const merged=(payload.items||[]).map(function(item,index){const base=lookup.get(coordsKey(item))||ITEMS.find(function(entry){return entry.aptName===item.aptName&&entry.region===item.region})||null;if(!base)return null;return{id:item.id||('api-'+index),region:item.region,address:item.address,aptName:item.aptName,dealType:item.dealType,areaSize:item.areaSize||base.areaSize,floor:item.floor||base.floor||0,dealAmount:item.dealAmount||0,depositAmount:item.depositAmount||0,dealDate:item.dealDate||base.dealDate,lat:base.lat,lng:base.lng}}).filter(Boolean);if(merged.length){currentItems=merged}}catch(error){}}
+function init(){map=L.map('map',{zoomControl:true,attributionControl:true,minZoom:11,maxZoom:16,maxBounds:SEOUL_MAX_BOUNDS,maxBoundsViscosity:1,preferCanvas:true});map.fitBounds(SEOUL_BOUNDS);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);addDistrictBoundaries();map.on('moveend zoomend',sync)}
+searchBtn.addEventListener('click',run);
+resetBtn.addEventListener('click',function(){s.keyword.value='';s.region.value='';s.dealType.value='';s.area.value='';s.priceRange.value='';s.sort.value='latest';selected='';selectedPopupId='';save();map.fitBounds(SEOUL_BOUNDS);run()});
+restore();init();hydrateData().finally(run);
+</script>
+</body>
+</html>

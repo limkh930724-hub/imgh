@@ -1,0 +1,3961 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a1a1a">
+    <title>공포탐욕지수 | 임광호 포트폴리오</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --clr-extreme-fear: #d32f2f;
+            --clr-fear: #ef6c00;
+            --clr-neutral: #9e9e9e;
+            --clr-greed: #558b2f;
+            --clr-extreme-greed: #2e7d32;
+
+            --bg:        #ffffff;
+            --bg-card:   #ffffff;
+            --bg-hover:  #f8f8f8;
+            --bg-active: #f0f0f0;
+            --bg-tab-active: #f0f0f0;
+            --border:    #d0d0d0;
+            --border-2:  #e8e8e8;
+            --text:      #1a1a1a;
+            --text-h1:   #000000;
+            --text-muted:#555555;
+            --text-dim:  #888888;
+            --text-dimmer:#999999;
+            --link:      #0066cc;
+            --link-hover:#004499;
+            --thead-bg:  #1a1a1a;
+            --thead-fg:  #ffffff;
+            --section-border: #1a1a1a;
+            --period-active-bg: #1a1a1a;
+            --period-active-fg: #ffffff;
+            --spinner-border: #e0e0e0;
+            --spinner-top: #333333;
+        }
+
+        body.dark {
+            --bg:        #0d1117;
+            --bg-card:   #161b22;
+            --bg-hover:  #1c2128;
+            --bg-active: #21262d;
+            --bg-tab-active: #21262d;
+            --border:    #30363d;
+            --border-2:  #21262d;
+            --text:      #e6edf3;
+            --text-h1:   #f0f6fc;
+            --text-muted:#8b949e;
+            --text-dim:  #8b949e;
+            --text-dimmer:#6e7681;
+            --link:      #58a6ff;
+            --link-hover:#79c0ff;
+            --thead-bg:  #21262d;
+            --thead-fg:  #e6edf3;
+            --section-border: #30363d;
+            --period-active-bg: #e6edf3;
+            --period-active-fg: #0d1117;
+            --spinner-border: #30363d;
+            --spinner-top: #e6edf3;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.25s, color 0.25s;
+        }
+
+        .container {
+            max-width: 940px;
+            width: 100%;
+            padding: 3rem 1.5rem;
+            flex: 1;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .portfolio-label {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--link);
+            margin-bottom: 0.3rem;
+            text-decoration: none;
+        }
+
+        .portfolio-label:hover {
+            color: var(--link-hover);
+        }
+
+        .header h1 {
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            color: var(--text-h1);
+        }
+
+        .project-name {
+            margin-top: 0.25rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .header p {
+            margin-top: 0.3rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        .header p a {
+            color: var(--link);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .header p a:hover {
+            color: var(--link-hover);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            margin-top: 0.3rem;
+        }
+
+        .lang-toggle {
+            padding: 0.35rem 0.9rem;
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.01em;
+        }
+
+        .lang-toggle:hover {
+            background: var(--bg-active);
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        .theme-toggle {
+            padding: 0.35rem 0.6rem;
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0;
+            width: fit-content;
+            margin-left: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .tab {
+            padding: 0.5rem 1.4rem;
+            border: none;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab + .tab {
+            border-left: 1px solid var(--border);
+        }
+
+        .tab.active {
+            background: var(--bg-tab-active);
+            color: var(--text);
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--bg-hover);
+        }
+
+        /* Views */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* ── Overview ── */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .gauge-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gauge-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .gauge-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .last-updated {
+            text-align: center;
+            font-size: 0.72rem;
+            color: #28a745;
+            margin-top: 0.5rem;
+            font-weight: 400;
+        }
+
+        .history {
+            display: flex;
+            flex-direction: column;
+            padding-top: 0.5rem;
+        }
+
+        .history-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            padding: 1.1rem 0;
+            border-bottom: 1px dotted var(--border);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-period {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            font-weight: 400;
+            margin-bottom: 0.15rem;
+        }
+
+        .history-label {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .history-score {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border: 2.5px solid;
+            flex-shrink: 0;
+            color: #fff;
+        }
+
+        /* ── Timeline ── */
+        .timeline-periods {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .period-btn {
+            padding: 0.4rem 1rem;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .period-btn.active {
+            background: var(--period-active-bg);
+            color: var(--period-active-fg);
+            border-color: var(--period-active-bg);
+        }
+
+        .period-btn:hover:not(.active) {
+            background: var(--bg-active);
+        }
+
+        .period-btn.sp500-toggle {
+            margin-left: auto;
+            border-color: #1565c0;
+            color: #1565c0;
+        }
+
+        .period-btn.sp500-toggle.active {
+            background: #1565c0;
+            color: #fff;
+            border-color: #1565c0;
+        }
+
+        body.dark .period-btn.sp500-toggle {
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        body.dark .period-btn.sp500-toggle.active {
+            background: #58a6ff;
+            color: #0d1117;
+        }
+
+        .timeline-chart-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .timeline-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: crosshair;
+        }
+
+        .chart-tooltip {
+            display: none;
+            position: absolute;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 20;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .chart-tooltip .tt-date {
+            color: #aaa;
+            font-size: 0.7rem;
+        }
+
+        .chart-tooltip .tt-score {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading .loading-overlay {
+            display: flex;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--spinner-border);
+            border-top-color: var(--spinner-top);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-msg {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: #d32f2f;
+            font-size: 0.82rem;
+        }
+
+        .error-msg.visible {
+            display: block;
+        }
+
+        /* ── Indicators ── */
+        .indicators-header {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            padding-left: 0.6rem;
+            border-left: 4px solid var(--section-border);
+        }
+
+        .indicator-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.2rem;
+            transition: background 0.25s, border-color 0.25s;
+        }
+
+        .indicator-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.3rem;
+        }
+
+        .indicator-title {
+            font-size: 0.85rem;
+            font-weight: 900;
+            letter-spacing: 0.03em;
+            color: var(--text);
+        }
+
+        .indicator-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25rem 0.65rem;
+            border-radius: 3px;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        .indicator-subtitle {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .indicator-chart-wrap {
+            position: relative;
+            width: 100%;
+            height: 280px;
+        }
+
+        .indicator-chart-wrap canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .indicator-updated {
+            font-size: 0.7rem;
+            color: var(--text-dimmer);
+            margin-top: 0.6rem;
+        }
+
+        .indicator-legend {
+            display: flex;
+            gap: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .indicator-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .indicator-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .indicators-loading {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-dimmer);
+            font-size: 0.85rem;
+        }
+
+        .indicators-loading .spinner {
+            margin: 0 auto 1rem;
+        }
+
+        .indicators-error {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #d32f2f;
+            font-size: 0.82rem;
+            display: none;
+        }
+
+        /* ── FAQ Section ── */
+        .faq-section {
+            margin-top: 3rem;
+            border-top: 2px solid var(--section-border);
+            padding-top: 2rem;
+            transition: border-color 0.25s;
+        }
+
+        .faq-header {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            padding-left: 0.6rem;
+            border-left: 4px solid var(--section-border);
+        }
+
+        .faq-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-question {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .faq-answer {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+        }
+
+        .indicators-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.82rem;
+        }
+
+        .indicators-table th {
+            background: var(--thead-bg);
+            color: var(--thead-fg);
+            font-weight: 700;
+            text-align: left;
+            padding: 0.7rem 1rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.03em;
+        }
+
+        .indicators-table td {
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border-2);
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .indicators-table tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .indicators-table td:nth-child(3) {
+            color: #d32f2f;
+            font-weight: 600;
+            font-size: 0.78rem;
+        }
+
+        .indicators-table td:nth-child(4) {
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 0.78rem;
+        }
+
+        /* ── Exchange Rate Strip ── */
+        .fx-strip {
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.2rem;
+            background: var(--bg-card);
+            transition: background 0.25s, border-color 0.25s;
+        }
+
+        .fx-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.9rem;
+        }
+
+        .fx-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .fx-status {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.68rem;
+            color: var(--text-dimmer);
+        }
+
+        .fx-live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #28a745;
+            display: inline-block;
+            animation: fxPulse 2s ease-in-out infinite;
+        }
+
+        .fx-live-dot.loading {
+            background: #ef6c00;
+            animation: none;
+        }
+
+        .fx-live-dot.error {
+            background: #d32f2f;
+            animation: none;
+        }
+
+        @keyframes fxPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        .fx-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.6rem;
+        }
+
+        .fx-card {
+            border: 1px solid var(--border-2);
+            border-radius: 7px;
+            padding: 0.75rem 0.9rem;
+            background: var(--bg);
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .fx-pair {
+            font-size: 0.68rem;
+            color: var(--text-dimmer);
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            margin-bottom: 0.3rem;
+        }
+
+        .fx-rate {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 0.2rem;
+        }
+
+        .fx-change {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .fx-up   { color: #2e7d32; }
+        .fx-down { color: #d32f2f; }
+
+        body.dark .fx-up   { color: #56d364; }
+        body.dark .fx-down { color: #f85149; }
+
+        .fx-skeleton {
+            height: 58px;
+            background: linear-gradient(90deg, var(--border-2) 25%, var(--bg-hover) 50%, var(--border-2) 75%);
+            background-size: 200% 100%;
+            animation: fxSkeleton 1.2s ease-in-out infinite;
+            border-radius: 7px;
+        }
+
+        @keyframes fxSkeleton {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .fx-countdown-bar {
+            height: 2px;
+            background: var(--border-2);
+            border-radius: 2px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .fx-countdown-fill {
+            height: 100%;
+            background: #28a745;
+            border-radius: 2px;
+            transition: width 1s linear;
+        }
+
+        /* ── Market Ticker Strip ── */
+        .mkt-strip {
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.2rem;
+            background: var(--bg-card);
+            transition: background 0.25s, border-color 0.25s;
+        }
+
+        .mkt-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.9rem;
+        }
+
+        .mkt-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .mkt-status {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.68rem;
+            color: var(--text-dimmer);
+        }
+
+        .mkt-live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #28a745;
+            display: inline-block;
+            animation: fxPulse 2s ease-in-out infinite;
+        }
+
+        .mkt-live-dot.loading { background: #ef6c00; animation: none; }
+        .mkt-live-dot.error   { background: #d32f2f; animation: none; }
+
+        .mkt-chips {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .mkt-chip {
+            border: 1px solid var(--border-2);
+            border-radius: 8px;
+            padding: 0.6rem 0.9rem;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+            min-width: 110px;
+            flex: 1;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .mkt-chip-name {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-dimmer);
+        }
+
+        .mkt-chip-value {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .mkt-chip-change {
+            font-size: 0.68rem;
+            font-weight: 600;
+        }
+
+        .mkt-up   { color: #2e7d32; }
+        .mkt-down { color: #d32f2f; }
+
+        body.dark .mkt-up   { color: #56d364; }
+        body.dark .mkt-down { color: #f85149; }
+
+        .mkt-chip.skeleton {
+            height: 72px;
+            background: linear-gradient(90deg, var(--border-2) 25%, var(--bg-hover) 50%, var(--border-2) 75%);
+            background-size: 200% 100%;
+            animation: fxSkeleton 1.2s ease-in-out infinite;
+        }
+
+        .mkt-countdown-bar {
+            height: 2px;
+            background: var(--border-2);
+            border-radius: 2px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .mkt-countdown-fill {
+            height: 100%;
+            background: #28a745;
+            border-radius: 2px;
+            transition: width 1s linear;
+        }
+
+        @media (max-width: 680px) {
+            .mkt-chips {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .mkt-chip {
+                min-width: unset;
+                flex: unset;
+            }
+        }
+        @media (max-width: 480px) {
+            .mkt-chips {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .mkt-chip-value {
+                font-size: 0.88rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+
+        @media (max-width: 680px) {
+            .fx-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .tabs {
+                width: 100%;
+                margin-left: 0;
+            }
+            .tab {
+                flex: 1;
+                padding: 0.5rem 0.4rem;
+                font-size: 0.75rem;
+                text-align: center;
+            }
+        }
+
+        /* ── Calendar Tab ─────────────────────────────────────────── */
+        .cal-years {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem 0.75rem;
+        }
+
+        .cal-wrapper {
+            overflow-x: auto;
+            padding: 0.5rem 1.5rem 1.5rem;
+            position: relative;
+        }
+
+        #calendarCanvas {
+            display: block;
+        }
+
+        /* ── Share Button ─────────────────────────────────────────── */
+        .gauge-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .share-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 3px 10px;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.75rem;
+            font-family: inherit;
+            transition: color 0.15s, border-color 0.15s;
+            white-space: nowrap;
+        }
+
+        .share-btn:hover {
+            color: var(--text);
+            border-color: var(--text-muted);
+        }
+
+        /* ── Watchlist Tab ───────────────────────────────────────── */
+        .wl-add-row {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1.25rem 1.5rem 0;
+        }
+
+        .wl-input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            font-family: inherit;
+            color: var(--text);
+            outline: none;
+        }
+
+        .wl-input:focus {
+            border-color: var(--text-muted);
+        }
+
+        .wl-add-btn {
+            background: var(--bg-active);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-family: inherit;
+            color: var(--text);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .wl-add-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .wl-error {
+            min-height: 1.25rem;
+            padding: 0.25rem 1.5rem 0;
+            font-size: 0.75rem;
+            color: #dc2626;
+        }
+
+        body.dark .wl-error {
+            color: #f87171;
+        }
+
+        .wl-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .wl-table th {
+            text-align: left;
+            padding: 0.5rem 1rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .wl-table td {
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border-2);
+            color: var(--text);
+        }
+
+        .wl-table tbody tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .wl-name {
+            font-weight: 500;
+            max-width: 160px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .wl-remove {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 0.25rem;
+            line-height: 1;
+        }
+
+        .wl-remove:hover {
+            color: var(--text);
+        }
+
+        .wl-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2.5rem 1.5rem;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 480px) {
+            .wl-hide-mobile { display: none; }
+        }
+
+        /* ── Score Interpreter ───────────────────────────────── */
+        .interpreter {
+            margin-top: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--bg-card);
+            transition: background 0.25s, border-color 0.25s;
+        }
+
+        .interpreter-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-active);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .interpreter-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .interpreter-meta-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .interpreter-zone-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 0.15rem;
+        }
+
+        .interpreter-body {
+            padding: 0.75rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .interp-row {
+            display: flex;
+            align-items: baseline;
+            gap: 0.55rem;
+            padding: 0.55rem 0;
+            border-bottom: 1px solid var(--border-2);
+        }
+        .interp-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .interp-row:first-child {
+            padding-top: 0;
+        }
+
+        .interp-tag {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            background: var(--bg-active);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            white-space: nowrap;
+            flex-shrink: 0;
+            line-height: 1.6;
+        }
+
+        .interp-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .interp-text strong {
+            color: var(--text);
+        }
+
+        /* ── Portfolio Calculator ────────────────────────────── */
+        .calc-section {
+            margin: 1rem 1rem 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--bg-card);
+            transition: background 0.25s, border-color 0.25s;
+        }
+
+        .calc-header {
+            padding: 0.75rem 1rem;
+            background: var(--bg-active);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .calc-body {
+            padding: 0.9rem 1rem;
+        }
+
+        .calc-inputs {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 0.5rem;
+            align-items: end;
+            margin-bottom: 0.9rem;
+        }
+
+        .calc-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .calc-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dimmer);
+        }
+
+        .calc-input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.45rem 0.65rem;
+            font-size: 0.82rem;
+            color: var(--text);
+            font-family: inherit;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .calc-input:focus {
+            outline: none;
+            border-color: var(--text-muted);
+        }
+
+        .calc-input::placeholder {
+            color: var(--text-dimmer);
+        }
+
+        .calc-add-btn {
+            background: var(--period-active-bg);
+            color: var(--period-active-fg);
+            border: none;
+            border-radius: 6px;
+            padding: 0.45rem 0.9rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+
+        .calc-add-btn:hover { opacity: 0.8; }
+        .calc-add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .calc-empty {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-dimmer);
+            padding: 1rem 0;
+        }
+
+        .calc-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.65rem 0.75rem;
+            border-radius: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border-2);
+            margin-bottom: 0.4rem;
+            transition: background 0.2s;
+        }
+
+        .calc-sym {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .calc-sub {
+            font-size: 0.68rem;
+            color: var(--text-dimmer);
+            margin-top: 0.1rem;
+        }
+
+        .calc-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+
+        .calc-cell-label {
+            font-size: 0.65rem;
+            color: var(--text-dimmer);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .calc-cell-val {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .calc-pnl-pos { color: #2e7d32; font-weight: 700; }
+        .calc-pnl-neg { color: #d32f2f; font-weight: 700; }
+        body.dark .calc-pnl-pos { color: #56d364; }
+        body.dark .calc-pnl-neg { color: #f85149; }
+
+        .calc-del-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-dimmer);
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0.2rem;
+            border-radius: 4px;
+            transition: color 0.15s;
+        }
+        .calc-del-btn:hover { color: #d32f2f; }
+        .calc-del-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .calc-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-2);
+        }
+
+        .calc-total-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .calc-total-val {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        @media (max-width: 680px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .history {
+                border-top: 1px solid var(--border);
+                padding-top: 1rem;
+                margin-top: 0.5rem;
+            }
+
+            .indicators-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .indicators-table th,
+            .indicators-table td {
+                padding: 0.5rem 0.6rem;
+                font-size: 0.72rem;
+            }
+            .calc-inputs {
+                grid-template-columns: 1fr 1fr;
+            }
+            .calc-add-btn {
+                grid-column: 1 / -1;
+            }
+            .calc-item {
+                grid-template-columns: 1.5fr 1fr 1fr auto;
+            }
+            .calc-item .calc-cell:nth-child(2) {
+                display: none;
+            }
+        }
+
+        /* ── Common topnav ── */
+        .topnav, .page-footer { width: 100%; }
+        .topnav {
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            background: rgba(9,9,14,0.97);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            height: 54px;
+        }
+        .topnav-logo {
+            font-weight: 800;
+            font-size: 0.88rem;
+            color: #fff;
+            text-decoration: none;
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            letter-spacing: -0.01em;
+        }
+        .topnav-logo-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            flex-shrink: 0;
+        }
+        .topnav-link {
+            font-size: 0.79rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.38);
+            text-decoration: none;
+            white-space: nowrap;
+            padding: 0.35rem 0.65rem;
+            border-radius: 7px;
+            transition: color 0.15s, background 0.15s;
+        }
+        .topnav-link:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.07); }
+        .topnav-link.active { color: #a5b4fc; font-weight: 600; background: rgba(99,102,241,0.15); }
+        @media (max-width: 700px) { .topnav { padding: 0 1.25rem; } }
+        @media (max-width: 480px) { .topnav-link:not(.active) { display: none; } }
+
+        /* ── Common footer ── */
+        .page-footer {
+            background: #09090e;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.3);
+            text-decoration: none;
+        }
+        .footer-brand-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            flex-shrink: 0;
+        }
+        .footer-copy { font-size: 0.7rem; color: rgba(255,255,255,0.18); }
+        @media (max-width: 560px) { .page-footer { flex-direction: column; gap: 0.3rem; text-align: center; } }
+    </style>
+</head>
+<body>
+<nav class="topnav">
+    <a href="/" class="topnav-logo">
+        <span class="topnav-logo-dot"></span>임광호 포트폴리오
+    </a>
+    <a href="/" class="topnav-link">홈</a>
+    <a href="/fear-greed.html" class="topnav-link active">공포탐욕지수</a>
+    <a href="/compound.html" class="topnav-link">복리 계산기</a>
+    <a href="/goal.html" class="topnav-link">목표 자산</a>
+    <a href="/journal.html" class="topnav-link">매매일지</a>
+    <a href="/backtest.html" class="topnav-link">백테스트</a>
+    <a href="/workout.html" class="topnav-link">운동 루틴</a>
+    <a href="/agents.html" class="topnav-link">AI 에이전트</a>
+</nav>
+    <div class="container">
+        <header class="header">
+            <div class="header-top">
+                <div>
+                    <h1>임광호</h1>
+                    <p class="project-name" data-i18n="title">Fear & Greed Index</p>
+                </div>
+                <div class="header-controls">
+                    <button id="themeToggle" class="lang-toggle theme-toggle" title="Toggle dark mode">🌙</button>
+                    <button id="langToggle" class="lang-toggle">한국어</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Market Ticker Strip -->
+        <div class="mkt-strip">
+            <div class="mkt-header">
+                <span class="mkt-title" data-i18n="mktTitle">Global Markets</span>
+                <div class="mkt-status">
+                    <span class="mkt-live-dot loading" id="mktDot"></span>
+                    <span id="mktStatusText" data-i18n="mktLoading">Loading...</span>
+                </div>
+            </div>
+            <div class="mkt-chips" id="mktChips">
+                <div class="mkt-chip skeleton"></div>
+                <div class="mkt-chip skeleton"></div>
+                <div class="mkt-chip skeleton"></div>
+                <div class="mkt-chip skeleton"></div>
+                <div class="mkt-chip skeleton"></div>
+            </div>
+            <div class="mkt-countdown-bar"><div class="mkt-countdown-fill" id="mktCountdownFill" style="width:100%"></div></div>
+        </div>
+
+        <!-- Exchange Rate Strip -->
+        <div class="fx-strip">
+            <div class="fx-header">
+                <span class="fx-title" data-i18n="fxTitle">실시간 환율</span>
+                <div class="fx-status">
+                    <span class="fx-live-dot loading" id="fxDot"></span>
+                    <span id="fxStatusText" data-i18n="fxLoading">불러오는 중...</span>
+                </div>
+            </div>
+            <div class="fx-grid" id="fxGrid">
+                <div class="fx-skeleton"></div>
+                <div class="fx-skeleton"></div>
+                <div class="fx-skeleton"></div>
+                <div class="fx-skeleton"></div>
+            </div>
+            <div class="fx-countdown-bar">
+                <div class="fx-countdown-fill" id="fxCountdownFill" style="width:100%"></div>
+            </div>
+        </div>
+
+        <div id="card" style="position:relative;">
+            <div class="loading-overlay"><div class="spinner"></div></div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="overview" data-i18n="tabOverview">Overview</button>
+                <button class="tab" data-tab="timeline" data-i18n="tabTimeline">Timeline</button>
+                <button class="tab" data-tab="indicators" data-i18n="tabIndicators">Indicators</button>
+                <button class="tab" data-tab="calendar" data-i18n="tabCalendar">Calendar</button>
+                <button class="tab" data-tab="watchlist" data-i18n="tabWatchlist">Watchlist</button>
+                <button class="tab" data-tab="portfolio" data-i18n="tabPortfolio">Portfolio</button>
+            </div>
+
+            <!-- Overview View -->
+            <div class="view active" id="overviewView">
+                <div class="main-content">
+                    <div class="gauge-section">
+                        <div class="gauge-wrapper">
+                            <canvas id="gaugeCanvas" class="gauge-canvas" width="500" height="340"></canvas>
+                        </div>
+                        <div class="gauge-footer">
+                            <div class="last-updated" id="lastUpdated"></div>
+                            <button id="shareBtn" class="share-btn" title="Share">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                                </svg>
+                                <span id="shareBtnLabel"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="history" id="history"></div>
+                </div>
+                <div class="interpreter" id="interpreter">
+                    <div class="interpreter-header">
+                        <div class="interpreter-badge" id="interpreterBadge">–</div>
+                        <div>
+                            <div class="interpreter-meta-title" data-i18n="interpTitle">시장 심리 해석</div>
+                            <div class="interpreter-zone-label" id="interpreterZoneLabel"></div>
+                        </div>
+                    </div>
+                    <div class="interpreter-body">
+                        <div class="interp-row">
+                            <div class="interp-tag" data-i18n="interpTagMarket">Market</div>
+                            <div class="interp-text" id="interpMarket"></div>
+                        </div>
+                        <div class="interp-row">
+                            <div class="interp-tag" data-i18n="interpTagHistory">Pattern</div>
+                            <div class="interp-text" id="interpHistory"></div>
+                        </div>
+                        <div class="interp-row">
+                            <div class="interp-tag" data-i18n="interpTagTip">Insight</div>
+                            <div class="interp-text" id="interpTip"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio View -->
+            <div class="view" id="portfolioView">
+                <div class="calc-section" id="calcSection">
+                    <div class="calc-header" data-i18n="calcTitle">포트폴리오 수익률 계산기</div>
+                    <div class="calc-body">
+                        <div class="calc-inputs">
+                            <div class="calc-field">
+                                <label class="calc-label" data-i18n="calcSymLabel">티커 심볼</label>
+                                <input class="calc-input" id="calcSym" placeholder="AAPL, 005930.KS…" />
+                            </div>
+                            <div class="calc-field">
+                                <label class="calc-label" data-i18n="calcQtyLabel">수량</label>
+                                <input class="calc-input" id="calcQty" type="number" min="0" step="any" placeholder="10" />
+                            </div>
+                            <div class="calc-field">
+                                <label class="calc-label" data-i18n="calcPriceLabel">매입가</label>
+                                <input class="calc-input" id="calcPrice" type="number" min="0" step="any" placeholder="150.00" />
+                            </div>
+                            <button class="calc-add-btn" id="calcAddBtn" data-i18n="calcAddBtn">추가</button>
+                        </div>
+                        <div id="calcList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline View -->
+            <div class="view" id="timelineView">
+                <div class="timeline-periods">
+                    <button class="period-btn" data-days="7">1W</button>
+                    <button class="period-btn" data-days="30">1M</button>
+                    <button class="period-btn" data-days="90">3M</button>
+                    <button class="period-btn active" data-days="180">6M</button>
+                    <button class="period-btn" data-days="365">1Y</button>
+                    <button class="period-btn sp500-toggle" id="sp500ToggleBtn" data-i18n="sp500Overlay">S&amp;P 500</button>
+                </div>
+                <div class="timeline-chart-wrapper">
+                    <canvas id="timelineCanvas" class="timeline-canvas" width="900" height="400"></canvas>
+                    <div class="chart-tooltip" id="chartTooltip">
+                        <div class="tt-date"></div>
+                        <div class="tt-score"></div>
+                        <div class="tt-sp500" id="ttSp500" style="display:none"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicators View -->
+            <div class="view" id="indicatorsView">
+                <div class="indicators-header" data-i18n="indicatorsHeader">4 FEAR & GREED INDICATORS</div>
+                <div id="indicatorsLoading" class="indicators-loading">
+                    <div class="spinner"></div>
+                    <span data-i18n="indicatorsLoading">Loading indicator data from Yahoo Finance...</span>
+                </div>
+                <div id="indicatorsError" class="indicators-error" data-i18n="indicatorsError">
+                    Failed to load indicator data. Please try again later.
+                </div>
+                <div id="indicatorsContainer"></div>
+            </div>
+
+            <!-- Calendar View -->
+            <div class="view" id="calendarView">
+                <div class="cal-years" id="calYears">
+                    <button class="period-btn active" id="calBtnCurrent"></button>
+                    <button class="period-btn" id="calBtnPrev"></button>
+                </div>
+                <div class="cal-wrapper">
+                    <canvas id="calendarCanvas"></canvas>
+                    <div class="chart-tooltip" id="calTooltip" style="display:none">
+                        <div class="tt-date"></div>
+                        <div class="tt-score"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Watchlist View -->
+            <div class="view" id="watchlistView">
+                <div class="wl-add-row">
+                    <input type="text" id="wlInput" class="wl-input">
+                    <button id="wlAddBtn" class="wl-add-btn" data-i18n="wlAdd">Add</button>
+                </div>
+                <div class="wl-error" id="wlError"></div>
+                <div id="wlTableWrap"></div>
+            </div>
+
+            <div class="error-msg" id="errorMsg" data-i18n="errorMsg">
+                Failed to load data. Showing cached values.
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <div class="faq-header" data-i18n="faqHeader">FEAR & GREED INDEX FAQS</div>
+
+            <div class="faq-item">
+                <h3 class="faq-question" data-i18n="faq1Q">What is the CNN Business Fear & Greed Index?</h3>
+                <p class="faq-answer" data-i18n="faq1A">The Fear & Greed Index is a way to gauge stock market movements and whether stocks are fairly priced. The theory is based on the logic that excessive fear tends to drive down share prices, and too much greed tends to have the opposite effect.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="faq-question" data-i18n="faq2Q">How is Fear & Greed Calculated?</h3>
+                <p class="faq-answer" data-i18n="faq2A">The Fear & Greed Index is a compilation of seven different indicators that measure some aspect of stock market behavior. They are market momentum, stock price strength, stock price breadth, put and call options, junk bond demand, market volatility, and safe haven demand. The index tracks how much these individual indicators deviate from their averages compared to how much they normally diverge. The index gives each indicator equal weighting in calculating a score from 0 to 100, with 100 representing maximum greediness and 0 signaling maximum fear.</p>
+            </div>
+
+            <table class="indicators-table">
+                <thead>
+                    <tr>
+                        <th data-i18n="tableIndicator">Indicator</th>
+                        <th data-i18n="tableDescription">Description</th>
+                        <th data-i18n="tableFearSignal">Fear Signal</th>
+                        <th data-i18n="tableGreedSignal">Greed Signal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong data-i18n="tMomentum">Market Momentum</strong></td>
+                        <td data-i18n="tMomentumDesc">S&P 500 vs 125-day moving average</td>
+                        <td data-i18n="tMomentumFear">Below MA</td>
+                        <td data-i18n="tMomentumGreed">Above MA</td>
+                    </tr>
+                    <tr>
+                        <td><strong data-i18n="tStrength">Stock Price Strength</strong></td>
+                        <td data-i18n="tStrengthDesc">New 52-week highs vs lows on NYSE</td>
+                        <td data-i18n="tStrengthFear">More lows</td>
+                        <td data-i18n="tStrengthGreed">More highs</td>
+                    </tr>
+                    <tr>
+                        <td><strong data-i18n="tBreadth">Stock Price Breadth</strong></td>
+                        <td data-i18n="tBreadthDesc">Trading volume in advancing vs declining stocks</td>
+                        <td data-i18n="tBreadthFear">Declining volume</td>
+                        <td data-i18n="tBreadthGreed">Advancing volume</td>
+                    </tr>
+                    <tr>
+                        <td><strong data-i18n="tPutCall">Put & Call Options</strong></td>
+                        <td data-i18n="tPutCallDesc">Put/call ratio of trading volume</td>
+                        <td data-i18n="tPutCallFear">High put volume</td>
+                        <td data-i18n="tPutCallGreed">High call volume</td>
+                    </tr>
+                    <tr>
+                        <td><strong data-i18n="tJunk">Junk Bond Demand</strong></td>
+                        <td data-i18n="tJunkDesc">Yield spread: junk bonds vs investment grade</td>
+                        <td data-i18n="tJunkFear">Wide spread</td>
+                        <td data-i18n="tJunkGreed">Narrow spread</td>
+                    </tr>
+                    <tr>
+                        <td><strong data-i18n="tVolatility">Market Volatility</strong></td>
+                        <td data-i18n="tVolatilityDesc">VIX vs 50-day moving average</td>
+                        <td data-i18n="tVolatilityFear">VIX above MA</td>
+                        <td data-i18n="tVolatilityGreed">VIX below MA</td>
+                    </tr>
+                    <tr>
+                        <td><strong data-i18n="tSafeHaven">Safe Haven Demand</strong></td>
+                        <td data-i18n="tSafeHavenDesc">Stocks vs bonds return difference</td>
+                        <td data-i18n="tSafeHavenFear">Bonds outperform</td>
+                        <td data-i18n="tSafeHavenGreed">Stocks outperform</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="faq-item">
+                <h3 class="faq-question" data-i18n="faq3Q">How often is the Fear & Greed Index calculated?</h3>
+                <p class="faq-answer" data-i18n="faq3A">Every component and the Index are calculated as soon as new data becomes available.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3 class="faq-question" data-i18n="faq4Q">How to use Fear & Greed Index?</h3>
+                <p class="faq-answer" data-i18n="faq4A">The Fear & Greed Index is used to gauge the mood of the market. Many investors are emotional and reactionary, and fear and greed sentiment indicators can alert investors to their own emotions and biases that can influence their decisions. When combined with fundamentals and other analytical tools, the Index can be a helpful way to assess market sentiment.</p>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script>
+        // ══════════════════════════════════════
+        //  TRANSLATIONS
+        // ══════════════════════════════════════
+        const TRANSLATIONS = {
+            en: {
+                title: 'Fear & Greed Index',
+                tabOverview: 'Overview',
+                tabTimeline: 'Timeline',
+                tabIndicators: 'Indicators',
+                indicatorsHeader: '4 FEAR & GREED INDICATORS',
+                indicatorsLoading: 'Loading indicator data from Yahoo Finance...',
+                indicatorsError: 'Failed to load indicator data. Please try again later.',
+                errorMsg: 'Failed to load data. Showing cached values.',
+                previousClose: 'Previous close',
+                oneWeekAgo: '1 week ago',
+                oneMonthAgo: '1 month ago',
+                oneYearAgo: '1 year ago',
+                extremeFear: 'Extreme Fear',
+                fear: 'Fear',
+                neutral: 'Neutral',
+                greed: 'Greed',
+                extremeGreed: 'Extreme Greed',
+                extremeFearGauge: 'EXTREME\nFEAR',
+                fearGauge: 'FEAR',
+                neutralGauge: 'NEUTRAL',
+                greedGauge: 'GREED',
+                extremeGreedGauge: 'EXTREME\nGREED',
+                extremeFearBadge: 'EXTREME FEAR',
+                fearBadge: 'FEAR',
+                neutralBadge: 'NEUTRAL',
+                greedBadge: 'GREED',
+                extremeGreedBadge: 'EXTREME GREED',
+                naBadge: 'N/A',
+                months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                lastUpdated: (s) => `Last updated ${s}`,
+                indicatorUpdated: (s) => `Last updated ${s}`,
+                momentumTitle: 'MARKET MOMENTUM',
+                momentumSubtitle: 'S&P 500 and its 125-day moving average',
+                volatilityTitle: 'MARKET VOLATILITY',
+                volatilitySubtitle: 'VIX and its 50-day moving average',
+                safeHavenTitle: 'SAFE HAVEN DEMAND',
+                safeHavenSubtitle: 'SPY vs TLT 20-day rolling returns',
+                junkBondTitle: 'JUNK BOND DEMAND',
+                junkBondSubtitle: 'HYG vs LQD 20-day return spread (high yield - investment grade)',
+                sp500Legend: 'S&P 500',
+                ma125Legend: '125-day moving average',
+                vixLegend: 'VIX',
+                ma50Legend: '50-day moving average',
+                spyLegend: 'SPY (Stocks)',
+                tltLegend: 'TLT (Bonds)',
+                hygLqdLegend: 'HYG-LQD Spread',
+                spreadLabel: 'Spread',
+                mktTitle: 'Global Markets',
+                mktLoading: 'Loading...',
+                mktError: 'Failed to load',
+                mktNextUpdate: (s) => { const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sc = s%60; return `Next update in ${h ? h+':'+String(m).padStart(2,'0') : m}:${String(sc).padStart(2,'0')}`; },
+                mktJustUpdated: 'Just updated',
+                sp500Overlay: 'S&P 500',
+                legendFG: 'Fear & Greed',
+                legendSP: 'S&P 500',
+                fxTitle: 'Live Exchange Rates',
+                fxLoading: 'Loading...',
+                fxError: 'Failed to load',
+                fxNextUpdate: (s) => { const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sc = s%60; return `Next update in ${h ? h+':'+String(m).padStart(2,'0') : m}:${String(sc).padStart(2,'0')}`; },
+                fxJustUpdated: 'Just updated',
+                faqHeader: 'FEAR & GREED INDEX FAQS',
+                faq1Q: 'What is the CNN Business Fear & Greed Index?',
+                faq1A: 'The Fear & Greed Index is a way to gauge stock market movements and whether stocks are fairly priced. The theory is based on the logic that excessive fear tends to drive down share prices, and too much greed tends to have the opposite effect.',
+                faq2Q: 'How is Fear & Greed Calculated?',
+                faq2A: 'The Fear & Greed Index is a compilation of seven different indicators that measure some aspect of stock market behavior. They are market momentum, stock price strength, stock price breadth, put and call options, junk bond demand, market volatility, and safe haven demand. The index tracks how much these individual indicators deviate from their averages compared to how much they normally diverge. The index gives each indicator equal weighting in calculating a score from 0 to 100, with 100 representing maximum greediness and 0 signaling maximum fear.',
+                faq3Q: 'How often is the Fear & Greed Index calculated?',
+                faq3A: 'Every component and the Index are calculated as soon as new data becomes available.',
+                faq4Q: 'How to use Fear & Greed Index?',
+                faq4A: 'The Fear & Greed Index is used to gauge the mood of the market. Many investors are emotional and reactionary, and fear and greed sentiment indicators can alert investors to their own emotions and biases that can influence their decisions. When combined with fundamentals and other analytical tools, the Index can be a helpful way to assess market sentiment.',
+                tableIndicator: 'Indicator',
+                tableDescription: 'Description',
+                tableFearSignal: 'Fear Signal',
+                tableGreedSignal: 'Greed Signal',
+                tMomentum: 'Market Momentum',
+                tMomentumDesc: 'S&P 500 vs 125-day moving average',
+                tMomentumFear: 'Below MA',
+                tMomentumGreed: 'Above MA',
+                tStrength: 'Stock Price Strength',
+                tStrengthDesc: 'New 52-week highs vs lows on NYSE',
+                tStrengthFear: 'More lows',
+                tStrengthGreed: 'More highs',
+                tBreadth: 'Stock Price Breadth',
+                tBreadthDesc: 'Trading volume in advancing vs declining stocks',
+                tBreadthFear: 'Declining volume',
+                tBreadthGreed: 'Advancing volume',
+                tPutCall: 'Put & Call Options',
+                tPutCallDesc: 'Put/call ratio of trading volume',
+                tPutCallFear: 'High put volume',
+                tPutCallGreed: 'High call volume',
+                tJunk: 'Junk Bond Demand',
+                tJunkDesc: 'Yield spread: junk bonds vs investment grade',
+                tJunkFear: 'Wide spread',
+                tJunkGreed: 'Narrow spread',
+                tVolatility: 'Market Volatility',
+                tVolatilityDesc: 'VIX vs 50-day moving average',
+                tVolatilityFear: 'VIX above MA',
+                tVolatilityGreed: 'VIX below MA',
+                tSafeHaven: 'Safe Haven Demand',
+                tSafeHavenDesc: 'Stocks vs bonds return difference',
+                tSafeHavenFear: 'Bonds outperform',
+                tSafeHavenGreed: 'Stocks outperform',
+                tabCalendar: 'Calendar',
+                calThisYear: 'This Year',
+                calLastYear: 'Last Year',
+                calNoData: 'No data',
+                tabWatchlist: 'Watchlist',
+                tabPortfolio: 'Calculator',
+                wlAddPlaceholder: 'Symbol (e.g. AAPL, 005930)',
+                wlAdd: 'Add',
+                wlColName: 'Name',
+                wlColPrice: 'Price',
+                wlColChange: 'Change',
+                wlColPct: '%',
+                wlColPrev: 'Prev Close',
+                wlEmpty: 'Add your first ticker',
+                wlInvalidSym: 'Symbol not found',
+                wlDuplicate: 'Already in watchlist',
+                calcTitle: 'Portfolio Return Calculator',
+                calcSymLabel: 'Ticker Symbol',
+                calcQtyLabel: 'Quantity',
+                calcPriceLabel: 'Buy Price',
+                calcAddBtn: 'Add',
+                calcEmpty: 'Add a ticker to track your portfolio returns.',
+                calcCurrentPrice: 'Current',
+                calcValue: 'Value',
+                calcReturn: 'Return',
+                calcTotal: 'Total',
+                calcLoadingPrice: 'Loading…',
+                calcErrorPrice: 'N/A',
+                interpTitle: 'Market Sentiment Analysis',
+                interpTagMarket: 'Market',
+                interpTagHistory: 'Pattern',
+                interpTagTip: 'Insight',
+                // Extreme Fear (0-25)
+                interpEFMarket: '<strong>Current market:</strong> Investors are in extreme fear. Panic selling is increasing and volatility is high.',
+                interpEFHistory: '<strong>Historical pattern:</strong> The 0–25 zone has historically offered <strong>long-term buying opportunities</strong>, though short-term further decline is possible.',
+                interpEFTip: '<strong>Insight:</strong> This is the zone Buffett described as "be greedy when others are fearful." Patience tends to be rewarded.',
+                // Fear (25-45)
+                interpFMarket: '<strong>Current market:</strong> Investors are cautious and risk-averse. Selling pressure is elevated.',
+                interpFHistory: '<strong>Historical pattern:</strong> Fear zones often precede market bottoms. Accumulation by long-term investors often begins here.',
+                interpFTip: '<strong>Insight:</strong> Consider dollar-cost averaging into positions. Avoid panic selling at this stage.',
+                // Neutral (45-55)
+                interpNMarket: '<strong>Current market:</strong> Sentiment is balanced between fear and greed. No strong directional bias.',
+                interpNHistory: '<strong>Historical pattern:</strong> Neutral zones are transitional — the market could break either way. Monitor for direction.',
+                interpNTip: '<strong>Insight:</strong> Hold existing positions and wait for a clearer signal before making large moves.',
+                // Greed (55-75)
+                interpGMarket: '<strong>Current market:</strong> Investors are optimistic and increasing risk appetite. Momentum is positive.',
+                interpGHistory: '<strong>Historical pattern:</strong> Greed zones can sustain for extended periods during bull markets, but risk of correction increases.',
+                interpGTip: '<strong>Insight:</strong> Consider taking partial profits or tightening stop-losses. Don\'t chase momentum blindly.',
+                // Extreme Greed (75-100)
+                interpEGMarket: '<strong>Current market:</strong> Euphoria is driving markets higher. FOMO is widespread and valuations are stretched.',
+                interpEGHistory: '<strong>Historical pattern:</strong> Extreme greed often precedes sharp corrections. Markets rarely stay in this zone for long.',
+                interpEGTip: '<strong>Insight:</strong> "Be fearful when others are greedy." This is a good time to reduce exposure or hedge.',
+                shareTitle: 'Share',
+                shareCopied: 'Copied!',
+            },
+            ko: {
+                title: '공포·탐욕 지수',
+                tabOverview: '개요',
+                tabTimeline: '타임라인',
+                tabIndicators: '지표',
+                indicatorsHeader: '4가지 공포·탐욕 지표',
+                indicatorsLoading: 'Yahoo Finance에서 지표 데이터를 불러오는 중...',
+                indicatorsError: '지표 데이터를 불러오지 못했습니다. 나중에 다시 시도해주세요.',
+                errorMsg: '데이터를 불러오지 못했습니다. 캐시된 값을 표시합니다.',
+                previousClose: '전일 종가',
+                oneWeekAgo: '1주일 전',
+                oneMonthAgo: '1개월 전',
+                oneYearAgo: '1년 전',
+                extremeFear: '극도의 공포',
+                fear: '공포',
+                neutral: '중립',
+                greed: '탐욕',
+                extremeGreed: '극도의 탐욕',
+                extremeFearGauge: '극도의\n공포',
+                fearGauge: '공포',
+                neutralGauge: '중립',
+                greedGauge: '탐욕',
+                extremeGreedGauge: '극도의\n탐욕',
+                extremeFearBadge: '극도의 공포',
+                fearBadge: '공포',
+                neutralBadge: '중립',
+                greedBadge: '탐욕',
+                extremeGreedBadge: '극도의 탐욕',
+                naBadge: 'N/A',
+                months: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+                lastUpdated: (s) => `마지막 업데이트: ${s}`,
+                indicatorUpdated: (s) => `마지막 업데이트: ${s}`,
+                momentumTitle: '시장 모멘텀',
+                momentumSubtitle: 'S&P 500과 125일 이동평균',
+                volatilityTitle: '시장 변동성',
+                volatilitySubtitle: 'VIX와 50일 이동평균',
+                safeHavenTitle: '안전 자산 수요',
+                safeHavenSubtitle: 'SPY 대비 TLT 20일 롤링 수익률',
+                junkBondTitle: '정크 본드 수요',
+                junkBondSubtitle: 'HYG vs LQD 20일 수익률 스프레드 (고수익 - 투자등급)',
+                sp500Legend: 'S&P 500',
+                ma125Legend: '125일 이동평균',
+                vixLegend: 'VIX',
+                ma50Legend: '50일 이동평균',
+                spyLegend: 'SPY (주식)',
+                tltLegend: 'TLT (채권)',
+                hygLqdLegend: 'HYG-LQD 스프레드',
+                spreadLabel: '스프레드',
+                mktTitle: '글로벌 시장',
+                mktLoading: '불러오는 중...',
+                mktError: '불러오기 실패',
+                mktNextUpdate: (s) => { const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sc = s%60; return `${h ? h+':'+String(m).padStart(2,'0') : m}:${String(sc).padStart(2,'0')} 후 갱신`; },
+                mktJustUpdated: '방금 갱신됨',
+                sp500Overlay: 'S&P 500',
+                legendFG: '공포·탐욕',
+                legendSP: 'S&P 500',
+                fxTitle: '실시간 환율',
+                fxLoading: '불러오는 중...',
+                fxError: '불러오기 실패',
+                fxNextUpdate: (s) => { const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sc = s%60; return `${h ? h+':'+String(m).padStart(2,'0') : m}:${String(sc).padStart(2,'0')} 후 갱신`; },
+                fxJustUpdated: '방금 갱신됨',
+                faqHeader: '공포·탐욕 지수 FAQ',
+                faq1Q: 'CNN Business 공포·탐욕 지수란 무엇인가요?',
+                faq1A: '공포·탐욕 지수는 주식 시장의 움직임과 주식의 적정 가격 여부를 측정하는 지표입니다. 과도한 공포는 주가를 낮추고, 과도한 탐욕은 반대 효과를 낸다는 논리에 기반합니다.',
+                faq2Q: '공포·탐욕 지수는 어떻게 계산되나요?',
+                faq2A: '공포·탐욕 지수는 주식 시장 행동의 여러 측면을 측정하는 7가지 지표를 종합한 것입니다. 시장 모멘텀, 주가 강도, 주가 폭, 풋·콜 옵션, 정크 본드 수요, 시장 변동성, 안전 자산 수요가 포함됩니다. 각 지표가 평균에서 얼마나 벗어나는지 추적하며, 0~100 점수로 나타냅니다. 100은 최대 탐욕, 0은 최대 공포를 의미합니다.',
+                faq3Q: '공포·탐욕 지수는 얼마나 자주 계산되나요?',
+                faq3A: '각 구성 요소와 지수는 새로운 데이터가 제공되는 즉시 계산됩니다.',
+                faq4Q: '공포·탐욕 지수를 어떻게 활용하나요?',
+                faq4A: '공포·탐욕 지수는 시장의 분위기를 파악하는 데 사용됩니다. 많은 투자자들은 감정적으로 반응하는 경향이 있으며, 이 지수는 자신의 감정과 편향을 인식하는 데 도움을 줍니다. 펀더멘털 및 기타 분석 도구와 함께 활용하면 시장 심리를 평가하는 유용한 도구가 됩니다.',
+                tableIndicator: '지표',
+                tableDescription: '설명',
+                tableFearSignal: '공포 신호',
+                tableGreedSignal: '탐욕 신호',
+                tMomentum: '시장 모멘텀',
+                tMomentumDesc: 'S&P 500 대비 125일 이동평균',
+                tMomentumFear: 'MA 하회',
+                tMomentumGreed: 'MA 상회',
+                tStrength: '주가 강도',
+                tStrengthDesc: 'NYSE 52주 최고가 vs 최저가',
+                tStrengthFear: '최저가 우세',
+                tStrengthGreed: '최고가 우세',
+                tBreadth: '주가 폭',
+                tBreadthDesc: '상승 vs 하락 종목 거래량',
+                tBreadthFear: '하락 거래량 우세',
+                tBreadthGreed: '상승 거래량 우세',
+                tPutCall: '풋·콜 옵션',
+                tPutCallDesc: '거래량의 풋/콜 비율',
+                tPutCallFear: '풋 거래량 증가',
+                tPutCallGreed: '콜 거래량 증가',
+                tJunk: '정크 본드 수요',
+                tJunkDesc: '정크 본드 vs 투자등급 채권 금리 스프레드',
+                tJunkFear: '스프레드 확대',
+                tJunkGreed: '스프레드 축소',
+                tVolatility: '시장 변동성',
+                tVolatilityDesc: 'VIX 대비 50일 이동평균',
+                tVolatilityFear: 'VIX MA 상회',
+                tVolatilityGreed: 'VIX MA 하회',
+                tSafeHaven: '안전 자산 수요',
+                tSafeHavenDesc: '주식 vs 채권 수익률 차이',
+                tSafeHavenFear: '채권 수익률 우세',
+                tSafeHavenGreed: '주식 수익률 우세',
+                tabCalendar: '캘린더',
+                calThisYear: '올해',
+                calLastYear: '작년',
+                calNoData: '데이터 없음',
+                tabWatchlist: '관심종목',
+                tabPortfolio: '수익률 계산기',
+                wlAddPlaceholder: '종목코드 (예: AAPL, 005930)',
+                wlAdd: '추가',
+                wlColName: '종목명',
+                wlColPrice: '현재가',
+                wlColChange: '등락',
+                wlColPct: '%',
+                wlColPrev: '전일종가',
+                wlEmpty: '관심 종목을 추가해보세요',
+                wlInvalidSym: '종목을 찾을 수 없습니다',
+                wlDuplicate: '이미 추가된 종목입니다',
+                calcTitle: '포트폴리오 수익률 계산기',
+                calcSymLabel: '티커 심볼',
+                calcQtyLabel: '수량',
+                calcPriceLabel: '매입가',
+                calcAddBtn: '추가',
+                calcEmpty: '티커를 추가해 포트폴리오 수익률을 확인하세요.',
+                calcCurrentPrice: '현재가',
+                calcValue: '평가금액',
+                calcReturn: '수익률',
+                calcTotal: '합계',
+                calcLoadingPrice: '로딩 중…',
+                calcErrorPrice: 'N/A',
+                interpTitle: '시장 심리 해석',
+                interpTagMarket: '시장',
+                interpTagHistory: '패턴',
+                interpTagTip: '시사점',
+                interpEFMarket: '<strong>현재 시장:</strong> 투자자들이 극도의 공포 상태입니다. 패닉 매도가 증가하고 변동성이 높습니다.',
+                interpEFHistory: '<strong>역사적 패턴:</strong> 0–25 구간은 역사적으로 <strong>장기 매수 기회</strong>로 알려져 있습니다. 단기 추가 하락 가능성도 존재합니다.',
+                interpEFTip: '<strong>시사점:</strong> 버핏이 말한 "남들이 두려워할 때 탐욕스러워져라"에 해당하는 구간입니다. 인내심이 보상받는 경향이 있습니다.',
+                interpFMarket: '<strong>현재 시장:</strong> 투자자들이 신중하고 위험 회피 성향을 보입니다. 매도 압력이 높습니다.',
+                interpFHistory: '<strong>역사적 패턴:</strong> 공포 구간은 종종 시장 바닥 전후에 나타납니다. 장기 투자자들의 매집이 시작되는 시점입니다.',
+                interpFTip: '<strong>시사점:</strong> 분할 매수를 고려하세요. 이 단계에서 패닉 매도는 피하는 것이 좋습니다.',
+                interpNMarket: '<strong>현재 시장:</strong> 공포와 탐욕 사이에서 균형을 유지하고 있습니다. 뚜렷한 방향성이 없습니다.',
+                interpNHistory: '<strong>역사적 패턴:</strong> 중립 구간은 전환점으로, 시장이 어느 방향으로든 움직일 수 있습니다. 방향성을 주시하세요.',
+                interpNTip: '<strong>시사점:</strong> 기존 포지션을 유지하고 더 명확한 신호가 나올 때까지 큰 움직임을 자제하세요.',
+                interpGMarket: '<strong>현재 시장:</strong> 투자자들이 낙관적이고 위험 선호도가 높아지고 있습니다. 상승 모멘텀이 있습니다.',
+                interpGHistory: '<strong>역사적 패턴:</strong> 탐욕 구간은 강세장에서 오래 지속될 수 있지만 조정 위험도 높아집니다.',
+                interpGTip: '<strong>시사점:</strong> 일부 수익 실현이나 손절선 조정을 고려하세요. 모멘텀만 믿고 추격 매수는 위험합니다.',
+                interpEGMarket: '<strong>현재 시장:</strong> 열풍이 시장을 끌어올리고 있습니다. FOMO 심리가 만연하고 밸류에이션이 부풀어 있습니다.',
+                interpEGHistory: '<strong>역사적 패턴:</strong> 극단적 탐욕은 종종 급격한 조정에 앞서 나타납니다. 이 구간이 오래 지속되는 경우는 드뭅니다.',
+                interpEGTip: '<strong>시사점:</strong> "남들이 탐욕스러울 때 두려워하라." 노출을 줄이거나 헤지를 고려할 때입니다.',
+                shareTitle: '공유',
+                shareCopied: '복사됨!',
+            }
+        };
+
+        let currentLang = localStorage.getItem('fg-lang') || 'ko';
+        let currentTheme = localStorage.getItem('fg-theme') || 'light';
+
+        function t(key) {
+            return TRANSLATIONS[currentLang][key] ?? TRANSLATIONS.en[key] ?? key;
+        }
+
+        // Theme-aware color helper
+        function tc(light, dark) {
+            return currentTheme === 'dark' ? dark : light;
+        }
+
+        function applyTheme() {
+            document.body.classList.toggle('dark', currentTheme === 'dark');
+            document.getElementById('themeToggle').textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const val = t(key);
+                if (typeof val === 'string') el.textContent = val;
+            });
+            document.getElementById('langToggle').textContent = currentLang === 'en' ? '한국어' : 'English';
+            document.documentElement.lang = currentLang === 'en' ? 'en' : 'ko';
+        }
+
+        const API_URL = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata';
+
+        // Zone config
+        const ZONES = [
+            { min: 0,  max: 25,  labelKey: 'extremeFear',  color: '#d32f2f', bg: '#ffcdd2' },
+            { min: 25, max: 45,  labelKey: 'fear',          color: '#ef6c00', bg: '#ffe0b2' },
+            { min: 45, max: 55,  labelKey: 'neutral',       color: '#757575', bg: '#e0e0e0' },
+            { min: 55, max: 75,  labelKey: 'greed',         color: '#558b2f', bg: '#dcedc8' },
+            { min: 75, max: 100, labelKey: 'extremeGreed',  color: '#2e7d32', bg: '#c8e6c9' },
+        ];
+
+        function getZone(score) {
+            for (const z of ZONES) {
+                if (score <= z.max) return z;
+            }
+            return ZONES[ZONES.length - 1];
+        }
+
+        // ══════════════════════════════════════
+        //  TAB SWITCHING
+        // ══════════════════════════════════════
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                const target = tab.dataset.tab;
+                document.getElementById(target + 'View').classList.add('active');
+
+                if (target === 'timeline' && historicalData.length > 0) {
+                    drawTimeline();
+                }
+                if (target === 'indicators' && !indicatorsLoaded) {
+                    fetchIndicators();
+                }
+                if (target === 'calendar' && historicalData.length > 0) {
+                    drawCalendar();
+                }
+                if (target === 'watchlist') {
+                    if (!wlLoaded) {
+                        wlLoaded = true;
+                        fetchAllWatchlist();
+                        startWlCountdown();
+                    } else {
+                        renderWatchlist(watchlistData);
+                    }
+                }
+            });
+        });
+
+        // ══════════════════════════════════════
+        //  GAUGE (Overview)
+        // ══════════════════════════════════════
+        const gaugeCanvas = document.getElementById('gaugeCanvas');
+        const gCtx = gaugeCanvas.getContext('2d');
+        const GW = 500, GH = 340;
+        const GCX = GW / 2, GCY = GH - 70;
+        const OUTER_R = 195, INNER_R = 120;
+
+        function scoreToAngle(score) {
+            return Math.PI + (score / 100) * Math.PI;
+        }
+
+        function drawGauge(score) {
+            const dpr = window.devicePixelRatio || 1;
+            if (gaugeCanvas.width !== GW * dpr) {
+                gaugeCanvas.width = GW * dpr;
+                gaugeCanvas.height = GH * dpr;
+                gCtx.scale(dpr, dpr);
+            }
+            gCtx.clearRect(0, 0, GW, GH);
+
+            const zoneAngles = [
+                { start: 0,   end: 25,  color: '#e57373', labelColor: '#b71c1c' },
+                { start: 25,  end: 45,  color: '#ffb74d', labelColor: '#e65100' },
+                { start: 45,  end: 55,  color: '#e0e0e0', labelColor: '#616161' },
+                { start: 55,  end: 75,  color: '#aed581', labelColor: '#33691e' },
+                { start: 75,  end: 100, color: '#81c784', labelColor: '#1b5e20' },
+            ];
+            const zoneLabels = [t('extremeFearGauge'), t('fearGauge'), t('neutralGauge'), t('greedGauge'), t('extremeGreedGauge')];
+            const tickValues = [0, 25, 50, 75, 100];
+
+            // Filled arc segments
+            zoneAngles.forEach((zone, i) => {
+                const a1 = scoreToAngle(zone.start);
+                const a2 = scoreToAngle(zone.end);
+                gCtx.beginPath();
+                gCtx.arc(GCX, GCY, OUTER_R, a1, a2);
+                gCtx.arc(GCX, GCY, INNER_R, a2, a1, true);
+                gCtx.closePath();
+                gCtx.fillStyle = zone.color;
+                gCtx.fill();
+                if (score >= zone.start && score <= zone.end) {
+                    gCtx.fillStyle = 'rgba(0,0,0,0.08)';
+                    gCtx.fill();
+                }
+            });
+
+            // Zone labels
+            gCtx.textAlign = 'center';
+            gCtx.textBaseline = 'middle';
+            const labelR = (OUTER_R + INNER_R) / 2;
+            zoneLabels.forEach((label, i) => {
+                const zone = zoneAngles[i];
+                const midScore = (zone.start + zone.end) / 2;
+                const angle = scoreToAngle(midScore);
+                const lx = GCX + Math.cos(angle) * labelR;
+                const ly = GCY + Math.sin(angle) * labelR;
+                gCtx.save();
+                gCtx.translate(lx, ly);
+                const rot = angle + Math.PI / 2;
+                gCtx.rotate(rot);
+                gCtx.fillStyle = zone.labelColor;
+                gCtx.font = '700 9px Inter, sans-serif';
+                label.split('\n').forEach((line, j, arr) => {
+                    gCtx.fillText(line, 0, (j - (arr.length - 1) / 2) * 12);
+                });
+                gCtx.restore();
+            });
+
+            // Ticks
+            gCtx.fillStyle = tc('#888', '#8b949e');
+            gCtx.font = '400 13px Inter, sans-serif';
+            gCtx.textAlign = 'center';
+            gCtx.textBaseline = 'top';
+            tickValues.forEach(val => {
+                const angle = scoreToAngle(val);
+                gCtx.fillText(val.toString(),
+                    GCX + Math.cos(angle) * (OUTER_R + 18),
+                    GCY + Math.sin(angle) * (OUTER_R + 18) - 6);
+                gCtx.beginPath();
+                gCtx.moveTo(GCX + Math.cos(angle) * OUTER_R, GCY + Math.sin(angle) * OUTER_R);
+                gCtx.lineTo(GCX + Math.cos(angle) * (OUTER_R + 6), GCY + Math.sin(angle) * (OUTER_R + 6));
+                gCtx.strokeStyle = tc('#bbb', '#30363d');
+                gCtx.lineWidth = 1.5;
+                gCtx.stroke();
+            });
+
+            // Needle
+            const needleAngle = scoreToAngle(score);
+            const needleLen = OUTER_R - 15;
+            const needleColor = tc('#1a1a1a', '#e6edf3');
+            const needleDot = tc('#fff', '#0d1117');
+            gCtx.save();
+            gCtx.translate(GCX, GCY);
+            gCtx.rotate(needleAngle);
+            gCtx.shadowColor = tc('rgba(0,0,0,0.2)', 'rgba(0,0,0,0.5)');
+            gCtx.shadowBlur = 6;
+            gCtx.shadowOffsetY = 2;
+            gCtx.beginPath();
+            gCtx.moveTo(0, -4);
+            gCtx.lineTo(needleLen, 0);
+            gCtx.lineTo(0, 4);
+            gCtx.closePath();
+            gCtx.fillStyle = needleColor;
+            gCtx.fill();
+            gCtx.shadowColor = 'transparent';
+            gCtx.beginPath();
+            gCtx.arc(0, 0, 8, 0, Math.PI * 2);
+            gCtx.fillStyle = needleColor;
+            gCtx.fill();
+            gCtx.beginPath();
+            gCtx.arc(0, 0, 4, 0, Math.PI * 2);
+            gCtx.fillStyle = needleDot;
+            gCtx.fill();
+            gCtx.restore();
+
+            // Score number
+            const zone = getZone(score);
+            gCtx.save();
+            gCtx.textAlign = 'center';
+            gCtx.textBaseline = 'middle';
+            gCtx.font = '900 52px Inter, sans-serif';
+            gCtx.fillStyle = zone.color;
+            gCtx.fillText(Math.round(score).toString(), GCX, GCY + 50);
+            gCtx.restore();
+        }
+
+        // ══════════════════════════════════════
+        //  TIMELINE CHART
+        // ══════════════════════════════════════
+        const tlCanvas = document.getElementById('timelineCanvas');
+        const tCtx = tlCanvas.getContext('2d');
+        const TW = 900, TH = 400;
+        const PADDING = { top: 20, right: 20, bottom: 40, left: 45 };
+        let historicalData = [];
+        let currentPeriodDays = 180;
+        let filteredData = [];
+
+        function initTimelineCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            if (tlCanvas.width !== TW * dpr) {
+                tlCanvas.width = TW * dpr;
+                tlCanvas.height = TH * dpr;
+                tlCanvas.style.width = '100%';
+                tlCanvas.style.height = 'auto';
+                tCtx.scale(dpr, dpr);
+            }
+        }
+
+        function filterDataByDays(days) {
+            const now = Date.now();
+            const cutoff = now - days * 24 * 60 * 60 * 1000;
+            return historicalData.filter(d => d.x >= cutoff);
+        }
+
+        function drawTimeline() {
+            initTimelineCanvas();
+            tCtx.clearRect(0, 0, TW, TH);
+
+            filteredData = filterDataByDays(currentPeriodDays);
+            if (filteredData.length === 0) return;
+
+            const chartL = PADDING.left;
+            const chartR = TW - (sp500OverlayEnabled && _sp500Cache ? 48 : PADDING.right);
+            const chartT = PADDING.top;
+            const chartB = TH - PADDING.bottom;
+            const chartW = chartR - chartL;
+            const chartH = chartB - chartT;
+
+            const minX = filteredData[0].x;
+            const maxX = filteredData[filteredData.length - 1].x;
+            const rangeX = maxX - minX || 1;
+
+            function xPos(ts) { return chartL + ((ts - minX) / rangeX) * chartW; }
+            function yPos(val) { return chartB - (val / 100) * chartH; }
+
+            // Zone background bands
+            const zoneBands = [
+                { min: 0,  max: 25,  color: 'rgba(229,115,115,0.15)' },
+                { min: 25, max: 45,  color: 'rgba(255,183,77,0.12)' },
+                { min: 45, max: 55,  color: 'rgba(224,224,224,0.15)' },
+                { min: 55, max: 75,  color: 'rgba(174,213,129,0.12)' },
+                { min: 75, max: 100, color: 'rgba(129,199,132,0.15)' },
+            ];
+
+            zoneBands.forEach(band => {
+                tCtx.fillStyle = band.color;
+                tCtx.fillRect(chartL, yPos(band.max), chartW, yPos(band.min) - yPos(band.max));
+            });
+
+            // Zone boundary lines
+            [25, 45, 55, 75].forEach(val => {
+                tCtx.beginPath();
+                tCtx.moveTo(chartL, yPos(val));
+                tCtx.lineTo(chartR, yPos(val));
+                tCtx.strokeStyle = tc('#e0e0e0', '#30363d');
+                tCtx.lineWidth = 1;
+                tCtx.setLineDash([4, 4]);
+                tCtx.stroke();
+                tCtx.setLineDash([]);
+            });
+
+            // Zone labels on right side
+            const zoneLabelsRight = [
+                { y: 12.5, label: t('extremeFear'), color: '#d32f2f' },
+                { y: 35,   label: t('fear'),        color: '#ef6c00' },
+                { y: 50,   label: t('neutral'),     color: '#757575' },
+                { y: 65,   label: t('greed'),       color: '#558b2f' },
+                { y: 87.5, label: t('extremeGreed'),color: '#2e7d32' },
+            ];
+
+            tCtx.textAlign = 'right';
+            tCtx.textBaseline = 'middle';
+            tCtx.font = '600 9px Inter, sans-serif';
+            zoneLabelsRight.forEach(z => {
+                tCtx.fillStyle = z.color;
+                tCtx.globalAlpha = 0.5;
+                tCtx.fillText(z.label, chartR - 4, yPos(z.y));
+                tCtx.globalAlpha = 1;
+            });
+
+            // Y-axis labels
+            tCtx.textAlign = 'right';
+            tCtx.textBaseline = 'middle';
+            tCtx.font = '400 11px Inter, sans-serif';
+            tCtx.fillStyle = tc('#999', '#6e7681');
+            [0, 25, 50, 75, 100].forEach(val => {
+                tCtx.fillText(val.toString(), chartL - 8, yPos(val));
+            });
+
+            // X-axis date labels
+            tCtx.textAlign = 'center';
+            tCtx.textBaseline = 'top';
+            tCtx.font = '400 10px Inter, sans-serif';
+            tCtx.fillStyle = tc('#999', '#6e7681');
+
+            const labelCount = Math.min(6, filteredData.length);
+            const step = Math.floor(filteredData.length / labelCount);
+            for (let i = 0; i < filteredData.length; i += step) {
+                const d = new Date(filteredData[i].x);
+                const months = t('months');
+                let label;
+                if (currentPeriodDays <= 30) {
+                    label = `${months[d.getMonth()]} ${d.getDate()}`;
+                } else {
+                    label = `${months[d.getMonth()]} ${d.getFullYear()}`;
+                }
+                tCtx.fillText(label, xPos(filteredData[i].x), chartB + 8);
+            }
+
+            // Draw line
+            tCtx.beginPath();
+            filteredData.forEach((pt, i) => {
+                const x = xPos(pt.x);
+                const y = yPos(pt.y);
+                if (i === 0) tCtx.moveTo(x, y);
+                else tCtx.lineTo(x, y);
+            });
+            tCtx.strokeStyle = tc('#1a1a1a', '#e6edf3');
+            tCtx.lineWidth = 2;
+            tCtx.lineJoin = 'round';
+            tCtx.stroke();
+
+            // Gradient fill under line
+            const gradient = tCtx.createLinearGradient(0, chartT, 0, chartB);
+            gradient.addColorStop(0, tc('rgba(26,26,26,0.08)', 'rgba(230,237,243,0.08)'));
+            gradient.addColorStop(1, tc('rgba(26,26,26,0)', 'rgba(230,237,243,0)'));
+            tCtx.lineTo(xPos(filteredData[filteredData.length - 1].x), chartB);
+            tCtx.lineTo(xPos(filteredData[0].x), chartB);
+            tCtx.closePath();
+            tCtx.fillStyle = gradient;
+            tCtx.fill();
+
+            // ── S&P 500 Overlay ──────────────────────────────────────────────────
+            if (sp500OverlayEnabled && _sp500Cache) {
+                // Match each FG point to the closest SP500 trading day (±3 days)
+                const spTS = _sp500Cache.ts;
+                const paired = filteredData.map(pt => {
+                    let best = -1, bestDiff = Infinity;
+                    spTS.forEach((ts, i) => {
+                        const d = Math.abs(ts - pt.x);
+                        if (d < bestDiff) { bestDiff = d; best = i; }
+                    });
+                    if (best === -1 || bestDiff > 3 * 86400000) return null;
+                    const sp = _sp500Cache.closes[best];
+                    return (sp != null && isFinite(sp)) ? { x: pt.x, sp } : null;
+                }).filter(Boolean);
+
+                if (paired.length > 1) {
+                    const spMin = Math.min(...paired.map(p => p.sp));
+                    const spMax = Math.max(...paired.map(p => p.sp));
+                    const spRange = spMax - spMin || 1;
+
+                    // Normalize SP500 to 0–100 → use same yPos as FG so line is always visible
+                    const normSP = v => ((v - spMin) / spRange) * 100;
+
+                    const spColor  = tc('#e65100', '#fb923c');
+                    const spColor2 = tc('rgba(230,81,0,0.18)', 'rgba(251,146,60,0.15)');
+
+                    // Draw SP500 line
+                    tCtx.save();
+                    tCtx.beginPath();
+                    paired.forEach((pt, i) => {
+                        const x = xPos(pt.x);
+                        const y = yPos(normSP(pt.sp));
+                        if (i === 0) tCtx.moveTo(x, y);
+                        else         tCtx.lineTo(x, y);
+                    });
+                    tCtx.strokeStyle = spColor;
+                    tCtx.lineWidth   = 2;
+                    tCtx.lineJoin    = 'round';
+                    tCtx.stroke();
+
+                    // Gradient fill under SP500 line
+                    const spGrad = tCtx.createLinearGradient(0, chartT, 0, chartB);
+                    spGrad.addColorStop(0, spColor2);
+                    spGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                    tCtx.lineTo(xPos(paired[paired.length - 1].x), chartB);
+                    tCtx.lineTo(xPos(paired[0].x), chartB);
+                    tCtx.closePath();
+                    tCtx.fillStyle = spGrad;
+                    tCtx.fill();
+                    tCtx.restore();
+
+                    // Right Y-axis: show actual SP500 prices at top/mid/bottom
+                    tCtx.save();
+                    tCtx.textAlign    = 'left';
+                    tCtx.textBaseline = 'middle';
+                    tCtx.font         = '400 10px Inter, sans-serif';
+                    tCtx.fillStyle    = spColor;
+                    [[spMax, 100], [(spMin + spMax) / 2, 50], [spMin, 0]].forEach(([price, norm]) => {
+                        const label = price >= 1000
+                            ? (price / 1000).toFixed(1) + 'k'
+                            : Math.round(price).toString();
+                        tCtx.fillText(label, chartR + 6, yPos(norm));
+                    });
+                    tCtx.restore();
+
+                    // Legend
+                    const lgX = chartL + 10;
+                    const lgY = chartT + 10;
+                    tCtx.save();
+                    tCtx.font         = '600 10px Inter, sans-serif';
+                    tCtx.textBaseline = 'middle';
+                    tCtx.textAlign    = 'left';
+
+                    // FG legend line
+                    tCtx.beginPath();
+                    tCtx.moveTo(lgX, lgY + 4);
+                    tCtx.lineTo(lgX + 18, lgY + 4);
+                    tCtx.strokeStyle = tc('#1a1a1a', '#e6edf3');
+                    tCtx.lineWidth   = 2;
+                    tCtx.stroke();
+                    tCtx.fillStyle = tc('#1a1a1a', '#e6edf3');
+                    tCtx.fillText(t('legendFG'), lgX + 24, lgY + 4);
+
+                    // SP500 legend line
+                    tCtx.beginPath();
+                    tCtx.moveTo(lgX, lgY + 18);
+                    tCtx.lineTo(lgX + 18, lgY + 18);
+                    tCtx.strokeStyle = spColor;
+                    tCtx.lineWidth   = 2;
+                    tCtx.stroke();
+                    tCtx.fillStyle = spColor;
+                    tCtx.fillText(t('legendSP'), lgX + 24, lgY + 18);
+                    tCtx.restore();
+                }
+            }
+
+            // Border
+            tCtx.strokeStyle = tc('#e0e0e0', '#30363d');
+            tCtx.lineWidth = 1;
+            tCtx.strokeRect(chartL, chartT, chartW, chartH);
+        }
+
+        // Tooltip
+        const tooltip = document.getElementById('chartTooltip');
+
+        tlCanvas.addEventListener('mousemove', (e) => {
+            if (filteredData.length === 0) return;
+
+            const rect = tlCanvas.getBoundingClientRect();
+            const scaleX = TW / rect.width;
+            const mx = (e.clientX - rect.left) * scaleX;
+
+            const chartL = PADDING.left;
+            const chartR = TW - PADDING.right;
+            const chartW = chartR - chartL;
+            const minX = filteredData[0].x;
+            const maxX = filteredData[filteredData.length - 1].x;
+            const rangeX = maxX - minX || 1;
+
+            const hoveredTs = minX + ((mx - chartL) / chartW) * rangeX;
+
+            // Find closest data point
+            let closest = filteredData[0];
+            let closestDist = Infinity;
+            for (const pt of filteredData) {
+                const dist = Math.abs(pt.x - hoveredTs);
+                if (dist < closestDist) {
+                    closestDist = dist;
+                    closest = pt;
+                }
+            }
+
+            const px = ((closest.x - minX) / rangeX) * chartW + chartL;
+            const chartB = TH - PADDING.bottom;
+            const chartT = PADDING.top;
+            const chartH = chartB - chartT;
+            const py = chartB - (closest.y / 100) * chartH;
+
+            // Draw crosshair
+            drawTimeline();
+            tCtx.save();
+            tCtx.setLineDash([3, 3]);
+            tCtx.strokeStyle = '#999';
+            tCtx.lineWidth = 1;
+            tCtx.beginPath();
+            tCtx.moveTo(px, chartT);
+            tCtx.lineTo(px, chartB);
+            tCtx.stroke();
+            tCtx.setLineDash([]);
+
+            // Dot
+            const zone = getZone(closest.y);
+            tCtx.beginPath();
+            tCtx.arc(px, py, 5, 0, Math.PI * 2);
+            tCtx.fillStyle = zone.color;
+            tCtx.fill();
+            tCtx.strokeStyle = '#fff';
+            tCtx.lineWidth = 2;
+            tCtx.stroke();
+            tCtx.restore();
+
+            // Tooltip
+            const date = new Date(closest.x);
+            const months = t('months');
+            tooltip.querySelector('.tt-date').textContent = currentLang === 'ko'
+                ? `${date.getFullYear()}년 ${months[date.getMonth()]} ${date.getDate()}일`
+                : `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+            tooltip.querySelector('.tt-score').textContent =
+                `${Math.round(closest.y)} - ${t(zone.labelKey)}`;
+            tooltip.querySelector('.tt-score').style.color = zone.color;
+
+            // S&P500 tooltip row
+            const ttSp = document.getElementById('ttSp500');
+            if (sp500OverlayEnabled && _sp500Cache) {
+                let bestIdx = -1, bestDiff2 = Infinity;
+                _sp500Cache.ts.forEach((ts, i) => {
+                    const diff = Math.abs(ts - closest.x);
+                    if (diff < bestDiff2) { bestDiff2 = diff; bestIdx = i; }
+                });
+                if (bestIdx !== -1 && bestDiff2 <= 2 * 86400000 && _sp500Cache.closes[bestIdx] != null) {
+                    ttSp.textContent = `S&P 500: ${_sp500Cache.closes[bestIdx].toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+                    ttSp.style.color = tc('#1565c0', '#58a6ff');
+                    ttSp.style.display = 'block';
+                } else {
+                    ttSp.style.display = 'none';
+                }
+            } else {
+                ttSp.style.display = 'none';
+            }
+
+            // Position tooltip
+            const tooltipX = (e.clientX - rect.left);
+            const tooltipY = (e.clientY - rect.top) - 60;
+            tooltip.style.left = Math.min(tooltipX, rect.width - 160) + 'px';
+            tooltip.style.top = Math.max(tooltipY, 0) + 'px';
+            tooltip.style.display = 'block';
+        });
+
+        tlCanvas.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+            if (filteredData.length > 0) drawTimeline();
+        });
+
+        // Period buttons
+        document.querySelectorAll('.period-btn:not(.sp500-toggle)').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.period-btn:not(.sp500-toggle)').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentPeriodDays = parseInt(btn.dataset.days);
+                drawTimeline();
+            });
+        });
+
+        document.getElementById('sp500ToggleBtn').addEventListener('click', async () => {
+            sp500OverlayEnabled = !sp500OverlayEnabled;
+            const toggleBtn = document.getElementById('sp500ToggleBtn');
+            toggleBtn.classList.toggle('active', sp500OverlayEnabled);
+            if (sp500OverlayEnabled && !_sp500Cache) {
+                await fetchAndCacheSP500();
+            }
+            drawTimeline();
+        });
+
+        // ══════════════════════════════════════
+        //  DATA FETCHING & RENDERING
+        // ══════════════════════════════════════
+        const lastUpdated = document.getElementById('lastUpdated');
+        const historyEl = document.getElementById('history');
+        const card = document.getElementById('card');
+        const errorMsg = document.getElementById('errorMsg');
+
+        function renderHistory(items) {
+            historyEl.innerHTML = items.map(item => {
+                const zone = getZone(item.score);
+                return `
+                    <div class="history-item">
+                        <div>
+                            <div class="history-period">${item.period}</div>
+                            <div class="history-label" style="color: ${zone.color}">${t(zone.labelKey)}</div>
+                        </div>
+                        <div class="history-score" style="border-color: ${zone.color}; background: ${zone.color}">
+                            ${Math.round(item.score)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function animateGauge(targetScore, duration = 1200) {
+            const start = performance.now();
+            function step(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                drawGauge(eased * targetScore);
+                if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        function formatUpdateTime(timestamp) {
+            const date = new Date(timestamp);
+            const months = t('months');
+            const h = date.getHours();
+            const m = date.getMinutes().toString().padStart(2, '0');
+            const s = date.getSeconds().toString().padStart(2, '0');
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const h12 = h % 12 || 12;
+            const dateStr = currentLang === 'ko'
+                ? `${date.getFullYear()}년 ${months[date.getMonth()]} ${date.getDate()}일 ${h}:${m}:${s}`
+                : `${months[date.getMonth()]} ${date.getDate()} at ${h12}:${m}:${s} ${ampm} ET`;
+            return t('lastUpdated')(dateStr);
+        }
+
+        async function fetchData() {
+            card.classList.add('loading');
+            drawGauge(50);
+
+            try {
+                const oneYearAgo = new Date();
+                oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                const dateStr = oneYearAgo.toISOString().split('T')[0];
+
+                const targetUrl = `${API_URL}/${dateStr}`;
+                const response = await fetch(CORS_PROXY + encodeURIComponent(targetUrl));
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const data = await response.json();
+
+                // Overview data
+                const fg = data.fear_and_greed;
+                const current = fg?.score ?? null;
+                const previousClose = fg?.previous_close ?? null;
+                const oneWeek = fg?.previous_1_week ?? null;
+                const oneMonth = fg?.previous_1_month ?? null;
+                const oneYear = fg?.previous_1_year ?? null;
+                const updateTime = fg?.timestamp ?? Date.now();
+
+                // Historical data for timeline
+                const hist = data.fear_and_greed_historical?.data;
+                if (hist && Array.isArray(hist)) {
+                    historicalData = hist.map(d => ({ x: d.x, y: d.y }))
+                        .sort((a, b) => a.x - b.x);
+                }
+
+                if (current !== null) {
+                    applyData(current, previousClose, oneWeek, oneMonth, oneYear, updateTime);
+                    return;
+                }
+            } catch (e) {
+                console.warn('CNN API failed, using sample data:', e.message);
+            }
+
+            useSampleData();
+        }
+
+        function useSampleData() {
+            applyData(22, 22, 26, 40, 22, Date.now());
+            errorMsg.classList.add('visible');
+        }
+
+        function updateInterpreter(score) {
+            const zone = getZone(score);
+            const badge = document.getElementById('interpreterBadge');
+            const zoneLabel = document.getElementById('interpreterZoneLabel');
+            const interpMarket = document.getElementById('interpMarket');
+            const interpHistory = document.getElementById('interpHistory');
+            const interpTip = document.getElementById('interpTip');
+
+            // 구간 키 접두사 매핑
+            const prefix = {
+                extremeFear: 'EF',
+                fear: 'F',
+                neutral: 'N',
+                greed: 'G',
+                extremeGreed: 'EG',
+            }[zone.labelKey];
+
+            badge.textContent = Math.round(score);
+            badge.style.background = zone.color;
+            zoneLabel.textContent = t(zone.labelKey);
+            zoneLabel.style.color = zone.color;
+            interpMarket.innerHTML = t(`interp${prefix}Market`);
+            interpHistory.innerHTML = t(`interp${prefix}History`);
+            interpTip.innerHTML = t(`interp${prefix}Tip`);
+        }
+
+        function applyData(current, prevClose, week, month, year, timestamp) {
+            _cachedScores = { current, prevClose, week, month, year, timestamp };
+            calendarDataMap = null; // historicalData just updated, invalidate cache
+            card.classList.remove('loading');
+            animateGauge(current);
+            updateInterpreter(current);
+
+            const historyItems = [
+                { period: t('previousClose'), score: prevClose ?? current },
+                { period: t('oneWeekAgo'),    score: week ?? current },
+                { period: t('oneMonthAgo'),   score: month ?? current },
+                { period: t('oneYearAgo'),    score: year ?? current },
+            ];
+            renderHistory(historyItems);
+            lastUpdated.textContent = formatUpdateTime(timestamp);
+        }
+
+        // ══════════════════════════════════════
+        //  INDICATORS (Yahoo Finance + Chart.js)
+        // ══════════════════════════════════════
+        let indicatorsLoaded = false;
+        const CORS_PROXY = '/api/proxy?url=';
+        const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart/';
+
+        async function fetchYahooChart(symbol, range = '1y', interval = '1d') {
+            const url = `${YAHOO_CHART}${encodeURIComponent(symbol)}?range=${range}&interval=${interval}&includePrePost=false`;
+            const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
+            if (!resp.ok) throw new Error(`Yahoo ${symbol}: HTTP ${resp.status}`);
+            const json = await resp.json();
+            const result = json.chart?.result?.[0];
+            if (!result) throw new Error(`No data for ${symbol}`);
+            const timestamps = result.timestamp;
+            const closes = result.indicators?.quote?.[0]?.close;
+            if (!timestamps || !closes) throw new Error(`Missing data for ${symbol}`);
+            return timestamps.map((t, i) => ({
+                date: new Date(t * 1000),
+                close: closes[i]
+            })).filter(d => d.close != null);
+        }
+
+        function calcSMA(data, period) {
+            const result = [];
+            for (let i = 0; i < data.length; i++) {
+                if (i < period - 1) {
+                    result.push(null);
+                } else {
+                    let sum = 0;
+                    for (let j = i - period + 1; j <= i; j++) sum += data[j].close;
+                    result.push(sum / period);
+                }
+            }
+            return result;
+        }
+
+        function calcRollingReturn(data, period) {
+            const result = [];
+            for (let i = 0; i < data.length; i++) {
+                if (i < period) {
+                    result.push(null);
+                } else {
+                    result.push(((data[i].close - data[i - period].close) / data[i - period].close) * 100);
+                }
+            }
+            return result;
+        }
+
+        function assessIndicator(type, data, extra) {
+            const badge = (key, color) => ({ label: t(key + 'Badge'), color });
+            switch (type) {
+                case 'momentum': {
+                    const last = data[data.length - 1].close;
+                    const lastMA = extra[extra.length - 1];
+                    if (lastMA == null) return badge('na', '#757575');
+                    const diff = ((last - lastMA) / lastMA) * 100;
+                    if (diff < -5) return badge('extremeFear', '#d32f2f');
+                    if (diff < -1) return badge('fear', '#ef6c00');
+                    if (diff <= 1) return badge('neutral', '#757575');
+                    if (diff <= 5) return badge('greed', '#558b2f');
+                    return badge('extremeGreed', '#2e7d32');
+                }
+                case 'volatility': {
+                    const last = data[data.length - 1].close;
+                    const lastMA = extra[extra.length - 1];
+                    if (lastMA == null) return badge('na', '#757575');
+                    const diff = ((last - lastMA) / lastMA) * 100;
+                    if (diff > 20) return badge('extremeFear', '#d32f2f');
+                    if (diff > 5) return badge('fear', '#ef6c00');
+                    if (diff >= -5) return badge('neutral', '#757575');
+                    if (diff >= -15) return badge('greed', '#558b2f');
+                    return badge('extremeGreed', '#2e7d32');
+                }
+                case 'safehaven': {
+                    const spyRet = extra.spy[extra.spy.length - 1];
+                    const tltRet = extra.tlt[extra.tlt.length - 1];
+                    if (spyRet == null || tltRet == null) return badge('na', '#757575');
+                    const diff = spyRet - tltRet;
+                    if (diff < -5) return badge('extremeFear', '#d32f2f');
+                    if (diff < -1) return badge('fear', '#ef6c00');
+                    if (diff <= 1) return badge('neutral', '#757575');
+                    if (diff <= 5) return badge('greed', '#558b2f');
+                    return badge('extremeGreed', '#2e7d32');
+                }
+                case 'junkbond': {
+                    const lastSpread = extra[extra.length - 1];
+                    if (lastSpread == null) return badge('na', '#757575');
+                    if (lastSpread < -3) return badge('extremeFear', '#d32f2f');
+                    if (lastSpread < -1) return badge('fear', '#ef6c00');
+                    if (lastSpread <= 1) return badge('neutral', '#757575');
+                    if (lastSpread <= 3) return badge('greed', '#558b2f');
+                    return badge('extremeGreed', '#2e7d32');
+                }
+            }
+        }
+
+        function createIndicatorCard(config) {
+            const container = document.getElementById('indicatorsContainer');
+            const card = document.createElement('div');
+            card.className = 'indicator-card';
+            card.innerHTML = `
+                <div class="indicator-card-header">
+                    <div class="indicator-title">${config.title}</div>
+                    <div class="indicator-badge" style="background:${config.badge.color}">${config.badge.label}</div>
+                </div>
+                <div class="indicator-subtitle">${config.subtitle}</div>
+                <div class="indicator-legend">
+                    ${config.legends.map(l => `
+                        <div class="indicator-legend-item">
+                            <div class="indicator-legend-dot" style="background:${l.color}"></div>
+                            ${l.label}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="indicator-chart-wrap">
+                    <canvas id="${config.canvasId}"></canvas>
+                </div>
+                <div class="indicator-updated">${t('indicatorUpdated')(new Date().toLocaleDateString(currentLang === 'ko' ? 'ko-KR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }))}</div>
+            `;
+            container.appendChild(card);
+
+            const ctx = document.getElementById(config.canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: { datasets: config.datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: tc('#1a1a1a', '#161b22'),
+                            titleFont: { size: 11, family: 'Inter' },
+                            bodyFont: { size: 12, family: 'Inter', weight: '600' },
+                            padding: 10,
+                            cornerRadius: 6,
+                            callbacks: config.tooltipCallbacks || {}
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'month', displayFormats: { month: 'MMM yyyy' } },
+                            grid: { display: false },
+                            ticks: { font: { size: 10, family: 'Inter' }, color: tc('#999', '#6e7681') }
+                        },
+                        y: {
+                            grid: { color: tc('#f0f0f0', '#21262d') },
+                            ticks: {
+                                font: { size: 10, family: 'Inter' },
+                                color: tc('#999', '#6e7681'),
+                                callback: config.yTickCallback || (v => v.toLocaleString())
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        async function fetchIndicators() {
+            const loadingEl = document.getElementById('indicatorsLoading');
+            const errorEl = document.getElementById('indicatorsError');
+            const containerEl = document.getElementById('indicatorsContainer');
+
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            containerEl.innerHTML = '';
+
+            try {
+                const [sp500, vix, spy, tlt, hyg, lqd] = await Promise.all([
+                    fetchYahooChart('^GSPC'),
+                    fetchYahooChart('^VIX'),
+                    fetchYahooChart('SPY'),
+                    fetchYahooChart('TLT'),
+                    fetchYahooChart('HYG'),
+                    fetchYahooChart('LQD'),
+                ]);
+
+                loadingEl.style.display = 'none';
+
+                // 1. Market Momentum: S&P 500 + 125-day MA
+                const sp500MA = calcSMA(sp500, 125);
+                const momentumBadge = assessIndicator('momentum', sp500, sp500MA);
+                createIndicatorCard({
+                    title: t('momentumTitle'),
+                    subtitle: t('momentumSubtitle'),
+                    canvasId: 'chartMomentum',
+                    badge: momentumBadge,
+                    legends: [
+                        { label: t('sp500Legend'), color: '#1976d2' },
+                        { label: t('ma125Legend'), color: '#ef6c00' }
+                    ],
+                    datasets: [
+                        {
+                            label: 'S&P 500',
+                            data: sp500.map(d => ({ x: d.date, y: d.close })),
+                            borderColor: '#1976d2',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.1
+                        },
+                        {
+                            label: '125-day MA',
+                            data: sp500.map((d, i) => sp500MA[i] != null ? { x: d.date, y: sp500MA[i] } : null).filter(Boolean),
+                            borderColor: '#ef6c00',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            borderDash: [],
+                            tension: 0.1
+                        }
+                    ],
+                    yTickCallback: v => v.toLocaleString('en-US', { maximumFractionDigits: 0 }),
+                    tooltipCallbacks: {
+                        label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                    }
+                });
+
+                // 2. Market Volatility: VIX + 50-day MA
+                const vixMA = calcSMA(vix, 50);
+                const volBadge = assessIndicator('volatility', vix, vixMA);
+                createIndicatorCard({
+                    title: t('volatilityTitle'),
+                    subtitle: t('volatilitySubtitle'),
+                    canvasId: 'chartVolatility',
+                    badge: volBadge,
+                    legends: [
+                        { label: t('vixLegend'), color: '#1976d2' },
+                        { label: t('ma50Legend'), color: '#ef6c00' }
+                    ],
+                    datasets: [
+                        {
+                            label: 'VIX',
+                            data: vix.map(d => ({ x: d.date, y: d.close })),
+                            borderColor: '#1976d2',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.1
+                        },
+                        {
+                            label: '50-day MA',
+                            data: vix.map((d, i) => vixMA[i] != null ? { x: d.date, y: vixMA[i] } : null).filter(Boolean),
+                            borderColor: '#ef6c00',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.1
+                        }
+                    ],
+                    yTickCallback: v => v.toFixed(1),
+                    tooltipCallbacks: {
+                        label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}`
+                    }
+                });
+
+                // 3. Safe Haven Demand: SPY vs TLT 20-day rolling returns
+                const spyReturns = calcRollingReturn(spy, 20);
+                const tltReturns = calcRollingReturn(tlt, 20);
+                const minLen = Math.min(spy.length, tlt.length);
+                const safeHavenBadge = assessIndicator('safehaven', null, {
+                    spy: spyReturns.filter(v => v != null),
+                    tlt: tltReturns.filter(v => v != null)
+                });
+                createIndicatorCard({
+                    title: t('safeHavenTitle'),
+                    subtitle: t('safeHavenSubtitle'),
+                    canvasId: 'chartSafeHaven',
+                    badge: safeHavenBadge,
+                    legends: [
+                        { label: t('spyLegend'), color: '#1976d2' },
+                        { label: t('tltLegend'), color: '#ef6c00' }
+                    ],
+                    datasets: [
+                        {
+                            label: 'SPY Return',
+                            data: spy.map((d, i) => spyReturns[i] != null ? { x: d.date, y: spyReturns[i] } : null).filter(Boolean),
+                            borderColor: '#1976d2',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'TLT Return',
+                            data: tlt.map((d, i) => tltReturns[i] != null ? { x: d.date, y: tltReturns[i] } : null).filter(Boolean),
+                            borderColor: '#ef6c00',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.1
+                        }
+                    ],
+                    yTickCallback: v => v.toFixed(1) + '%',
+                    tooltipCallbacks: {
+                        label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%`
+                    }
+                });
+
+                // 4. Junk Bond Demand: HYG vs LQD spread (relative performance)
+                const hygReturns = calcRollingReturn(hyg, 20);
+                const lqdReturns = calcRollingReturn(lqd, 20);
+                const spreadData = [];
+                const hygLen = hyg.length;
+                const lqdLen = lqd.length;
+                // Align by date
+                const lqdMap = new Map();
+                lqd.forEach((d, i) => {
+                    if (lqdReturns[i] != null) {
+                        lqdMap.set(d.date.toISOString().split('T')[0], lqdReturns[i]);
+                    }
+                });
+                hyg.forEach((d, i) => {
+                    if (hygReturns[i] != null) {
+                        const key = d.date.toISOString().split('T')[0];
+                        const lqdVal = lqdMap.get(key);
+                        if (lqdVal != null) {
+                            spreadData.push({ x: d.date, y: hygReturns[i] - lqdVal });
+                        }
+                    }
+                });
+                const junkBadge = assessIndicator('junkbond', null, spreadData.map(d => d.y));
+                createIndicatorCard({
+                    title: t('junkBondTitle'),
+                    subtitle: t('junkBondSubtitle'),
+                    canvasId: 'chartJunkBond',
+                    badge: junkBadge,
+                    legends: [
+                        { label: t('hygLqdLegend'), color: '#1976d2' }
+                    ],
+                    datasets: [
+                        {
+                            label: 'HYG-LQD Spread',
+                            data: spreadData,
+                            borderColor: '#1976d2',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            tension: 0.1,
+                            fill: {
+                                target: 'origin',
+                                above: 'rgba(46,125,50,0.08)',
+                                below: 'rgba(211,47,47,0.08)'
+                            }
+                        }
+                    ],
+                    yTickCallback: v => v.toFixed(1) + '%',
+                    tooltipCallbacks: {
+                        label: ctx => `${t('spreadLabel')}: ${ctx.parsed.y.toFixed(2)}%`
+                    }
+                });
+
+                indicatorsLoaded = true;
+
+            } catch (e) {
+                console.error('Indicators fetch failed:', e);
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                errorEl.textContent = `${t('indicatorsError')} (${e.message})`;
+            }
+        }
+
+        // ══════════════════════════════════════
+        //  PORTFOLIO CALCULATOR
+        // ══════════════════════════════════════
+        let portfolioItems = JSON.parse(localStorage.getItem('fg-portfolio') || '[]');
+        // shape: [{ sym: string, qty: number, buyPrice: number, currentPrice: number|null, loading: boolean }]
+
+        function savePortfolio() {
+            const toSave = portfolioItems.map(({ sym, qty, buyPrice, currentPrice }) =>
+                ({ sym, qty, buyPrice, currentPrice }));
+            localStorage.setItem('fg-portfolio', JSON.stringify(toSave));
+        }
+
+        async function fetchCurrentPrice(sym) {
+            const url = `${YAHOO_CHART}${encodeURIComponent(sym.toUpperCase())}?range=1d&interval=1d&includePrePost=false`;
+            const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const json = await resp.json();
+            const price = json.chart?.result?.[0]?.meta?.regularMarketPrice;
+            if (price == null) throw new Error('No price');
+            return price;
+        }
+
+        function fmtNum(n) {
+            if (n == null || isNaN(n)) return t('calcErrorPrice');
+            return n >= 1000
+                ? n.toLocaleString(undefined, { maximumFractionDigits: 2 })
+                : n.toFixed(2);
+        }
+
+        function renderPortfolio() {
+            const list = document.getElementById('calcList');
+            if (!list) return;
+
+            if (portfolioItems.length === 0) {
+                list.innerHTML = `<div class="calc-empty">${t('calcEmpty')}</div>`;
+                return;
+            }
+
+            let totalCost = 0, totalValue = 0;
+            const rows = portfolioItems.map((item, idx) => {
+                const cost = item.qty * item.buyPrice;
+                const value = item.currentPrice != null ? item.qty * item.currentPrice : null;
+                const pnl = value != null ? value - cost : null;
+                const pnlPct = pnl != null ? (pnl / cost) * 100 : null;
+                const pnlClass = pnl == null ? '' : pnl >= 0 ? 'calc-pnl-pos' : 'calc-pnl-neg';
+                const pnlText = pnl == null
+                    ? (item.loading ? t('calcLoadingPrice') : t('calcErrorPrice'))
+                    : `${pnl >= 0 ? '+' : ''}${fmtNum(pnl)} (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)`;
+
+                if (value != null) { totalCost += cost; totalValue += value; }
+
+                return `
+                <div class="calc-item">
+                    <div class="calc-cell">
+                        <div class="calc-sym">${item.sym}</div>
+                        <div class="calc-sub">${item.qty} × ${fmtNum(item.buyPrice)}</div>
+                    </div>
+                    <div class="calc-cell">
+                        <div class="calc-cell-label">${t('calcCurrentPrice')}</div>
+                        <div class="calc-cell-val">${item.loading ? t('calcLoadingPrice') : fmtNum(item.currentPrice)}</div>
+                    </div>
+                    <div class="calc-cell">
+                        <div class="calc-cell-label">${t('calcValue')}</div>
+                        <div class="calc-cell-val">${value != null ? fmtNum(value) : (item.loading ? t('calcLoadingPrice') : t('calcErrorPrice'))}</div>
+                    </div>
+                    <div class="calc-cell">
+                        <div class="calc-cell-label">${t('calcReturn')}</div>
+                        <div class="calc-cell-val ${pnlClass}">${pnlText}</div>
+                    </div>
+                    <button class="calc-del-btn" onclick="removePortfolioItem(${idx})" title="Remove" ${item.loading ? 'disabled' : ''}>×</button>
+                </div>`;
+            }).join('');
+
+            const totalPnl = totalValue - totalCost;
+            const totalPct = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0;
+            const totalClass = totalPnl >= 0 ? 'calc-pnl-pos' : 'calc-pnl-neg';
+            const totalText = totalCost > 0
+                ? `${fmtNum(totalValue)} <span class="${totalClass}">(${totalPnl >= 0 ? '+' : ''}${totalPct.toFixed(1)}%)</span>`
+                : '–';
+
+            list.innerHTML = rows + `
+            <div class="calc-total-row">
+                <span class="calc-total-label">${t('calcTotal')}</span>
+                <span class="calc-total-val">${totalText}</span>
+            </div>`;
+        }
+
+        async function loadPriceForItem(idx) {
+            portfolioItems[idx].loading = true;
+            portfolioItems[idx].currentPrice = null;
+            renderPortfolio();
+            try {
+                portfolioItems[idx].currentPrice = await fetchCurrentPrice(portfolioItems[idx].sym);
+            } catch (e) {
+                portfolioItems[idx].currentPrice = null;
+            }
+            portfolioItems[idx].loading = false;
+            renderPortfolio();
+        }
+
+        function removePortfolioItem(idx) {
+            portfolioItems.splice(idx, 1);
+            savePortfolio();
+            renderPortfolio();
+        }
+
+        async function addPortfolioItem() {
+            const symEl = document.getElementById('calcSym');
+            const qtyEl = document.getElementById('calcQty');
+            const priceEl = document.getElementById('calcPrice');
+            const btn = document.getElementById('calcAddBtn');
+
+            const sym = symEl.value.trim().toUpperCase();
+            const qty = parseFloat(qtyEl.value);
+            const buyPrice = parseFloat(priceEl.value);
+
+            if (!sym || isNaN(qty) || qty <= 0 || isNaN(buyPrice) || buyPrice <= 0) return;
+
+            btn.disabled = true;
+            const idx = portfolioItems.length;
+            portfolioItems.push({ sym, qty, buyPrice, currentPrice: null, loading: true });
+            savePortfolio();
+            renderPortfolio();
+
+            symEl.value = '';
+            qtyEl.value = '';
+            priceEl.value = '';
+            btn.disabled = false;
+            symEl.focus();
+
+            await loadPriceForItem(idx);
+            savePortfolio();
+        }
+
+        document.getElementById('calcAddBtn').addEventListener('click', addPortfolioItem);
+        ['calcSym', 'calcQty', 'calcPrice'].forEach(id => {
+            document.getElementById(id).addEventListener('keydown', e => {
+                if (e.key === 'Enter') addPortfolioItem();
+            });
+        });
+
+        // 앱 로드 시 저장된 항목 복원 + 가격 갱신
+        (async () => {
+            renderPortfolio();
+            for (let i = 0; i < portfolioItems.length; i++) {
+                await loadPriceForItem(i);
+                savePortfolio();
+            }
+        })();
+
+        // ══════════════════════════════════════
+        //  THEME & LANGUAGE TOGGLES
+        // ══════════════════════════════════════
+        // Cache raw data values for re-render on language/theme switch
+        let _cachedScores = null;
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('fg-theme', currentTheme);
+            applyTheme();
+            if (_cachedScores) {
+                const { current } = _cachedScores;
+                drawGauge(current);
+                updateInterpreter(current);
+            }
+            if (filteredData.length > 0) drawTimeline();
+            calendarDataMap = null;
+            if (document.getElementById('calendarView').classList.contains('active')) drawCalendar();
+            if (document.getElementById('watchlistView').classList.contains('active')) renderWatchlist(watchlistData);
+            // Reset indicators so they re-render with new theme colors
+            indicatorsLoaded = false;
+            document.getElementById('indicatorsContainer').innerHTML = '';
+        });
+
+        document.getElementById('langToggle').addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'ko' : 'en';
+            localStorage.setItem('fg-lang', currentLang);
+            applyTranslations();
+            calendarDataMap = null;
+            updateCalYearBtnLabels();
+            if (document.getElementById('calendarView').classList.contains('active')) drawCalendar();
+            document.getElementById('wlInput').placeholder = t('wlAddPlaceholder');
+            if (document.getElementById('watchlistView').classList.contains('active')) renderWatchlist(watchlistData);
+            if (_cachedScores) {
+                const { current, prevClose, week, month, year, timestamp } = _cachedScores;
+                drawGauge(current);
+                renderHistory([
+                    { period: t('previousClose'), score: prevClose ?? current },
+                    { period: t('oneWeekAgo'),    score: week ?? current },
+                    { period: t('oneMonthAgo'),   score: month ?? current },
+                    { period: t('oneYearAgo'),    score: year ?? current },
+                ]);
+                lastUpdated.textContent = formatUpdateTime(timestamp);
+                updateInterpreter(current);
+            }
+            if (filteredData.length > 0) drawTimeline();
+            // Reset indicators so they re-render in new language when tab is next opened
+            indicatorsLoaded = false;
+            document.getElementById('indicatorsContainer').innerHTML = '';
+            // Re-apply FX status text
+            if (typeof fxSecondsLeft !== 'undefined' && fxSecondsLeft > 0 && fxSecondsLeft < FX_REFRESH) {
+                document.getElementById('fxStatusText').textContent = t('fxNextUpdate')(fxSecondsLeft);
+            }
+            // Re-apply market status text
+            if (typeof mktSecondsLeft !== 'undefined' && mktSecondsLeft > 0 && mktSecondsLeft < MKT_REFRESH) {
+                const mktEl = document.getElementById('mktStatusText');
+                if (mktEl) mktEl.textContent = t('mktNextUpdate')(mktSecondsLeft);
+            }
+            // Re-label S&P500 toggle button
+            const toggleBtn = document.getElementById('sp500ToggleBtn');
+            if (toggleBtn) toggleBtn.textContent = t('sp500Overlay');
+            document.getElementById('shareBtnLabel').textContent = t('shareTitle');
+            renderPortfolio();
+        });
+
+        // ══════════════════════════════════════
+        //  EXCHANGE RATES
+        // ══════════════════════════════════════
+        const FX_PAIRS = [
+            { flag: '🇺🇸', label: 'USD / KRW', decimals: 2 },
+            { flag: '🇯🇵', label: '100 JPY / KRW', decimals: 2 },
+            { flag: '🇨🇳', label: 'CNY / KRW', decimals: 2 },
+            { flag: '🇪🇺', label: 'EUR / KRW', decimals: 2 },
+        ];
+
+        const FX_REFRESH = 86400; // seconds (24h)
+        let fxSecondsLeft = FX_REFRESH;
+        let fxIntervalId = null;
+
+        function setFxDot(state) { // 'loading' | 'live' | 'error'
+            const dot = document.getElementById('fxDot');
+            dot.className = 'fx-live-dot' + (state !== 'live' ? ' ' + state : '');
+        }
+
+        // Daily cache: { date, values, prevDate, prevValues }
+        function getFxCache() { return JSON.parse(localStorage.getItem('fg-fx-cache') || 'null'); }
+        function setFxCache(date, values, prevDate, prevValues) {
+            localStorage.setItem('fg-fx-cache', JSON.stringify({ date, values, prevDate, prevValues }));
+        }
+
+        function calcFxRates(r) {
+            // r = rates object from open.er-api.com (all vs USD)
+            return [
+                r.KRW,                          // USD/KRW
+                (r.KRW / r.JPY) * 100,          // 100 JPY/KRW
+                r.KRW / r.CNY,                  // CNY/KRW
+                r.KRW / r.EUR,                  // EUR/KRW
+            ];
+        }
+
+        function renderFxCards(values, prevValues) {
+            const grid = document.getElementById('fxGrid');
+            grid.innerHTML = '';
+            FX_PAIRS.forEach((pair, i) => {
+                const rate   = values[i];
+                const prev   = prevValues ? prevValues[i] : null;
+                const chgAbs = prev !== null ? rate - prev : 0;
+                const chgPct = (prev !== null && prev !== 0) ? (chgAbs / prev) * 100 : 0;
+                const hasChg = prev !== null;
+                const isUp   = chgPct >= 0;
+                const arrow  = isUp ? '▲' : '▼';
+                const cls    = isUp ? 'fx-up' : 'fx-down';
+                const sign   = isUp ? '+' : '';
+
+                const changeHtml = hasChg
+                    ? `<div class="fx-change ${cls}">${arrow} ${sign}${chgPct.toFixed(2)}% (${sign}${chgAbs.toFixed(pair.decimals)})</div>`
+                    : `<div class="fx-change" style="color:var(--text-dimmer)">— —</div>`;
+
+                const card = document.createElement('div');
+                card.className = 'fx-card';
+                card.innerHTML = `
+                    <div class="fx-pair">${pair.flag} ${pair.label}</div>
+                    <div class="fx-rate">${rate.toLocaleString('ko-KR', { minimumFractionDigits: pair.decimals, maximumFractionDigits: pair.decimals })}</div>
+                    ${changeHtml}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function fetchExchangeRates() {
+            setFxDot('loading');
+            document.getElementById('fxStatusText').textContent = t('fxLoading');
+            try {
+                const resp = await fetch('https://open.er-api.com/v6/latest/USD');
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const json = await resp.json();
+                if (json.result !== 'success') throw new Error('API error');
+
+                const today  = new Date().toISOString().slice(0, 10);
+                const cache  = getFxCache();
+                const values = calcFxRates(json.rates);
+
+                // Determine yesterday's values for % comparison
+                let prevValues = null;
+                if (cache && cache.date !== today) {
+                    prevValues = cache.values;           // cache is from a previous day
+                } else if (cache && cache.date === today) {
+                    prevValues = cache.prevValues;       // use stored yesterday on same-day reload
+                }
+
+                // Rotate cache: old today → yesterday, new fetch → today
+                const prevDate   = cache ? cache.date   : null;
+                const prevStored = cache && cache.date !== today ? cache.values : (cache ? cache.prevValues : null);
+                setFxCache(today, values, prevDate, prevStored);
+
+                renderFxCards(values, prevValues);
+
+                setFxDot('live');
+                document.getElementById('fxStatusText').textContent = t('fxJustUpdated');
+                fxSecondsLeft = FX_REFRESH;
+            } catch (e) {
+                console.warn('FX fetch failed:', e.message);
+                setFxDot('error');
+                document.getElementById('fxStatusText').textContent = t('fxError');
+            }
+        }
+
+        function startFxCountdown() {
+            if (fxIntervalId) clearInterval(fxIntervalId);
+            fxSecondsLeft = FX_REFRESH;
+            fxIntervalId = setInterval(() => {
+                fxSecondsLeft = Math.max(0, fxSecondsLeft - 1);
+                const fill = document.getElementById('fxCountdownFill');
+                if (fill) fill.style.width = (fxSecondsLeft / FX_REFRESH * 100) + '%';
+                const statusEl = document.getElementById('fxStatusText');
+                if (statusEl && fxSecondsLeft > 0) {
+                    statusEl.textContent = t('fxNextUpdate')(fxSecondsLeft);
+                }
+                if (fxSecondsLeft <= 0) {
+                    fetchExchangeRates().then(() => {
+                        fxSecondsLeft = FX_REFRESH;
+                    });
+                }
+            }, 1000);
+        }
+
+        // ─── Market Ticker ───────────────────────────────────────────────────────
+        const MKT_SYMBOLS = [
+            { sym: '^KS11',  name: 'KOSPI',   fmt: (v) => v.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) },
+            { sym: '^IXIC',  name: 'NASDAQ',  fmt: (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2 }) },
+            { sym: '^GSPC',  name: 'S&P 500', fmt: (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2 }) },
+            { sym: '^DJI',   name: 'DOW',     fmt: (v) => v.toLocaleString('en-US', { maximumFractionDigits: 0 }) },
+            { sym: 'BTC-USD',name: 'BTC',     fmt: (v) => '$' + v.toLocaleString('en-US', { maximumFractionDigits: 0 }) },
+        ];
+
+        const MKT_REFRESH = 86400; // seconds (24h)
+        const WL_REFRESH  = 3600;  // watchlist refreshes hourly (prices change intraday)
+        let mktSecondsLeft = MKT_REFRESH;
+        let mktIntervalId = null;
+
+        function setMktDot(state) {
+            const dot = document.getElementById('mktDot');
+            if (dot) dot.className = 'mkt-live-dot' + (state !== 'live' ? ' ' + state : '');
+        }
+
+        function renderMktChips(results) {
+            const container = document.getElementById('mktChips');
+            container.innerHTML = '';
+            results.forEach(({ name, value, chgPct }) => {
+                const isUp  = chgPct >= 0;
+                const arrow = isUp ? '▲' : '▼';
+                const cls   = isUp ? 'mkt-up' : 'mkt-down';
+                const sign  = isUp ? '+' : '';
+                const chip  = document.createElement('div');
+                chip.className = 'mkt-chip';
+                chip.innerHTML = `
+                    <div class="mkt-chip-name">${name}</div>
+                    <div class="mkt-chip-value">${value}</div>
+                    <div class="mkt-chip-change ${cls}">${arrow} ${sign}${chgPct.toFixed(2)}%</div>
+                `;
+                container.appendChild(chip);
+            });
+        }
+
+        async function fetchOneMktSymbol(sym) {
+            const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=5d&interval=1d`;
+            const url = CORS_PROXY + encodeURIComponent(yahooUrl);
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const json = await resp.json();
+            const meta = json?.chart?.result?.[0]?.meta;
+            if (!meta) throw new Error('No meta');
+            return {
+                price:  meta.regularMarketPrice ?? meta.previousClose,
+                prevClose: meta.previousClose ?? meta.chartPreviousClose,
+            };
+        }
+
+        async function fetchMarketTicker() {
+            setMktDot('loading');
+            const statusEl = document.getElementById('mktStatusText');
+            if (statusEl) statusEl.textContent = t('mktLoading');
+            try {
+                const settled = await Promise.allSettled(
+                    MKT_SYMBOLS.map(m => fetchOneMktSymbol(m.sym))
+                );
+
+                const results = MKT_SYMBOLS.map((m, i) => {
+                    const r = settled[i];
+                    if (r.status === 'fulfilled' && r.value.price != null) {
+                        const price = r.value.price;
+                        const prev  = r.value.prevClose || price;
+                        const chgPct = prev ? ((price - prev) / prev) * 100 : 0;
+                        return { name: m.name, value: m.fmt(price), chgPct };
+                    }
+                    return { name: m.name, value: 'N/A', chgPct: 0 };
+                });
+
+                renderMktChips(results);
+                setMktDot('live');
+                if (statusEl) statusEl.textContent = t('mktJustUpdated');
+                mktSecondsLeft = MKT_REFRESH;
+            } catch (e) {
+                console.warn('Market ticker fetch failed:', e.message);
+                setMktDot('error');
+                if (statusEl) statusEl.textContent = t('mktError');
+            }
+        }
+
+        function startMktCountdown() {
+            if (mktIntervalId) clearInterval(mktIntervalId);
+            mktSecondsLeft = MKT_REFRESH;
+            mktIntervalId = setInterval(() => {
+                mktSecondsLeft = Math.max(0, mktSecondsLeft - 1);
+                const fill = document.getElementById('mktCountdownFill');
+                if (fill) fill.style.width = (mktSecondsLeft / MKT_REFRESH * 100) + '%';
+                const statusEl = document.getElementById('mktStatusText');
+                if (statusEl && mktSecondsLeft > 0) {
+                    statusEl.textContent = t('mktNextUpdate')(mktSecondsLeft);
+                }
+                if (mktSecondsLeft <= 0) {
+                    fetchMarketTicker().then(() => { mktSecondsLeft = MKT_REFRESH; });
+                }
+            }, 1000);
+        }
+
+        // ─── S&P 500 Overlay ─────────────────────────────────────────────────────
+        let sp500OverlayEnabled = false;
+        let _sp500Cache = null; // { dates:[], closes:[] }
+
+        // ─── Calendar Heatmap ─────────────────────────────────────────────────────
+        const CAL_CELL = 14;
+        const CAL_GAP  = 3;
+        const CAL_STEP = CAL_CELL + CAL_GAP;
+        const CAL_PAD_L = 28;   // space for day labels (M/W/F)
+        const CAL_PAD_T = 24;   // space for month labels
+        const CAL_PAD_R = 16;
+        const CAL_PAD_B = 16;
+
+        let calendarYear = new Date().getFullYear();
+        let calendarDataMap = null; // Map<'YYYY-MM-DD', score>
+
+        function buildCalendarMap() {
+            calendarDataMap = new Map();
+            historicalData.forEach(d => {
+                const dt  = new Date(d.x);
+                const key = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+                calendarDataMap.set(key, d.y);
+            });
+        }
+
+        function drawCalendar() {
+            if (!calendarDataMap) buildCalendarMap();
+
+            const canvas = document.getElementById('calendarCanvas');
+            const ctx    = canvas.getContext('2d');
+            const dpr    = window.devicePixelRatio || 1;
+
+            // Compute grid dimensions for chosen year
+            const jan1     = new Date(calendarYear, 0, 1);
+            const startDow = (jan1.getDay() + 6) % 7; // 0 = Mon
+            const isLeap   = (calendarYear % 4 === 0 && calendarYear % 100 !== 0) || calendarYear % 400 === 0;
+            const totalDays = startDow + (isLeap ? 366 : 365);
+            const totalWeeks = Math.ceil(totalDays / 7);
+
+            const W = CAL_PAD_L + totalWeeks * CAL_STEP + CAL_PAD_R;
+            const H = CAL_PAD_T + 7 * CAL_STEP + CAL_PAD_B;
+
+            canvas.width  = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width  = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, W, H);
+
+            const noDataColor = tc('#e8e8e8', '#21262d');
+            const textColor   = tc('#888888', '#8b949e');
+
+            // Day labels (M / W / F on rows 0,2,4)
+            ctx.fillStyle  = textColor;
+            ctx.font       = '10px Inter, sans-serif';
+            ctx.textAlign  = 'right';
+            ctx.textBaseline = 'middle';
+            ['M','','W','','F','',''].forEach((label, i) => {
+                if (label) ctx.fillText(label, CAL_PAD_L - 5, CAL_PAD_T + i * CAL_STEP + CAL_CELL / 2);
+            });
+
+            // Draw cells
+            let col = 0;
+            let row = startDow;
+            const cur       = new Date(calendarYear, 0, 1);
+            let prevMonth   = -1;
+
+            ctx.textAlign    = 'left';
+            ctx.textBaseline = 'alphabetic';
+
+            while (cur.getFullYear() === calendarYear) {
+                const month = cur.getMonth();
+                const key   = `${cur.getFullYear()}-${String(month+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
+                const score = calendarDataMap.get(key);
+
+                // Month label at first column of each new month
+                if (month !== prevMonth) {
+                    ctx.fillStyle = textColor;
+                    ctx.font      = '10px Inter, sans-serif';
+                    ctx.fillText(t('months')[month], CAL_PAD_L + col * CAL_STEP, CAL_PAD_T - 7);
+                    prevMonth = month;
+                }
+
+                ctx.fillStyle = score !== undefined ? getZone(score).color : noDataColor;
+                ctx.fillRect(CAL_PAD_L + col * CAL_STEP, CAL_PAD_T + row * CAL_STEP, CAL_CELL, CAL_CELL);
+
+                row++;
+                if (row === 7) { row = 0; col++; }
+                cur.setDate(cur.getDate() + 1);
+            }
+        }
+
+        (function attachCalendarInteraction() {
+            const canvas  = document.getElementById('calendarCanvas');
+            const tooltip = document.getElementById('calTooltip');
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const mx   = e.clientX - rect.left;
+                const my   = e.clientY - rect.top;
+
+                const col = Math.floor((mx - CAL_PAD_L) / CAL_STEP);
+                const row = Math.floor((my - CAL_PAD_T) / CAL_STEP);
+
+                if (col < 0 || row < 0 || row >= 7) { tooltip.style.display = 'none'; return; }
+
+                const jan1     = new Date(calendarYear, 0, 1);
+                const startDow = (jan1.getDay() + 6) % 7;
+                const dayIndex = col * 7 + row - startDow;
+                if (dayIndex < 0) { tooltip.style.display = 'none'; return; }
+
+                const date = new Date(calendarYear, 0, 1 + dayIndex);
+                if (date.getFullYear() !== calendarYear) { tooltip.style.display = 'none'; return; }
+
+                const key   = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+                const score = calendarDataMap ? calendarDataMap.get(key) : undefined;
+
+                tooltip.querySelector('.tt-date').textContent  = date.toLocaleDateString();
+                tooltip.querySelector('.tt-score').textContent = score !== undefined
+                    ? `${Math.round(score)} — ${t(getZone(score).labelKey)}`
+                    : t('calNoData');
+
+                const wrapRect = canvas.parentElement.getBoundingClientRect();
+                let tipX = e.clientX - wrapRect.left + 12;
+                let tipY = e.clientY - wrapRect.top  - 8;
+                tooltip.style.display = 'block';
+                tooltip.style.left    = tipX + 'px';
+                tooltip.style.top     = tipY + 'px';
+            });
+
+            canvas.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+        })();
+
+        const CAL_THIS_YEAR = new Date().getFullYear(); // module-level for lang toggle use
+
+        function updateCalYearBtnLabels() {
+            document.getElementById('calBtnCurrent').textContent = t('calThisYear') + ' (' + CAL_THIS_YEAR + ')';
+            document.getElementById('calBtnPrev').textContent    = t('calLastYear') + ' (' + (CAL_THIS_YEAR - 1) + ')';
+        }
+
+        (function initCalendarYears() {
+            const btnCurrent = document.getElementById('calBtnCurrent');
+            const btnPrev    = document.getElementById('calBtnPrev');
+
+            updateCalYearBtnLabels();
+
+            btnCurrent.addEventListener('click', () => {
+                calendarYear = CAL_THIS_YEAR;
+                calendarDataMap = null;
+                btnCurrent.classList.add('active');
+                btnPrev.classList.remove('active');
+                if (historicalData.length > 0) drawCalendar();
+            });
+
+            btnPrev.addEventListener('click', () => {
+                calendarYear = CAL_THIS_YEAR - 1;
+                calendarDataMap = null;
+                btnPrev.classList.add('active');
+                btnCurrent.classList.remove('active');
+                if (historicalData.length > 0) drawCalendar();
+            });
+        })();
+
+        (function initShareButton() {
+            const btn   = document.getElementById('shareBtn');
+            const label = document.getElementById('shareBtnLabel');
+
+            function updateLabel(text) {
+                label.textContent = text;
+                btn.title = text;
+            }
+            updateLabel(t('shareTitle'));
+
+            btn.addEventListener('click', async () => {
+                if (!_cachedScores) return;
+                const { current } = _cachedScores;
+                const zoneName    = t(getZone(current).labelKey);
+                const shareText   = `Fear & Greed: ${Math.round(current)} (${zoneName})`;
+                const shareUrl    = location.href;
+
+                if (navigator.share) {
+                    try {
+                        await navigator.share({ title: 'Fear & Greed Index', text: shareText, url: shareUrl });
+                    } catch (err) {
+                        if (err.name !== 'AbortError') console.warn('Share failed:', err);
+                    }
+                } else {
+                    try {
+                        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+                        updateLabel(t('shareCopied'));
+                        setTimeout(() => updateLabel(t('shareTitle')), 1500);
+                    } catch {
+                        // Clipboard not available — silently ignore
+                    }
+                }
+            });
+        })();
+
+        // ─── Watchlist Tab ────────────────────────────────────────────────────────
+        let watchlistData = [];
+        let wlLoaded      = false;
+        let wlIntervalId  = null;
+        let wlSecondsLeft = WL_REFRESH;
+
+        function getWatchlist() {
+            return JSON.parse(localStorage.getItem('fg-watchlist') || '[]');
+        }
+
+        function saveWatchlist(items) {
+            localStorage.setItem('fg-watchlist', JSON.stringify(
+                items.map(({ sym, name, currency }) => ({ sym, name, currency }))
+            ));
+        }
+
+        function fmtWlPrice(price, currency) {
+            if (currency === 'KRW') {
+                return '₩' + price.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+            }
+            return '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        async function fetchWatchlistItem(sym) {
+            const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d`;
+            const url = CORS_PROXY + encodeURIComponent(yahooUrl);
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const json = await resp.json();
+            const meta = json?.chart?.result?.[0]?.meta;
+            if (!meta || !meta.regularMarketPrice) throw new Error('No data');
+            const price     = meta.regularMarketPrice;
+            const prevClose = meta.previousClose ?? meta.chartPreviousClose ?? price;
+            const change    = price - prevClose;
+            const pct       = prevClose ? (change / prevClose) * 100 : 0;
+            return {
+                sym,
+                name:     meta.shortName || sym,
+                price,
+                change,
+                pct,
+                prevClose,
+                currency: meta.currency || 'USD',
+            };
+        }
+
+        function renderWatchlist(data) {
+            const wrap = document.getElementById('wlTableWrap');
+            if (!wrap) return;
+            watchlistData = data;
+
+            if (data.length === 0) {
+                wrap.innerHTML = `<div class="wl-empty">${t('wlEmpty')}</div>`;
+                return;
+            }
+
+            const upColor   = currentTheme === 'dark' ? '#4ade80' : '#16a34a';
+            const downColor = currentTheme === 'dark' ? '#f87171' : '#dc2626';
+
+            const rows = data.map((item, i) => {
+                if (item.loading) {
+                    return `<tr>
+                        <td class="wl-name">${item.sym}</td>
+                        <td>…</td><td>…</td><td>…</td>
+                        <td class="wl-hide-mobile">…</td>
+                        <td><button class="wl-remove" onclick="removeWatchlistItem(${i})">×</button></td>
+                    </tr>`;
+                }
+                const isUp   = item.change >= 0;
+                const color  = item.change === 0 ? 'var(--text-muted)' : (isUp ? upColor : downColor);
+                const sign   = isUp ? '+' : '−';
+                const absStr = fmtWlPrice(Math.abs(item.change), item.currency).replace(/^[\$₩]/, '');
+                return `<tr>
+                    <td class="wl-name" title="${item.name}">${item.name}</td>
+                    <td>${fmtWlPrice(item.price, item.currency)}</td>
+                    <td style="color:${color}">${sign}${absStr}</td>
+                    <td style="color:${color}">${isUp ? '+' : ''}${item.pct.toFixed(2)}%</td>
+                    <td class="wl-hide-mobile">${fmtWlPrice(item.prevClose, item.currency)}</td>
+                    <td><button class="wl-remove" onclick="removeWatchlistItem(${i})">×</button></td>
+                </tr>`;
+            }).join('');
+
+            wrap.innerHTML = `<table class="wl-table">
+                <thead><tr>
+                    <th>${t('wlColName')}</th>
+                    <th>${t('wlColPrice')}</th>
+                    <th>${t('wlColChange')}</th>
+                    <th>${t('wlColPct')}</th>
+                    <th class="wl-hide-mobile">${t('wlColPrev')}</th>
+                    <th></th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+        }
+
+        async function fetchAllWatchlist() {
+            const saved = getWatchlist();
+            if (saved.length === 0) { renderWatchlist([]); return; }
+
+            renderWatchlist(saved.map(s => ({ ...s, loading: true })));
+
+            const settled = await Promise.allSettled(saved.map(s => fetchWatchlistItem(s.sym)));
+            const results = saved.map((s, i) => {
+                const r = settled[i];
+                if (r.status === 'fulfilled') return r.value;
+                return { sym: s.sym, name: s.name || s.sym, price: 0, change: 0, pct: 0, prevClose: 0, currency: s.currency || 'USD' };
+            });
+            saveWatchlist(results);
+            renderWatchlist(results);
+        }
+
+        function removeWatchlistItem(i) {
+            const saved = getWatchlist();
+            saved.splice(i, 1);
+            saveWatchlist(saved);
+            watchlistData.splice(i, 1);
+            renderWatchlist(watchlistData);
+        }
+
+        function startWlCountdown() {
+            if (wlIntervalId) clearInterval(wlIntervalId);
+            wlSecondsLeft = WL_REFRESH;
+            wlIntervalId  = setInterval(() => {
+                wlSecondsLeft = Math.max(0, wlSecondsLeft - 1);
+                if (wlSecondsLeft <= 0) {
+                    if (document.getElementById('watchlistView').classList.contains('active')) {
+                        fetchAllWatchlist().then(() => { wlSecondsLeft = WL_REFRESH; });
+                    } else {
+                        wlSecondsLeft = WL_REFRESH;
+                    }
+                }
+            }, 1000);
+        }
+
+        (function initWatchlist() {
+            const input  = document.getElementById('wlInput');
+            const addBtn = document.getElementById('wlAddBtn');
+            const errEl  = document.getElementById('wlError');
+
+            input.placeholder = t('wlAddPlaceholder');
+
+            function showErr(key) { errEl.textContent = t(key); }
+            function clearErr()   { errEl.textContent = '';     }
+
+            async function doAdd() {
+                clearErr();
+                let sym = input.value.trim().toUpperCase();
+                if (!sym) return;
+                if (/^\d+$/.test(sym)) sym = sym + '.KS';
+
+                const saved = getWatchlist();
+                if (saved.some(s => s.sym === sym)) { showErr('wlDuplicate'); return; }
+
+                addBtn.disabled = true;
+                input.disabled  = true;
+                try {
+                    const item    = await fetchWatchlistItem(sym);
+                    const updated = [...saved, { sym: item.sym, name: item.name, currency: item.currency }];
+                    saveWatchlist(updated);
+                    watchlistData.push(item);
+                    renderWatchlist(watchlistData);
+                    input.value = '';
+                } catch {
+                    showErr('wlInvalidSym');
+                } finally {
+                    addBtn.disabled = false;
+                    input.disabled  = false;
+                    input.focus();
+                }
+            }
+
+            addBtn.addEventListener('click', doAdd);
+            input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doAdd(); });
+        })();
+
+        async function fetchAndCacheSP500() {
+            try {
+                // Fetch 2 years so all time period views (1W–1Y) are covered
+                const yahooUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?range=2y&interval=1d';
+                const url  = CORS_PROXY + encodeURIComponent(yahooUrl);
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                const json = await resp.json();
+                const chart = json?.chart?.result?.[0];
+                if (!chart) throw new Error('No data');
+                const timestamps = chart.timestamp;
+                const closes     = chart.indicators.quote[0].close;
+                // Store timestamps as ms (UTC) for direct comparison with FG timestamps
+                _sp500Cache = {
+                    ts:     timestamps.map(t => t * 1000),  // seconds → ms
+                    closes: closes,
+                };
+            } catch (e) {
+                console.warn('SP500 fetch failed:', e.message);
+                _sp500Cache = null;
+            }
+        }
+
+        // ─── Apply theme + translations on load ──────────────────────────────────
+        applyTheme();
+        applyTranslations();
+
+        fetchExchangeRates().then(startFxCountdown);
+        fetchMarketTicker().then(startMktCountdown);
+        fetchData();
+
+        // ─── Service Worker ───────────────────────────────────────────────────────
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+<footer class="page-footer">
+    <a href="/" class="footer-brand"><span class="footer-brand-dot"></span>임광호 포트폴리오</a>
+    <span class="footer-copy">직접 제작한 금융 분석 도구 · © 2026</span>
+</footer>
+</body>
+</html>

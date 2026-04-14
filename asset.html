@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자산 계산기 | 임광호 포트폴리오</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background: #f8f7f4; color: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; }
+        .topnav { position: sticky; top: 0; z-index: 200; background: rgba(9,9,14,0.97); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 0 2rem; display: flex; align-items: center; gap: 0.25rem; height: 54px; }
+        .topnav-logo { font-weight: 800; font-size: 0.88rem; color: #fff; text-decoration: none; margin-right: auto; display: flex; align-items: center; gap: 0.45rem; letter-spacing: -0.01em; }
+        .topnav-logo-dot { width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#3b82f6); flex-shrink: 0; }
+        .topnav-link { font-size: 0.79rem; font-weight: 500; color: rgba(255,255,255,0.38); text-decoration: none; white-space: nowrap; padding: 0.35rem 0.65rem; border-radius: 7px; transition: color 0.15s, background 0.15s; }
+        .topnav-link:hover, .topnav-link:focus-visible { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.07); outline: none; }
+        .topnav-link.active { color: #a5b4fc; font-weight: 600; background: rgba(99,102,241,0.15); }
+        .page-wrap { flex: 1; max-width: 920px; width: 100%; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+        .page-header { margin-bottom: 1.25rem; }
+        .page-header h1 { font-size: clamp(1.7rem, 4vw, 2.2rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.35rem; }
+        .page-header p { color: #777; font-size: 0.92rem; line-height: 1.65; }
+        .tab-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
+        .tab-btn { border: 1px solid #e6e6e6; background: #fff; color: #666; border-radius: 10px; padding: 0.7rem 0.95rem; font: inherit; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.12s; }
+        .tab-btn.active { border-color: #6366f1; background: rgba(99,102,241,0.12); color: #4338ca; }
+        .tab-btn:hover, .tab-btn:focus-visible { border-color: #c7d2fe; outline: none; }
+        .tool-panel { display: none; }
+        .tool-panel.active { display: block; }
+        .tool-intro { margin-bottom: 1rem; padding: 1rem 1.1rem; border-radius: 12px; background: #fff; border: 1px solid #e8e8e8; }
+        .tool-intro strong { display: block; font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .tool-intro p { color: #777; font-size: 0.84rem; line-height: 1.6; }
+        .card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
+        .card-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #aaa; margin-bottom: 1.1rem; }
+        .slider-row { display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1.1rem; }
+        .slider-row:last-of-type { margin-bottom: 0; }
+        .slider-label { font-size: 0.82rem; color: #555; width: 110px; flex-shrink: 0; }
+        .slider-row input[type=range] { flex: 1; accent-color: #3b82f6; cursor: pointer; }
+        .slider-value { font-size: 0.85rem; font-weight: 700; color: #1a1a1a; min-width: 84px; text-align: right; }
+        .stats-grid { display: grid; gap: 0.75rem; margin-top: 1.15rem; }
+        .stats-grid.four { grid-template-columns: repeat(4, 1fr); }
+        .stats-grid.three { grid-template-columns: repeat(3, 1fr); }
+        .stats-grid.six { grid-template-columns: repeat(3, 1fr); }
+        .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+        .stat-box, .stat-card { background: #f8f7f4; border-radius: 10px; padding: 0.875rem 1rem; }
+        .stat-label, .lbl { font-size: 0.7rem; color: #999; margin-bottom: 0.35rem; white-space: nowrap; }
+        .stat-value, .num { font-size: 1.05rem; font-weight: 800; color: #1a1a1a; }
+        .stat-value.blue { color: #2563eb; }
+        .num { font-size: 1.25rem; letter-spacing: -0.02em; }
+        .progress-wrap { display: flex; border-radius: 8px; overflow: hidden; height: 34px; margin-top: 1.15rem; font-size: 0.78rem; font-weight: 700; }
+        .progress-profit, .progress-principal { display: flex; align-items: center; justify-content: center; }
+        .progress-profit { background: #3b82f6; color: #fff; min-width: 60px; transition: width 0.25s; }
+        .progress-principal { background: #a7f3d0; color: #065f46; flex: 1; }
+        .chart-legend { display: flex; gap: 1.25rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.76rem; color: #555; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .chart-wrap { position: relative; height: 280px; }
+        .big-result { text-align: center; padding: 1.5rem 1rem 1rem; }
+        .big-time { font-size: clamp(2.2rem, 8vw, 3.25rem); font-weight: 800; color: #1a1a1a; letter-spacing: -0.03em; line-height: 1.1; }
+        .big-time.impossible { font-size: 1.5rem; color: #ef4444; }
+        .big-subtitle { font-size: 0.85rem; color: #888; margin-top: 0.4rem; }
+        .badge { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-top: 0.75rem; }
+        .badge-fast { background: #dcfce7; color: #16a34a; }
+        .badge-normal { background: #fef9c3; color: #854d0e; }
+        .badge-slow { background: #fee2e2; color: #b91c1c; }
+        .year-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        .year-table th { text-align: left; padding: 0.5rem 0.75rem; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #aaa; border-bottom: 1px solid #e8e8e8; }
+        .year-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f5f5f5; color: #333; vertical-align: middle; }
+        .year-table tr.achieved-row td { background: #eff6ff; font-weight: 600; color: #1d4ed8; }
+        .pbar-bg { background: #f0f0f0; border-radius: 4px; height: 7px; min-width: 80px; }
+        .pbar-fill { background: #3b82f6; border-radius: 4px; height: 7px; transition: width 0.2s; }
+        .pbar-fill.done { background: #22c55e; }
+        .table-note { font-size: 0.72rem; color: #bbb; margin-top: 0.75rem; line-height: 1.5; }
+        .cal-section, .day-panel { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; }
+        .cal-section { margin-bottom: 1rem; }
+        .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+        .cal-nav-btn { background: none; border: 1px solid #e8e8e8; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 0.9rem; color: #555; display: flex; align-items: center; justify-content: center; }
+        .cal-title { font-size: 1rem; font-weight: 700; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+        .cal-dow { text-align: center; font-size: 0.62rem; font-weight: 700; color: #bbb; padding: 0.25rem 0 0.5rem; }
+        .cal-cell { border-radius: 8px; padding: 0.4rem 0.35rem 0.35rem; min-height: 52px; cursor: pointer; transition: background 0.12s; position: relative; }
+        .cal-cell:hover { background: #f5f5f5; }
+        .cal-cell.other-month { opacity: 0.3; pointer-events: none; }
+        .cal-cell.today { background: rgba(251,191,36,0.12); }
+        .cal-cell.selected { background: rgba(99,102,241,0.1); outline: 2px solid #6366f1; outline-offset: -2px; }
+        .cal-day-num { font-size: 0.72rem; font-weight: 600; color: #555; line-height: 1; }
+        .cal-dots { margin-top: 4px; display: flex; gap: 3px; flex-wrap: wrap; }
+        .cal-dot { width: 7px; height: 7px; border-radius: 50%; }
+        .dot-buy { background: #3b82f6; } .dot-sell { background: #ef4444; } .dot-both { background: #8b5cf6; }
+        .day-panel-title { font-size: 0.92rem; font-weight: 700; margin-bottom: 1rem; }
+        .entry-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.25rem; }
+        .entry-item { display: flex; align-items: flex-start; gap: 0.75rem; background: #fafafa; border: 1px solid #f0f0f0; border-radius: 10px; padding: 0.75rem 0.875rem; }
+        .entry-badge { font-size: 0.62rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; margin-top: 1px; }
+        .badge-buy { background: #dbeafe; color: #1d4ed8; } .badge-sell { background: #fee2e2; color: #b91c1c; }
+        .entry-body { flex: 1; min-width: 0; }
+        .entry-main { font-size: 0.82rem; font-weight: 700; color: #1a1a1a; }
+        .entry-sub { font-size: 0.75rem; color: #888; margin-top: 2px; }
+        .entry-delete { background: none; border: none; cursor: pointer; color: #ccc; font-size: 0.85rem; padding: 2px 4px; border-radius: 4px; line-height: 1; }
+        .entry-delete:hover { color: #ef4444; }
+        .empty-state { text-align: center; color: #ccc; font-size: 0.82rem; padding: 1.5rem 0 0.5rem; margin-bottom: 1.25rem; }
+        .form-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #bbb; margin-bottom: 0.875rem; }
+        .type-toggle { display: flex; gap: 0.4rem; margin-bottom: 0.875rem; }
+        .type-btn { flex: 1; padding: 0.5rem; border-radius: 8px; border: 1.5px solid #e8e8e8; background: #fff; font-size: 0.78rem; font-weight: 700; cursor: pointer; color: #888; font-family: inherit; }
+        .type-btn.active-buy { border-color: #3b82f6; background: #dbeafe; color: #1d4ed8; }
+        .type-btn.active-sell { border-color: #ef4444; background: #fee2e2; color: #b91c1c; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.6rem; }
+        .form-field { display: flex; flex-direction: column; gap: 4px; }
+        .form-field label { font-size: 0.65rem; font-weight: 700; color: #aaa; letter-spacing: 0.05em; text-transform: uppercase; }
+        .form-field input { border: 1px solid #e8e8e8; border-radius: 8px; padding: 0.5rem 0.625rem; font-size: 0.82rem; font-family: inherit; color: #1a1a1a; outline: none; background: #fff; }
+        .form-field input:focus { border-color: #6366f1; }
+        .add-btn { width: 100%; padding: 0.625rem; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 0.82rem; font-weight: 700; font-family: inherit; cursor: pointer; }
+        .page-footer { background: #09090e; border-top: 1px solid rgba(255,255,255,0.05); padding: 1.25rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+        .footer-brand { display: flex; align-items: center; gap: 0.45rem; font-size: 0.76rem; font-weight: 700; color: rgba(255,255,255,0.3); text-decoration: none; }
+        .footer-brand-dot { width: 6px; height: 6px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#3b82f6); flex-shrink: 0; }
+        .footer-copy { font-size: 0.7rem; color: rgba(255,255,255,0.18); }
+        @media (max-width: 700px) { .topnav { padding: 0 1.25rem; } .page-wrap { padding: 1.25rem 1rem 3rem; } .stats-grid.four, .stats-grid.three, .stats-grid.six, .stats-bar { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 560px) { .slider-row { flex-wrap: wrap; gap: 0.3rem 0.5rem; } .slider-label { width: auto; flex: 1; font-size: 0.76rem; order: 1; } .slider-value { min-width: auto; font-size: 0.78rem; white-space: nowrap; order: 2; } .slider-row input[type=range] { flex-basis: 100%; order: 3; } .form-grid { grid-template-columns: 1fr; } .year-table th:nth-child(4), .year-table td:nth-child(4) { display: none; } }
+        @media (max-width: 480px) { .topnav-link:not(.active) { display: none; } .page-footer { flex-direction: column; gap: 0.3rem; text-align: center; } .stats-grid.four, .stats-grid.three, .stats-grid.six, .stats-bar { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/" class="topnav-logo"><span class="topnav-logo-dot"></span>임광호 포트폴리오</a>
+        <a href="/" class="topnav-link">홈</a>
+        <a href="/fear-greed.html" class="topnav-link">공포탐욕지수</a>
+        <a href="/asset.html" class="topnav-link active">자산 계산기</a>
+        <a href="/backtest.html" class="topnav-link">백테스트</a>
+        <a href="/workout.html" class="topnav-link">운동 루틴</a>
+        <a href="/agents.html" class="topnav-link">AI 에이전트</a>
+    </nav>
+    <div class="page-wrap">
+        <div class="page-header">
+            <h1>자산 계산기</h1>
+            <p>복리 계산, 목표 자산 시뮬레이션, 매매 기록을 한 곳에서 다룰 수 있도록 묶은 통합 도구입니다.</p>
+        </div>
+        <div class="tab-bar" aria-label="자산 계산기 기능 선택">
+            <button class="tab-btn active" data-tab="compound" type="button">복리 계산</button>
+            <button class="tab-btn" data-tab="goal" type="button">목표 자산</button>
+            <button class="tab-btn" data-tab="journal" type="button">매매일지</button>
+        </div>
+        <section class="tool-panel active" data-panel="compound">
+            <div class="tool-intro"><strong>복리 계산</strong><p>초기 투자금과 연간 투자금을 기준으로 복리 성장, 단리 성장, 원금 흐름을 함께 비교합니다.</p></div>
+            <div class="card">
+                <div class="card-title">투자 조건</div>
+                <div class="slider-row"><span class="slider-label">초기 투자금</span><input type="range" id="c-principal" min="0" max="100000000" step="1000000" value="10000000"><span class="slider-value" id="c-principal-value">₩1,000만</span></div>
+                <div class="slider-row"><span class="slider-label">연간 투자금</span><input type="range" id="c-annual" min="0" max="50000000" step="500000" value="3000000"><span class="slider-value" id="c-annual-value">₩300만</span></div>
+                <div class="slider-row"><span class="slider-label">연 수익률</span><input type="range" id="c-rate" min="1" max="30" step="0.5" value="7"><span class="slider-value" id="c-rate-value">7.0%</span></div>
+                <div class="slider-row"><span class="slider-label">투자 기간</span><input type="range" id="c-years" min="1" max="40" step="1" value="20"><span class="slider-value" id="c-years-value">20년</span></div>
+                <div class="stats-grid four">
+                    <div class="stat-box"><div class="stat-label">최종 금액</div><div class="stat-value blue" id="c-final">-</div></div>
+                    <div class="stat-box"><div class="stat-label">총 투자 원금</div><div class="stat-value" id="c-total-principal">-</div></div>
+                    <div class="stat-box"><div class="stat-label">순수 이자 수익</div><div class="stat-value" id="c-interest">-</div></div>
+                    <div class="stat-box"><div class="stat-label">원금 대비 수익</div><div class="stat-value" id="c-multiple">-</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">자산 성장 그래프</div>
+                <div class="progress-wrap"><div class="progress-profit" id="c-progress-profit">-</div><div class="progress-principal" id="c-progress-principal">-</div></div>
+                <div class="chart-legend" style="margin-top:1rem;">
+                    <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>복리 성장</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#6ee7b7"></span>단리 성장</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#d1d5db"></span>원금</div>
+                </div>
+                <div class="chart-wrap"><canvas id="compound-chart"></canvas></div>
+            </div>
+        </section>
+
+        <section class="tool-panel" data-panel="goal">
+            <div class="tool-intro"><strong>목표 자산</strong><p>현재 자산, 연간 저축, 수익률을 기준으로 목표 금액까지 걸리는 시간을 계산하고 연차별로 추적합니다.</p></div>
+            <div class="card">
+                <div class="card-title">입력 조건</div>
+                <div class="slider-row"><span class="slider-label">원금 (사전)</span><input type="range" id="g-principal" min="0" max="500000000" step="1000000" value="60000000"><span class="slider-value" id="g-principal-value">₩6,000만</span></div>
+                <div class="slider-row"><span class="slider-label">연간 저축</span><input type="range" id="g-saving" min="0" max="50000000" step="500000" value="10000000"><span class="slider-value" id="g-saving-value">₩1,000만</span></div>
+                <div class="slider-row"><span class="slider-label">투자 수익률</span><input type="range" id="g-rate" min="0" max="30" step="0.5" value="5"><span class="slider-value" id="g-rate-value">5.0%</span></div>
+                <div class="slider-row"><span class="slider-label">목표 금액</span><input type="range" id="g-target" min="10000000" max="1000000000" step="5000000" value="100000000"><span class="slider-value" id="g-target-value">₩1억</span></div>
+                <div class="big-result"><div class="big-time" id="g-time">-</div><div class="big-subtitle" id="g-subtitle">-</div><div id="g-badge"></div></div>
+                <div class="stats-grid six">
+                    <div class="stat-box"><div class="stat-label">현재 자산</div><div class="stat-value" id="g-asset">-</div></div>
+                    <div class="stat-box"><div class="stat-label">월 저축액</div><div class="stat-value" id="g-monthly">-</div></div>
+                    <div class="stat-box"><div class="stat-label">자본률</div><div class="stat-value" id="g-capital-rate">-</div></div>
+                    <div class="stat-box"><div class="stat-label">총 납입 금액</div><div class="stat-value" id="g-deposit">-</div></div>
+                    <div class="stat-box"><div class="stat-label">투자 수익</div><div class="stat-value" id="g-return">-</div></div>
+                    <div class="stat-box"><div class="stat-label">수익 기여율</div><div class="stat-value" id="g-return-rate">-</div></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">자산 성장 그래프</div>
+                <div class="chart-legend">
+                    <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>복리 자산</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#6ee7b7"></span>납입 원금</div>
+                    <div class="legend-item"><span style="display:inline-block;width:16px;height:2px;background:#ef4444;border-radius:0;margin-right:4px;"></span>목표금액</div>
+                </div>
+                <div class="chart-wrap"><canvas id="goal-chart"></canvas></div>
+            </div>
+            <div class="card">
+                <div class="card-title">연별 자산 현황</div>
+                <div style="overflow-x:auto;"><table class="year-table"><thead><tr><th>연차</th><th>진행률</th><th>잔액</th><th>수익</th></tr></thead><tbody id="goal-table-body"></tbody></table></div>
+                <p class="table-note">※ 투자 수익률은 세금 및 수수료를 고려하지 않은 단순 시뮬레이션입니다.</p>
+            </div>
+        </section>
+
+        <section class="tool-panel" data-panel="journal">
+            <div class="tool-intro"><strong>매매일지</strong><p>날짜별 매수·매도를 기록하고 월별 흐름과 거래 패턴을 캘린더로 빠르게 확인할 수 있습니다.</p></div>
+            <div class="stats-bar">
+                <div class="stat-card"><div class="num" id="j-stat-total">0</div><div class="lbl">전체 거래</div></div>
+                <div class="stat-card"><div class="num" id="j-stat-month-buy">0</div><div class="lbl">이번달 매수</div></div>
+                <div class="stat-card"><div class="num" id="j-stat-month-sell">0</div><div class="lbl">이번달 매도</div></div>
+                <div class="stat-card"><div class="num" id="j-stat-symbols">0</div><div class="lbl">종목 수</div></div>
+            </div>
+            <div class="cal-section">
+                <div class="cal-nav"><button class="cal-nav-btn" id="j-btn-prev">◀</button><span class="cal-title" id="j-cal-title"></span><button class="cal-nav-btn" id="j-btn-next">▶</button></div>
+                <div class="cal-grid" id="j-cal-grid"></div>
+            </div>
+            <div class="day-panel" id="j-day-panel" style="display:none">
+                <div class="day-panel-title" id="j-day-panel-title"></div>
+                <div class="entry-list" id="j-entry-list"></div>
+                <div class="form-title">거래 추가</div>
+                <div class="type-toggle"><button class="type-btn active-buy" id="j-btn-buy" type="button">매수</button><button class="type-btn" id="j-btn-sell" type="button">매도</button></div>
+                <div class="form-grid">
+                    <div class="form-field"><label>종목명</label><input type="text" id="j-symbol" placeholder="삼성전자"></div>
+                    <div class="form-field"><label>가격 (원)</label><input type="number" id="j-price" placeholder="82500" min="0"></div>
+                    <div class="form-field"><label>수량 (주)</label><input type="number" id="j-qty" placeholder="10" min="1"></div>
+                    <div class="form-field"><label>메모 (선택)</label><input type="text" id="j-memo" placeholder="분할 매수"></div>
+                </div>
+                <button class="add-btn" id="j-add-btn" type="button">추가하기</button>
+            </div>
+        </section>
+    </div>
+    <footer class="page-footer">
+        <a href="/" class="footer-brand"><span class="footer-brand-dot"></span>임광호 포트폴리오</a>
+        <span class="footer-copy">직접 제작한 금융 분석 도구 · © 2026</span>
+    </footer>
+    <script>
+        function fmtKRW(v) {
+            v = Math.round(v);
+            if (v >= 100000000) return '₩' + (v / 100000000).toFixed(2) + '억';
+            if (v >= 10000) return '₩' + Math.round(v / 10000).toLocaleString('ko-KR') + '만';
+            return '₩' + v.toLocaleString('ko-KR');
+        }
+
+        function initAssetTabs() {
+            const key = 'fg-asset-active-tab';
+            const params = new URLSearchParams(location.search);
+            const allowed = ['compound', 'goal', 'journal'];
+            let activeTab = params.get('tab');
+            if (!allowed.includes(activeTab)) activeTab = localStorage.getItem(key) || 'compound';
+            if (!allowed.includes(activeTab)) activeTab = 'compound';
+
+            const buttons = Array.from(document.querySelectorAll('.tab-btn'));
+            const panels = Array.from(document.querySelectorAll('.tool-panel'));
+
+            function activate(tab) {
+                buttons.forEach(function(btn) { btn.classList.toggle('active', btn.dataset.tab === tab); });
+                panels.forEach(function(panel) { panel.classList.toggle('active', panel.dataset.panel === tab); });
+                localStorage.setItem(key, tab);
+                const url = new URL(location.href);
+                url.searchParams.set('tab', tab);
+                history.replaceState({}, '', url.pathname + url.search);
+            }
+
+            buttons.forEach(function(btn) {
+                btn.addEventListener('click', function() { activate(btn.dataset.tab); });
+            });
+            activate(activeTab);
+        }
+
+        function initCompoundTool() {
+            const chart = new Chart(document.getElementById('compound-chart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: '복리 성장', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.06)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2.5 },
+                        { label: '단리 성장', data: [], borderColor: '#6ee7b7', fill: false, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+                        { label: '원금', data: [], borderColor: '#d1d5db', fill: false, borderDash: [6, 4], pointRadius: 0, borderWidth: 1.5 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx) { return ' ' + ctx.dataset.label + ': ' + fmtKRW(ctx.parsed.y); } } } },
+                    scales: {
+                        x: { ticks: { font: { size: 11 }, color: '#999' }, grid: { color: '#f0f0f0' } },
+                        y: { ticks: { font: { size: 11 }, color: '#999', callback: function(v) { return fmtKRW(v); } }, grid: { color: '#f0f0f0' } }
+                    }
+                }
+            });
+
+            function calculate() {
+                const principal = Number(document.getElementById('c-principal').value);
+                const annual = Number(document.getElementById('c-annual').value);
+                const rate = Number(document.getElementById('c-rate').value) / 100;
+                const years = Number(document.getElementById('c-years').value);
+                const compound = [principal];
+                const simple = [principal];
+                const straight = [principal];
+
+                for (let y = 1; y <= years; y++) {
+                    compound.push(compound[y - 1] * (1 + rate) + annual);
+                    simple.push(principal * (1 + rate * y) + annual * y);
+                    straight.push(principal + annual * y);
+                }
+
+                const final = compound[years];
+                const totalPrinc = principal + annual * years;
+                const interest = final - totalPrinc;
+                const multiplier = totalPrinc > 0 ? final / totalPrinc : 1;
+                const profitPct = final > 0 ? (interest / final) * 100 : 0;
+                return { compound: compound, simple: simple, straight: straight, final: final, totalPrinc: totalPrinc, interest: interest, multiplier: multiplier, profitPct: profitPct, years: years };
+            }
+
+            function update() {
+                const principal = Number(document.getElementById('c-principal').value);
+                const annual = Number(document.getElementById('c-annual').value);
+                const rate = Number(document.getElementById('c-rate').value);
+                const years = Number(document.getElementById('c-years').value);
+
+                document.getElementById('c-principal-value').textContent = fmtKRW(principal);
+                document.getElementById('c-annual-value').textContent = fmtKRW(annual);
+                document.getElementById('c-rate-value').textContent = rate.toFixed(1) + '%';
+                document.getElementById('c-years-value').textContent = years + '년';
+
+                const result = calculate();
+                document.getElementById('c-final').textContent = fmtKRW(result.final);
+                document.getElementById('c-total-principal').textContent = fmtKRW(result.totalPrinc);
+                document.getElementById('c-interest').textContent = fmtKRW(result.interest);
+                document.getElementById('c-multiple').textContent = result.multiplier.toFixed(2) + '배';
+
+                const pPct = Math.max(0, Math.min(99, result.profitPct));
+                document.getElementById('c-progress-profit').style.width = pPct + '%';
+                document.getElementById('c-progress-profit').textContent = pPct.toFixed(1) + '% 수익';
+                document.getElementById('c-progress-principal').textContent = (100 - pPct).toFixed(1) + '% 원금';
+
+                chart.data.labels = Array.from({ length: result.years + 1 }, function(_, i) { return i + '년'; });
+                chart.data.datasets[0].data = result.compound;
+                chart.data.datasets[1].data = result.simple;
+                chart.data.datasets[2].data = result.straight;
+                chart.update('none');
+            }
+
+            ['c-principal', 'c-annual', 'c-rate', 'c-years'].forEach(function(id) {
+                document.getElementById(id).addEventListener('input', update);
+            });
+            update();
+        }
+
+        function initGoalTool() {
+            const chart = new Chart(document.getElementById('goal-chart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: '복리 자산', data: [], borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.06)', fill: true, tension: 0.3, pointRadius: 0, borderWidth: 2.5 },
+                        { label: '납입 원금', data: [], borderColor: '#6ee7b7', fill: false, tension: 0.3, pointRadius: 0, borderWidth: 2 },
+                        { label: '목표금액', data: [], borderColor: '#ef4444', fill: false, borderDash: [6, 4], pointRadius: 0, borderWidth: 2 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx) { return ' ' + ctx.dataset.label + ': ' + fmtKRW(ctx.parsed.y); } } } },
+                    scales: {
+                        x: { ticks: { font: { size: 11 }, color: '#999' }, grid: { color: '#f0f0f0' } },
+                        y: { ticks: { font: { size: 11 }, color: '#999', callback: function(v) { return fmtKRW(v); } }, grid: { color: '#f0f0f0' } }
+                    }
+                }
+            });
+
+            function calculate() {
+                const principal = Number(document.getElementById('g-principal').value);
+                const annualSave = Number(document.getElementById('g-saving').value);
+                const rate = Number(document.getElementById('g-rate').value) / 100;
+                const target = Number(document.getElementById('g-target').value);
+
+                if (principal >= target) {
+                    return { achieved: true, years: 0, months: 0, principal: principal, annualSave: annualSave, rate: rate, target: target, yearlyAsset: [principal], yearlyPrinc: [principal], chartYears: 3 };
+                }
+
+                const monthlyRate = rate / 12;
+                const monthlySave = annualSave / 12;
+                let asset = principal;
+                let m = 0;
+                const maxMonths = 50 * 12;
+                while (asset < target && m < maxMonths) {
+                    asset = asset * (1 + monthlyRate) + monthlySave;
+                    m++;
+                }
+
+                const achieved = m < maxMonths;
+                const years = Math.floor(m / 12);
+                const months = m % 12;
+                const chartYears = Math.min(achieved ? years + 3 : 50, 50);
+                const yearlyAsset = [principal];
+                const yearlyPrinc = [principal];
+                let yearly = principal;
+                for (let y = 1; y <= chartYears; y++) {
+                    yearly = yearly * (1 + rate) + annualSave;
+                    yearlyAsset.push(yearly);
+                    yearlyPrinc.push(principal + annualSave * y);
+                }
+                return { achieved: achieved, years: years, months: months, principal: principal, annualSave: annualSave, target: target, yearlyAsset: yearlyAsset, yearlyPrinc: yearlyPrinc, chartYears: chartYears };
+            }
+
+            function update() {
+                const principal = Number(document.getElementById('g-principal').value);
+                const annualSave = Number(document.getElementById('g-saving').value);
+                const rate = Number(document.getElementById('g-rate').value);
+                const target = Number(document.getElementById('g-target').value);
+
+                document.getElementById('g-principal-value').textContent = fmtKRW(principal);
+                document.getElementById('g-saving-value').textContent = fmtKRW(annualSave);
+                document.getElementById('g-rate-value').textContent = rate.toFixed(1) + '%';
+                document.getElementById('g-target-value').textContent = fmtKRW(target);
+
+                const result = calculate();
+                const timeEl = document.getElementById('g-time');
+                const subEl = document.getElementById('g-subtitle');
+                const badgeEl = document.getElementById('g-badge');
+
+                if (result.years === 0 && result.months === 0) {
+                    timeEl.className = 'big-time';
+                    timeEl.textContent = '이미 달성!';
+                    subEl.textContent = '현재 자산이 목표를 초과합니다';
+                    badgeEl.innerHTML = '<span class="badge badge-fast">달성 완료</span>';
+                } else if (!result.achieved) {
+                    timeEl.className = 'big-time impossible';
+                    timeEl.textContent = '50년 이상';
+                    subEl.textContent = '저축액 또는 수익률을 높여보세요';
+                    badgeEl.innerHTML = '<span class="badge badge-slow">장기 목표</span>';
+                } else {
+                    const parts = [];
+                    if (result.years > 0) parts.push(result.years + '년');
+                    if (result.months > 0) parts.push(result.months + '개월');
+                    timeEl.className = 'big-time';
+                    timeEl.textContent = parts.join(' ');
+                    subEl.textContent = '목표 ' + fmtKRW(target) + ' 달성까지';
+                    badgeEl.innerHTML = result.years <= 5 ? '<span class="badge badge-fast">빠른 달성 가능</span>' : (result.years <= 15 ? '<span class="badge badge-normal">달성 가능</span>' : '<span class="badge badge-slow">장기 목표</span>');
+                }
+
+                const achieveYears = result.achieved ? result.years : 50;
+                const finalAsset = result.yearlyAsset[Math.min(achieveYears, result.yearlyAsset.length - 1)] || principal;
+                const totalDeposit = principal + annualSave * achieveYears;
+                const investReturn = Math.max(0, finalAsset - totalDeposit);
+                const returnRate = finalAsset > 0 ? investReturn / finalAsset * 100 : 0;
+
+                document.getElementById('g-asset').textContent = fmtKRW(principal);
+                document.getElementById('g-monthly').textContent = fmtKRW(annualSave / 12);
+                document.getElementById('g-capital-rate').textContent = (principal / target * 100).toFixed(1) + '%';
+                document.getElementById('g-deposit').textContent = fmtKRW(totalDeposit);
+                document.getElementById('g-return').textContent = fmtKRW(investReturn);
+                document.getElementById('g-return-rate').textContent = returnRate.toFixed(1) + '%';
+
+                chart.data.labels = Array.from({ length: result.chartYears + 1 }, function(_, i) { return i + '년'; });
+                chart.data.datasets[0].data = result.yearlyAsset;
+                chart.data.datasets[1].data = result.yearlyPrinc;
+                chart.data.datasets[2].data = Array(result.chartYears + 1).fill(target);
+                chart.update('none');
+
+                const tbody = document.getElementById('goal-table-body');
+                tbody.innerHTML = '';
+                for (let y = 1; y <= result.chartYears; y++) {
+                    const asset = result.yearlyAsset[y] || 0;
+                    const principalAmount = result.yearlyPrinc[y] || 0;
+                    const ret = Math.max(0, asset - principalAmount);
+                    const pct = Math.min(100, asset / target * 100);
+                    const isDone = asset >= target;
+                    const isGoal = result.achieved && y === result.years;
+                    const tr = document.createElement('tr');
+                    if (isGoal) tr.className = 'achieved-row';
+                    tr.innerHTML = '<td>' + y + '년' + (isGoal ? ' 🎯' : '') + '</td><td><div class="pbar-bg"><div class="pbar-fill' + (isDone ? ' done' : '') + '" style="width:' + pct.toFixed(1) + '%"></div></div><span style="font-size:0.7rem;color:#aaa;display:block;margin-top:2px">' + pct.toFixed(0) + '%</span></td><td>' + fmtKRW(asset) + '</td><td>' + fmtKRW(ret) + '</td>';
+                    tbody.appendChild(tr);
+                }
+            }
+
+            ['g-principal', 'g-saving', 'g-rate', 'g-target'].forEach(function(id) {
+                document.getElementById(id).addEventListener('input', update);
+            });
+            update();
+        }
+
+        function initJournalTool() {
+            const storageKey = 'fg-journal';
+            let data;
+            try { data = JSON.parse(localStorage.getItem(storageKey) || '{}'); } catch (error) { data = {}; }
+
+            let viewYear = new Date().getFullYear();
+            let viewMonth = new Date().getMonth();
+            let selectedDate = null;
+            let entryType = 'buy';
+
+            function saveData() {
+                localStorage.setItem(storageKey, JSON.stringify(data));
+            }
+
+            function dateKey(y, m, d) {
+                return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+            }
+
+            function todayKey() {
+                const now = new Date();
+                return dateKey(now.getFullYear(), now.getMonth(), now.getDate());
+            }
+
+            function fmtDate(key) {
+                const parts = key.split('-');
+                return parts[0] + '년 ' + Number(parts[1]) + '월 ' + Number(parts[2]) + '일';
+            }
+
+            function fmtPrice(v) {
+                return Number(v).toLocaleString('ko-KR') + '원';
+            }
+
+            function updateStats() {
+                let total = 0;
+                let monthBuy = 0;
+                let monthSell = 0;
+                const symbols = new Set();
+                const monthPrefix = viewYear + '-' + String(viewMonth + 1).padStart(2, '0');
+
+                Object.entries(data).forEach(function(entry) {
+                    const key = entry[0];
+                    const items = entry[1];
+                    total += items.length;
+                    if (key.startsWith(monthPrefix)) {
+                        items.forEach(function(item) {
+                            if (item.type === 'buy') monthBuy++;
+                            if (item.type === 'sell') monthSell++;
+                            symbols.add(item.symbol);
+                        });
+                    }
+                });
+
+                document.getElementById('j-stat-total').textContent = total;
+                document.getElementById('j-stat-month-buy').textContent = monthBuy;
+                document.getElementById('j-stat-month-sell').textContent = monthSell;
+                document.getElementById('j-stat-symbols').textContent = symbols.size;
+            }
+
+            function renderCalendar() {
+                document.getElementById('j-cal-title').textContent = viewYear + '년 ' + (viewMonth + 1) + '월';
+                const grid = document.getElementById('j-cal-grid');
+                grid.innerHTML = '';
+
+                ['일', '월', '화', '수', '목', '금', '토'].forEach(function(day) {
+                    const el = document.createElement('div');
+                    el.className = 'cal-dow';
+                    el.textContent = day;
+                    grid.appendChild(el);
+                });
+
+                const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+                const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+                const today = todayKey();
+
+                for (let i = 0; i < firstDay; i++) {
+                    const el = document.createElement('div');
+                    el.className = 'cal-cell other-month';
+                    grid.appendChild(el);
+                }
+
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const key = dateKey(viewYear, viewMonth, d);
+                    const entries = data[key] || [];
+                    const hasBuy = entries.some(function(item) { return item.type === 'buy'; });
+                    const hasSell = entries.some(function(item) { return item.type === 'sell'; });
+                    const cell = document.createElement('div');
+                    cell.className = 'cal-cell';
+                    if (key === today) cell.classList.add('today');
+                    if (key === selectedDate) cell.classList.add('selected');
+                    cell.innerHTML = '<div class="cal-day-num">' + d + '</div>';
+                    if (hasBuy || hasSell) {
+                        cell.innerHTML += '<div class="cal-dots"><div class="cal-dot ' + (hasBuy && hasSell ? 'dot-both' : (hasBuy ? 'dot-buy' : 'dot-sell')) + '"></div></div>';
+                    }
+                    cell.addEventListener('click', function() {
+                        selectedDate = key;
+                        renderCalendar();
+                        renderDayPanel();
+                    });
+                    grid.appendChild(cell);
+                }
+
+                const totalCells = firstDay + daysInMonth;
+                const trailing = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+                for (let i = 0; i < trailing; i++) {
+                    const el = document.createElement('div');
+                    el.className = 'cal-cell other-month';
+                    grid.appendChild(el);
+                }
+            }
+
+            function renderDayPanel() {
+                const panel = document.getElementById('j-day-panel');
+                panel.style.display = 'block';
+                document.getElementById('j-day-panel-title').textContent = fmtDate(selectedDate) + ' 거래 내역';
+                const entries = data[selectedDate] || [];
+                const list = document.getElementById('j-entry-list');
+                list.innerHTML = '';
+
+                if (!entries.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-state';
+                    empty.textContent = '이날 거래 내역이 없습니다';
+                    list.appendChild(empty);
+                } else {
+                    entries.forEach(function(entry) {
+                        const item = document.createElement('div');
+                        item.className = 'entry-item';
+                        item.innerHTML = '<span class="entry-badge ' + (entry.type === 'buy' ? 'badge-buy' : 'badge-sell') + '">' + (entry.type === 'buy' ? '매수' : '매도') + '</span><div class="entry-body"><div class="entry-main">' + entry.symbol + '</div><div class="entry-sub">' + fmtPrice(entry.price) + ' · ' + entry.qty + '주' + (entry.memo ? ' · ' + entry.memo : '') + '</div></div>';
+                        const del = document.createElement('button');
+                        del.className = 'entry-delete';
+                        del.type = 'button';
+                        del.textContent = '✕';
+                        del.addEventListener('click', function() {
+                            data[selectedDate] = data[selectedDate].filter(function(itemEntry) { return itemEntry.id !== entry.id; });
+                            if (!data[selectedDate].length) delete data[selectedDate];
+                            saveData();
+                            renderCalendar();
+                            renderDayPanel();
+                            updateStats();
+                        });
+                        item.appendChild(del);
+                        list.appendChild(item);
+                    });
+                }
+
+                document.getElementById('j-symbol').value = '';
+                document.getElementById('j-price').value = '';
+                document.getElementById('j-qty').value = '';
+                document.getElementById('j-memo').value = '';
+            }
+
+            function setType(type) {
+                entryType = type;
+                document.getElementById('j-btn-buy').className = 'type-btn' + (type === 'buy' ? ' active-buy' : '');
+                document.getElementById('j-btn-sell').className = 'type-btn' + (type === 'sell' ? ' active-sell' : '');
+            }
+
+            document.getElementById('j-btn-buy').addEventListener('click', function() { setType('buy'); });
+            document.getElementById('j-btn-sell').addEventListener('click', function() { setType('sell'); });
+            document.getElementById('j-add-btn').addEventListener('click', function() {
+                if (!selectedDate) {
+                    alert('날짜를 먼저 선택해주세요.');
+                    return;
+                }
+                const symbol = document.getElementById('j-symbol').value.trim();
+                const price = Number(document.getElementById('j-price').value);
+                const qty = Number(document.getElementById('j-qty').value);
+                const memo = document.getElementById('j-memo').value.trim();
+                if (!symbol || !price || !qty) {
+                    alert('종목명, 가격, 수량을 입력해주세요.');
+                    return;
+                }
+                const entry = { id: Date.now() + '-' + Math.random().toString(36).slice(2, 7), type: entryType, symbol: symbol, price: price, qty: qty, memo: memo };
+                if (!data[selectedDate]) data[selectedDate] = [];
+                data[selectedDate].push(entry);
+                saveData();
+                renderCalendar();
+                renderDayPanel();
+                updateStats();
+            });
+            document.getElementById('j-btn-prev').addEventListener('click', function() {
+                viewMonth--;
+                if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+                selectedDate = null;
+                document.getElementById('j-day-panel').style.display = 'none';
+                renderCalendar();
+                updateStats();
+            });
+            document.getElementById('j-btn-next').addEventListener('click', function() {
+                viewMonth++;
+                if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+                selectedDate = null;
+                document.getElementById('j-day-panel').style.display = 'none';
+                renderCalendar();
+                updateStats();
+            });
+
+            setType('buy');
+            renderCalendar();
+            updateStats();
+        }
+
+        initAssetTabs();
+        initCompoundTool();
+        initGoalTool();
+        initJournalTool();
+    </script>
+</body>
+</html>
