@@ -33,11 +33,12 @@
         .tool-intro p { color: #777; font-size: 0.84rem; line-height: 1.6; }
         .card { background: #fff; border: 1px solid #e8e8e8; border-radius: 14px; padding: 1.5rem; margin-bottom: 1rem; }
         .card-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #aaa; margin-bottom: 1.1rem; }
-        .slider-row { display: flex; align-items: center; gap: 0.875rem; margin-bottom: 1.1rem; }
+        .slider-row { display: flex; align-items: center; gap: 0.95rem; margin-bottom: 1.1rem; }
         .slider-row:last-of-type { margin-bottom: 0; }
-        .slider-label { font-size: 0.82rem; color: #555; width: 110px; flex-shrink: 0; }
+        .slider-label { font-size: 0.82rem; color: #555; width: 120px; flex-shrink: 0; }
         .slider-row input[type=range] { flex: 1; accent-color: #3b82f6; cursor: pointer; }
-        .slider-value { font-size: 0.85rem; font-weight: 700; color: #1a1a1a; min-width: 84px; text-align: right; }
+        .slider-value { font-size: 0.85rem; font-weight: 700; color: #1a1a1a; min-width: 96px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .tool-panel[data-panel="goal"] .slider-value { min-width: 210px; }
         .stats-grid { display: grid; gap: 0.75rem; margin-top: 1.15rem; }
         .stats-grid.four { grid-template-columns: repeat(4, 1fr); }
         .stats-grid.three { grid-template-columns: repeat(3, 1fr); }
@@ -167,11 +168,11 @@
         </section>
 
         <section class="tool-panel" data-panel="goal">
-            <div class="tool-intro"><strong>목표 자산</strong><p>현재 자산, 연간 저축, 수익률을 기준으로 목표 금액까지 걸리는 시간을 계산하고 연차별로 추적합니다.</p></div>
+            <div class="tool-intro"><strong>목표 자산</strong><p>현재 자산, 월간 저축, 수익률을 기준으로 목표 금액까지 걸리는 시간을 계산하고 연차별로 추적합니다.</p></div>
             <div class="card">
                 <div class="card-title">입력 조건</div>
                 <div class="slider-row"><span class="slider-label">원금 (사전)</span><input type="range" id="g-principal" min="0" max="500000000" step="1000000" value="60000000"><span class="slider-value" id="g-principal-value">₩6,000만</span></div>
-                <div class="slider-row"><span class="slider-label">연간 저축</span><input type="range" id="g-saving" min="0" max="50000000" step="500000" value="10000000"><span class="slider-value" id="g-saving-value">₩1,000만</span></div>
+                <div class="slider-row"><span class="slider-label">월간 저축</span><input type="range" id="g-saving" min="0" max="5000000" step="50000" value="850000"><span class="slider-value" id="g-saving-value">₩85만 (연간 ₩1,020만)</span></div>
                 <div class="slider-row"><span class="slider-label">투자 수익률</span><input type="range" id="g-rate" min="0" max="30" step="0.5" value="5"><span class="slider-value" id="g-rate-value">5.0%</span></div>
                 <div class="slider-row"><span class="slider-label">목표 금액</span><input type="range" id="g-target" min="10000000" max="1000000000" step="5000000" value="100000000"><span class="slider-value" id="g-target-value">₩1억</span></div>
                 <div class="big-result"><div class="big-time" id="g-time">-</div><div class="big-subtitle" id="g-subtitle">-</div><div id="g-badge"></div></div>
@@ -371,16 +372,16 @@
 
             function calculate() {
                 const principal = Number(document.getElementById('g-principal').value);
-                const annualSave = Number(document.getElementById('g-saving').value);
+                const monthlySave = Number(document.getElementById('g-saving').value);
+                const annualSave = monthlySave * 12;
                 const rate = Number(document.getElementById('g-rate').value) / 100;
                 const target = Number(document.getElementById('g-target').value);
 
                 if (principal >= target) {
-                    return { achieved: true, years: 0, months: 0, principal: principal, annualSave: annualSave, rate: rate, target: target, yearlyAsset: [principal], yearlyPrinc: [principal], chartYears: 3 };
+                    return { achieved: true, years: 0, months: 0, principal: principal, annualSave: annualSave, monthlySave: monthlySave, rate: rate, target: target, yearlyAsset: [principal], yearlyPrinc: [principal], chartYears: 3 };
                 }
 
                 const monthlyRate = rate / 12;
-                const monthlySave = annualSave / 12;
                 let asset = principal;
                 let m = 0;
                 const maxMonths = 50 * 12;
@@ -401,17 +402,18 @@
                     yearlyAsset.push(yearly);
                     yearlyPrinc.push(principal + annualSave * y);
                 }
-                return { achieved: achieved, years: years, months: months, principal: principal, annualSave: annualSave, target: target, yearlyAsset: yearlyAsset, yearlyPrinc: yearlyPrinc, chartYears: chartYears };
+                return { achieved: achieved, years: years, months: months, principal: principal, annualSave: annualSave, monthlySave: monthlySave, target: target, yearlyAsset: yearlyAsset, yearlyPrinc: yearlyPrinc, chartYears: chartYears };
             }
 
             function update() {
                 const principal = Number(document.getElementById('g-principal').value);
-                const annualSave = Number(document.getElementById('g-saving').value);
+                const monthlySave = Number(document.getElementById('g-saving').value);
+                const annualSave = monthlySave * 12;
                 const rate = Number(document.getElementById('g-rate').value);
                 const target = Number(document.getElementById('g-target').value);
 
                 document.getElementById('g-principal-value').textContent = fmtKRW(principal);
-                document.getElementById('g-saving-value').textContent = fmtKRW(annualSave);
+                document.getElementById('g-saving-value').textContent = fmtKRW(monthlySave) + ' (연간 ' + fmtKRW(annualSave) + ')';
                 document.getElementById('g-rate-value').textContent = rate.toFixed(1) + '%';
                 document.getElementById('g-target-value').textContent = fmtKRW(target);
 
@@ -447,7 +449,7 @@
                 const returnRate = finalAsset > 0 ? investReturn / finalAsset * 100 : 0;
 
                 document.getElementById('g-asset').textContent = fmtKRW(principal);
-                document.getElementById('g-monthly').textContent = fmtKRW(annualSave / 12);
+                document.getElementById('g-monthly').textContent = fmtKRW(monthlySave) + ' (연간 ' + fmtKRW(annualSave) + ')';
                 document.getElementById('g-capital-rate').textContent = (principal / target * 100).toFixed(1) + '%';
                 document.getElementById('g-deposit').textContent = fmtKRW(totalDeposit);
                 document.getElementById('g-return').textContent = fmtKRW(investReturn);
