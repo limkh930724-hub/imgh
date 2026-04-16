@@ -1,0 +1,100 @@
+<h2>포트폴리오 메인 화면 레이아웃</h2>
+<p class="subtitle">어떤 스타일의 포트폴리오 메인 화면이 마음에 드시나요?</p>
+
+<div class="cards">
+
+  <!-- Option A: Hero Header -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #0d1117; border-radius: 6px; font-family: sans-serif;">
+      <div style="border-bottom: 1px solid #30363d; padding-bottom: 12px; margin-bottom: 12px;">
+        <div style="font-size: 11px; color: #58a6ff; letter-spacing: 2px; margin-bottom: 4px;">PORTFOLIO</div>
+        <div style="font-size: 18px; font-weight: 900; color: #f0f6fc; letter-spacing: -0.5px;">임광호</div>
+        <div style="font-size: 9px; color: #8b949e; margin-top: 3px;">Software Developer · Financial Tools</div>
+        <div style="margin-top: 8px; display: flex; gap: 6px;">
+          <div style="background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 2px 8px; font-size: 8px; color: #8b949e;">GitHub</div>
+          <div style="background: #21262d; border: 1px solid #30363d; border-radius: 12px; padding: 2px 8px; font-size: 8px; color: #8b949e;">About</div>
+        </div>
+      </div>
+      <div style="background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px; text-align: center;">
+        <div style="font-size: 8px; color: #8b949e; margin-bottom: 4px;">Fear & Greed Index</div>
+        <div style="font-size: 22px; font-weight: 900; color: #2e7d32;">72</div>
+        <div style="font-size: 8px; color: #2e7d32;">GREED</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — 히어로 헤더</h3>
+      <p>상단에 이름·소개·링크가 있는 포트폴리오 헤더, 아래에 기존 앱 컨텐츠. 깔끔하고 직관적.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Side Profile -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #0d1117; border-radius: 6px; font-family: sans-serif;">
+      <div style="display: flex; gap: 10px;">
+        <div style="width: 68px; flex-shrink: 0; background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px; text-align: center;">
+          <div style="width: 28px; height: 28px; background: linear-gradient(135deg, #58a6ff, #2ea043); border-radius: 50%; margin: 0 auto 6px;"></div>
+          <div style="font-size: 9px; font-weight: 700; color: #f0f6fc;">임광호</div>
+          <div style="font-size: 7px; color: #8b949e; margin-top: 2px; line-height: 1.4;">Software<br/>Developer</div>
+          <div style="margin-top: 8px; border-top: 1px solid #30363d; padding-top: 6px;">
+            <div style="font-size: 7px; color: #58a6ff; margin-bottom: 2px;">GitHub</div>
+            <div style="font-size: 7px; color: #58a6ff;">LinkedIn</div>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <div style="font-size: 8px; color: #58a6ff; margin-bottom: 4px; letter-spacing: 1px;">FEATURED PROJECT</div>
+          <div style="background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 8px; text-align: center;">
+            <div style="font-size: 8px; color: #8b949e; margin-bottom: 2px;">Fear & Greed Index</div>
+            <div style="font-size: 20px; font-weight: 900; color: #2e7d32;">72</div>
+            <div style="font-size: 7px; color: #2e7d32;">GREED</div>
+          </div>
+          <div style="margin-top: 6px; display: flex; gap: 4px;">
+            <div style="flex: 1; background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 5px; text-align: center;">
+              <div style="font-size: 7px; color: #8b949e;">KS11</div>
+              <div style="font-size: 9px; color: #f0f6fc; font-weight: 700;">2,847</div>
+            </div>
+            <div style="flex: 1; background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 5px; text-align: center;">
+              <div style="font-size: 7px; color: #8b949e;">BTC</div>
+              <div style="font-size: 9px; color: #2e7d32; font-weight: 700;">+2.1%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — 사이드 프로필</h3>
+      <p>좌측 프로필 패널(아바타·이름·링크), 우측 앱 컨텐츠. 포트폴리오 느낌이 강함.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Minimal badge -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #0d1117; border-radius: 6px; font-family: sans-serif;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #30363d;">
+        <div>
+          <div style="font-size: 14px; font-weight: 900; color: #f0f6fc;">Fear & Greed</div>
+          <div style="font-size: 8px; color: #8b949e;">CNN Market Sentiment</div>
+        </div>
+        <div style="background: #161b22; border: 1px solid #30363d; border-radius: 20px; padding: 4px 10px; display: flex; align-items: center; gap: 5px;">
+          <div style="width: 16px; height: 16px; background: linear-gradient(135deg, #58a6ff, #2ea043); border-radius: 50%;"></div>
+          <div>
+            <div style="font-size: 8px; font-weight: 700; color: #f0f6fc;">임광호</div>
+            <div style="font-size: 7px; color: #8b949e;">Portfolio</div>
+          </div>
+        </div>
+      </div>
+      <div style="background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 8px; text-align: center; margin-bottom: 6px;">
+        <div style="font-size: 22px; font-weight: 900; color: #2e7d32;">72</div>
+        <div style="font-size: 8px; color: #2e7d32;">GREED</div>
+      </div>
+      <div style="display: flex; gap: 4px;">
+        <div style="flex: 1; background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 4px; text-align: center; font-size: 8px; color: #8b949e;">KS11 · 2,847</div>
+        <div style="flex: 1; background: #161b22; border: 1px solid #30363d; border-radius: 4px; padding: 4px; text-align: center; font-size: 8px; color: #2e7d32;">BTC +2.1%</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — 미니멀 배지</h3>
+      <p>우상단에 포트폴리오 배지만 추가. 앱 자체가 포트폴리오 작품처럼 보임. 가장 심플.</p>
+    </div>
+  </div>
+
+</div>

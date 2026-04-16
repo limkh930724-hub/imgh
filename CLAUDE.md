@@ -33,7 +33,7 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 | `backtest.html` | 백테스트 비교기 (up to 3-ticker comparison) | ~1281 |
 | `workout.html` | 운동 루틴 (workout routine dashboard) | ~409 |
 | `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~231 |
-| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~769 |
+| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1289 |
 
 Each HTML file is structured: `<head>` (Inter font + inline `<style>`) → `<body>` (markup) → `<script>` (all app logic).
 
@@ -48,6 +48,15 @@ Integrated hub combining three calculators into one page with a tab bar (`?tab=c
 ### Backtest (`backtest.html`)
 
 Supports up to 3 tickers (A, B, and optional C). Ticker C is dynamically added/removed. Charts, summary cards, and comparison table all handle 3-ticker data. The diff column in the comparison table uses 1st-place vs last-place as the reference.
+
+### Workout (`workout.html`)
+
+State persisted to `localStorage('fg-workout')` as `{sessions: [], checks: {}, categories: []}`. Key features:
+- **Sessions** — log form (name, category, minutes, intensity, note); 6 most recent shown in reverse order
+- **Checklist** — per-day checkbox grid per category, stored in `state.checks['YYYY-MM-DD']`
+- **Week strip** — 7-cell row for the current week: `●` (session logged), `◐` (checklist only), `○` (empty)
+- **Templates** — `TEMPLATES` constant provides quick-fill presets (e.g. 상체, 하체, 유산소)
+- **Stats** — total minutes, session count, top category, streak (consecutive days with activity)
 
 ### Fear & Greed app (`fear-greed.html`)
 
@@ -147,6 +156,15 @@ Below the tab panels, outside the `.main-content` grid, sit two additional secti
 
 - Exchange rates (`FX_REFRESH`): 3600 seconds
 - Market ticker (`MKT_REFRESH`): 3600 seconds
+
+## Deployment
+
+Deployed to Vercel. The `api/` directory contains serverless functions (ESM, `export default async function handler`).
+
+Environment variable required in Vercel:
+- `DATA_GO_KR_API_KEY` (fallback name: `PUBLIC_DATA_API_KEY`) — 공공데이터포털 key for `api/real-estate.js`. Without it, the endpoint silently returns `MOCK_ITEMS`.
+
+No other env vars are needed; all other external calls go through `api/proxy.js` which has no secrets.
 
 ### Other files
 

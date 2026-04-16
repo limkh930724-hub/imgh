@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, sans-serif; background: #1a1a1a; color: #eee; padding: 24px; }
+h2 { font-size: 0.8rem; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+
+.app-frame {
+  background: #0d1117;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 520px;
+  margin: 0 auto;
+  border: 1px solid #30363d;
+}
+
+/* ── Feature A: Score Interpreter ── */
+.interpreter {
+  margin-top: 20px;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.interpreter-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+}
+.score-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #d32f2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+}
+.interpreter-title { font-size: 12px; font-weight: 700; color: #f0f6fc; }
+.interpreter-zone { font-size: 10px; color: #f85149; font-weight: 600; margin-top: 1px; }
+.interpreter-body { padding: 14px 16px; }
+.interp-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.interp-row:last-child { margin-bottom: 0; }
+.interp-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.interp-text { font-size: 12px; color: #8b949e; line-height: 1.6; }
+.interp-text strong { color: #e6edf3; }
+
+/* ── Feature B: Portfolio Calculator ── */
+.calc {
+  margin-top: 16px;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.calc-header {
+  padding: 12px 16px;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f0f6fc;
+}
+.calc-body { padding: 14px 16px; }
+.calc-inputs {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 8px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+.calc-field { display: flex; flex-direction: column; gap: 4px; }
+.calc-label { font-size: 9px; color: #6e7681; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.calc-input {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: #e6edf3;
+  font-family: inherit;
+  width: 100%;
+}
+.calc-input::placeholder { color: #484f58; }
+.calc-btn {
+  background: #1f6feb;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.calc-result-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.calc-sym { font-size: 12px; font-weight: 700; color: #f0f6fc; }
+.calc-sub { font-size: 10px; color: #6e7681; margin-top: 1px; }
+.calc-val { font-size: 12px; color: #e6edf3; font-weight: 600; }
+.calc-pnl-pos { font-size: 12px; color: #3fb950; font-weight: 700; }
+.calc-pnl-neg { font-size: 12px; color: #f85149; font-weight: 700; }
+.calc-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #21262d;
+}
+.calc-total-label { font-size: 11px; color: #6e7681; }
+.calc-total-val { font-size: 14px; font-weight: 800; color: #3fb950; }
+
+.note {
+  margin-top: 20px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 11px;
+  color: #8b949e;
+  line-height: 1.7;
+}
+.note strong { color: #58a6ff; }
+.approve-btn {
+  display: block;
+  margin-top: 16px;
+  background: #238636;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<h2>기능 추가 목업 — Overview 탭 게이지 아래</h2>
+
+<div class="app-frame">
+
+  <!-- 게이지 자리 표시 -->
+  <div style="background:#161b22;border:1px solid #30363d;border-radius:8px;padding:16px;text-align:center;margin-bottom:4px;">
+    <div style="font-size:9px;color:#6e7681;margin-bottom:4px;">[ 게이지 캔버스 ]</div>
+    <div style="font-size:32px;font-weight:900;color:#f85149;">22</div>
+    <div style="font-size:9px;color:#f85149;letter-spacing:2px;">EXTREME FEAR</div>
+  </div>
+
+  <!-- ① 공포·탐욕 해석기 -->
+  <div class="interpreter">
+    <div class="interpreter-header">
+      <div class="score-badge">22</div>
+      <div>
+        <div class="interpreter-title">시장 심리 해석</div>
+        <div class="interpreter-zone">● Extreme Fear 구간</div>
+      </div>
+    </div>
+    <div class="interpreter-body">
+      <div class="interp-row">
+        <div class="interp-icon">📉</div>
+        <div class="interp-text"><strong>현재 시장:</strong> 투자자들이 극도의 공포 상태입니다. 패닉 매도가 증가하고 있으며 변동성이 높습니다.</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-icon">📊</div>
+        <div class="interp-text"><strong>역사적 패턴:</strong> 공포 구간(0–25)은 역사적으로 <strong>장기 매수 기회</strong>로 알려져 있습니다. 단, 단기 추가 하락 가능성도 존재합니다.</div>
+      </div>
+      <div class="interp-row">
+        <div class="interp-icon">💡</div>
+        <div class="interp-text"><strong>시사점:</strong> 워런 버핏의 "남들이 두려워할 때 탐욕스러워져라" 원칙이 해당되는 구간입니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 포트폴리오 계산기 -->
+  <div class="calc">
+    <div class="calc-header">📈 포트폴리오 수익률 계산기</div>
+    <div class="calc-body">
+      <div class="calc-inputs">
+        <div class="calc-field">
+          <div class="calc-label">티커 심볼</div>
+          <input class="calc-input" placeholder="AAPL, 005930.KS…" />
+        </div>
+        <div class="calc-field">
+          <div class="calc-label">수량</div>
+          <input class="calc-input" placeholder="10" />
+        </div>
+        <div class="calc-field">
+          <div class="calc-label">매입가</div>
+          <input class="calc-input" placeholder="150.00" />
+        </div>
+        <button class="calc-btn">추가</button>
+      </div>
+
+      <!-- 결과 예시 -->
+      <div class="calc-result-row">
+        <div>
+          <div class="calc-sym">AAPL</div>
+          <div class="calc-sub">10주 · 매입 $150</div>
+        </div>
+        <div>
+          <div class="calc-label">현재가</div>
+          <div class="calc-val">$171.20</div>
+        </div>
+        <div>
+          <div class="calc-label">평가금액</div>
+          <div class="calc-val">$1,712</div>
+        </div>
+        <div>
+          <div class="calc-label">수익률</div>
+          <div class="calc-pnl-pos">+$212 (+14.1%)</div>
+        </div>
+      </div>
+      <div class="calc-result-row">
+        <div>
+          <div class="calc-sym">BTC-USD</div>
+          <div class="calc-sub">0.5 · 매입 $72,000</div>
+        </div>
+        <div>
+          <div class="calc-label">현재가</div>
+          <div class="calc-val">$68,420</div>
+        </div>
+        <div>
+          <div class="calc-label">평가금액</div>
+          <div class="calc-val">$34,210</div>
+        </div>
+        <div>
+          <div class="calc-label">수익률</div>
+          <div class="calc-pnl-neg">-$1,790 (-5.0%)</div>
+        </div>
+      </div>
+
+      <div class="calc-total">
+        <span class="calc-total-label">총 평가금액</span>
+        <span class="calc-total-val">$35,922 (+2.1%)</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note">
+  <strong>구현 요약</strong><br>
+  ① <strong>해석기</strong>: 점수 구간(0-25/25-45/45-55/55-75/75-100)별 고정 텍스트. 언어 전환(EN/KO) 지원.<br>
+  ② <strong>계산기</strong>: Yahoo Finance API (기존 CORS 프록시 재사용) → 실시간 현재가 조회. 항목은 localStorage 저장.<br>
+  ③ 헤더의 "CNN market sentiment tracker · Learn more" 텍스트는 삭제.
+</div>
+
+<button class="approve-btn" onclick="alert('승인!')">이 디자인으로 진행하기</button>
+
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>운동 루틴 | 임광호 포트폴리오</title>
+    <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;???&lt;/text&gt;&lt;/svg&gt;">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            overflow-x: hidden;
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: radial-gradient(circle at top left, rgba(37,99,235,0.10), transparent 30%), #f5f6f1;
+            color: #161616;
+            min-height: 100vh;
+        }
+        .topnav {
+            position: sticky; top: 0; z-index: 200;
+            background: rgba(9,9,14,0.97);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 0 2rem; display: flex; align-items: center; gap: 0.25rem; height: 54px;
+            overflow-x: auto;
+        }
+        .topnav-logo {
+            font-weight: 800; font-size: 0.88rem; color: #fff; text-decoration: none;
+            margin-right: auto; display: flex; align-items: center; gap: 0.45rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .topnav-logo-dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: linear-gradient(135deg,#6366f1,#3b82f6); flex-shrink: 0;
+        }
+        .topnav-link {
+            font-size: 0.79rem; font-weight: 500; color: rgba(255,255,255,0.38);
+            text-decoration: none; white-space: nowrap;
+            padding: 0.35rem 0.65rem; border-radius: 7px; transition: color 0.15s, background 0.15s;
+            flex-shrink: 0;
+        }
+        .topnav-link:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.07); }
+        .topnav-link.active { color: #a5b4fc; font-weight: 600; background: rgba(99,102,241,0.15); }
+        .page-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+        .hero, .stats, .grid, .template-grid, .form-grid { display: grid; gap: 1rem; }
+        .hero { grid-template-columns: 1.2fr 0.8fr; margin-bottom: 1rem; }
+        .stats { grid-template-columns: repeat(4, 1fr); margin-bottom: 1rem; }
+        .grid { grid-template-columns: 1fr 1fr; }
+        .card {
+            background: rgba(255,255,255,0.94);
+            border: 1px solid #e8e8e1;
+            border-radius: 20px;
+            box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+            padding: 1.25rem;
+        }
+        .hero .card:first-child { padding: 1.6rem; }
+        .eyebrow {
+            display: inline-flex;
+            padding: 0.38rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(37,99,235,0.12);
+            color: #2563eb;
+            font-size: 0.76rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-size: clamp(1.9rem, 4vw, 2.6rem);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.75rem;
+        }
+        .hero-copy, .muted { color: #666; line-height: 1.6; }
+        .hero-copy { font-size: 0.95rem; }
+        .pill-row, .week-strip, .checklist, .session-list { display: flex; gap: 0.75rem; }
+        .pill-row { flex-wrap: wrap; margin-top: 1rem; }
+        .pill {
+            border: 1px solid #e8e8e1; border-radius: 999px; padding: 0.55rem 0.85rem;
+            font-size: 0.78rem; font-weight: 700; color: #444; background: #fafaf8;
+        }
+        .focus {
+            display: inline-flex; width: fit-content; border-radius: 999px; padding: 0.45rem 0.75rem;
+            background: rgba(22,163,74,0.12); color: #16a34a; font-size: 0.78rem; font-weight: 700;
+        }
+        .section-title { font-size: 1rem; font-weight: 800; margin-bottom: 0.35rem; }
+        .stat-label { color: #8b8b8b; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; }
+        .stat-sub { margin-top: 0.25rem; color: #666; font-size: 0.78rem; }
+        .week-strip { margin-top: 1rem; }
+        .week-day {
+            flex: 1; min-width: 0; text-align: center; border-radius: 14px; padding: 0.8rem 0.35rem;
+            border: 1px solid #e8e8e1; background: #fafaf8;
+        }
+        .week-day.done { background: rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.18); }
+        .dow { font-size: 0.72rem; color: #7a7a7a; margin-bottom: 0.25rem; font-weight: 700; }
+        .mark { font-size: 1rem; font-weight: 800; }
+        .checklist, .session-list { flex-direction: column; }
+        .routine-item, .session-item {
+            border: 1px solid #e8e8e1; border-radius: 14px; background: #fcfcfa; padding: 0.9rem;
+        }
+        .routine-item { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.8rem; }
+        .routine-item.done { background: rgba(22,163,74,0.08); border-color: rgba(22,163,74,0.18); }
+        .routine-checkbox {
+            appearance: none; width: 20px; height: 20px; border-radius: 6px; border: 1px solid #cfcfc8;
+            background: #fff; cursor: pointer; position: relative;
+        }
+        .routine-checkbox:checked { background: #16a34a; border-color: #16a34a; }
+        .routine-checkbox:checked::after {
+            content: ''; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+            border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+        }
+        .routine-name { font-size: 0.93rem; font-weight: 700; }
+        .routine-desc { color: #6c6c6c; font-size: 0.78rem; margin-top: 0.2rem; }
+        .routine-tag {
+            font-size: 0.72rem; font-weight: 700; color: #2563eb; background: rgba(37,99,235,0.12);
+            border-radius: 999px; padding: 0.4rem 0.7rem;
+        }
+        .template-grid { grid-template-columns: repeat(2, 1fr); margin: 1rem 0; }
+        .template-btn {
+            border: 1px solid #e8e8e1; background: #fafaf8; border-radius: 14px; padding: 0.95rem;
+            text-align: left; cursor: pointer;
+        }
+        .template-btn strong { display: block; font-size: 0.88rem; margin-bottom: 0.25rem; }
+        .template-btn span { color: #6f6f6f; font-size: 0.76rem; line-height: 1.45; }
+        .form-grid { grid-template-columns: repeat(2, 1fr); }
+        .form-field { display: flex; flex-direction: column; gap: 0.35rem; }
+        .form-field.full { grid-column: 1 / -1; }
+        .form-field label { font-size: 0.76rem; font-weight: 700; color: #666; }
+        .form-field input, .form-field textarea, .form-field select {
+            width: 100%; border: 1px solid #e8e8e1; background: #fff; border-radius: 12px;
+            padding: 0.8rem 0.9rem; font: inherit; color: #161616;
+        }
+        .form-field textarea { min-height: 88px; resize: vertical; }
+        .submit-btn {
+            margin-top: 0.9rem; border: none; border-radius: 12px; padding: 0.9rem 1rem; width: 100%;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; font-weight: 800; cursor: pointer;
+        }
+        .session-top { display: flex; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.35rem; }
+        .session-title { font-size: 0.92rem; font-weight: 700; }
+        .session-date { color: #7b7b7b; font-size: 0.76rem; white-space: nowrap; }
+        .session-meta { color: #555; font-size: 0.8rem; margin-bottom: 0.35rem; }
+        .session-note { color: #7a7a7a; font-size: 0.77rem; line-height: 1.55; }
+        .empty {
+            border: 1px dashed #e8e8e1; border-radius: 14px; padding: 1rem; color: #7a7a7a;
+            text-align: center; font-size: 0.84rem; background: #fbfbf8;
+        }
+        @media (max-width: 960px) {
+            .hero, .grid { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 700px) {
+            .topnav { padding: 0 1.25rem; }
+            .template-grid, .form-grid, .stats { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .topnav { padding: 0 0.75rem; gap: 0.1rem; }
+            .page-wrap { padding: 1.25rem 1rem 3rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/" class="topnav-logo"><span class="topnav-logo-dot"></span>임광호 포트폴리오</a>
+        <a href="/" class="topnav-link">홈</a>
+        <a href="/fear-greed.html" class="topnav-link">공포탐욕지수</a>
+        <a href="/compound.html" class="topnav-link">복리 계산기</a>
+        <a href="/goal.html" class="topnav-link">목표 자산</a>
+        <a href="/journal.html" class="topnav-link">매매일지</a>
+        <a href="/backtest.html" class="topnav-link">백테스트</a>
+        <a href="/workout.html" class="topnav-link active">운동 루틴</a>
+    </nav>
+    <div class="page-wrap">
+        <section class="hero">
+            <div class="card">
+                <div class="eyebrow">Weekly Dashboard</div>
+                <h1>운동을 기록하고<br>루틴을 눈에 보이게</h1>
+                <p class="hero-copy">오늘 루틴 체크, 최근 세션 기록, 이번 주 달성률을 한 화면에서 관리합니다. 기록은 브라우저에 저장되어 다음 방문 때 그대로 이어집니다.</p>
+                <div class="pill-row">
+                    <div class="pill" id="hero-streak">연속 기록 1일</div>
+                    <div class="pill" id="hero-focus">오늘 포커스: 유산소</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="section-title" id="today-title">오늘 루틴 · 유산소</div>
+                <div class="muted" id="today-date">2026년 4월 8일 수요일</div>
+                <div class="focus" id="focus-badge">유산소 Day</div>
+                <p class="muted">운동 루틴은 요일별로 자동 추천되며, 완료 체크는 오늘 기준으로 저장됩니다.</p>
+                <div class="week-strip" id="week-strip"><div class="week-day"><div class="dow">일</div><div class="mark">○</div></div><div class="week-day"><div class="dow">월</div><div class="mark">○</div></div><div class="week-day"><div class="dow">화</div><div class="mark">○</div></div><div class="week-day done"><div class="dow">수</div><div class="mark">●</div></div><div class="week-day"><div class="dow">목</div><div class="mark">○</div></div><div class="week-day"><div class="dow">금</div><div class="mark">○</div></div><div class="week-day"><div class="dow">토</div><div class="mark">○</div></div></div>
+            </div>
+        </section>
+        <section class="stats">
+            <div class="card"><div class="stat-label">THIS WEEK</div><div class="stat-value" id="stat-week-count">1회</div><div class="stat-sub">이번 주 완료한 운동 수</div></div>
+            <div class="card"><div class="stat-label">MINUTES</div><div class="stat-value" id="stat-week-minutes">42분</div><div class="stat-sub">이번 주 누적 운동 시간</div></div>
+            <div class="card"><div class="stat-label">BEST FOCUS</div><div class="stat-value" id="stat-top-category">?????</div><div class="stat-sub">가장 많이 한 운동 유형</div></div>
+            <div class="card"><div class="stat-label">TOTAL LOGS</div><div class="stat-value" id="stat-total-logs">1개</div><div class="stat-sub">누적 저장된 세션 기록</div></div>
+        </section>
+        <section class="grid">
+            <div class="card">
+                <div class="section-title">오늘 루틴 체크</div>
+                <div class="muted">요일별 추천 루틴을 완료 표시할 수 있습니다.</div>
+                <div class="checklist" id="checklist"><label class="routine-item"><input type="checkbox" class="routine-checkbox"><div><div class="routine-name">러닝 또는 사이클 25분</div><div class="routine-desc">대화 가능한 강도 유지</div></div><div class="routine-tag">Cardio</div></label><label class="routine-item"><input type="checkbox" class="routine-checkbox"><div><div class="routine-name">짧은 인터벌 6세트</div><div class="routine-desc">1분 강하게, 1분 천천히</div></div><div class="routine-tag">Intervals</div></label></div>
+            </div>
+            <div class="card">
+                <div class="section-title">빠른 세션 기록</div>
+                <div class="muted">템플릿을 고르거나 직접 입력해 오늘 운동을 남겨보세요.</div>
+                <div class="template-grid">
+                    <button class="template-btn" type="button" onclick="applyTemplate('upper')"><strong>상체 루틴</strong><span>푸시업, 풀동작, 어깨 보강 중심</span></button>
+                    <button class="template-btn" type="button" onclick="applyTemplate('lower')"><strong>하체 루틴</strong><span>스쿼트, 런지, 힙 힌지 중심</span></button>
+                    <button class="template-btn" type="button" onclick="applyTemplate('cardio')"><strong>유산소</strong><span>러닝, 사이클, 인터벌 카드</span></button>
+                    <button class="template-btn" type="button" onclick="applyTemplate('recovery')"><strong>회복 세션</strong><span>스트레칭, 걷기, 가벼운 코어</span></button>
+                </div>
+                <div class="form-grid">
+                    <div class="form-field"><label for="session-name">루틴명</label><input id="session-name" type="text" placeholder="예: 상체 루틴 A"></div>
+                    <div class="form-field"><label for="session-category">카테고리</label><select id="session-category"><option value="상체">상체</option><option value="하체">하체</option><option value="전신">전신</option><option value="유산소">유산소</option><option value="회복">회복</option></select></div>
+                    <div class="form-field"><label for="session-minutes">운동 시간(분)</label><input id="session-minutes" type="number" min="1" placeholder="45"></div>
+                    <div class="form-field"><label for="session-intensity">강도</label><select id="session-intensity"><option value="가볍게">가볍게</option><option value="보통" selected="">보통</option><option value="강하게">강하게</option></select></div>
+                    <div class="form-field full"><label for="session-note">메모</label><textarea id="session-note" placeholder="오늘 컨디션, 중량, 느낀 점 등을 간단히 남겨보세요."></textarea></div>
+                </div>
+                <button class="submit-btn" type="button" onclick="saveSession()">세션 저장하기</button>
+            </div>
+            <div class="card">
+                <div class="section-title">최근 세션</div>
+                <div class="muted">가장 최근에 기록한 운동 6개를 보여줍니다.</div>
+                <div class="session-list" id="session-list"><div class="session-item"><div class="session-top"><div class="session-title">???? ????</div><div class="session-date">2026-04-08</div></div><div class="session-meta">????? · 42분 · ????</div><div class="session-note">??? ?????? ???</div></div></div>
+            </div>
+            <div class="card">
+                <div class="section-title">루틴 메모</div>
+                <div class="muted">기본 분할을 넣어두었고, 실제 기록은 자유롭게 남길 수 있습니다.</div>
+                <div class="session-list">
+                    <div class="session-item"><div class="session-title">월 / 목</div><div class="session-note">상체 중심. 푸시업, 덤벨 프레스, 로우, 숄더 프레스, 플랭크 같은 구성을 추천합니다.</div></div>
+                    <div class="session-item"><div class="session-title">화 / 금</div><div class="session-note">하체 또는 유산소 중심. 스쿼트, 런지, 힙 브릿지, 인터벌 러닝을 섞기 좋습니다.</div></div>
+                    <div class="session-item"><div class="session-title">주말</div><div class="session-note">가벼운 회복 세션이나 산책, 스트레칭으로 이어가면 연속 기록을 유지하기 편합니다.</div></div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script>
+        const STORAGE_KEY = 'fg-workout-dashboard';
+        const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
+        const ROUTINES = {
+            0: { focus: '회복', items: [{ id: 'walk', name: '가벼운 산책 30분', desc: '심박수보다 몸 풀기에 집중', tag: 'Recovery' }, { id: 'stretch', name: '전신 스트레칭 10분', desc: '허리와 햄스트링 위주로 정리', tag: 'Mobility' }] },
+            1: { focus: '상체', items: [{ id: 'push', name: '푸시업 또는 벤치 프레스', desc: '가슴과 삼두 중심 메인 세트', tag: 'Push' }, { id: 'row', name: '로우 동작', desc: '등 수축 느끼기, 3-4세트', tag: 'Pull' }, { id: 'shoulder', name: '어깨 보강', desc: '숄더 프레스 또는 레터럴 레이즈', tag: 'Shoulder' }] },
+            2: { focus: '하체', items: [{ id: 'squat', name: '스쿼트', desc: '메인 하체 세트 3-5세트', tag: 'Leg Day' }, { id: 'lunge', name: '런지 또는 스텝업', desc: '한쪽 안정성 챙기기', tag: 'Balance' }, { id: 'core', name: '코어 8분', desc: '플랭크, 데드버그, 레그레이즈', tag: 'Core' }] },
+            3: { focus: '유산소', items: [{ id: 'run', name: '러닝 또는 사이클 25분', desc: '대화 가능한 강도 유지', tag: 'Cardio' }, { id: 'interval', name: '짧은 인터벌 6세트', desc: '1분 강하게, 1분 천천히', tag: 'Intervals' }] },
+            4: { focus: '상체', items: [{ id: 'incline', name: '인클라인 푸시 동작', desc: '상부 가슴과 어깨 연결', tag: 'Upper' }, { id: 'pull', name: '랫풀 또는 풀업 보조', desc: '광배 중심 3-4세트', tag: 'Back' }, { id: 'arm', name: '팔 보조 운동', desc: '이두와 삼두 가볍게 마무리', tag: 'Arms' }] },
+            5: { focus: '하체', items: [{ id: 'hinge', name: '힙 힌지 동작', desc: '루마니안 데드리프트 또는 굿모닝', tag: 'Posterior' }, { id: 'glute', name: '힙 브릿지', desc: '둔근 활성화 3세트', tag: 'Glute' }, { id: 'walk2', name: '마무리 걷기 15분', desc: '피로 낮추며 정리', tag: 'Finish' }] },
+            6: { focus: '전신', items: [{ id: 'circuit', name: '전신 서킷 20분', desc: '스쿼트, 푸시업, 로우, 코어 순환', tag: 'Circuit' }, { id: 'mobility2', name: '관절 가동성 10분', desc: '다음 주 컨디션 준비', tag: 'Prep' }] }
+        };
+        const TEMPLATES = {
+            upper: { name: '상체 루틴 A', category: '상체', minutes: 50, intensity: '보통', note: '푸시 2종, 풀 2종, 어깨 보강으로 구성' },
+            lower: { name: '하체 루틴 A', category: '하체', minutes: 55, intensity: '강하게', note: '스쿼트, 런지, 힙 힌지, 코어로 마무리' },
+            cardio: { name: '유산소 인터벌', category: '유산소', minutes: 30, intensity: '보통', note: '5분 워밍업 후 인터벌 6세트 진행' },
+            recovery: { name: '회복 세션', category: '회복', minutes: 25, intensity: '가볍게', note: '스트레칭과 가벼운 걷기로 회복에 집중' }
+        };
+        const state = loadData();
+
+        function loadData() {
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { sessions: [], checks: {} }; }
+            catch { return { sessions: [], checks: {} }; }
+        }
+        function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+        function todayKey() {
+            const now = new Date();
+            return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+        }
+        function currentRoutine() { return ROUTINES[new Date().getDay()]; }
+        function formatLabel(date) { return date.getFullYear() + '년 ' + (date.getMonth() + 1) + '월 ' + date.getDate() + '일 ' + DAY_LABELS[date.getDay()] + '요일'; }
+        function weekStart(date) { const d = new Date(date); d.setHours(0,0,0,0); d.setDate(d.getDate() - d.getDay()); return d; }
+        function weekEnd(date) { const d = weekStart(date); d.setDate(d.getDate() + 7); return d; }
+        function weekSessions() {
+            const start = weekStart(new Date()), end = weekEnd(new Date());
+            return state.sessions.filter(function(session) { const sd = new Date(session.date); return sd >= start && sd < end; });
+        }
+        function streak() {
+            const days = Array.from(new Set(state.sessions.map(function(session) { return session.date.slice(0, 10); }))).sort().reverse();
+            if (!days.length) return 0;
+            let count = 0;
+            const cursor = new Date();
+            cursor.setHours(0,0,0,0);
+            while (true) {
+                const key = cursor.getFullYear() + '-' + String(cursor.getMonth() + 1).padStart(2, '0') + '-' + String(cursor.getDate()).padStart(2, '0');
+                if (days.indexOf(key) === -1) break;
+                count++;
+                cursor.setDate(cursor.getDate() - 1);
+            }
+            return count;
+        }
+        function renderHeader() {
+            const routine = currentRoutine();
+            document.getElementById('today-title').textContent = '오늘 루틴 · ' + routine.focus;
+            document.getElementById('today-date').textContent = formatLabel(new Date());
+            document.getElementById('focus-badge').textContent = routine.focus + ' Day';
+            document.getElementById('hero-streak').textContent = '연속 기록 ' + streak() + '일';
+            document.getElementById('hero-focus').textContent = '오늘 포커스: ' + routine.focus;
+        }
+        function renderChecklist() {
+            const key = todayKey(), checks = state.checks[key] || {}, wrap = document.getElementById('checklist');
+            wrap.innerHTML = '';
+            currentRoutine().items.forEach(function(item) {
+                const row = document.createElement('label');
+                row.className = 'routine-item' + (checks[item.id] ? ' done' : '');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'routine-checkbox';
+                checkbox.checked = Boolean(checks[item.id]);
+                checkbox.addEventListener('change', function() {
+                    if (!state.checks[key]) state.checks[key] = {};
+                    state.checks[key][item.id] = checkbox.checked;
+                    persist();
+                    renderChecklist();
+                    renderWeekStrip();
+                });
+                const body = document.createElement('div');
+                body.innerHTML = '<div class="routine-name">' + item.name + '</div><div class="routine-desc">' + item.desc + '</div>';
+                const tag = document.createElement('div');
+                tag.className = 'routine-tag';
+                tag.textContent = item.tag;
+                row.appendChild(checkbox);
+                row.appendChild(body);
+                row.appendChild(tag);
+                wrap.appendChild(row);
+            });
+        }
+        function renderStats() {
+            const sessions = weekSessions();
+            const minutes = sessions.reduce(function(sum, session) { return sum + Number(session.minutes || 0); }, 0);
+            const categories = {};
+            state.sessions.forEach(function(session) { categories[session.category] = (categories[session.category] || 0) + 1; });
+            const top = Object.keys(categories).sort(function(a, b) { return categories[b] - categories[a]; })[0] || '-';
+            document.getElementById('stat-week-count').textContent = sessions.length + '회';
+            document.getElementById('stat-week-minutes').textContent = minutes + '분';
+            document.getElementById('stat-top-category').textContent = top;
+            document.getElementById('stat-total-logs').textContent = state.sessions.length + '개';
+            document.getElementById('hero-streak').textContent = '연속 기록 ' + streak() + '일';
+        }
+        function renderWeekStrip() {
+            const wrap = document.getElementById('week-strip');
+            const start = weekStart(new Date());
+            const sessions = weekSessions();
+            wrap.innerHTML = '';
+            for (let i = 0; i < 7; i++) {
+                const day = new Date(start);
+                day.setDate(start.getDate() + i);
+                const key = day.getFullYear() + '-' + String(day.getMonth() + 1).padStart(2, '0') + '-' + String(day.getDate()).padStart(2, '0');
+                const hasSession = sessions.some(function(session) { return session.date.slice(0, 10) === key; });
+                const hasCheck = Boolean(state.checks[key] && Object.values(state.checks[key]).some(Boolean));
+                const cell = document.createElement('div');
+                cell.className = 'week-day' + (hasSession || hasCheck ? ' done' : '');
+                cell.innerHTML = '<div class="dow">' + DAY_LABELS[day.getDay()] + '</div><div class="mark">' + (hasSession ? '●' : hasCheck ? '◐' : '○') + '</div>';
+                wrap.appendChild(cell);
+            }
+        }
+        function renderSessions() {
+            const wrap = document.getElementById('session-list');
+            const sessions = state.sessions.slice().sort(function(a, b) { return new Date(b.date) - new Date(a.date); }).slice(0, 6);
+            wrap.innerHTML = '';
+            if (!sessions.length) {
+                wrap.innerHTML = '<div class="empty">아직 저장된 운동 기록이 없습니다. 오른쪽 폼에서 첫 세션을 남겨보세요.</div>';
+                return;
+            }
+            sessions.forEach(function(session) {
+                const item = document.createElement('div');
+                item.className = 'session-item';
+                item.innerHTML = '<div class="session-top"><div class="session-title">' + session.name + '</div><div class="session-date">' + session.date.slice(0, 10) + '</div></div><div class="session-meta">' + session.category + ' · ' + session.minutes + '분 · ' + session.intensity + '</div><div class="session-note">' + (session.note || '메모 없음') + '</div>';
+                wrap.appendChild(item);
+            });
+        }
+        function applyTemplate(key) {
+            const template = TEMPLATES[key];
+            document.getElementById('session-name').value = template.name;
+            document.getElementById('session-category').value = template.category;
+            document.getElementById('session-minutes').value = template.minutes;
+            document.getElementById('session-intensity').value = template.intensity;
+            document.getElementById('session-note').value = template.note;
+        }
+        function saveSession() {
+            const name = document.getElementById('session-name').value.trim();
+            const category = document.getElementById('session-category').value;
+            const minutes = Number(document.getElementById('session-minutes').value);
+            const intensity = document.getElementById('session-intensity').value;
+            const note = document.getElementById('session-note').value.trim();
+            if (!name || !minutes) { alert('루틴명과 운동 시간을 입력해주세요.'); return; }
+            state.sessions.push({ id: Date.now(), date: new Date().toISOString(), name: name, category: category, minutes: minutes, intensity: intensity, note: note });
+            persist();
+            document.getElementById('session-name').value = '';
+            document.getElementById('session-minutes').value = '';
+            document.getElementById('session-note').value = '';
+            document.getElementById('session-intensity').value = '보통';
+            renderHeader();
+            renderStats();
+            renderWeekStrip();
+            renderSessions();
+        }
+        renderHeader();
+        renderChecklist();
+        renderStats();
+        renderWeekStrip();
+        renderSessions();
+    </script>
+
+
+</body></html>

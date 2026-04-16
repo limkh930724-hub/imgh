@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background:#e8e8e4; padding:2rem 1rem; }
+  h2 { text-align:center; font-size:1rem; font-weight:700; margin-bottom:0.3rem; color:#333; }
+  .subtitle { text-align:center; color:#888; font-size:0.82rem; margin-bottom:1.5rem; }
+
+  .frame {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+  }
+
+  /* Nav */
+  .nav {
+    background: #0f0f14;
+    padding: 0 1.5rem;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .nav-logo { font-weight: 800; font-size: 0.9rem; color: #fff; margin-right: auto; letter-spacing: -0.01em; }
+  .nav-link { font-size: 0.78rem; color: rgba(255,255,255,0.4); white-space: nowrap; }
+  .nav-link.active { color: rgba(255,255,255,0.85); }
+
+  /* Split hero */
+  .hero { display: grid; grid-template-columns: 2fr 3fr; }
+
+  /* Left: dark intro */
+  .hero-left {
+    background: #0f0f14;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-left::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+  }
+  .portfolio-badge {
+    display: inline-block;
+    border: 1px solid rgba(99,102,241,0.4);
+    color: #818cf8;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .hero-name {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 0.3rem;
+  }
+  .hero-role {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .hero-bio {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+  .stat {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    padding: 0.65rem 0.75rem;
+  }
+  .stat-num { font-size: 1.15rem; font-weight: 800; color: #fff; }
+  .stat-label { font-size: 0.6rem; color: rgba(255,255,255,0.35); margin-top: 2px; letter-spacing: 0.04em; }
+
+  /* Right: tools */
+  .hero-right {
+    background: #f8f7f4;
+    padding: 2rem 1.75rem;
+    border-left: 1px solid rgba(0,0,0,0.06);
+  }
+  .section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #bbb;
+    margin-bottom: 1rem;
+  }
+  .tool-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.25rem; }
+  .tool-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: box-shadow .15s;
+  }
+  .tool-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.07); }
+  .tool-card.live { border-color: #c8e6c9; }
+  .tool-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .tool-info { flex: 1; min-width: 0; }
+  .tool-name { font-size: 0.82rem; font-weight: 700; color: #1a1a1a; }
+  .tool-desc { font-size: 0.72rem; color: #999; line-height: 1.4; margin-top: 2px; }
+  .tool-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .tag-live { background: #dcfce7; color: #16a34a; }
+  .tag-soon { background: #f5f5f5; color: #bbb; }
+
+  .coming-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #ddd;
+    margin-bottom: 0.75rem;
+  }
+  .coming-list { display: flex; flex-direction: column; gap: 0.4rem; }
+  .coming-card {
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    padding: 0.55rem 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    opacity: 0.7;
+  }
+  .coming-icon { font-size: 1rem; }
+  .coming-name { font-size: 0.76rem; color: #aaa; font-weight: 600; flex: 1; }
+  .coming-tag { font-size: 0.6rem; font-weight: 700; color: #ccc; }
+
+  /* footer */
+  .page-footer {
+    background: #0f0f14;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-text { font-size: 0.7rem; color: rgba(255,255,255,0.25); }
+  .footer-dot { color: #6366f1; margin: 0 0.4rem; }
+
+  .approve-bar {
+    text-align: center;
+    padding: 1.25rem;
+    background: #f0f0ec;
+  }
+  .approve-btn {
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 0 0.3rem;
+  }
+  .approve-btn:hover { background: #333; }
+  .approve-btn.outline {
+    background: transparent;
+    color: #666;
+    border: 1px solid #ddd;
+  }
+</style>
+</head>
+<body>
+
+<h2>최종 디자인 미리보기</h2>
+<p class="subtitle">이 방향으로 구현할까요? 아래에서 피드백 주세요</p>
+
+<div class="frame">
+
+  <!-- Nav -->
+  <nav class="nav">
+    <span class="nav-logo">임광호 포트폴리오</span>
+    <span class="nav-link active">홈</span>
+    <span class="nav-link">공포탐욕지수</span>
+    <span class="nav-link">복리 계산기</span>
+    <span class="nav-link">목표 자산</span>
+  </nav>
+
+  <!-- Split Hero -->
+  <div class="hero">
+
+    <!-- Left: personal intro -->
+    <div class="hero-left">
+      <div class="avatar">👨‍💻</div>
+      <div class="portfolio-badge">Portfolio</div>
+      <div class="hero-name">임광호</div>
+      <div class="hero-role">Developer · Investor</div>
+      <div class="hero-bio">
+        금융 데이터를 직접 분석하고<br>
+        투자에 활용하는 개발자입니다.
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num">3개</div>
+          <div class="stat-label">라이브 툴</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">3개</div>
+          <div class="stat-label">개발 예정</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">2025</div>
+          <div class="stat-label">시작 연도</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">직접 제작</div>
+          <div class="stat-label">전 툴</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: tools -->
+    <div class="hero-right">
+      <div class="section-label">🟢 라이브 서비스</div>
+      <div class="tool-list">
+        <div class="tool-card live">
+          <span class="tool-icon">📊</span>
+          <div class="tool-info">
+            <div class="tool-name">공포탐욕지수</div>
+            <div class="tool-desc">CNN Fear &amp; Greed Index 실시간 추적, 히스토리 캘린더</div>
+          </div>
+          <span class="tool-tag tag-live">Live</span>
+        </div>
+        <div class="tool-card live">
+          <span class="tool-icon">💰</span>
+          <div class="tool-info">
+            <div class="tool-name">복리 계산기</div>
+            <div class="tool-desc">초기 투자금과 연간 투자금으로 복리·단리 성장 비교</div>
+          </div>
+          <span class="tool-tag tag-live">Live</span>
+        </div>
+        <div class="tool-card live">
+          <span class="tool-icon">🎯</span>
+          <div class="tool-info">
+            <div class="tool-name">목표 자산 계산기</div>
+            <div class="tool-desc">목표금액까지 걸리는 시간과 연별 현황 시뮬레이션</div>
+          </div>
+          <span class="tool-tag tag-live">Live</span>
+        </div>
+      </div>
+
+      <div class="coming-label">🔜 개발 예정</div>
+      <div class="coming-list">
+        <div class="coming-card">
+          <span class="coming-icon">💸</span>
+          <span class="coming-name">절세 계산기</span>
+          <span class="coming-tag">Coming Soon</span>
+        </div>
+        <div class="coming-card">
+          <span class="coming-icon">🏠</span>
+          <span class="coming-name">대출 이자 계산기</span>
+          <span class="coming-tag">Coming Soon</span>
+        </div>
+        <div class="coming-card">
+          <span class="coming-icon">📈</span>
+          <span class="coming-name">환율 손익 계산기</span>
+          <span class="coming-tag">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="page-footer">
+    <span class="footer-text">임광호 포트폴리오<span class="footer-dot">·</span>직접 제작한 금융 분석 도구 모음</span>
+    <span class="footer-text">© 2025</span>
+  </div>
+
+</div>
+
+<div class="approve-bar">
+  이 디자인으로 구현할까요? 터미널에서 알려주세요
+</div>
+
+</body>
+</html>

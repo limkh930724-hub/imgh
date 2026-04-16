@@ -1,0 +1,114 @@
+<h2>종목 추가 방식 — 어떤 방식이 자연스러울까요?</h2>
+<p class="subtitle">세 번째 종목 C를 추가하는 두 가지 UX 방향입니다</p>
+
+<style>
+  .mock-section { margin: 0 0 1.5rem; }
+  .mock-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #94a3b8; margin-bottom: 0.75rem; }
+
+  /* ── mini backtest card ── */
+  .sym-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .sym-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+  .sym-block { border-radius: 10px; padding: 0.875rem; }
+  .sym-block.a { background: #eff6ff; border: 1.5px solid #bfdbfe; }
+  .sym-block.b { background: #fff7ed; border: 1.5px solid #fed7aa; }
+  .sym-block.c { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
+  .sym-block.c-add { background: #f8fafc; border: 1.5px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; cursor: pointer; min-height: 72px; border-radius: 10px; gap: 0.4rem; color: #94a3b8; font-size: 0.85rem; font-weight: 600; transition: all 0.15s; }
+  .sym-block.c-add:hover { border-color: #6366f1; color: #6366f1; background: #f5f3ff; }
+  .sym-lbl { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .sym-block.a .sym-lbl { color: #2563eb; }
+  .sym-block.b .sym-lbl { color: #ea580c; }
+  .sym-block.c .sym-lbl { color: #16a34a; }
+  .sym-tag { font-size: 1rem; font-weight: 800; color: #0f172a; }
+  .sym-name { font-size: 0.72rem; color: #64748b; margin-top: 0.15rem; }
+
+  /* summary cards */
+  .sum-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem; }
+  .sum-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-top: 0.75rem; }
+  .sum-card { border-radius: 14px; overflow: hidden; border: 1.5px solid rgba(0,0,0,0.06); }
+  .sum-card.a .sum-head { border-top: 3px solid #3b82f6; }
+  .sum-card.b .sum-head { border-top: 3px solid #f97316; }
+  .sum-card.c .sum-head { border-top: 3px solid #22c55e; }
+  .sum-head { background: #fff; padding: 0.875rem 1rem 0.75rem; }
+  .sum-sym { font-size: 1rem; font-weight: 800; color: #0f172a; }
+  .sum-ret { font-size: 1.5rem; font-weight: 800; color: #16a34a; line-height: 1.1; margin-top: 0.35rem; }
+  .sum-body { padding: 0.625rem 1rem; background: #fafbff; }
+  .sum-row { display: flex; justify-content: space-between; font-size: 0.72rem; padding: 0.2rem 0; }
+  .sum-row span:first-child { color: #94a3b8; }
+  .sum-row span:last-child { font-weight: 700; color: #1e293b; }
+
+  .plus-icon { font-size: 1.25rem; line-height: 1; }
+
+  .badge-new { display: inline-block; background: #dcfce7; color: #15803d; font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.06em; margin-left: 0.4rem; vertical-align: middle; }
+  .remove-btn { float: right; background: none; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer; line-height: 1; }
+
+  .divider { height: 1px; background: #f1f5f9; margin: 1.25rem 0; }
+</style>
+
+<div class="options">
+
+  <!-- Option A -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>+ 버튼으로 셋째 칸 추가 (동적)</h3>
+      <p>종목 A·B는 항상 표시, + 버튼 클릭 시 종목 C 칸이 나타납니다. C 추가 후 ×로 제거 가능.</p>
+
+      <div style="margin-top:1rem">
+        <div class="mock-label">입력 — 종목 C 추가 전</div>
+        <div class="sym-grid-2">
+          <div class="sym-block a"><div class="sym-lbl">종목 A</div><div class="sym-tag">SPY</div><div class="sym-name">SPDR S&P 500 ETF</div></div>
+          <div class="sym-block b"><div class="sym-lbl">종목 B</div><div class="sym-tag">QQQ</div><div class="sym-name">Invesco QQQ Trust</div></div>
+        </div>
+        <div style="margin-top:0.75rem">
+          <div class="sym-block c-add"><span class="plus-icon">＋</span> 종목 C 추가하기</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem">
+        <div class="mock-label">입력 — 종목 C 추가 후</div>
+        <div class="sym-grid-3">
+          <div class="sym-block a"><div class="sym-lbl">종목 A</div><div class="sym-tag">SPY</div><div class="sym-name">SPDR S&P 500 ETF</div></div>
+          <div class="sym-block b"><div class="sym-lbl">종목 B</div><div class="sym-tag">QQQ</div><div class="sym-name">Invesco QQQ Trust</div></div>
+          <div class="sym-block c"><div class="sym-lbl">종목 C <span class="badge-new">NEW</span><button class="remove-btn">✕</button></div><div class="sym-tag">NVDA</div><div class="sym-name">NVIDIA Corporation</div></div>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem">
+        <div class="mock-label">결과 — 요약 카드 3열</div>
+        <div class="sum-grid-3">
+          <div class="sum-card a"><div class="sum-head"><div class="sum-sym">SPY</div><div class="sum-ret">+142.3%</div></div><div class="sum-body"><div class="sum-row"><span>원금</span><span>₩1,000만</span></div><div class="sum-row"><span>평가금</span><span>₩2,423만</span></div><div class="sum-row"><span>CAGR</span><span>+9.2%</span></div></div></div>
+          <div class="sum-card b"><div class="sum-head"><div class="sum-sym">QQQ</div><div class="sum-ret">+218.7%</div></div><div class="sum-body"><div class="sum-row"><span>원금</span><span>₩1,000만</span></div><div class="sum-row"><span>평가금</span><span>₩3,187만</span></div><div class="sum-row"><span>CAGR</span><span>+12.8%</span></div></div></div>
+          <div class="sum-card c"><div class="sum-head"><div class="sum-sym">NVDA</div><div class="sum-ret" style="color:#16a34a">+876.4%</div></div><div class="sum-body"><div class="sum-row"><span>원금</span><span>₩1,000만</span></div><div class="sum-row"><span>평가금</span><span>₩9,764만</span></div><div class="sum-row"><span>CAGR</span><span>+40.1%</span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>처음부터 3칸 고정 (C는 선택)</h3>
+      <p>종목 C 칸이 처음부터 표시되며 비어있는 상태. 비워두면 2종목만 비교, 입력하면 3종목 비교.</p>
+
+      <div style="margin-top:1rem">
+        <div class="mock-label">입력 — 항상 3칸 표시</div>
+        <div class="sym-grid-3">
+          <div class="sym-block a"><div class="sym-lbl">종목 A</div><div class="sym-tag">SPY</div><div class="sym-name">SPDR S&P 500 ETF</div></div>
+          <div class="sym-block b"><div class="sym-lbl">종목 B</div><div class="sym-tag">QQQ</div><div class="sym-name">Invesco QQQ Trust</div></div>
+          <div class="sym-block c"><div class="sym-lbl">종목 C <span style="color:#94a3b8;font-weight:400;font-size:0.65rem">(선택)</span></div><div class="sym-tag" style="color:#94a3b8;font-weight:500;font-size:0.88rem">비워두면 2종목 비교</div></div>
+        </div>
+      </div>
+
+      <div style="margin-top:1rem">
+        <div class="mock-label">결과 — 동일하게 3열 표시</div>
+        <div class="sum-grid-3">
+          <div class="sum-card a"><div class="sum-head"><div class="sum-sym">SPY</div><div class="sum-ret">+142.3%</div></div><div class="sum-body"><div class="sum-row"><span>원금</span><span>₩1,000만</span></div><div class="sum-row"><span>평가금</span><span>₩2,423만</span></div><div class="sum-row"><span>CAGR</span><span>+9.2%</span></div></div></div>
+          <div class="sum-card b"><div class="sum-head"><div class="sum-sym">QQQ</div><div class="sum-ret">+218.7%</div></div><div class="sum-body"><div class="sum-row"><span>원금</span><span>₩1,000만</span></div><div class="sum-row"><span>평가금</span><span>₩3,187만</span></div><div class="sum-row"><span>CAGR</span><span>+12.8%</span></div></div></div>
+          <div class="sum-card c"><div class="sum-head"><div class="sum-sym">NVDA</div><div class="sum-ret" style="color:#16a34a">+876.4%</div></div><div class="sum-body"><div class="sum-row"><span>원금</span><span>₩1,000만</span></div><div class="sum-row"><span>평가금</span><span>₩9,764만</span></div><div class="sum-row"><span>CAGR</span><span>+40.1%</span></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

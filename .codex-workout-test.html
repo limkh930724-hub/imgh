@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html><body>
+<script>
+localStorage.setItem('fg-workout-dashboard', JSON.stringify({
+  sessions: [{
+    id: 1,
+    date: new Date().toISOString(),
+    name: '테스트 세션',
+    category: '유산소',
+    minutes: 42,
+    intensity: '보통',
+    note: '자동 검증용 기록'
+  }],
+  checks: {}
+}));
+location.href = '/workout.html';
+</script>
+</body></html>
