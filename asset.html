@@ -118,6 +118,8 @@
         @media (max-width: 700px) { .topnav { padding: 0 1.25rem; } .page-wrap { padding: 1.25rem 1rem 3rem; } .stats-grid.four, .stats-grid.three, .stats-grid.six, .stats-bar { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 560px) { .slider-row { flex-wrap: wrap; gap: 0.3rem 0.5rem; } .slider-label { width: auto; flex: 1; font-size: 0.76rem; order: 1; } .slider-value { min-width: auto; font-size: 0.78rem; white-space: nowrap; order: 2; } .slider-row input[type=range] { flex-basis: 100%; order: 3; } .form-grid { grid-template-columns: 1fr; } .year-table th:nth-child(4), .year-table td:nth-child(4) { display: none; } }
         @media (max-width: 480px) { .topnav-link:not(.active) { display: none; } .page-footer { flex-direction: column; gap: 0.3rem; text-align: center; } .stats-grid.four, .stats-grid.three, .stats-grid.six, .stats-bar { grid-template-columns: 1fr; } }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        body { animation: pageIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
     </style>
 </head>
 <body>
@@ -690,5 +692,26 @@
         initGoalTool();
         initJournalTool();
     </script>
+<script>
+(function(){
+    var s=document.createElement('style');
+    s.textContent='#pg-ov{position:fixed;inset:0;z-index:9999;background:var(--bg,#09090b);opacity:0;pointer-events:none;transition:opacity .28s cubic-bezier(.4,0,.2,1)}#pg-ov.on{opacity:1;pointer-events:all}';
+    document.head.appendChild(s);
+    var ov=document.createElement('div');ov.id='pg-ov';document.body.appendChild(ov);
+    var nav=document.querySelector('.topnav');
+    if(nav) nav.addEventListener('click',function(e){
+        var a=e.target.closest('a[href]');
+        if(!a||a.target==='_blank') return;
+        var h=a.getAttribute('href');
+        if(!h||h.startsWith('http')) return;
+        e.preventDefault();
+        ov.classList.add('on');
+        setTimeout(function(){window.location.href=h;},280);
+    });
+    window.addEventListener('pageshow',function(e){
+        if(e.persisted){ov.style.transition='none';ov.classList.remove('on');ov.offsetHeight;ov.style.transition='';}
+    });
+})();
+</script>
 </body>
 </html>

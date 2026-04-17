@@ -24,7 +24,7 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 
 | File | Purpose | Lines |
 |---|---|---|
-| `index.html` | Portfolio hub — card grid linking to all tools | ~734 |
+| `index.html` | Portfolio hub — card grid linking to all tools | ~490 |
 | `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3961 |
 | `asset.html` | 자산 계산기 통합 허브 — 3 tabs: compound, goal, journal | ~692 |
 | `compound.html` | Redirect stub → `/asset.html?tab=compound` | 12 |
@@ -39,7 +39,7 @@ Each HTML file is structured: `<head>` (Inter font + inline `<style>`) → `<bod
 
 ### Hub (`index.html`)
 
-Static landing page with a sticky top nav and a responsive card grid (3-col → 2-col → 1-col). Cards link to each tool page. Cards with `card-soon` class are non-clickable (`pointer-events: none`). No JS logic.
+Responsive card grid (3-col → 2-col → 1-col) with sticky top nav. Cards link to each tool page. Cards with `card-soon` class are non-clickable (`pointer-events: none`). Dark/light toggle is handled by JS: `data-theme` attribute on `<html>`, persisted to `localStorage('hub-theme')`, default dark.
 
 ### Asset Calculator Hub (`asset.html`)
 
@@ -157,6 +157,14 @@ Below the tab panels, outside the `.main-content` grid, sit two additional secti
 - Exchange rates (`FX_REFRESH`): 3600 seconds
 - Market ticker (`MKT_REFRESH`): 3600 seconds
 
+## Coding conventions
+
+- **Indentation**: 4 spaces
+- **JS**: `camelCase` for variables and functions
+- **CSS**: `kebab-case` for class names
+- **Bilingual UI**: preserve existing `en`/`ko` patterns when editing visible text
+- **Commits**: short Conventional Commit prefix + concise Korean description, e.g. `fix: backtest 카드 정렬 보정`
+
 ## Deployment
 
 Deployed to Vercel. The `api/` directory contains serverless functions (ESM, `export default async function handler`).
@@ -172,6 +180,8 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 - **`api/real-estate.js`** — Vercel serverless function for Korean apartment transaction data. Fetches from 공공데이터포털 (data.go.kr) sale/rent endpoints, with MOCK_ITEMS fallback. Supports region codes for Seoul/Gyeonggi districts. Used by `agents.html`.
 - **`sw.js`** — Service Worker for PWA offline support. Current `CACHE_NAME = 'fg-cache-v8'`. PRECACHE includes `/`, `/index.html`, `/fear-greed.html`, `/asset.html`, `/compound.html`, `/goal.html`, `/journal.html`, `/backtest.html`, `/workout.html`, `/agents.html`, `/commerce.html`, `/manifest.json`, `/icon.svg`. Bump `CACHE_NAME` string to invalidate on deploy; add new pages to PRECACHE when created. Note: `NETWORK_FIRST_PREFIXES` still contains a legacy `https://corsproxy.io` entry from before the Vercel proxy migration — harmless but unused.
 - **`manifest.json`** + **`icon.svg`** — PWA web app manifest and home screen icon. Referenced in `sw.js` PRECACHE and `<link rel="manifest">` in `fear-greed.html`, but **these files do not currently exist** in the repo and need to be created.
+- **`.codex-*`** — local test artifacts from Codex experiments; not tracked, safe to ignore.
+- **`preview-*.png`, `final-*.png`** — screenshot files from browser testing; local only, gitignored.
 - **`docs/superpowers/specs/`** — design specs for planned features (approved before implementation).
 - **`docs/superpowers/plans/`** — implementation plans generated from specs.
   - Pending: hub redesign (`2026-04-06-hub-redesign-design.md` — spec only, no plan yet).

@@ -76,6 +76,8 @@ body{font-family:'Inter','Segoe UI',Arial,sans-serif;background:radial-gradient(
 @media (max-width:1120px){.filters{grid-template-columns:1fr 1fr 1fr 1fr}.bottom{grid-template-columns:1fr}.result-list{grid-template-columns:1fr}#map{height:620px}}
 @media (max-width:760px){.filters{grid-template-columns:1fr 1fr}.toolbar-top,.map-head,.results-head{flex-direction:column;align-items:flex-start}#map{height:520px}.topnav{padding:0 1.2rem}}
 @media (max-width:480px){.topnav-logo{width:12px;min-width:12px;overflow:hidden;font-size:0;gap:0}.topnav-link:not(.active){display:none}.page{padding:1rem .8rem 2rem}.filters{grid-template-columns:1fr}}
+@keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+body { animation: pageIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
 </style>
 </head>
 <body>
@@ -226,6 +228,27 @@ function init(){map=L.map('map',{zoomControl:true,attributionControl:true,minZoo
 searchBtn.addEventListener('click',run);
 resetBtn.addEventListener('click',function(){s.keyword.value='';s.region.value='';s.dealType.value='';s.area.value='';s.priceRange.value='';s.sort.value='latest';selected='';selectedPopupId='';save();map.fitBounds(SEOUL_BOUNDS);run()});
 restore();init();hydrateData().finally(run);
+</script>
+<script>
+(function(){
+    var s=document.createElement('style');
+    s.textContent='#pg-ov{position:fixed;inset:0;z-index:9999;background:var(--bg,#09090b);opacity:0;pointer-events:none;transition:opacity .28s cubic-bezier(.4,0,.2,1)}#pg-ov.on{opacity:1;pointer-events:all}';
+    document.head.appendChild(s);
+    var ov=document.createElement('div');ov.id='pg-ov';document.body.appendChild(ov);
+    var nav=document.querySelector('.topnav');
+    if(nav) nav.addEventListener('click',function(e){
+        var a=e.target.closest('a[href]');
+        if(!a||a.target==='_blank') return;
+        var h=a.getAttribute('href');
+        if(!h||h.startsWith('http')) return;
+        e.preventDefault();
+        ov.classList.add('on');
+        setTimeout(function(){window.location.href=h;},280);
+    });
+    window.addEventListener('pageshow',function(e){
+        if(e.persisted){ov.style.transition='none';ov.classList.remove('on');ov.offsetHeight;ov.style.transition='';}
+    });
+})();
 </script>
 </body>
 </html>

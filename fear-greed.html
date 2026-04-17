@@ -1420,6 +1420,8 @@
         }
         .footer-copy { font-size: 0.7rem; color: rgba(255,255,255,0.18); }
         @media (max-width: 560px) { .page-footer { flex-direction: column; gap: 0.3rem; text-align: center; } }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        body { animation: pageIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
     </style>
 </head>
 <body>
@@ -3957,5 +3959,26 @@
     <a href="/" class="footer-brand"><span class="footer-brand-dot"></span>임광호 포트폴리오</a>
     <span class="footer-copy">직접 제작한 금융 분석 도구 · © 2026</span>
 </footer>
+<script>
+(function(){
+    var s=document.createElement('style');
+    s.textContent='#pg-ov{position:fixed;inset:0;z-index:9999;background:var(--bg,#09090b);opacity:0;pointer-events:none;transition:opacity .28s cubic-bezier(.4,0,.2,1)}#pg-ov.on{opacity:1;pointer-events:all}';
+    document.head.appendChild(s);
+    var ov=document.createElement('div');ov.id='pg-ov';document.body.appendChild(ov);
+    var nav=document.querySelector('.topnav');
+    if(nav) nav.addEventListener('click',function(e){
+        var a=e.target.closest('a[href]');
+        if(!a||a.target==='_blank') return;
+        var h=a.getAttribute('href');
+        if(!h||h.startsWith('http')) return;
+        e.preventDefault();
+        ov.classList.add('on');
+        setTimeout(function(){window.location.href=h;},280);
+    });
+    window.addEventListener('pageshow',function(e){
+        if(e.persisted){ov.style.transition='none';ov.classList.remove('on');ov.offsetHeight;ov.style.transition='';}
+    });
+})();
+</script>
 </body>
 </html>

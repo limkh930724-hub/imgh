@@ -88,10 +88,19 @@
 
         /* LEFT */
         .hero-left {
+            position: relative;
             padding: 3rem 2.5rem;
             display: flex; flex-direction: column; justify-content: space-between;
             border-right: 1px solid var(--border);
+            overflow: hidden;
         }
+        #particle-canvas {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-left > * { position: relative; z-index: 1; }
         .hero-badge {
             display: inline-flex; align-items: center; gap: 0.45rem;
             font-size: 0.67rem; font-weight: 700; letter-spacing: 0.11em;
@@ -165,7 +174,7 @@
         }
 
         /* ─── SPOTLIGHT CARD LIST ─── */
-        .card-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        .card-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 
         .tool-card {
             position: relative;
@@ -176,9 +185,13 @@
             display: block;
             background: var(--card-bg);
             border: 1px solid var(--border-2);
-            transition: border-color 0.2s, transform 0.18s;
+            transition: border-color 0.22s, transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
         }
-        .tool-card:hover { border-color: transparent; transform: translateY(-1px); }
+        .tool-card:hover {
+            border-color: transparent;
+            transform: translateY(-4px) scale(1.025);
+            box-shadow: 0 12px 32px -6px rgba(99,102,241,0.28), 0 4px 12px -2px rgba(0,0,0,0.18);
+        }
 
         /* Gradient border on hover */
         .tool-card::before {
@@ -200,13 +213,13 @@
         .tool-card::after {
             content: '';
             position: absolute;
-            width: 220px; height: 220px;
+            width: 320px; height: 320px;
             border-radius: 50%;
-            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+            background: radial-gradient(circle, var(--glow) 0%, transparent 65%);
             transform: translate(-50%, -50%);
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.25s;
             left: var(--mx, 50%);
             top: var(--my, 50%);
         }
@@ -214,35 +227,51 @@
 
         .card-inner {
             position: relative; z-index: 1;
-            display: flex; align-items: center; gap: 1rem;
-            padding: 1rem 1.1rem;
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.85rem 0.95rem;
         }
         .card-icon {
-            font-size: 1.4rem; line-height: 1; flex-shrink: 0;
-            width: 42px; height: 42px;
+            font-size: 1.2rem; line-height: 1; flex-shrink: 0;
+            width: 36px; height: 36px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 10px;
+            border-radius: 9px;
             background: var(--bg-2);
             border: 1px solid var(--border);
+            transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
+        }
+        .tool-card:hover .card-icon {
+            transform: scale(1.18) rotate(-4deg);
+            background: var(--bg);
         }
         .card-body { flex: 1; min-width: 0; }
         .card-name {
-            font-size: 0.88rem; font-weight: 800;
+            font-size: 0.82rem; font-weight: 800;
             letter-spacing: -0.02em; color: var(--ink);
-            margin-bottom: 0.22rem;
+            margin-bottom: 0.18rem;
         }
         .card-desc {
-            font-size: 0.73rem; color: var(--ink-2);
-            line-height: 1.5;
+            font-size: 0.68rem; color: var(--ink-2);
+            line-height: 1.45;
             overflow: hidden; text-overflow: ellipsis;
-            display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        }
+        @keyframes bounceRight {
+            0%   { transform: translateX(0) scale(1); }
+            25%  { transform: translateX(10px) scale(1.2); }
+            50%  { transform: translateX(3px) scale(0.95); }
+            70%  { transform: translateX(8px) scale(1.1); }
+            85%  { transform: translateX(4px) scale(1); }
+            100% { transform: translateX(6px) scale(1); }
         }
         .card-arrow {
             flex-shrink: 0;
-            font-size: 0.85rem; color: var(--ink-3);
-            transition: color 0.15s, transform 0.18s;
+            font-size: 0.9rem; color: var(--ink-3);
+            transition: color 0.15s;
         }
-        .tool-card:hover .card-arrow { color: var(--ink); transform: translateX(3px); }
+        .tool-card:hover .card-arrow {
+            color: #8b5cf6;
+            animation: bounceRight 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
         .card-live {
             flex-shrink: 0;
             font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
@@ -259,6 +288,18 @@
         }
         .coming-card-name { flex: 1; font-size: 0.76rem; font-weight: 700; color: var(--ink-2); }
         .coming-tag { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; }
+
+        @keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        body { animation: pageIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+        /* PAGE TRANSITION OVERLAY */
+        #page-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--bg);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #page-overlay.leaving { opacity: 1; pointer-events: all; }
 
         /* FOOTER */
         .page-footer {
@@ -290,6 +331,7 @@
             .hero-left { padding: 1.6rem 1.2rem; }
             .hero-right { padding: 1.6rem 1.2rem; }
             .hero-stats { gap: 1.5rem; }
+            .card-list { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -307,6 +349,7 @@
 
     <div class="hero">
         <div class="hero-left">
+            <canvas id="particle-canvas" aria-hidden="true"></canvas>
             <div>
                 <div class="hero-badge">
                     <span class="hero-badge-dot"></span>
@@ -448,6 +491,8 @@
         </div>
     </div>
 
+    <div id="page-overlay"></div>
+
     <footer class="page-footer">
         <a href="/" class="footer-brand">임광호 포트폴리오</a>
         <span class="footer-copy">직접 제작한 개인 도구 모음 · 2026</span>
@@ -477,6 +522,113 @@
         updateClock();
         setInterval(updateClock, 30000);
 
+        // ── Particle ground ──
+        (function () {
+            const canvas = document.getElementById('particle-canvas');
+            const ctx = canvas.getContext('2d');
+            const COUNT = 52;
+            const LINK_DIST = 120;
+            const MOUSE_DIST = 150;
+            let W, H, particles, mouse = { x: -9999, y: -9999 };
+
+            function isDark() {
+                return document.documentElement.getAttribute('data-theme') === 'dark';
+            }
+            function dotColor()  { return isDark() ? 'rgba(139,92,246,0.55)' : 'rgba(99,102,241,0.45)'; }
+            function lineColor() { return isDark() ? 'rgba(139,92,246,VAL)' : 'rgba(99,102,241,VAL)'; }
+
+            function resize() {
+                const r = canvas.parentElement.getBoundingClientRect();
+                W = canvas.width  = r.width;
+                H = canvas.height = r.height;
+            }
+
+            function mkParticle() {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 0.18 + Math.random() * 0.22;
+                return {
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    r: 1.6 + Math.random() * 1.4,
+                };
+            }
+
+            function init() {
+                resize();
+                particles = Array.from({ length: COUNT }, mkParticle);
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, W, H);
+                const dc = dotColor();
+
+                // update
+                for (const p of particles) {
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0 || p.x > W) p.vx *= -1;
+                    if (p.y < 0 || p.y > H) p.vy *= -1;
+                }
+
+                // lines between particles
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const d = Math.sqrt(dx * dx + dy * dy);
+                        if (d < LINK_DIST) {
+                            const alpha = (1 - d / LINK_DIST) * 0.35;
+                            ctx.beginPath();
+                            ctx.strokeStyle = lineColor().replace('VAL', alpha);
+                            ctx.lineWidth = 0.8;
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                    // lines to mouse
+                    const mdx = particles[i].x - mouse.x;
+                    const mdy = particles[i].y - mouse.y;
+                    const md  = Math.sqrt(mdx * mdx + mdy * mdy);
+                    if (md < MOUSE_DIST) {
+                        const alpha = (1 - md / MOUSE_DIST) * 0.55;
+                        ctx.beginPath();
+                        ctx.strokeStyle = lineColor().replace('VAL', alpha);
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.stroke();
+                    }
+                }
+
+                // dots
+                ctx.fillStyle = dc;
+                for (const p of particles) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                requestAnimationFrame(draw);
+            }
+
+            // mouse tracking (relative to canvas)
+            canvas.parentElement.addEventListener('mousemove', e => {
+                const r = canvas.getBoundingClientRect();
+                mouse.x = e.clientX - r.left;
+                mouse.y = e.clientY - r.top;
+            });
+            canvas.parentElement.addEventListener('mouseleave', () => {
+                mouse.x = -9999; mouse.y = -9999;
+            });
+
+            window.addEventListener('resize', () => { resize(); });
+
+            init();
+            draw();
+        })();
+
         // Spotlight glow per card
         document.querySelectorAll('.tool-card').forEach(card => {
             card.addEventListener('mousemove', e => {
@@ -485,6 +637,39 @@
                 card.style.setProperty('--my', (e.clientY - r.top) + 'px');
             });
         });
+
+        // Page transition on card click
+        const overlay = document.getElementById('page-overlay');
+        document.querySelectorAll('.tool-card').forEach(card => {
+            card.addEventListener('click', e => {
+                const href = card.getAttribute('href');
+                if (!href) return;
+                e.preventDefault();
+                card.style.transition = 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s';
+                card.style.transform = 'translateY(-8px) scale(1.04)';
+                card.style.boxShadow = '0 20px 48px -8px rgba(99,102,241,0.45)';
+                setTimeout(() => {
+                    overlay.classList.add('leaving');
+                    setTimeout(() => { window.location.href = href; }, 280);
+                }, 120);
+            });
+        });
+
+        // Reset overlay and card styles on back/forward navigation (bfcache restore)
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) {
+                overlay.style.transition = 'none';
+                overlay.classList.remove('leaving');
+                overlay.offsetHeight; // force reflow
+                overlay.style.transition = '';
+                document.querySelectorAll('.tool-card').forEach(c => {
+                    c.style.transform = '';
+                    c.style.boxShadow = '';
+                    c.style.transition = '';
+                });
+            }
+        });
+        overlay.classList.remove('leaving');
     </script>
 </body>
 </html>
