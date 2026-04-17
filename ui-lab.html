@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme-hub="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Lab | 임광호 포트폴리오</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- parallax.js -->
+  <script src="https://unpkg.com/parallax-js@3.1.0/dist/parallax.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #09090b; color: #fafafa; overflow-x: hidden; }
+    @keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    body { animation: pageIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+    /* TopNav */
+    .topnav { position: sticky; top: 0; z-index: 300; height: 56px; padding: 0 2rem; display: flex; align-items: center; gap: 0.25rem; background: rgba(9,9,11,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .topnav-logo { margin-right: auto; color: #fafafa; text-decoration: none; font-size: 0.88rem; font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 0.45rem; }
+    .topnav-logo-dot { width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#8b5cf6); flex-shrink: 0; }
+    .topnav-link { color: rgba(255,255,255,0.38); text-decoration: none; font-size: 0.78rem; font-weight: 500; padding: 0.35rem 0.65rem; border-radius: 7px; white-space: nowrap; transition: color 0.15s, background 0.15s; }
+    .topnav-link:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.07); }
+    .topnav-link.active { color: #a5b4fc; font-weight: 600; background: rgba(99,102,241,0.15); }
+    @media (max-width: 600px) { .topnav-link:not(.active) { display: none; } }
+
+    /* Footer */
+    .page-footer { height: 48px; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); background: #09090b; }
+    .footer-brand { font-size: 0.73rem; font-weight: 700; color: rgba(255,255,255,0.25); text-decoration: none; display: flex; align-items: center; gap: 0.4rem; }
+    .footer-brand-dot { width: 6px; height: 6px; border-radius: 50%; background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+    .footer-copy { font-size: 0.68rem; color: rgba(255,255,255,0.15); }
+
+    /* ── Showcase 테마 변수 ── */
+    .showcase { transition: background 0.4s, color 0.4s; }
+    .showcase[data-theme="dark"] {
+      --s-bg: #09090b; --s-surface: #18181b; --s-surface2: #27272a;
+      --s-border: rgba(255,255,255,0.08); --s-text: #fafafa; --s-text2: #a1a1aa;
+      --s-accent: #8b5cf6; --s-accent2: #7c3aed; --s-accent-fg: #fff;
+      --s-ring: rgba(139,92,246,0.35);
+    }
+    .showcase[data-theme="glass"] {
+      --s-bg: #0f1729; --s-surface: rgba(255,255,255,0.07); --s-surface2: rgba(255,255,255,0.11);
+      --s-border: rgba(255,255,255,0.16); --s-text: #f1f5f9; --s-text2: #94a3b8;
+      --s-accent: #38bdf8; --s-accent2: #0ea5e9; --s-accent-fg: #fff;
+      --s-ring: rgba(56,189,248,0.35);
+    }
+    .showcase[data-theme="neon"] {
+      --s-bg: #020617; --s-surface: #0a0a1a; --s-surface2: #0f0f2a;
+      --s-border: rgba(34,211,238,0.4); --s-text: #e2e8f0; --s-text2: #94a3b8;
+      --s-accent: #22d3ee; --s-accent2: #f0abfc; --s-accent-fg: #000;
+      --s-ring: rgba(34,211,238,0.5);
+    }
+    .showcase[data-theme="minimal"] {
+      --s-bg: #f9fafb; --s-surface: #ffffff; --s-surface2: #f3f4f6;
+      --s-border: #e5e7eb; --s-text: #111827; --s-text2: #6b7280;
+      --s-accent: #4f46e5; --s-accent2: #4338ca; --s-accent-fg: #fff;
+      --s-ring: rgba(79,70,229,0.25);
+    }
+    .showcase[data-theme="glass"] { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%) !important; }
+    .showcase[data-theme="neon"] .neon-glow { box-shadow: 0 0 14px var(--s-accent), 0 0 28px rgba(34,211,238,0.2); }
+    .showcase[data-theme="neon"] .neon-glow-pink { box-shadow: 0 0 14px #f0abfc, 0 0 28px rgba(240,171,252,0.2); }
+    .showcase[data-theme="glass"] .glass-card { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+    /* 공통 쇼케이스 컴포넌트 */
+    .s-card {
+      background: var(--s-surface); border: 1px solid var(--s-border);
+      border-radius: 14px; padding: 1.25rem; color: var(--s-text);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .s-input {
+      background: var(--s-surface2); border: 1px solid var(--s-border);
+      border-radius: 8px; padding: 0.6rem 0.85rem; color: var(--s-text);
+      font-size: 0.85rem; width: 100%; outline: none; font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .s-input:focus { border-color: var(--s-accent); box-shadow: 0 0 0 3px var(--s-ring); }
+    .s-label { font-size: 0.78rem; font-weight: 600; color: var(--s-text2); margin-bottom: 0.35rem; display: block; }
+    .s-section-title { font-size: 0.65rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--s-text2); margin-bottom: 1.2rem; }
+
+    /* ThemeSwitcher 바 */
+    .theme-bar {
+      position: sticky; top: 56px; z-index: 200;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.75rem 2rem;
+      background: rgba(9,9,11,0.95); backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .theme-btn-pill {
+      padding: 0.42rem 1.1rem; border-radius: 999px; font-size: 0.76rem; font-weight: 700;
+      border: 1px solid transparent; cursor: pointer; transition: all 0.2s; letter-spacing: 0.02em;
+      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.45); font-family: 'Inter', sans-serif;
+    }
+    .theme-btn-pill:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .theme-btn-pill.active-dark   { background: #18181b; border-color: rgba(139,92,246,0.5); color: #a5b4fc; }
+    .theme-btn-pill.active-glass  { background: rgba(56,189,248,0.15); border-color: rgba(56,189,248,0.4); color: #38bdf8; }
+    .theme-btn-pill.active-neon   { background: rgba(34,211,238,0.1); border-color: #22d3ee; color: #22d3ee; text-shadow: 0 0 8px #22d3ee; }
+    .theme-btn-pill.active-minimal{ background: #f3f4f6; border-color: #d1d5db; color: #374151; }
+
+    /* 애니메이션 키프레임 */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes bounce-dots {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 0.4; }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+    @keyframes shimmer {
+      0% { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--s-surface2) 25%, var(--s-surface) 50%, var(--s-surface2) 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.4s ease infinite;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="topnav">
+    <a href="/" class="topnav-logo"><span class="topnav-logo-dot"></span>임광호 포트폴리오</a>
+    <a href="/" class="topnav-link">홈</a>
+    <a href="/fear-greed.html" class="topnav-link">공포탐욕지수</a>
+    <a href="/asset.html" class="topnav-link">자산 계산기</a>
+    <a href="/backtest.html" class="topnav-link">백테스트</a>
+    <a href="/workout.html" class="topnav-link">운동 루틴</a>
+    <a href="/ui-lab.html" class="topnav-link active">UI Lab</a>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero" style="position:relative; height:100vh; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+    <ul id="parallax-scene" style="position:absolute; inset:0; width:100%; height:100%; list-style:none;">
+
+      <!-- Layer 0: 방사형 그라디언트 배경 -->
+      <li data-depth="0.05" style="position:absolute; inset:0;">
+        <div style="width:100%; height:100%;
+          background: radial-gradient(ellipse 80% 60% at 30% 40%, rgba(99,102,241,0.18) 0%, transparent 60%),
+                      radial-gradient(ellipse 60% 50% at 70% 70%, rgba(139,92,246,0.12) 0%, transparent 55%),
+                      #09090b;">
+        </div>
+      </li>
+
+      <!-- Layer 1: 4가지 테마 미니 카드 -->
+      <li data-depth="0.20" style="position:absolute; inset:0; pointer-events:none;">
+        <!-- Dark 미니 카드 -->
+        <div style="position:absolute; top:12%; left:6%; width:130px; padding:12px; border-radius:12px; background:#18181b; border:1px solid rgba(255,255,255,0.08); opacity:0.7;">
+          <div style="width:24px;height:4px;border-radius:2px;background:#8b5cf6;margin-bottom:8px;"></div>
+          <div style="width:80%;height:3px;border-radius:2px;background:rgba(255,255,255,0.12);margin-bottom:5px;"></div>
+          <div style="width:60%;height:3px;border-radius:2px;background:rgba(255,255,255,0.08);"></div>
+          <div style="margin-top:10px;font-size:9px;font-weight:700;color:#8b5cf6;letter-spacing:0.08em;font-family:'Inter',sans-serif;">DARK</div>
+        </div>
+        <!-- Glass 미니 카드 -->
+        <div style="position:absolute; top:8%; right:8%; width:130px; padding:12px; border-radius:12px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.18); backdrop-filter:blur(8px); opacity:0.75;">
+          <div style="width:24px;height:4px;border-radius:2px;background:#38bdf8;margin-bottom:8px;"></div>
+          <div style="width:80%;height:3px;border-radius:2px;background:rgba(255,255,255,0.2);margin-bottom:5px;"></div>
+          <div style="width:60%;height:3px;border-radius:2px;background:rgba(255,255,255,0.12);"></div>
+          <div style="margin-top:10px;font-size:9px;font-weight:700;color:#38bdf8;letter-spacing:0.08em;font-family:'Inter',sans-serif;">GLASS</div>
+        </div>
+        <!-- Neon 미니 카드 -->
+        <div style="position:absolute; bottom:20%; left:8%; width:130px; padding:12px; border-radius:12px; background:#0a0a1a; border:1px solid #22d3ee; box-shadow:0 0 12px rgba(34,211,238,0.25); opacity:0.72;">
+          <div style="width:24px;height:4px;border-radius:2px;background:#22d3ee;box-shadow:0 0 6px #22d3ee;margin-bottom:8px;"></div>
+          <div style="width:80%;height:3px;border-radius:2px;background:rgba(34,211,238,0.2);margin-bottom:5px;"></div>
+          <div style="width:60%;height:3px;border-radius:2px;background:rgba(240,171,252,0.2);"></div>
+          <div style="margin-top:10px;font-size:9px;font-weight:700;color:#22d3ee;letter-spacing:0.08em;text-shadow:0 0 6px #22d3ee;font-family:'Inter',sans-serif;">NEON</div>
+        </div>
+        <!-- Minimal 미니 카드 -->
+        <div style="position:absolute; bottom:18%; right:6%; width:130px; padding:12px; border-radius:12px; background:#ffffff; border:1px solid #e5e7eb; opacity:0.8;">
+          <div style="width:24px;height:4px;border-radius:2px;background:#374151;margin-bottom:8px;"></div>
+          <div style="width:80%;height:3px;border-radius:2px;background:#d1d5db;margin-bottom:5px;"></div>
+          <div style="width:60%;height:3px;border-radius:2px;background:#e5e7eb;"></div>
+          <div style="margin-top:10px;font-size:9px;font-weight:700;color:#374151;letter-spacing:0.08em;font-family:'Inter',sans-serif;">MINIMAL</div>
+        </div>
+      </li>
+
+      <!-- Layer 2: 기하학 장식 도형 -->
+      <li data-depth="0.45" style="position:absolute; inset:0; pointer-events:none;">
+        <svg style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20%" cy="30%" r="60" fill="none" stroke="rgba(99,102,241,0.12)" stroke-width="1"/>
+          <circle cx="80%" cy="65%" r="90" fill="none" stroke="rgba(139,92,246,0.1)" stroke-width="1"/>
+          <circle cx="50%" cy="15%" r="40" fill="none" stroke="rgba(99,102,241,0.08)" stroke-width="1"/>
+          <line x1="15%" y1="60%" x2="35%" y2="40%" stroke="rgba(99,102,241,0.1)" stroke-width="0.8"/>
+          <line x1="65%" y1="20%" x2="85%" y2="45%" stroke="rgba(139,92,246,0.1)" stroke-width="0.8"/>
+        </svg>
+      </li>
+
+      <!-- Layer 3: 타이틀 (전경) -->
+      <li data-depth="0.80" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
+        <div style="text-align:center; user-select:none;">
+          <div style="display:inline-flex;align-items:center;gap:0.5rem;font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:1.2rem;font-family:'Inter',sans-serif;">
+            <span style="width:5px;height:5px;border-radius:50%;background:#8b5cf6;box-shadow:0 0 6px #8b5cf6;display:inline-block;"></span>
+            Component Showcase · React + Tailwind
+          </div>
+          <h1 style="font-size:clamp(3.5rem,8vw,7rem);font-weight:900;letter-spacing:-0.06em;line-height:1;color:#fafafa;margin-bottom:1rem;font-family:'Inter',sans-serif;">
+            UI <span style="background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Lab</span>
+          </h1>
+          <p style="font-size:1rem;color:rgba(255,255,255,0.45);max-width:38ch;margin:0 auto 2rem;font-family:'Inter',sans-serif;">
+            Dark · Glass · Neon · Minimal — 4가지 테마로 보는 UI 컴포넌트
+          </p>
+          <a href="#showcase" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.7rem 1.4rem;border-radius:10px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:#a5b4fc;font-size:0.82rem;font-weight:600;text-decoration:none;transition:background 0.15s;font-family:'Inter',sans-serif;">
+            쇼케이스 보기 ↓
+          </a>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- REACT ROOT -->
+  <div id="root"></div>
+
+  <footer class="page-footer">
+    <a href="/" class="footer-brand"><span class="footer-brand-dot"></span>임광호 포트폴리오</a>
+    <span class="footer-copy">직접 제작한 개인 도구 모음 · 2026</span>
+  </footer>
+
+  <!-- Page transition -->
+  <script>
+  (function(){
+      var s=document.createElement('style');
+      s.textContent='#pg-ov{position:fixed;inset:0;z-index:9999;background:#09090b;opacity:0;pointer-events:none;transition:opacity .28s cubic-bezier(.4,0,.2,1)}#pg-ov.on{opacity:1;pointer-events:all}';
+      document.head.appendChild(s);
+      var ov=document.createElement('div');ov.id='pg-ov';document.body.appendChild(ov);
+      var nav=document.querySelector('.topnav');
+      if(nav) nav.addEventListener('click',function(e){
+          var a=e.target.closest('a[href]');
+          if(!a||a.target==='_blank') return;
+          var h=a.getAttribute('href');
+          if(!h||h.startsWith('http')) return;
+          e.preventDefault();
+          ov.classList.add('on');
+          setTimeout(function(){window.location.href=h;},280);
+      });
+      window.addEventListener('pageshow',function(e){
+          if(e.persisted){ov.style.transition='none';ov.classList.remove('on');ov.offsetHeight;ov.style.transition='';}
+      });
+  })();
+  </script>
+
+  <!-- Parallax init -->
+  <script>
+    window.addEventListener('load', function() {
+      var scene = document.getElementById('parallax-scene');
+      if (scene && typeof Parallax !== 'undefined') {
+        new Parallax(scene, {
+          relativeInput: true,
+          hoverOnly: true,
+          calibrateX: false,
+          calibrateY: false,
+          invertX: false,
+          invertY: false,
+          limitX: 25,
+          limitY: 20,
+          scalarX: 6,
+          scalarY: 5,
+          frictionX: 0.1,
+          frictionY: 0.1
+        });
+      }
+    });
+  </script>
+
+  <!-- React App -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    /* ── ThemeSwitcher ── */
+    const THEMES = [
+      { id: 'dark',    label: 'Dark' },
+      { id: 'glass',   label: 'Glass' },
+      { id: 'neon',    label: 'Neon' },
+      { id: 'minimal', label: 'Minimal' },
+    ];
+    function ThemeSwitcher({ theme, setTheme }) {
+      return (
+        <div className="theme-bar">
+          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginRight: '0.5rem' }}>Theme</span>
+          {THEMES.map(t => (
+            <button key={t.id} className={`theme-btn-pill ${theme === t.id ? `active-${t.id}` : ''}`} onClick={() => setTheme(t.id)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      );
+    }
+
+    /* ── ButtonsSection ── */
+    function ButtonsSection() {
+      return (
+        <section className="mb-12">
+          <p className="s-section-title">Buttons</p>
+          <div className="s-card">
+            <div className="flex flex-wrap gap-3">
+              <button style={{ background: 'var(--s-accent)', color: 'var(--s-accent-fg)', border: 'none', borderRadius: '8px', padding: '0.6rem 1.2rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', transition: 'opacity 0.15s', fontFamily: 'Inter,sans-serif' }}
+                onMouseEnter={e => e.currentTarget.style.opacity='0.85'} onMouseLeave={e => e.currentTarget.style.opacity='1'}>
+                Primary
+              </button>
+              <button style={{ background: 'var(--s-surface2)', color: 'var(--s-text)', border: '1px solid var(--s-border)', borderRadius: '8px', padding: '0.6rem 1.2rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>
+                Secondary
+              </button>
+              <button style={{ background: 'transparent', color: 'var(--s-accent)', border: '1.5px solid var(--s-accent)', borderRadius: '8px', padding: '0.6rem 1.2rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>
+                Outline
+              </button>
+              <button style={{ background: 'transparent', color: 'var(--s-text2)', border: 'none', borderRadius: '8px', padding: '0.6rem 1.2rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>
+                Ghost
+              </button>
+              <button style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.6rem 1.2rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>
+                Destructive
+              </button>
+              <button disabled style={{ background: 'var(--s-surface2)', color: 'var(--s-text2)', border: '1px solid var(--s-border)', borderRadius: '8px', padding: '0.6rem 1.2rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'not-allowed', opacity: 0.45, fontFamily: 'Inter,sans-serif' }}>
+                Disabled
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-3 mt-4">
+              <button style={{ background: 'var(--s-accent)', color: 'var(--s-accent-fg)', border: 'none', borderRadius: '8px', padding: '0.6rem 1.1rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontFamily: 'Inter,sans-serif' }}>
+                <span>✦</span> With Icon
+              </button>
+              <button style={{ background: 'var(--s-surface2)', color: 'var(--s-text)', border: '1px solid var(--s-border)', borderRadius: '999px', padding: '0.5rem 1.2rem', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>
+                Pill Shape
+              </button>
+              <button style={{ background: 'var(--s-surface2)', color: 'var(--s-text)', border: '1px solid var(--s-border)', borderRadius: '8px', padding: '0.5rem 0.75rem', fontSize: '0.9rem', cursor: 'pointer', lineHeight: 1, fontFamily: 'Inter,sans-serif' }}>
+                ⚙
+              </button>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── CardsSection ── */
+    function CardsSection() {
+      return (
+        <section className="mb-12">
+          <p className="s-section-title">Cards</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 기본 카드 */}
+            <div className="s-card glass-card neon-glow" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '9px', background: 'var(--s-accent)', opacity: 0.2, marginBottom: '0.25rem' }}></div>
+              <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--s-text)' }}>기본 카드</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--s-text2)', lineHeight: 1.6 }}>카드 컴포넌트는 정보를 묶어서 표시하는 가장 기본적인 UI 패턴입니다.</div>
+              <button style={{ marginTop: 'auto', background: 'var(--s-accent)', color: 'var(--s-accent-fg)', border: 'none', borderRadius: '7px', padding: '0.5rem 1rem', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', width: 'fit-content', fontFamily: 'Inter,sans-serif' }}>
+                자세히 →
+              </button>
+            </div>
+            {/* 통계 카드 */}
+            <div className="s-card glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--s-text2)' }}>Monthly Revenue</div>
+              <div style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.04em', color: 'var(--s-text)' }}>₩4,231,000</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem' }}>
+                <span style={{ color: '#22c55e', fontWeight: 700 }}>↑ +12.5%</span>
+                <span style={{ color: 'var(--s-text2)' }}>지난달 대비</span>
+              </div>
+              <div style={{ marginTop: '0.75rem', height: '4px', borderRadius: '2px', background: 'var(--s-surface2)' }}>
+                <div style={{ height: '100%', width: '72%', borderRadius: '2px', background: 'var(--s-accent)' }}></div>
+              </div>
+            </div>
+            {/* 프로필 카드 */}
+            <div className="s-card glass-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', textAlign: 'center' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--s-accent), #ec4899)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>👤</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--s-text)' }}>임광호</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--s-text2)', marginTop: '0.2rem' }}>Frontend Developer</div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                {['React', 'Canvas', 'Vercel'].map(tag => (
+                  <span key={tag} style={{ fontSize: '0.65rem', fontWeight: 700, padding: '0.18rem 0.55rem', borderRadius: '999px', background: 'var(--s-surface2)', color: 'var(--s-accent)', border: '1px solid var(--s-border)' }}>{tag}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── BadgesSection ── */
+    const BADGES = [
+      { label: 'Success', bg: 'rgba(34,197,94,0.12)',  color: '#22c55e', dot: '#22c55e' },
+      { label: 'Warning', bg: 'rgba(234,179,8,0.12)',  color: '#eab308', dot: '#eab308' },
+      { label: 'Error',   bg: 'rgba(239,68,68,0.12)',  color: '#ef4444', dot: '#ef4444' },
+      { label: 'Info',    bg: 'rgba(56,189,248,0.12)', color: '#38bdf8', dot: '#38bdf8' },
+      { label: 'Neutral', bg: 'var(--s-surface2)',      color: 'var(--s-text2)', dot: 'var(--s-text2)' },
+      { label: 'New',     bg: 'rgba(139,92,246,0.12)', color: '#a78bfa', dot: '#a78bfa' },
+    ];
+    function BadgesSection() {
+      return (
+        <section className="mb-12">
+          <p className="s-section-title">Badges</p>
+          <div className="s-card" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', alignItems: 'center' }}>
+            {BADGES.map(b => (
+              <span key={b.label} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.04em', padding: '0.28rem 0.7rem', borderRadius: '999px', background: b.bg, color: b.color }}>
+                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: b.dot, flexShrink: 0 }}></span>
+                {b.label}
+              </span>
+            ))}
+            <div style={{ width: '100%', height: '1px', background: 'var(--s-border)', margin: '0.4rem 0' }}></div>
+            {[['Small','0.65rem','0.18rem 0.5rem'],['Medium','0.75rem','0.32rem 0.8rem'],['Large','0.85rem','0.45rem 1rem']].map(([lbl,fs,p]) => (
+              <span key={lbl} style={{ fontSize: fs, fontWeight: 700, padding: p, borderRadius: '999px', background: 'rgba(34,197,94,0.12)', color: '#22c55e' }}>{lbl}</span>
+            ))}
+          </div>
+        </section>
+      );
+    }
+
+    /* ── FormSection ── */
+    function FormSection() {
+      const [values, setValues] = useState({ name: '', email: '', role: '', agree: false, news: false });
+      const [showPw, setShowPw] = useState(false);
+      const [pw, setPw] = useState('');
+      const [submitted, setSubmitted] = useState(false);
+      const handle = (k, v) => setValues(prev => ({ ...prev, [k]: v }));
+      function onSubmit(e) {
+        e.preventDefault();
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 2500);
+      }
+      return (
+        <section className="mb-12">
+          <p className="s-section-title">Form</p>
+          <div className="s-card glass-card" style={{ maxWidth: '480px' }}>
+            <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label className="s-label">이름</label>
+                <input className="s-input" placeholder="홍길동" value={values.name} onChange={e => handle('name', e.target.value)} />
+              </div>
+              <div>
+                <label className="s-label">이메일</label>
+                <input className="s-input" type="email" placeholder="name@email.com" value={values.email} onChange={e => handle('email', e.target.value)} />
+              </div>
+              <div style={{ position: 'relative' }}>
+                <label className="s-label">비밀번호</label>
+                <input className="s-input" type={showPw ? 'text' : 'password'} placeholder="••••••••" value={pw} onChange={e => setPw(e.target.value)} style={{ paddingRight: '2.5rem' }} />
+                <button type="button" onClick={() => setShowPw(p => !p)} style={{ position: 'absolute', right: '0.75rem', bottom: '0.6rem', background: 'none', border: 'none', color: 'var(--s-text2)', cursor: 'pointer', fontSize: '0.85rem' }}>
+                  {showPw ? '🙈' : '👁'}
+                </button>
+              </div>
+              <div>
+                <label className="s-label">역할</label>
+                <select className="s-input" value={values.role} onChange={e => handle('role', e.target.value)}>
+                  <option value="">선택하세요</option>
+                  <option value="dev">개발자</option>
+                  <option value="design">디자이너</option>
+                  <option value="pm">기획자</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {[['agree','이용약관에 동의합니다'],['news','뉴스레터 수신에 동의합니다']].map(([k, lbl]) => (
+                  <label key={k} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.8rem', color: 'var(--s-text2)', cursor: 'pointer' }}>
+                    <span style={{ width: '18px', height: '18px', borderRadius: '5px', flexShrink: 0, border: `2px solid ${values[k] ? 'var(--s-accent)' : 'var(--s-border)'}`, background: values[k] ? 'var(--s-accent)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }} onClick={() => handle(k, !values[k])}>
+                      {values[k] && <span style={{ color: 'var(--s-accent-fg)', fontSize: '11px', fontWeight: 900 }}>✓</span>}
+                    </span>
+                    {lbl}
+                  </label>
+                ))}
+              </div>
+              <button type="submit" style={{ background: 'var(--s-accent)', color: 'var(--s-accent-fg)', border: 'none', borderRadius: '8px', padding: '0.68rem', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer', transition: 'opacity 0.15s', fontFamily: 'Inter,sans-serif' }}>
+                {submitted ? '✓ 제출 완료!' : '제출하기'}
+              </button>
+            </form>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── ModalSection ── */
+    function ModalSection() {
+      const [open, setOpen] = useState(false);
+      useEffect(() => {
+        function onKey(e) { if (e.key === 'Escape') setOpen(false); }
+        if (open) document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+      }, [open]);
+      return (
+        <section className="mb-12">
+          <p className="s-section-title">Modal</p>
+          <div className="s-card" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button onClick={() => setOpen(true)} style={{ background: 'var(--s-accent)', color: 'var(--s-accent-fg)', border: 'none', borderRadius: '8px', padding: '0.6rem 1.2rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>
+              모달 열기
+            </button>
+            <p style={{ fontSize: '0.8rem', color: 'var(--s-text2)' }}>ESC 키 또는 배경 클릭으로 닫기</p>
+          </div>
+          {open && (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', animation: 'pageIn 0.2s ease both' }}
+              onClick={e => { if (e.target === e.currentTarget) setOpen(false); }}>
+              <div style={{ background: 'var(--s-surface)', border: '1px solid var(--s-border)', borderRadius: '16px', padding: '1.75rem', maxWidth: '400px', width: '100%', boxShadow: '0 24px 64px -12px rgba(0,0,0,0.5)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--s-text)', marginBottom: '0.25rem' }}>정말 삭제하시겠습니까?</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--s-text2)' }}>이 작업은 되돌릴 수 없습니다.</div>
+                  </div>
+                  <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--s-text2)', cursor: 'pointer', fontSize: '1.1rem', lineHeight: 1 }}>✕</button>
+                </div>
+                <div style={{ display: 'flex', gap: '0.6rem', justifyContent: 'flex-end' }}>
+                  <button onClick={() => setOpen(false)} style={{ background: 'var(--s-surface2)', color: 'var(--s-text)', border: '1px solid var(--s-border)', borderRadius: '8px', padding: '0.55rem 1rem', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>취소</button>
+                  <button onClick={() => setOpen(false)} style={{ background: '#dc2626', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.55rem 1rem', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>삭제 확인</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+      );
+    }
+
+    /* ── TableSection ── */
+    const TABLE_DATA = [
+      { name: '김민준', role: '프론트엔드', status: 'active',   joined: '2024-03-12' },
+      { name: '이서연', role: '디자이너',   status: 'active',   joined: '2024-06-01' },
+      { name: '박도현', role: '백엔드',     status: 'inactive', joined: '2023-11-22' },
+      { name: '최수아', role: '기획자',     status: 'active',   joined: '2025-01-15' },
+      { name: '정유진', role: '풀스택',     status: 'pending',  joined: '2025-04-02' },
+    ];
+    const STATUS_STYLE = {
+      active:   { bg: 'rgba(34,197,94,0.12)',  color: '#22c55e', label: '활성' },
+      inactive: { bg: 'rgba(239,68,68,0.12)',  color: '#ef4444', label: '비활성' },
+      pending:  { bg: 'rgba(234,179,8,0.12)',  color: '#eab308', label: '대기' },
+    };
+    function TableSection() {
+      const [sort, setSort] = useState({ col: 'name', dir: 'asc' });
+      const sorted = [...TABLE_DATA].sort((a, b) => {
+        const v = a[sort.col] < b[sort.col] ? -1 : a[sort.col] > b[sort.col] ? 1 : 0;
+        return sort.dir === 'asc' ? v : -v;
+      });
+      const toggleSort = col => setSort(prev => prev.col === col ? { col, dir: prev.dir === 'asc' ? 'desc' : 'asc' } : { col, dir: 'asc' });
+      const thStyle = col => ({
+        padding: '0.65rem 1rem', textAlign: 'left', fontSize: '0.7rem', fontWeight: 800,
+        textTransform: 'uppercase', letterSpacing: '0.08em', cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap',
+        borderBottom: '1px solid var(--s-border)',
+        color: sort.col === col ? 'var(--s-accent)' : 'var(--s-text2)',
+      });
+      return (
+        <section className="mb-12">
+          <p className="s-section-title">Table</p>
+          <div className="s-card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr>
+                    {[['name','이름'],['role','역할'],['status','상태'],['joined','가입일']].map(([col,lbl]) => (
+                      <th key={col} style={thStyle(col)} onClick={() => toggleSort(col)}>
+                        {lbl} {sort.col === col ? (sort.dir === 'asc' ? '↑' : '↓') : <span style={{ opacity: 0.3 }}>↕</span>}
+                      </th>
+                    ))}
+                    <th style={{ ...thStyle('_'), cursor: 'default' }}>액션</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map((row, i) => (
+                    <tr key={row.name} style={{ borderBottom: i < sorted.length - 1 ? '1px solid var(--s-border)' : 'none' }}>
+                      <td style={{ padding: '0.75rem 1rem', fontSize: '0.83rem', fontWeight: 700, color: 'var(--s-text)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'var(--s-surface2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', flexShrink: 0 }}>{row.name[0]}</div>
+                          {row.name}
+                        </div>
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem', fontSize: '0.8rem', color: 'var(--s-text2)' }}>{row.role}</td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '0.2rem 0.55rem', borderRadius: '999px', background: STATUS_STYLE[row.status].bg, color: STATUS_STYLE[row.status].color }}>{STATUS_STYLE[row.status].label}</span>
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem', fontSize: '0.78rem', color: 'var(--s-text2)', fontVariantNumeric: 'tabular-nums' }}>{row.joined}</td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <button style={{ background: 'none', border: '1px solid var(--s-border)', borderRadius: '6px', padding: '0.28rem 0.65rem', fontSize: '0.72rem', fontWeight: 600, color: 'var(--s-text2)', cursor: 'pointer', fontFamily: 'Inter,sans-serif' }}>편집</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── AnimationSection ── */
+    function AnimationSection() {
+      const [progress, setProgress] = useState(0);
+      useEffect(() => {
+        const id = setInterval(() => setProgress(p => p >= 100 ? 0 : p + 1), 30);
+        return () => clearInterval(id);
+      }, []);
+      return (
+        <section className="mb-16">
+          <p className="s-section-title">Animation</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 스피너 3종 */}
+            <div className="s-card glass-card">
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--s-text2)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Spinners</p>
+              <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', border: '3px solid var(--s-surface2)', borderTopColor: 'var(--s-accent)', animation: 'spin 0.8s linear infinite', flexShrink: 0 }}></div>
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  {[0, 160, 320].map((delay, i) => (
+                    <div key={i} style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--s-accent)', animation: `bounce-dots 1.2s ease-in-out ${delay}ms infinite` }}></div>
+                  ))}
+                </div>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--s-accent)', opacity: 0.8, animation: 'pulse-ring 1.5s ease-in-out infinite', flexShrink: 0 }}></div>
+              </div>
+            </div>
+            {/* 스켈레톤 */}
+            <div className="s-card glass-card">
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--s-text2)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Skeleton</p>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                <div className="skeleton" style={{ width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0 }}></div>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', paddingTop: '0.25rem' }}>
+                  <div className="skeleton" style={{ height: '10px', width: '70%' }}></div>
+                  <div className="skeleton" style={{ height: '9px', width: '90%' }}></div>
+                  <div className="skeleton" style={{ height: '9px', width: '55%' }}></div>
+                </div>
+              </div>
+            </div>
+            {/* 진행바 */}
+            <div className="s-card glass-card">
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--s-text2)', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Progress</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {[
+                  { value: progress, color: 'var(--s-accent)', label: `${progress}%`, name: 'Animated' },
+                  { value: 68,       color: '#22c55e',          label: '68%',           name: 'Success' },
+                  { value: 34,       color: '#f59e0b',          label: '34%',           name: 'Warning' },
+                ].map((bar, i) => (
+                  <div key={i}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--s-text2)' }}>{bar.name}</span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700, color: bar.color }}>{bar.label}</span>
+                    </div>
+                    <div style={{ height: '6px', borderRadius: '3px', background: 'var(--s-surface2)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${bar.value}%`, borderRadius: '3px', background: bar.color, transition: 'width 0.05s linear' }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ── App ── */
+    function App() {
+      const [theme, setTheme] = useState('dark');
+      return (
+        <div>
+          <ThemeSwitcher theme={theme} setTheme={setTheme} />
+          <div id="showcase" className="showcase" data-theme={theme}
+            style={{ background: 'var(--s-bg)', color: 'var(--s-text)', transition: 'background 0.4s, color 0.4s' }}>
+            <div style={{ maxWidth: '900px', margin: '0 auto', padding: '3rem 2rem 2rem' }}>
+              <ButtonsSection />
+              <CardsSection />
+              <BadgesSection />
+              <FormSection />
+              <ModalSection />
+              <TableSection />
+              <AnimationSection />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
