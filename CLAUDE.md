@@ -34,7 +34,6 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 | `workout.html` | 운동 루틴 (workout routine dashboard) | ~409 |
 | `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~231 |
 | `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1289 |
-| `ui-lab.html` | UI 컴포넌트 쇼케이스 — 4테마(Dark/Glass/Neon/Minimal), parallax.js 히어로, React+Tailwind CDN | ~600 |
 
 Each HTML file is structured: `<head>` (Inter font + inline `<style>`) → `<body>` (markup) → `<script>` (all app logic).
 

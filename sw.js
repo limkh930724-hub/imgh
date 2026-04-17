@@ -1,7 +1,7 @@
-const CACHE_NAME = 'fg-cache-v9';
+const CACHE_NAME = 'fg-cache-v8';
 
 // Static assets to cache on install
-const PRECACHE = ['/', '/index.html', '/fear-greed.html', '/asset.html', '/compound.html', '/goal.html', '/journal.html', '/backtest.html', '/workout.html', '/agents.html', '/commerce.html', '/ui-lab.html', '/manifest.json', '/icon.svg'];
+const PRECACHE = ['/', '/index.html', '/fear-greed.html', '/asset.html', '/compound.html', '/goal.html', '/journal.html', '/backtest.html', '/workout.html', '/agents.html', '/commerce.html', '/manifest.json', '/icon.svg'];
 
 // URL prefixes that use network-first (fall back to cache)
 const NETWORK_FIRST_PREFIXES = [
