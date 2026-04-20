@@ -819,8 +819,8 @@ function ProductDetailPage({ productId }) {
 
   const product = products.find(p => p.id === productId);
   if (!product) return (
-    <div className="page-wrap">
-      <span className="back-link" onClick={() => navigate('/shop')}>← 목록으로</span>
+    <div className="sv-body">
+      <Breadcrumb current="상품 상세" />
       <p>상품을 찾을 수 없습니다.</p>
     </div>
   );
@@ -844,8 +844,8 @@ function ProductDetailPage({ productId }) {
   }
 
   return (
-    <div className="page-wrap">
-      <span className="back-link" onClick={() => navigate('/shop')}>← 목록으로</span>
+    <div className="sv-body">
+      <Breadcrumb current="상품 상세" />
       <div className="detail-wrap">
         <span className="detail-emoji">{product.emoji}</span>
         <div className="detail-name">{product.name}</div>
@@ -925,8 +925,8 @@ function CartPage() {
   }
 
   if (cartItems.length === 0) return (
-    <div className="page-wrap">
-      <div className="page-title">장바구니</div>
+    <div className="sv-body">
+      <Breadcrumb current="🛒 장바구니" />
       <div className="empty-state">
         <div className="empty-state-icon">🛒</div>
         <div>장바구니가 비어 있습니다.</div>
@@ -938,8 +938,8 @@ function CartPage() {
   );
 
   return (
-    <div className="page-wrap">
-      <div className="page-title">장바구니</div>
+    <div className="sv-body">
+      <Breadcrumb current="🛒 장바구니" />
       <div style={{background:'#fff',borderRadius:'14px',border:'1px solid #ebebeb',padding:'0.5rem 1.5rem',marginBottom:'1rem'}}>
         {cartItems.map(ci => {
           const stock = inventory[ci.productId]?.qty ?? 0;
@@ -984,7 +984,8 @@ function MyOrdersPage() {
   const badgeClass = { B2C:'badge-active', B2B:'badge-b2b', ADMIN:'badge-admin' }[currentUser.type] || 'badge-active';
 
   return (
-    <div className="page-wrap">
+    <div className="sv-body">
+      <Breadcrumb current="📋 내 주문" />
       <div className="page-header-row">
         <div className="page-title">내 주문 내역</div>
         <span style={{fontSize:'0.85rem',color:'#888'}}>
@@ -1449,10 +1450,10 @@ function TopNav({ currentPath }) {
 
   return (
     <nav className="topnav">
-      <a href="/" className="topnav-logo">🛒 CommerceLab</a>
+      <span className="topnav-logo" onClick={() => navigate('/')}>🛒 CommerceLab</span>
 
-      <span className={`topnav-link${currentPath === '/' ? ' active' : ''}`}
-            onClick={() => navigate('/')}>대시보드</span>
+      <span className={`topnav-link${currentPath === '/dashboard' ? ' active' : ''}`}
+            onClick={() => navigate('/dashboard')}>대시보드</span>
 
       <span className={`topnav-link${currentPath === '/shop' ? ' active' : ''}`}
             onClick={() => navigate('/shop')}>상품목록</span>
