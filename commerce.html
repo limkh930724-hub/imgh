@@ -504,26 +504,6 @@ function useHash() {
 }
 function navigate(path) { window.location.hash = '#' + path; }
 
-// ── OnboardingBanner ──
-function OnboardingBanner() {
-  const [visible, setVisible] = useState(() => !localStorage.getItem('cms-toured'));
-  if (!visible) return null;
-  function dismiss() { localStorage.setItem('cms-toured', '1'); setVisible(false); }
-  return (
-    <div className="onboarding-banner">
-      <button className="onboarding-close" onClick={dismiss} title="닫기">✕</button>
-      <div className="onboarding-title">🚀 OMS + WMS + PLM 통합 커머스 시스템 데모</div>
-      <div className="onboarding-desc">주문 관리(OMS) · 재고 관리(WMS) · 상품 수명주기(PLM)를 직접 체험해보세요. B2C/B2B/관리자 역할 전환도 지원합니다.</div>
-      <div className="onboarding-steps">
-        <span className="onboarding-step">① 우상단 B2C/B2B 가격 전환</span>
-        <span className="onboarding-step">② 장바구니 담기 → 주문</span>
-        <span className="onboarding-step">③ 관리자 → 주문 상태 변경</span>
-        <span className="onboarding-step">④ 재고 관리 → 수량 수정</span>
-      </div>
-    </div>
-  );
-}
-
 // ── Toast ──
 function Toast({ message, type, onClose }) {
   useEffect(() => { const t = setTimeout(onClose, 3500); return () => clearTimeout(t); }, []);
@@ -545,6 +525,68 @@ function ConfirmModal({ title, children, confirmLabel = '삭제', onConfirm, onC
           <button className="btn btn-danger" onClick={onConfirm}>{confirmLabel}</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── HomeLauncherPage ──
+const TILES = [
+  { icon:'📦', name:'상품관리', sub:'OMS',  path:'/shop' },
+  { icon:'🛒', name:'주문관리', sub:'OMS',  path:'/admin/orders' },
+  { icon:'🚚', name:'배송관리', sub:'OMS',  path:'/admin/orders/shipping' },
+  { icon:'🏭', name:'재고관리', sub:'WMS',  path:'/admin/inventory' },
+  { icon:'📥', name:'입고관리', sub:'WMS',  path:'/admin/inventory/inbound' },
+  { icon:'📤', name:'출고관리', sub:'WMS',  path:'/admin/inventory/outbound' },
+  { icon:'📐', name:'제품관리', sub:'PLM',  path:'/admin/products' },
+  { icon:'📊', name:'대시보드', sub:'통계', path:'/dashboard' },
+  { icon:'⚙️', name:'설정',    sub:'시스템', path:null },
+];
+
+function HomeLauncherPage() {
+  const { currentUser } = useStore();
+  const [settingToast, setSettingToast] = useState(false);
+
+  function handleTile(tile) {
+    if (!tile.path) { setSettingToast(true); return; }
+    navigate(tile.path);
+  }
+
+  return (
+    <div className="home-body">
+      <div className="home-grid">
+        <div className="hero-panel">
+          <div>
+            <div className="hero-tag">Commerce System v2</div>
+            <div className="hero-title">
+              OMS · WMS<br /><span className="hl">PLM</span> 통합 관리
+            </div>
+            <div className="hero-desc">
+              주문부터 창고·제품까지<br />
+              실시간 데이터로 보이는<br />
+              현장관리를 실현합니다.
+            </div>
+          </div>
+          <div className="hero-user">
+            <div className="hero-avatar">{currentUser?.name?.[0] ?? '관'}</div>
+            <div>
+              <div className="hero-user-name">{currentUser?.name ?? '관리자'}</div>
+              <div className="hero-user-role">{currentUser?.type === 'admin' ? '시스템 관리자' : currentUser?.type === 'B2B' ? 'B2B 거래처' : '일반 고객'}</div>
+            </div>
+          </div>
+        </div>
+        <div className="tile-area">
+          <div className="tile-grid">
+            {TILES.map(tile => (
+              <div key={tile.name} className="tile" onClick={() => handleTile(tile)}>
+                <div className="tile-icon">{tile.icon}</div>
+                <div className="tile-name">{tile.name}</div>
+                <div className="tile-sub">{tile.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {settingToast && <Toast message="⚙️ 설정 기능은 준비 중입니다." type="info" onClose={() => setSettingToast(false)} />}
     </div>
   );
 }
@@ -574,7 +616,6 @@ function DashboardPage() {
 
   return (
     <div className="page-wrap">
-      <OnboardingBanner />
       <div className="page-title">대시보드</div>
 
       <div className="stats-grid">
@@ -1323,14 +1364,18 @@ function App() {
   const productId = productMatch ? productMatch[1] : null;
 
   function renderPage() {
-    if (productId)                   return <ProductDetailPage productId={productId} />;
-    if (path === '/shop')            return <ShopPage />;
-    if (path === '/cart')            return <CartPage />;
-    if (path === '/orders')          return <MyOrdersPage />;
-    if (path === '/admin/orders')    return <AdminOrdersPage />;
-    if (path === '/admin/products')  return <AdminProductsPage />;
-    if (path === '/admin/inventory') return <AdminInventoryPage />;
-    return <DashboardPage />;
+    if (productId)                              return <ProductDetailPage productId={productId} />;
+    if (path === '/shop')                       return <ShopPage />;
+    if (path === '/cart')                       return <CartPage />;
+    if (path === '/orders')                     return <MyOrdersPage />;
+    if (path === '/dashboard')                  return <DashboardPage />;
+    if (path === '/admin/orders')               return <AdminOrdersPage initialFilter="전체" />;
+    if (path === '/admin/orders/shipping')      return <AdminOrdersPage initialFilter="shipping" />;
+    if (path === '/admin/products')             return <AdminProductsPage />;
+    if (path === '/admin/inventory')            return <AdminInventoryPage initialTab="재고현황" />;
+    if (path === '/admin/inventory/inbound')    return <AdminInventoryPage initialTab="입고" />;
+    if (path === '/admin/inventory/outbound')   return <AdminInventoryPage initialTab="출고" />;
+    return <HomeLauncherPage />;
   }
 
   return <div><TopNav currentPath={path} />{renderPage()}</div>;
