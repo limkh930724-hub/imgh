@@ -550,19 +550,20 @@ function StoreProvider({ children }) {
 function useStore() { return useContext(StoreContext); }
 
 // ── 라우팅 ──
+let _setHash = null;
 function useHash() {
-  const [hash, setHash] = useState(window.location.hash || '#/');
+  const [hash, setHash] = useState(() => window.location.hash.replace(/^#/, '') || '/');
+  _setHash = setHash;
   useEffect(() => {
-    const h = () => setHash(window.location.hash || '#/');
+    const h = () => setHash(window.location.hash.replace(/^#/, '') || '/');
     window.addEventListener('hashchange', h);
-    window.addEventListener('_navigate', h);
-    return () => { window.removeEventListener('hashchange', h); window.removeEventListener('_navigate', h); };
+    return () => window.removeEventListener('hashchange', h);
   }, []);
   return hash;
 }
 function navigate(path) {
   window.location.hash = path;
-  window.dispatchEvent(new Event('_navigate'));
+  if (_setHash) _setHash(path);
 }
 
 // ── Breadcrumb ──
@@ -1525,8 +1526,7 @@ function TopNav({ currentPath }) {
 
 // ── App 라우터 ──
 function App() {
-  const hash = useHash();
-  const path = hash.replace(/^#/, '') || '/';
+  const path = useHash();
   const productMatch = path.match(/^\/product\/(.+)$/);
   const productId = productMatch ? productMatch[1] : null;
 
