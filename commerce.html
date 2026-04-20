@@ -555,11 +555,15 @@ function useHash() {
   useEffect(() => {
     const h = () => setHash(window.location.hash || '#/');
     window.addEventListener('hashchange', h);
-    return () => window.removeEventListener('hashchange', h);
+    window.addEventListener('_navigate', h);
+    return () => { window.removeEventListener('hashchange', h); window.removeEventListener('_navigate', h); };
   }, []);
   return hash;
 }
-function navigate(path) { window.location.hash = '#' + path; }
+function navigate(path) {
+  window.location.hash = path;
+  window.dispatchEvent(new Event('_navigate'));
+}
 
 // ── Breadcrumb ──
 function Breadcrumb({ current }) {
