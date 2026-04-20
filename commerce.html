@@ -634,97 +634,62 @@ function HomeLauncherPage() {
 
 // ── DashboardPage ──
 function DashboardPage() {
-  const { orders, inventory, products } = useStore();
+  const { orders, products, inventory } = useStore();
 
-  const today = new Date().toDateString();
-  const todayOrders  = orders.filter(o => new Date(o.createdAt).toDateString() === today);
-  const totalRevenue = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.totalAmount, 0);
-  const shippingCnt  = orders.filter(o => o.status === 'shipping').length;
-  const outOfStock   = products.filter(p => (inventory[p.id]?.qty ?? 0) === 0).length;
-  const lowStock     = products.filter(p => { const q = inventory[p.id]?.qty ?? 0; return q > 0 && q < (MIN_QTY[p.id] ?? 5); }).length;
-
-  // 상품별 누적 주문 수량 (취소 제외)
-  const productQtys = {};
-  orders.filter(o => o.status !== 'cancelled').forEach(o =>
-    o.items.forEach(item => { productQtys[item.productId] = (productQtys[item.productId] || 0) + item.qty; })
-  );
-  const chartData = products
-    .map(p => ({ name: p.name.length > 6 ? p.name.slice(0,5) + '…' : p.name, qty: productQtys[p.id] || 0, emoji: p.emoji }))
-    .sort((a, b) => b.qty - a.qty).slice(0, 6);
-  const maxQty = Math.max(...chartData.map(d => d.qty), 1);
-
-  const recentOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4);
+  const totalOrders   = orders.length;
+  const pendingOrders = orders.filter(o => o.status === 'paid' || o.status === 'shipping').length;
+  const totalRevenue  = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.totalAmount, 0);
+  const lowStockCount = products.filter(p => (inventory[p.id]?.qty ?? 0) < (MIN_QTY[p.id] ?? 5)).length;
+  const recentOrders  = [...orders].sort((a,b) => b.createdAt - a.createdAt).slice(0, 6);
 
   return (
-    <div className="page-wrap">
-      <div className="page-title">대시보드</div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">📦</div>
-          <div className="stat-label">오늘 주문</div>
-          <div className="stat-value">{todayOrders.length}<span style={{fontSize:'1rem',fontWeight:600}}>건</span></div>
-          <div className="stat-sub">전체 {orders.length}건 누적</div>
+    <div className="sv-body">
+      <Breadcrumb current="📊 대시보드" />
+      <div className="sv-header">
+        <div className="sv-title">📊 대시보드</div>
+      </div>
+      <div className="sv-stat-row">
+        <div className="sv-stat">
+          <div className="sv-stat-label">전체 주문</div>
+          <div className="sv-stat-val accent">{totalOrders}</div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon">💰</div>
-          <div className="stat-label">누적 매출</div>
-          <div className="stat-value sm">{fmt(totalRevenue)}</div>
-          <div className="stat-sub">취소 건 제외</div>
+        <div className="sv-stat">
+          <div className="sv-stat-label">처리 중</div>
+          <div className="sv-stat-val warn">{pendingOrders}</div>
         </div>
-        <div className={`stat-card${shippingCnt > 0 ? ' stat-warn' : ''}`}>
-          <div className="stat-icon">🚚</div>
-          <div className="stat-label">배송 처리 대기</div>
-          <div className="stat-value">{shippingCnt}<span style={{fontSize:'1rem',fontWeight:600}}>건</span></div>
-          <div className="stat-sub">배송중 상태</div>
+        <div className="sv-stat">
+          <div className="sv-stat-label">총 매출</div>
+          <div className="sv-stat-val ok" style={{fontSize:'0.95rem'}}>{fmt(totalRevenue)}</div>
         </div>
-        <div className={`stat-card${outOfStock + lowStock > 0 ? ' stat-alert' : ''}`}>
-          <div className="stat-icon">⚠️</div>
-          <div className="stat-label">재고 경보</div>
-          <div className="stat-value">{outOfStock + lowStock}<span style={{fontSize:'1rem',fontWeight:600}}>개</span></div>
-          <div className="stat-sub">품절 {outOfStock} · 부족 {lowStock}</div>
+        <div className="sv-stat">
+          <div className="sv-stat-label">재고 경보</div>
+          <div className={`sv-stat-val ${lowStockCount > 0 ? 'danger' : 'ok'}`}>{lowStockCount}</div>
         </div>
       </div>
-
-      <div className="chart-section">
-        <div className="chart-title">📊 상품별 누적 주문 수량 (취소 제외)</div>
-        <div className="bar-chart">
-          {chartData.map((d, i) => (
-            <div key={i} className="bar-item">
-              <div className="bar-value">{d.qty > 0 ? d.qty : ''}</div>
-              <div className="bar-fill" style={{height: `${Math.max(4, (d.qty / maxQty) * 80)}px`}} />
-              <div className="bar-label">{d.emoji} {d.name}</div>
-            </div>
-          ))}
+      <div className="sv-card">
+        <div className="sv-card-header">
+          <div className="sv-card-title">최근 주문</div>
+          <button className="btn btn-sm btn-secondary" onClick={() => navigate('/admin/orders')}>전체 보기</button>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr>
+              <th>주문번호</th><th>상품</th>
+              <th style={{textAlign:'right'}}>금액</th><th>상태</th>
+            </tr></thead>
+            <tbody>
+              {recentOrders.map(o => (
+                <tr key={o.id}>
+                  <td style={{fontFamily:'monospace',fontSize:'0.73rem',color:'#bbb'}}>{o.id}</td>
+                  <td style={{color:'var(--text-2)'}}>{o.items.map(i=>`${i.name}×${i.qty}`).join(', ')}</td>
+                  <td style={{textAlign:'right',fontWeight:800}}>{fmt(o.totalAmount)}</td>
+                  <td><span className={`badge ${STATUS_BADGE[o.status]}`}>{STATUS_LABEL[o.status]}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <div className="dash-section-title">바로가기</div>
-      <div className="dash-quick-links">
-        <div className="dash-link-card" onClick={() => navigate('/shop')}>🛍️ 상품 목록</div>
-        <div className="dash-link-card" onClick={() => navigate('/admin/orders')}>📋 주문 관리 (OMS)</div>
-        <div className="dash-link-card" onClick={() => navigate('/admin/products')}>🏷️ 상품 관리 (PLM)</div>
-        <div className="dash-link-card" onClick={() => navigate('/admin/inventory')}>
-          📦 재고 관리 (WMS){outOfStock + lowStock > 0 && <span className="nav-alert-dot" />}
-        </div>
-      </div>
-
-      <div className="dash-section-title">최근 주문</div>
-      {recentOrders.map(order => (
-        <div key={order.id} className="order-card" style={{marginBottom:'0.65rem'}}>
-          <div className="order-header">
-            <span className="order-meta">{order.id}</span>
-            <span className={`badge ${STATUS_BADGE[order.status]}`}>{STATUS_LABEL[order.status]}</span>
-          </div>
-          <div className="order-items-text">
-            {order.items.map(item => `${item.name} ×${item.qty}`).join(' · ')}
-          </div>
-          <div className="order-footer">
-            <span className="order-amount">{fmt(order.totalAmount)}</span>
-            <span className="order-meta">{fmtDate(order.createdAt)}</span>
-          </div>
-        </div>
-      ))}
     </div>
   );
 }
@@ -1025,9 +990,9 @@ function MyOrdersPage() {
 }
 
 // ── AdminOrdersPage ──
-function AdminOrdersPage() {
+function AdminOrdersPage({ initialFilter = '전체' }) {
   const { orders, updateOrderStatus } = useStore();
-  const [statusFilter, setStatusFilter] = useState('전체');
+  const [statusFilter, setStatusFilter] = useState(initialFilter);
   const [search, setSearch] = useState('');
   const [toast, setToast] = useState(null);
   const STATUS_FILTERS = ['전체', 'paid', 'shipping', 'delivered', 'cancelled'];
@@ -1054,65 +1019,85 @@ function AdminOrdersPage() {
     }
   }
 
+  const pageName = initialFilter === 'shipping' ? '🚚 배송관리' : '🛒 주문관리';
+
   return (
-    <div className="page-wrap">
-      <div className="page-title">주문 관리 (OMS)</div>
-      <div className="filter-bar">
-        {STATUS_FILTERS.map(f => (
-          <button key={f} className={`filter-btn${statusFilter === f ? ' active' : ''}`}
-                  onClick={() => setStatusFilter(f)}>
-            {f === '전체' ? '전체' : STATUS_LABEL[f]}
-          </button>
-        ))}
-        <div className="search-wrap">
-          <span className="search-icon">🔍</span>
-          <input className="search-input" placeholder="주문번호 · 상품 · 고객 검색"
-                 value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
-      </div>
-      <div className="table-wrap">
-        <table>
-          <thead><tr>
-            <th>주문번호</th><th>고객</th><th>유형</th>
-            <th>상품</th><th style={{textAlign:'right'}}>금액</th>
-            <th>일시</th><th>상태</th><th>액션</th>
-          </tr></thead>
-          <tbody>
-            {filtered.map(order => (
-              <tr key={order.id}>
-                <td style={{fontFamily:'monospace',fontSize:'0.73rem',color:'#bbb'}}>{order.id}</td>
-                <td style={{fontWeight:500}}>{USERS.find(u => u.id === order.userId)?.name ?? order.userId}</td>
-                <td>
-                  <span className={`badge ${order.userType==='B2B'?'badge-b2b':'badge-active'}`}>{order.userType}</span>
-                </td>
-                <td style={{color:'#444'}}>{order.items.map(i => `${i.name} ×${i.qty}`).join(', ')}</td>
-                <td style={{fontWeight:800,textAlign:'right'}}>{fmt(order.totalAmount)}</td>
-                <td style={{color:'#aaa',fontSize:'0.77rem',whiteSpace:'nowrap'}}>{fmtDate(order.createdAt)}</td>
-                <td><span className={`badge ${STATUS_BADGE[order.status]}`}>{STATUS_LABEL[order.status]}</span></td>
-                <td>
-                  <div className="action-btns">
-                    {TRANSITIONS[order.status].length > 0
-                      ? TRANSITIONS[order.status].map(next => (
-                          <button key={next}
-                                  className={`btn btn-sm ${next==='cancelled'?'btn-danger':'btn-secondary'}`}
-                                  onClick={() => handleStatus(order.id, next)}>
-                            {STATUS_ACTION_LABEL[next]}
-                          </button>
-                        ))
-                      : <span className="action-done">처리 완료</span>
-                    }
-                  </div>
-                </td>
-              </tr>
+    <div className="sv-body">
+      <Breadcrumb current={pageName} />
+      <div className="sv-header">
+        <div className="sv-title">{pageName}</div>
+        <div className="sv-actions">
+          <div className="filter-bar" style={{marginBottom:0}}>
+            {STATUS_FILTERS.map(f => (
+              <button key={f} className={`filter-btn${statusFilter === f ? ' active' : ''}`}
+                      onClick={() => setStatusFilter(f)}>
+                {f === '전체' ? '전체' : STATUS_LABEL[f]}
+              </button>
             ))}
-          </tbody>
-        </table>
-      </div>
-      {filtered.length === 0 && (
-        <div className="empty-state" style={{paddingTop:'2rem'}}>
-          <div>조건에 맞는 주문이 없습니다.</div>
+          </div>
         </div>
-      )}
+      </div>
+      <div className="sv-stat-row" style={{gridTemplateColumns:'repeat(4,1fr)'}}>
+        {STATUS_FILTERS.slice(1).map(s => (
+          <div key={s} className="sv-stat">
+            <div className="sv-stat-label">{STATUS_LABEL[s]}</div>
+            <div className={`sv-stat-val ${s==='paid'?'warn':s==='shipping'?'accent':s==='delivered'?'ok':'danger'}`}>
+              {orders.filter(o=>o.status===s).length}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="sv-card">
+        <div className="sv-card-header">
+          <div className="sv-card-title">주문 목록 ({filtered.length}건)</div>
+          <div className="sv-search-wrap">
+            <span className="sv-search-icon">🔍</span>
+            <input className="sv-search" placeholder="주문번호 · 상품 · 고객"
+                   value={search} onChange={e => setSearch(e.target.value)} />
+          </div>
+        </div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr>
+              <th>주문번호</th><th>고객</th><th>유형</th>
+              <th>상품</th><th style={{textAlign:'right'}}>금액</th>
+              <th>일시</th><th>상태</th><th>액션</th>
+            </tr></thead>
+            <tbody>
+              {filtered.map(order => (
+                <tr key={order.id}>
+                  <td style={{fontFamily:'monospace',fontSize:'0.73rem',color:'#bbb'}}>{order.id}</td>
+                  <td style={{fontWeight:500}}>{USERS.find(u=>u.id===order.userId)?.name ?? order.userId}</td>
+                  <td><span className={`badge ${order.userType==='B2B'?'badge-b2b':'badge-active'}`}>{order.userType}</span></td>
+                  <td style={{color:'var(--text-2)'}}>{order.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}</td>
+                  <td style={{fontWeight:800,textAlign:'right'}}>{fmt(order.totalAmount)}</td>
+                  <td style={{color:'var(--text-3)',fontSize:'0.77rem',whiteSpace:'nowrap'}}>{fmtDate(order.createdAt)}</td>
+                  <td><span className={`badge ${STATUS_BADGE[order.status]}`}>{STATUS_LABEL[order.status]}</span></td>
+                  <td>
+                    <div className="action-btns">
+                      {TRANSITIONS[order.status].length > 0
+                        ? TRANSITIONS[order.status].map(next => (
+                            <button key={next}
+                                    className={`btn btn-sm ${next==='cancelled'?'btn-danger':'btn-secondary'}`}
+                                    onClick={() => handleStatus(order.id, next)}>
+                              {STATUS_ACTION_LABEL[next]}
+                            </button>
+                          ))
+                        : <span className="action-done">처리 완료</span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {filtered.length === 0 && (
+          <div className="empty-state" style={{padding:'2rem'}}>
+            <div>조건에 맞는 주문이 없습니다.</div>
+          </div>
+        )}
+      </div>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
