@@ -752,28 +752,60 @@ function ProductCard({ product }) {
 
 // ── ShopPage ──
 function ShopPage() {
-  const { products } = useStore();
-  const [activeCat, setActiveCat] = useState('전체');
-  const filtered = activeCat === '전체' ? products : products.filter(p => p.category === activeCat);
+  const { products, cartItems, addToCart, currentUser } = useStore();
+  const isB2B = currentUser?.type === 'B2B';
 
   return (
-    <div className="page-wrap">
-      <div className="page-title">상품 목록</div>
-      <div className="filter-bar">
-        {CATEGORIES.map(cat => (
-          <button key={cat} className={`filter-btn${activeCat === cat ? ' active' : ''}`}
-                  onClick={() => setActiveCat(cat)}>{cat}</button>
-        ))}
-      </div>
-      <div className="card-grid">
-        {filtered.map(p => <ProductCard key={p.id} product={p} />)}
-      </div>
-      {filtered.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-state-icon">📦</div>
-          <div>해당 카테고리에 상품이 없습니다.</div>
+    <div className="sv-body">
+      <Breadcrumb current="📦 상품관리" />
+      <div className="sv-header">
+        <div className="sv-title">📦 상품 목록</div>
+        <div className="sv-actions">
+          <button className="btn btn-secondary" onClick={() => navigate('/cart')}>
+            🛒 장바구니 {cartItems.length > 0 && `(${cartItems.reduce((s,i)=>s+i.qty,0)})`}
+          </button>
         </div>
-      )}
+      </div>
+      <div className="sv-card">
+        <div className="sv-card-header">
+          <div className="sv-card-title">상품 목록 ({products.length}개)</div>
+        </div>
+        <div style={{padding:'1rem'}}>
+          <div className="card-grid">
+            {products.map(product => {
+              const isUnavailable = product.status !== 'active';
+              const currentPrice  = isB2B ? product.price.b2b : product.price.b2c;
+              return (
+                <div key={product.id}
+                     className={`product-card${isUnavailable?' unavailable':''}`}
+                     onClick={() => !isUnavailable && navigate(`/product/${product.id}`)}>
+                  <div className="product-emoji-box" style={{background:'var(--bg)'}}>
+                    {product.emoji}
+                  </div>
+                  <div style={{fontSize:'0.82rem',fontWeight:700,marginBottom:'0.25rem',color:'var(--text)'}}>
+                    {product.name}
+                  </div>
+                  <div style={{fontSize:'0.72rem',color:'var(--text-3)',marginBottom:'0.5rem'}}>
+                    {product.category}
+                  </div>
+                  <div style={{fontSize:'0.9rem',fontWeight:800,color:'var(--accent)',marginBottom:'0.5rem'}}>
+                    {fmt(currentPrice)}
+                  </div>
+                  {isUnavailable
+                    ? <span className={`badge ${product.status==='sold_out'?'badge-sold-out':product.status==='suspended'?'badge-suspended':'badge-discontinued'}`}>
+                        {product.status==='sold_out'?'품절':product.status==='suspended'?'판매중단':'단종'}
+                      </span>
+                    : <button className="btn btn-primary btn-sm"
+                              onClick={e=>{e.stopPropagation();addToCart(product.id,1,currentPrice);}}>
+                        장바구니 담기
+                      </button>
+                  }
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1125,46 +1157,70 @@ function AdminProductsPage() {
   }
 
   return (
-    <div className="page-wrap">
-      <div className="page-header-row">
-        <div className="page-title">상품 관리 (PLM)</div>
-        <button className="btn btn-primary" onClick={() => setModal({ ...EMPTY })}>+ 상품 추가</button>
+    <div className="sv-body">
+      <Breadcrumb current="📐 제품관리 (PLM)" />
+      <div className="sv-header">
+        <div className="sv-title">📐 제품관리 (PLM)</div>
+        <div className="sv-actions">
+          <button className="btn btn-primary" onClick={() => setModal({ ...EMPTY })}>+ 상품 추가</button>
+        </div>
       </div>
-      <div className="table-wrap">
-        <table>
-          <thead><tr>
-            <th>상품</th><th>카테고리</th><th>B2C</th><th>B2B</th><th>상태</th><th>수명주기</th><th>액션</th>
-          </tr></thead>
-          <tbody>
-            {products.map(p => (
-              <tr key={p.id}>
-                <td style={{fontWeight:600}}>{p.emoji} {p.name}</td>
-                <td>{p.category}</td>
-                <td>{fmt(p.price.b2c)}</td>
-                <td>{fmt(p.price.b2b)}</td>
-                <td><span className={`badge ${PRODUCT_STATUS_BADGE[p.status]}`}>{PRODUCT_STATUS_LABEL[p.status]}</span></td>
-                <td>
-                  <div className="plm-pipeline">
-                    {['기획','개발','판매','종료'].map((stage, i) => (
-                      <div key={i} className="plm-bar"
-                           style={{background: i <= plmStageIdx(p.status) ? '#6366f1' : '#e5e7eb'}}
-                           title={stage} />
-                    ))}
-                    <span className="plm-label">{PRODUCT_STATUS_LABEL[p.status]}</span>
-                  </div>
-                </td>
-                <td>
-                  <div className="action-btns">
-                    <button className="btn btn-sm btn-secondary"
-                            onClick={() => setModal({ ...p, price:{b2c:p.price.b2c, b2b:p.price.b2b} })}>수정</button>
-                    <button className="btn btn-sm btn-danger"
-                            onClick={() => setConfirmDel({ id: p.id, name: p.name })}>삭제</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="sv-stat-row" style={{gridTemplateColumns:'repeat(3,1fr)'}}>
+        <div className="sv-stat">
+          <div className="sv-stat-label">전체 상품</div>
+          <div className="sv-stat-val accent">{products.length}</div>
+        </div>
+        <div className="sv-stat">
+          <div className="sv-stat-label">판매 중</div>
+          <div className="sv-stat-val ok">{products.filter(p=>p.status==='active').length}</div>
+        </div>
+        <div className="sv-stat">
+          <div className="sv-stat-label">중단·단종</div>
+          <div className="sv-stat-val warn">{products.filter(p=>p.status!=='active').length}</div>
+        </div>
+      </div>
+      <div className="sv-card">
+        <div className="sv-card-header">
+          <div className="sv-card-title">상품 목록</div>
+        </div>
+        <div style={{padding:'1rem'}}>
+          <div className="table-wrap">
+            <table>
+              <thead><tr>
+                <th>상품</th><th>카테고리</th><th>B2C</th><th>B2B</th><th>상태</th><th>수명주기</th><th>액션</th>
+              </tr></thead>
+              <tbody>
+                {products.map(p => (
+                  <tr key={p.id}>
+                    <td style={{fontWeight:600}}>{p.emoji} {p.name}</td>
+                    <td>{p.category}</td>
+                    <td>{fmt(p.price.b2c)}</td>
+                    <td>{fmt(p.price.b2b)}</td>
+                    <td><span className={`badge ${PRODUCT_STATUS_BADGE[p.status]}`}>{PRODUCT_STATUS_LABEL[p.status]}</span></td>
+                    <td>
+                      <div className="plm-pipeline">
+                        {['기획','개발','판매','종료'].map((stage, i) => (
+                          <div key={i} className="plm-bar"
+                               style={{background: i <= plmStageIdx(p.status) ? '#6366f1' : '#e5e7eb'}}
+                               title={stage} />
+                        ))}
+                        <span className="plm-label">{PRODUCT_STATUS_LABEL[p.status]}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="action-btns">
+                        <button className="btn btn-sm btn-secondary"
+                                onClick={() => setModal({ ...p, price:{b2c:p.price.b2c, b2b:p.price.b2b} })}>수정</button>
+                        <button className="btn btn-sm btn-danger"
+                                onClick={() => setConfirmDel({ id: p.id, name: p.name })}>삭제</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       {modal && (
