@@ -1236,8 +1236,9 @@ function AdminProductsPage() {
 }
 
 // ── AdminInventoryPage ──
-function AdminInventoryPage() {
+function AdminInventoryPage({ initialTab = '재고현황' }) {
   const { products, inventory, updateInventory } = useStore();
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [localQty, setLocalQty] = useState(() => {
     const init = {};
     Object.keys(inventory).forEach(id => { init[id] = inventory[id].qty; });
@@ -1267,56 +1268,108 @@ function AdminInventoryPage() {
   }
 
   const alertCount = products.filter(p => (inventory[p.id]?.qty ?? 0) < (MIN_QTY[p.id] ?? 5)).length;
+  const TABS = ['재고현황', '입고', '출고'];
+  const tabIcons = { '재고현황': '🏭', '입고': '📥', '출고': '📤' };
+  const pageName = `${tabIcons[activeTab]} ${activeTab === '재고현황' ? '재고관리' : activeTab + '관리'}`;
 
   return (
-    <div className="page-wrap">
-      <div className="page-title">
-        재고 관리 (WMS)
+    <div className="sv-body">
+      <Breadcrumb current={pageName} />
+      <div className="sv-header">
+        <div className="sv-title">{pageName}</div>
         {alertCount > 0 && (
-          <span className="badge badge-sold-out" style={{fontSize:'0.73rem'}}>⚠ {alertCount}개 경보</span>
+          <span className="badge badge-sold-out">⚠ {alertCount}개 재고 경보</span>
         )}
       </div>
-      <div className="table-wrap">
-        <table>
-          <thead><tr>
-            <th>상품</th><th>카테고리</th><th>현재 재고</th><th>최소 기준</th><th>수량 수정</th><th></th>
-          </tr></thead>
-          <tbody>
-            {products.map(p => {
-              const current = inventory[p.id]?.qty ?? 0;
-              const minQ    = MIN_QTY[p.id] ?? 5;
-              const editQty = localQty[p.id] ?? 0;
-              const isDirty = editQty !== current;
-              const isAlert = current < minQ;
-              return (
-                <tr key={p.id} className={current === 0 ? 'row-zero' : ''}>
-                  <td style={{fontWeight:600}}>
-                    {p.emoji} {p.name}
-                    {isAlert && <span className="alert-dot" title="재고 기준치 미달" />}
-                  </td>
-                  <td>{p.category}</td>
-                  <td style={{fontWeight:700, color: current===0?'#dc2626':isAlert?'#d97706':'#1a1a1a'}}>
-                    {current}개
-                    {current === 0 && <span className="badge badge-sold-out" style={{marginLeft:'0.5rem'}}>품절</span>}
-                  </td>
-                  <td style={{color:'#999',fontSize:'0.81rem'}}>{minQ}개</td>
-                  <td>
-                    <div className="inv-qty-wrap">
-                      <button className="btn-qty" onClick={() => adjust(p.id, -1)} disabled={editQty<=0}>−</button>
-                      <input className="inv-qty-input" type="number" min="0" value={editQty}
-                             onChange={e => setLocalQty(prev => ({ ...prev, [p.id]: Number(e.target.value) }))} />
-                      <button className="btn-qty" onClick={() => adjust(p.id, 1)}>+</button>
-                    </div>
-                  </td>
-                  <td>
-                    <button className={`btn btn-sm ${isDirty?'btn-primary':'btn-secondary'}`}
-                            disabled={!isDirty} onClick={() => handleSave(p.id)}>저장</button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="sv-stat-row" style={{gridTemplateColumns:'repeat(3,1fr)'}}>
+        <div className="sv-stat">
+          <div className="sv-stat-label">전체 품목</div>
+          <div className="sv-stat-val accent">{products.length}</div>
+        </div>
+        <div className="sv-stat">
+          <div className="sv-stat-label">재고 경보</div>
+          <div className={`sv-stat-val ${alertCount > 0 ? 'danger' : 'ok'}`}>{alertCount}</div>
+        </div>
+        <div className="sv-stat">
+          <div className="sv-stat-label">품절</div>
+          <div className={`sv-stat-val ${products.filter(p=>(inventory[p.id]?.qty??0)===0).length > 0 ? 'danger' : 'ok'}`}>
+            {products.filter(p => (inventory[p.id]?.qty ?? 0) === 0).length}
+          </div>
+        </div>
+      </div>
+      <div className="sv-card">
+        <div className="sv-tabs">
+          {TABS.map(tab => (
+            <div key={tab} className={`sv-tab${activeTab === tab ? ' active' : ''}`}
+                 onClick={() => setActiveTab(tab)}>
+              {tabIcons[tab]} {tab}
+            </div>
+          ))}
+        </div>
+        {activeTab === '재고현황' && (
+          <div className="table-wrap">
+            <table>
+              <thead><tr>
+                <th>상품</th><th>카테고리</th><th>현재 재고</th><th>최소 기준</th><th>수량 수정</th><th></th>
+              </tr></thead>
+              <tbody>
+                {products.map(p => {
+                  const current = inventory[p.id]?.qty ?? 0;
+                  const minQ    = MIN_QTY[p.id] ?? 5;
+                  const editQty = localQty[p.id] ?? 0;
+                  const isDirty = editQty !== current;
+                  const isAlert = current < minQ;
+                  return (
+                    <tr key={p.id} className={current === 0 ? 'row-zero' : ''}>
+                      <td style={{fontWeight:600}}>
+                        {p.emoji} {p.name}
+                        {isAlert && <span className="alert-dot" title="재고 기준치 미달" />}
+                      </td>
+                      <td style={{color:'var(--text-2)'}}>{p.category}</td>
+                      <td style={{fontWeight:700,color:current===0?'#dc2626':isAlert?'#d97706':'var(--text)'}}>
+                        {current}개
+                        {current===0 && <span className="badge badge-sold-out" style={{marginLeft:'0.5rem'}}>품절</span>}
+                      </td>
+                      <td style={{color:'var(--text-3)',fontSize:'0.81rem'}}>{minQ}개</td>
+                      <td>
+                        <div className="inv-qty-wrap">
+                          <button className="btn-qty" onClick={() => adjust(p.id, -1)} disabled={editQty<=0}>−</button>
+                          <input className="inv-qty-input" type="number" min="0" value={editQty}
+                                 onChange={e => setLocalQty(prev=>({...prev,[p.id]:Number(e.target.value)}))} />
+                          <button className="btn-qty" onClick={() => adjust(p.id, 1)}>+</button>
+                        </div>
+                      </td>
+                      <td>
+                        <button className={`btn btn-sm ${isDirty?'btn-primary':'btn-secondary'}`}
+                                disabled={!isDirty} onClick={() => handleSave(p.id)}>저장</button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {activeTab === '입고' && (
+          <div style={{padding:'2rem',textAlign:'center',color:'var(--text-3)'}}>
+            <div style={{fontSize:'2rem',marginBottom:'0.5rem'}}>📥</div>
+            <div style={{fontWeight:700,color:'var(--text-2)'}}>입고 내역</div>
+            <div style={{fontSize:'0.8rem',marginTop:'0.25rem'}}>재고 수량을 조정하면 입고 처리됩니다. 재고현황 탭에서 수정하세요.</div>
+            <button className="btn btn-primary" style={{marginTop:'1rem'}} onClick={() => setActiveTab('재고현황')}>
+              재고현황 탭으로 이동
+            </button>
+          </div>
+        )}
+        {activeTab === '출고' && (
+          <div style={{padding:'2rem',textAlign:'center',color:'var(--text-3)'}}>
+            <div style={{fontSize:'2rem',marginBottom:'0.5rem'}}>📤</div>
+            <div style={{fontWeight:700,color:'var(--text-2)'}}>출고 내역</div>
+            <div style={{fontSize:'0.8rem',marginTop:'0.25rem'}}>출고는 주문 배송 처리 시 자동으로 반영됩니다. 주문관리에서 확인하세요.</div>
+            <button className="btn btn-primary" style={{marginTop:'1rem'}} onClick={() => navigate('/admin/orders/shipping')}>
+              배송관리로 이동
+            </button>
+          </div>
+        )}
       </div>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
