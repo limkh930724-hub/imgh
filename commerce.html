@@ -1482,7 +1482,7 @@ function TopNav({ currentPath }) {
 
   return (
     <nav className="topnav">
-      <a className="topnav-logo" href="commerce.html">🛒 CommerceLab</a>
+      <span className="topnav-logo" onClick={() => { window.location.href = window.location.pathname; }}>🛒 CommerceLab</span>
 
       <a className={`topnav-link${currentPath === '/dashboard' ? ' active' : ''}`}
          href="#/dashboard">대시보드</a>
