@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>재난 대응 시뮬레이터</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚨</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg:         #0a0f1e;
+            --surface:    #0d1b2a;
+            --surface-2:  #112240;
+            --border:     #1e3a5f;
+            --accent:     #ef4444;
+            --accent-2:   #f97316;
+            --text:       #e2e8f0;
+            --text-2:     #94a3b8;
+            --shelter:    #22d3ee;
+            --recommend:  #a855f7;
+            --risk-3:     #ef4444;
+            --risk-2:     #f97316;
+            --risk-1:     #eab308;
+        }
+
+        html, body { height: 100%; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+        /* ── 헤더 ── */
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            height: 56px; padding: 0 1.5rem;
+            display: flex; align-items: center; gap: 1rem;
+            background: rgba(13,27,42,0.92);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+        .header-logo {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.9rem; font-weight: 800; letter-spacing: -0.02em;
+            color: var(--text); text-decoration: none; margin-right: auto;
+        }
+        .header-logo span { color: var(--accent); }
+        .header-back {
+            font-size: 0.75rem; color: var(--text-2); text-decoration: none;
+            padding: 0.3rem 0.7rem; border: 1px solid var(--border); border-radius: 6px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .header-back:hover { color: var(--text); border-color: var(--text-2); }
+        .disaster-tabs { display: flex; gap: 0.4rem; }
+        .disaster-tab {
+            padding: 0.35rem 0.9rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+            border: 1px solid var(--border); background: transparent; color: var(--text-2);
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .disaster-tab:hover { color: var(--text); border-color: var(--text-2); }
+        .disaster-tab.active { color: #fff; border-color: transparent; }
+
+        /* ── 지도 ── */
+        #map {
+            position: fixed; top: 56px; left: 0; right: 0; bottom: 0;
+            z-index: 1;
+        }
+        .leaflet-tile { filter: brightness(0.45) saturate(0.6) hue-rotate(200deg); }
+
+        /* ── 플로팅 컨트롤 ── */
+        .float-ctrl {
+            position: fixed; bottom: 80px; left: 1.5rem; z-index: 500;
+            background: rgba(13,27,42,0.95);
+            border: 1px solid var(--border); border-radius: 12px;
+            padding: 1rem 1.2rem; width: 220px;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        }
+        .float-ctrl-title {
+            font-size: 0.7rem; font-weight: 700; color: var(--text-2);
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem;
+        }
+        .location-status {
+            font-size: 0.78rem; color: var(--text-2); margin-bottom: 0.75rem;
+            min-height: 1.2em;
+        }
+        .location-status.set { color: var(--shelter); }
+        .ctrl-btn-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .ctrl-btn {
+            flex: 1; padding: 0.45rem 0; border-radius: 8px; font-size: 0.74rem; font-weight: 600;
+            border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+            cursor: pointer; transition: background 0.15s;
+        }
+        .ctrl-btn:hover { background: #1a3050; }
+        .run-btn {
+            width: 100%; padding: 0.6rem; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+            border: none; background: var(--accent); color: #fff;
+            cursor: pointer; transition: background 0.15s, opacity 0.15s;
+        }
+        .run-btn:hover { background: #dc2626; }
+        .run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── 우측 슬라이드 패널 ── */
+        .result-panel {
+            position: fixed; top: 56px; right: 0; bottom: 0; z-index: 600;
+            width: 340px; background: rgba(10,15,30,0.97);
+            border-left: 1px solid var(--border);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .result-panel.open { transform: translateX(0); }
+        .panel-header {
+            padding: 1rem 1.2rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
+        }
+        .panel-title { font-size: 0.88rem; font-weight: 700; flex: 1; }
+        .panel-sub { font-size: 0.72rem; color: var(--text-2); }
+        .panel-close {
+            width: 28px; height: 28px; border-radius: 6px;
+            border: 1px solid var(--border); background: transparent;
+            color: var(--text-2); cursor: pointer; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+        .panel-close:hover { background: var(--surface-2); color: var(--text); }
+        .panel-body { overflow-y: auto; padding: 0.75rem; flex: 1; }
+
+        /* ── 추천 카드 ── */
+        .rec-card {
+            background: var(--surface-2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 0.9rem 1rem; margin-bottom: 0.65rem;
+            cursor: pointer; transition: border-color 0.15s, background 0.15s;
+        }
+        .rec-card:hover { border-color: var(--recommend); background: #1a1240; }
+        .rec-card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
+        .rec-rank {
+            width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--recommend); color: #fff; flex-shrink: 0;
+        }
+        .rec-name { font-size: 0.84rem; font-weight: 700; flex: 1; }
+        .rec-score { font-size: 0.8rem; font-weight: 800; color: var(--recommend); }
+        .score-rows { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.55rem; }
+        .score-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; }
+        .score-label { width: 36px; color: var(--text-2); flex-shrink: 0; }
+        .score-bar-bg {
+            flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden;
+        }
+        .score-bar-fill { height: 100%; border-radius: 3px; background: var(--recommend); }
+        .score-val { width: 54px; text-align: right; color: var(--text-2); flex-shrink: 0; }
+        .rec-reason {
+            font-size: 0.7rem; color: var(--text-2); margin-bottom: 0.55rem;
+            line-height: 1.5;
+        }
+        .rec-goto {
+            width: 100%; padding: 0.38rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600;
+            border: 1px solid var(--border); background: transparent; color: var(--text-2);
+            cursor: pointer; transition: background 0.15s, color 0.15s;
+        }
+        .rec-goto:hover { background: var(--surface); color: var(--text); }
+
+        /* ── 범례 ── */
+        .legend {
+            position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+            z-index: 500;
+            display: flex; align-items: center; gap: 1rem;
+            background: rgba(13,27,42,0.9); border: 1px solid var(--border);
+            border-radius: 20px; padding: 0.45rem 1.2rem;
+            font-size: 0.7rem; color: var(--text-2);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        .legend-item { display: flex; align-items: center; gap: 0.35rem; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+        /* ── Leaflet 커스텀 마커 ── */
+        .shelter-icon {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: var(--shelter); border: 2px solid rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; box-shadow: 0 0 8px rgba(34,211,238,0.5);
+        }
+        .recommend-icon {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--recommend); border: 2px solid rgba(255,255,255,0.4);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 800; color: #fff;
+            box-shadow: 0 0 12px rgba(168,85,247,0.7);
+        }
+        .user-icon {
+            width: 16px; height: 16px; border-radius: 50%;
+            background: #60a5fa; border: 3px solid #fff;
+            box-shadow: 0 0 0 4px rgba(96,165,250,0.3);
+        }
+
+        /* ── 툴팁 ── */
+        .zone-tooltip {
+            background: rgba(10,15,30,0.92) !important;
+            border: 1px solid #1e3a5f !important;
+            color: #e2e8f0 !important;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            padding: 0.35rem 0.6rem;
+        }
+        .zone-tooltip::before { display: none !important; }
+        .leaflet-tooltip-top.zone-tooltip::before,
+        .leaflet-tooltip-bottom.zone-tooltip::before { display: none; }
+
+        /* ── 팝업 ── */
+        .dark-popup .leaflet-popup-content-wrapper {
+            background: rgba(13,27,42,0.97) !important;
+            border: 1px solid #1e3a5f !important;
+            color: #e2e8f0 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+        }
+        .dark-popup .leaflet-popup-tip {
+            background: rgba(13,27,42,0.97) !important;
+        }
+        .dark-popup .leaflet-popup-close-button { color: #94a3b8 !important; }
+    </style>
+</head>
+<body>
+
+    <!-- 헤더 -->
+    <header class="header">
+        <a href="/" class="header-back">← 포트폴리오</a>
+        <div class="header-logo">🚨 <span>재난</span>대응 시뮬레이터</div>
+        <div class="disaster-tabs" id="disasterTabs"></div>
+    </header>
+
+    <!-- Leaflet 지도 -->
+    <div id="map"></div>
+
+    <!-- 플로팅 컨트롤 -->
+    <div class="float-ctrl">
+        <div class="float-ctrl-title">📍 내 위치 설정</div>
+        <div class="location-status" id="locationStatus">지도를 클릭하거나 GPS를 사용하세요</div>
+        <div class="ctrl-btn-row">
+            <button class="ctrl-btn" id="gpsBtn">📡 GPS</button>
+            <button class="ctrl-btn" id="clearLocBtn">✕ 초기화</button>
+        </div>
+        <button class="run-btn" id="runBtn" disabled>▶ 시뮬레이션 실행</button>
+    </div>
+
+    <!-- 우측 결과 패널 -->
+    <div class="result-panel" id="resultPanel">
+        <div class="panel-header">
+            <div>
+                <div class="panel-title">시뮬레이션 결과</div>
+                <div class="panel-sub" id="panelSub"></div>
+            </div>
+            <button class="panel-close" id="panelClose">✕</button>
+        </div>
+        <div class="panel-body" id="panelBody"></div>
+    </div>
+
+    <!-- 범례 -->
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>위험</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div>경계</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div>주의</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#22d3ee; border-radius:50%"></div>대피소</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a855f7; border-radius:50%"></div>추천 TOP3</div>
+    </div>
+
+    <script>
+    // 데이터와 로직은 후속 태스크에서 추가됨
+    </script>
+</body>
+</html>
