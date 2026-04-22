@@ -269,7 +269,66 @@
     </div>
 
     <script>
-    // 데이터와 로직은 후속 태스크에서 추가됨
+    // ══ 데이터 상수 ══════════════════════════════════════════
+
+    const DISASTERS = [
+        { code: 'FLOOD',    name: '폭우',     color: '#3b82f6', icon: '🌧️' },
+        { code: 'QUAKE',    name: '지진',     color: '#f97316', icon: '🌍' },
+        { code: 'COLD',     name: '한파',     color: '#67e8f9', icon: '❄️' },
+        { code: 'CHEMICAL', name: '화학사고', color: '#a855f7', icon: '☣️' }
+    ];
+
+    const SHELTERS = [
+        { id:1,  name:'강남구민체육관',      lat:37.5172, lng:127.0473, capacity:500, current:120, floorLvl:2, suitable:['FLOOD','COLD'],     operateYn:true },
+        { id:2,  name:'서초문화예술회관',    lat:37.4836, lng:127.0323, capacity:300, current:210, floorLvl:4, suitable:['FLOOD','COLD'],     operateYn:true },
+        { id:3,  name:'방배근린공원대피소',  lat:37.4765, lng:126.9972, capacity:150, current:30,  floorLvl:1, suitable:['COLD'],             operateYn:true },
+        { id:4,  name:'마포아트센터',        lat:37.5497, lng:126.9121, capacity:400, current:80,  floorLvl:5, suitable:['QUAKE','COLD','CHEMICAL'], operateYn:true },
+        { id:5,  name:'은평구민회관',        lat:37.6026, lng:126.9291, capacity:350, current:100, floorLvl:3, suitable:['QUAKE'],            operateYn:true },
+        { id:6,  name:'노원문화예술회관',    lat:37.6549, lng:127.0568, capacity:600, current:50,  floorLvl:6, suitable:['COLD','QUAKE'],     operateYn:true },
+        { id:7,  name:'성북구민체육관',      lat:37.5894, lng:127.0167, capacity:280, current:140, floorLvl:2, suitable:['QUAKE','COLD'],     operateYn:true },
+        { id:8,  name:'관악구민체육관',      lat:37.4784, lng:126.9516, capacity:450, current:90,  floorLvl:2, suitable:['FLOOD','COLD'],     operateYn:true },
+        { id:9,  name:'영등포구민체육관',    lat:37.5260, lng:126.8963, capacity:500, current:320, floorLvl:2, suitable:['CHEMICAL','FLOOD'], operateYn:true },
+        { id:10, name:'구로구민체육관',      lat:37.4954, lng:126.8874, capacity:400, current:60,  floorLvl:2, suitable:['CHEMICAL'],         operateYn:true },
+        { id:11, name:'용산구청체육관',      lat:37.5321, lng:126.9903, capacity:200, current:70,  floorLvl:3, suitable:['QUAKE'],            operateYn:true },
+        { id:12, name:'중구민체육관',        lat:37.5636, lng:126.9976, capacity:300, current:180, floorLvl:3, suitable:['FLOOD','QUAKE'],    operateYn:true },
+        { id:13, name:'성동구민체육관',      lat:37.5633, lng:127.0371, capacity:350, current:100, floorLvl:2, suitable:['FLOOD'],            operateYn:true },
+        { id:14, name:'광진구민체육관',      lat:37.5384, lng:127.0822, capacity:400, current:150, floorLvl:2, suitable:['QUAKE','FLOOD'],    operateYn:true },
+        { id:15, name:'동대문구민체육관',    lat:37.5744, lng:127.0397, capacity:350, current:80,  floorLvl:3, suitable:['COLD','QUAKE'],     operateYn:true },
+        { id:16, name:'중랑구민체육관',      lat:37.6063, lng:127.0924, capacity:300, current:40,  floorLvl:2, suitable:['COLD'],             operateYn:false },
+        { id:17, name:'도봉구민체육관',      lat:37.6688, lng:127.0470, capacity:500, current:90,  floorLvl:4, suitable:['COLD','QUAKE'],     operateYn:true },
+        { id:18, name:'강북구민체육관',      lat:37.6398, lng:127.0257, capacity:280, current:60,  floorLvl:2, suitable:['COLD'],             operateYn:true },
+        { id:19, name:'송파구민체육관',      lat:37.5145, lng:127.1059, capacity:600, current:200, floorLvl:2, suitable:['FLOOD'],            operateYn:true },
+        { id:20, name:'강동구민체육관',      lat:37.5301, lng:127.1238, capacity:450, current:110, floorLvl:2, suitable:['FLOOD','QUAKE'],    operateYn:true }
+    ];
+
+    const DANGER_ZONES = {
+        FLOOD: [
+            { riskLevel:3, name:'강남 저지대',    coords:[[37.510,127.035],[37.510,127.060],[37.500,127.060],[37.500,127.035]] },
+            { riskLevel:2, name:'잠원 침수우려',  coords:[[37.518,127.000],[37.518,127.025],[37.508,127.025],[37.508,127.000]] },
+            { riskLevel:2, name:'영등포 저지대',  coords:[[37.530,126.880],[37.530,126.910],[37.515,126.910],[37.515,126.880]] },
+            { riskLevel:1, name:'마포 하천변',    coords:[[37.548,126.920],[37.548,126.940],[37.538,126.940],[37.538,126.920]] }
+        ],
+        QUAKE: [
+            { riskLevel:2, name:'은평 단층 인근', coords:[[37.615,126.915],[37.615,126.950],[37.595,126.950],[37.595,126.915]] },
+            { riskLevel:2, name:'용산 구조물밀집',coords:[[37.538,126.975],[37.538,126.998],[37.525,126.998],[37.525,126.975]] },
+            { riskLevel:1, name:'종로 노후건물',  coords:[[37.582,126.965],[37.582,126.992],[37.572,126.992],[37.572,126.965]] },
+            { riskLevel:3, name:'서대문 단층대',  coords:[[37.568,126.930],[37.568,126.955],[37.555,126.955],[37.555,126.930]] }
+        ],
+        COLD: [
+            { riskLevel:2, name:'노원 고령밀집',  coords:[[37.665,127.048],[37.665,127.072],[37.648,127.072],[37.648,127.048]] },
+            { riskLevel:1, name:'강북 취약계층',  coords:[[37.645,127.018],[37.645,127.038],[37.632,127.038],[37.632,127.018]] },
+            { riskLevel:1, name:'중구 노숙인밀집',coords:[[37.568,126.988],[37.568,127.005],[37.558,127.005],[37.558,126.988]] },
+            { riskLevel:2, name:'도봉 독거노인',  coords:[[37.678,127.038],[37.678,127.058],[37.662,127.058],[37.662,127.038]] }
+        ],
+        CHEMICAL: [
+            { riskLevel:3, name:'마포 산업단지',  coords:[[37.548,126.895],[37.548,126.920],[37.535,126.920],[37.535,126.895]] },
+            { riskLevel:2, name:'구로 공단지역',  coords:[[37.500,126.875],[37.500,126.900],[37.485,126.900],[37.485,126.875]] },
+            { riskLevel:2, name:'영등포 산업시설',coords:[[37.525,126.893],[37.525,126.915],[37.512,126.915],[37.512,126.893]] },
+            { riskLevel:1, name:'성수 공장지대',  coords:[[37.548,127.050],[37.548,127.068],[37.538,127.068],[37.538,127.050]] }
+        ]
+    };
+
+    const RISK_COLORS = { 3:'#ef4444', 2:'#f97316', 1:'#eab308' };
     </script>
 </body>
 </html>
