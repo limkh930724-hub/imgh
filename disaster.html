@@ -470,12 +470,43 @@
         /* ── 대피 경로 라인 ── */
         .route-popup-inner { font-family: Inter,sans-serif; font-size: 0.8rem; }
 
+        /* ── 대피소 이름 라벨 ── */
+        .shelter-label {
+            background: rgba(10,15,30,0.88) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: 5px !important;
+            color: var(--text) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 0.62rem !important;
+            font-weight: 600 !important;
+            padding: 0.12rem 0.4rem !important;
+            box-shadow: none !important;
+            white-space: nowrap;
+        }
+        .shelter-label::before { display: none !important; }
+        /* 줌 14 미만에서는 라벨 숨김 */
+        #map .shelter-label { display: none !important; }
+        #map.zoom-labels .shelter-label { display: block !important; }
+
+        /* ── 거리 링 라벨 ── */
+        .ring-label {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            color: var(--text-2) !important;
+            font-family: 'Inter', sans-serif !important;
+            font-size: 0.6rem !important;
+            font-weight: 700 !important;
+            padding: 0 !important;
+        }
+        .ring-label::before { display: none !important; }
+
         /* ── Leaflet 커스텀 마커 ── */
         .shelter-icon {
             width: 28px; height: 28px; border-radius: 50%;
-            background: var(--shelter); border: 2px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255,255,255,0.3);
             display: flex; align-items: center; justify-content: center;
-            font-size: 13px; box-shadow: 0 0 8px rgba(34,211,238,0.5);
+            font-size: 13px;
         }
         .recommend-icon {
             width: 32px; height: 32px; border-radius: 50%;
@@ -993,10 +1024,21 @@
     }
 
     // ══ 대피소 마커 ═══════════════════════════════════════════
-    function makeShelterIcon(isSuitable) {
+    function getShelterCongestion(s) {
+        const rate = s.current / s.capacity;
+        if (rate < 0.3) return { color:'#22c55e', label:'여유',   glow:'rgba(34,197,94,0.5)'  };
+        if (rate < 0.7) return { color:'#eab308', label:'보통',   glow:'rgba(234,179,8,0.5)'  };
+                        return { color:'#ef4444', label:'혼잡',   glow:'rgba(239,68,68,0.5)'  };
+    }
+
+    function makeShelterIcon(s, isSuitable) {
+        const cong = getShelterCongestion(s);
+        const color = isSuitable ? cong.color : '#475569';
+        const glow  = isSuitable ? cong.glow  : 'rgba(71,85,105,0.3)';
+        const opacity = isSuitable ? 1 : 0.38;
         return L.divIcon({
             className: '',
-            html: `<div class="shelter-icon" style="opacity:${isSuitable ? 1 : 0.4}">🏠</div>`,
+            html: `<div class="shelter-icon" style="background:${color};opacity:${opacity};box-shadow:0 0 8px ${glow}">🏠</div>`,
             iconSize: [28, 28], iconAnchor: [14, 14]
         });
     }
@@ -1006,19 +1048,71 @@
         shelterMarkers = [];
         SHELTERS.forEach(s => {
             const isSuitable = s.suitable.includes(currentDisaster);
-            const marker = L.marker([s.lat, s.lng], { icon: makeShelterIcon(isSuitable) });
+            const cong = getShelterCongestion(s);
             const fillPct = Math.round((s.current / s.capacity) * 100);
+            const marker = L.marker([s.lat, s.lng], { icon: makeShelterIcon(s, isSuitable) });
             marker.bindPopup(`
-                <div style="font-family:Inter,sans-serif;font-size:0.8rem;min-width:160px">
+                <div style="font-family:Inter,sans-serif;font-size:0.8rem;min-width:170px">
                     <b style="font-size:0.88rem">${s.name}</b><br>
-                    <span style="color:#94a3b8">수용 현황</span> ${s.current}/${s.capacity}명 (${fillPct}%)<br>
+                    <span style="color:#94a3b8">혼잡도</span>
+                        <b style="color:${cong.color}">${cong.label}</b>
+                        · ${s.current}/${s.capacity}명 (${fillPct}%)<br>
                     <span style="color:#94a3b8">적합 재난</span> ${s.suitable.join(', ')}<br>
                     <span style="color:#94a3b8">운영 상태</span> ${s.operateYn ? '✅ 운영중' : '❌ 미운영'}
                 </div>
             `, { className: 'dark-popup' });
+            marker.bindTooltip(s.name, {
+                permanent: true, direction: 'right',
+                offset: [14, 0], className: 'shelter-label'
+            });
             marker.addTo(map);
             shelterMarkers.push(marker);
         });
+        updateShelterLabels();
+    }
+
+    function updateShelterLabels() {
+        const mapEl = document.getElementById('map');
+        mapEl.classList.toggle('zoom-labels', map.getZoom() >= 14);
+    }
+
+    map.on('zoomend', updateShelterLabels);
+
+    // ══ 거리 링 ════════════════════════════════════════════════
+    let ringLayer = null;
+    const RINGS = [
+        { km:1, color:'#22c55e' },
+        { km:3, color:'#eab308' },
+        { km:5, color:'#ef4444' }
+    ];
+
+    function drawDistanceRings(lat, lng) {
+        clearDistanceRings();
+        ringLayer = L.layerGroup();
+        RINGS.forEach(r => {
+            // 원
+            L.circle([lat, lng], {
+                radius: r.km * 1000,
+                color: r.color, fillColor: r.color,
+                fillOpacity: 0.08, weight: 2, opacity: 0.85,
+                dashArray: '8 5', interactive: false
+            }).addTo(ringLayer);
+            // 라벨 (동쪽 끝)
+            const lngOffset = (r.km * 1000) / (111320 * Math.cos(lat * Math.PI / 180));
+            L.marker([lat, lng + lngOffset], {
+                icon: L.divIcon({
+                    className: 'ring-label',
+                    html: `${r.km}km`,
+                    iconSize: null, iconAnchor: [0, 8]
+                }),
+                interactive: false
+            }).addTo(ringLayer);
+        });
+        ringLayer.addTo(map);
+    }
+
+    function clearDistanceRings() {
+        if (ringLayer) { map.removeLayer(ringLayer); ringLayer = null; }
     }
 
     // ══ 사용자 위치 ════════════════════════════════════════════
@@ -1037,6 +1131,7 @@
         document.getElementById('locationStatus').textContent = `📍 ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
         document.getElementById('locationStatus').className = 'location-status set';
         document.getElementById('runBtn').disabled = false;
+        drawDistanceRings(lat, lng);
     }
 
     function clearLocation() {
@@ -1045,6 +1140,7 @@
         document.getElementById('locationStatus').textContent = '지도를 클릭하거나 GPS를 사용하세요';
         document.getElementById('locationStatus').className = 'location-status';
         document.getElementById('runBtn').disabled = true;
+        clearDistanceRings();
         closePanel();
     }
 
