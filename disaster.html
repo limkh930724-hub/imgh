@@ -136,6 +136,12 @@
             cursor: pointer; transition: border-color 0.15s, background 0.15s;
         }
         .rec-card:hover { border-color: var(--recommend); background: #1a1240; }
+        .rec-card.selected {
+            border-color: var(--recommend); background: #1a1240;
+            box-shadow: 0 0 0 1px var(--recommend);
+        }
+        .rec-card.selected .rec-rank { transform: scale(1.15); }
+        .rec-card.selected .score-bar-fill { background: #c084fc; }
         .rec-card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem; }
         .rec-rank {
             width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; font-weight: 800;
@@ -175,6 +181,294 @@
         }
         .legend-item { display: flex; align-items: center; gap: 0.35rem; }
         .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+        /* ── 지도·결과패널 top 조정 (티커 36px 추가) ── */
+        #map { top: 92px !important; }
+        .result-panel { top: 92px !important; }
+
+        /* ── 속보 티커 바 ── */
+        .ticker-bar {
+            position: fixed; top: 56px; left: 0; right: 0; z-index: 900;
+            height: 36px; display: flex; align-items: center;
+            background: rgba(10,15,30,0.98);
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
+        }
+        .ticker-label {
+            flex-shrink: 0; padding: 0 0.85rem;
+            font-size: 0.68rem; font-weight: 800; color: var(--accent);
+            letter-spacing: 0.06em; text-transform: uppercase;
+            border-right: 1px solid var(--border);
+            height: 100%; display: flex; align-items: center; white-space: nowrap;
+            gap: 0.35rem;
+        }
+        .ticker-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent); flex-shrink: 0;
+            animation: tickerBlink 1s ease-in-out infinite;
+        }
+        @keyframes tickerBlink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+        .ticker-track {
+            flex: 1; overflow: hidden; height: 100%; position: relative;
+        }
+        .ticker-item {
+            position: absolute; inset: 0; display: flex; align-items: center;
+            padding: 0 1rem; font-size: 0.74rem; color: var(--text); white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .ticker-item.enter {
+            animation: tickerEnter 0.38s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        .ticker-item.exit {
+            animation: tickerExit 0.38s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        .ticker-time { color: var(--text-2); margin-right: 0.45rem; font-size: 0.68rem; flex-shrink: 0; }
+        @keyframes tickerEnter {
+            from { transform: translateY(100%); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        @keyframes tickerExit {
+            0%   { opacity: 1; transform: translateY(0)   scale(1); }
+            100% { opacity: 0; transform: translateY(-6px) scale(0.97); }
+        }
+
+        /* ── SMS 버튼 ── */
+        .sms-btn {
+            position: relative; padding: 0.32rem 0.75rem;
+            border-radius: 20px; font-size: 0.76rem; font-weight: 600;
+            border: 1px solid var(--border); background: transparent; color: var(--text-2);
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+            display: flex; align-items: center; gap: 0.35rem;
+        }
+        .sms-btn:hover { color: var(--text); border-color: var(--text-2); }
+        .sms-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(239,68,68,0.08); }
+        .sms-badge {
+            min-width: 16px; height: 16px; border-radius: 8px;
+            background: var(--accent); color: #fff;
+            font-size: 0.6rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; padding: 0 4px;
+        }
+
+        /* ── SMS 패널 탭 바 ── */
+        .sms-tab-bar {
+            display: flex; align-items: center; gap: 0.4rem;
+            padding: 0.6rem 0.75rem 0; border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .sms-tab {
+            padding: 0.32rem 0.8rem; border-radius: 20px; font-size: 0.74rem; font-weight: 700;
+            border: 1px solid var(--border); background: transparent; color: var(--text-2);
+            cursor: pointer; transition: all 0.15s; white-space: nowrap;
+        }
+        .sms-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .sms-tab:not(.active):hover { color: var(--text); border-color: var(--text-2); }
+        .sms-tab-count {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 16px; height: 16px; border-radius: 8px; padding: 0 4px;
+            font-size: 0.6rem; font-weight: 800; margin-left: 0.25rem;
+            background: rgba(255,255,255,0.25); color: inherit;
+        }
+        .sms-tab:not(.active) .sms-tab-count { background: var(--border); }
+
+        /* ── 재난사고 카드 ── */
+        .incident-card {
+            background: var(--surface-2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 0.85rem 0.95rem; margin-bottom: 0.6rem;
+            cursor: pointer; transition: border-color 0.15s, background 0.15s;
+            position: relative; overflow: hidden;
+        }
+        .incident-card:hover { border-color: var(--accent-2); background: #1a1208; }
+        .incident-card-header {
+            display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.4rem;
+        }
+        .incident-emoji { font-size: 1rem; flex-shrink: 0; }
+        .incident-title { font-size: 0.8rem; font-weight: 700; flex: 1; }
+        .incident-sev {
+            font-size: 0.64rem; font-weight: 800; padding: 0.1rem 0.4rem; border-radius: 4px;
+            flex-shrink: 0;
+        }
+        .incident-sev-3 { background: rgba(239,68,68,0.18); color: #ef4444; }
+        .incident-sev-2 { background: rgba(249,115,22,0.18); color: #f97316; }
+        .incident-sev-1 { background: rgba(234,179,8,0.18);  color: #eab308; }
+        .incident-time { font-size: 0.66rem; color: var(--text-2); flex-shrink: 0; }
+        .incident-addr {
+            font-size: 0.7rem; color: var(--text-2); margin-bottom: 0.35rem;
+        }
+        .incident-detail { font-size: 0.73rem; color: var(--text); line-height: 1.6; margin-bottom: 0.55rem; }
+        .incident-goto {
+            width: 100%; padding: 0.38rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600;
+            border: 1px solid var(--border); background: transparent; color: var(--text-2);
+            cursor: pointer; transition: background 0.15s, color 0.15s;
+        }
+        .incident-goto:hover { background: var(--surface); color: var(--text); }
+
+        /* ── 사고 마커 (지도) ── */
+        .incident-marker {
+            border-radius: 50%; border: 3px solid rgba(255,255,255,0.45);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; animation: incidentPulse 2s ease-in-out infinite;
+        }
+        @keyframes incidentPulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(249,115,22,0.5); }
+            50%      { box-shadow: 0 0 0 8px rgba(249,115,22,0); }
+        }
+
+        /* ── SMS 수신함 패널 ── */
+        .sms-panel {
+            position: fixed; top: 92px; right: 0; bottom: 0; z-index: 601;
+            width: 340px; background: rgba(10,15,30,0.98);
+            border-left: 1px solid var(--border);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .sms-panel.open { transform: translateX(0); }
+
+        /* ── SMS 카드 ── */
+        .sms-card {
+            background: var(--surface-2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 0.85rem 0.95rem; margin-bottom: 0.6rem;
+            position: relative; overflow: hidden;
+        }
+        .sms-card.unread::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: var(--accent); border-radius: 2px 0 0 2px;
+        }
+        .sms-card-header {
+            display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.45rem;
+        }
+        .sms-card-agency {
+            font-size: 0.68rem; font-weight: 700; color: var(--accent);
+            background: rgba(239,68,68,0.12); padding: 0.12rem 0.45rem; border-radius: 4px;
+            flex-shrink: 0;
+        }
+        .sms-card-time { font-size: 0.66rem; color: var(--text-2); margin-left: auto; }
+        .sms-card-body { font-size: 0.75rem; color: var(--text); line-height: 1.65; }
+
+        /* ── 재난문자 자동 팝업 ── */
+        .sms-popup-wrap {
+            position: fixed; top: 92px; left: 50%; z-index: 1500;
+            transform: translateX(-50%) translateY(1rem);
+            width: 360px; max-width: calc(100vw - 2rem);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .sms-popup-wrap.show {
+            pointer-events: auto;
+            opacity: 1;
+            animation: popupDrop 0.4s cubic-bezier(0.34,1.4,0.64,1);
+        }
+        @keyframes popupDrop {
+            from { transform: translateX(-50%) translateY(-0.5rem); }
+            to   { transform: translateX(-50%) translateY(1rem); }
+        }
+        .sms-popup {
+            background: #110808;
+            border: 1.5px solid var(--accent);
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 8px 40px rgba(239,68,68,0.35), 0 0 0 1px rgba(239,68,68,0.1);
+        }
+        .sms-popup-head {
+            background: var(--accent); padding: 0.55rem 1rem;
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+        .sms-popup-head-title { font-size: 0.82rem; font-weight: 800; color: #fff; flex: 1; letter-spacing: 0.04em; }
+        .sms-popup-head-close {
+            background: rgba(255,255,255,0.22); border: none; color: #fff;
+            width: 20px; height: 20px; border-radius: 50%; cursor: pointer;
+            font-size: 0.65rem; display: flex; align-items: center; justify-content: center;
+            transition: background 0.15s;
+        }
+        .sms-popup-head-close:hover { background: rgba(255,255,255,0.38); }
+        .sms-popup-meta {
+            padding: 0.55rem 1rem 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .sms-popup-agency { font-size: 0.7rem; font-weight: 700; color: var(--accent); }
+        .sms-popup-time { font-size: 0.66rem; color: var(--text-2); }
+        .sms-popup-text {
+            padding: 0.55rem 1rem 0.85rem;
+            font-size: 0.78rem; color: var(--text); line-height: 1.7;
+        }
+        .sms-popup-footer {
+            padding: 0.55rem 1rem; border-top: 1px solid rgba(239,68,68,0.18);
+            display: flex; gap: 0.5rem;
+        }
+        .sms-popup-dismiss {
+            flex: 1; padding: 0.42rem; border-radius: 7px;
+            border: 1px solid var(--border); background: transparent;
+            color: var(--text-2); font-size: 0.74rem; font-weight: 600;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .sms-popup-dismiss:hover { background: var(--surface-2); color: var(--text); }
+        .sms-popup-view {
+            flex: 1; padding: 0.42rem; border-radius: 7px;
+            border: none; background: var(--accent);
+            color: #fff; font-size: 0.74rem; font-weight: 700;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .sms-popup-view:hover { background: #dc2626; }
+        .sms-popup-progress { height: 3px; background: rgba(239,68,68,0.15); overflow: hidden; }
+        .sms-popup-bar {
+            height: 100%; background: var(--accent);
+            animation: smsBar 5s linear forwards;
+        }
+        @keyframes smsBar { from { width: 100%; } to { width: 0%; } }
+        .sms-popup-bar { animation-duration: 10s !important; }
+
+        /* ── 재난 단계 경보 패널 ── */
+        .alert-panel {
+            position: fixed; bottom: 272px; left: 1.5rem; z-index: 500;
+            width: 220px;
+            background: rgba(13,27,42,0.95); border: 1px solid var(--border);
+            border-radius: 12px; padding: 0.85rem 1.1rem;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        }
+        .alert-panel-title {
+            font-size: 0.68rem; font-weight: 700; color: var(--text-2);
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.65rem;
+        }
+        .alert-steps { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; }
+        .alert-step {
+            flex: 1; height: 5px; border-radius: 3px;
+            background: var(--border); transition: background 0.4s ease;
+        }
+        .alert-step.on { background: var(--al-color); }
+        .alert-row { display: flex; align-items: baseline; gap: 0.5rem; }
+        .alert-badge {
+            font-size: 0.78rem; font-weight: 800; color: var(--al-color);
+            transition: color 0.4s;
+        }
+        .alert-desc { font-size: 0.68rem; color: var(--text-2); }
+
+        /* ── 피해현황 카운터 ── */
+        .damage-panel {
+            position: fixed; bottom: 104px; right: 1rem; z-index: 500;
+            width: 174px;
+            background: rgba(13,27,42,0.95); border: 1px solid var(--border);
+            border-radius: 12px; padding: 0.85rem 1rem;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        }
+        .damage-panel-title {
+            font-size: 0.68rem; font-weight: 700; color: var(--text-2);
+            text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem;
+        }
+        .damage-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 0.42rem;
+        }
+        .damage-row:last-child { margin-bottom: 0; }
+        .damage-lbl { font-size: 0.69rem; color: var(--text-2); }
+        .damage-val {
+            font-size: 0.82rem; font-weight: 800; color: var(--text);
+            font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+        }
+        .damage-val.hi { color: var(--accent); }
+
+        /* ── 대피 경로 라인 ── */
+        .route-popup-inner { font-family: Inter,sans-serif; font-size: 0.8rem; }
 
         /* ── Leaflet 커스텀 마커 ── */
         .shelter-icon {
@@ -222,6 +516,129 @@
             background: rgba(13,27,42,0.97) !important;
         }
         .dark-popup .leaflet-popup-close-button { color: #94a3b8 !important; }
+    /* ════════════════════════════════════════════════
+       모바일 반응형 (≤ 640px)
+    ════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+
+        /* ── 헤더 ── */
+        .header { height: 48px; padding: 0 0.55rem; gap: 0.35rem; }
+        .header-back { font-size: 0.6rem; padding: 0.18rem 0.4rem; white-space: nowrap; flex-shrink: 0; }
+        .header-logo { font-size: 0.7rem; white-space: nowrap; flex-shrink: 0; margin-right: 0; }
+        .disaster-tabs {
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; flex-shrink: 1; min-width: 0;
+        }
+        .disaster-tabs::-webkit-scrollbar { display: none; }
+        .disaster-tab { font-size: 0.65rem; padding: 0.24rem 0.55rem; white-space: nowrap; }
+        .sms-btn { font-size: 0.62rem; padding: 0.2rem 0.45rem; flex-shrink: 0; gap: 0.2rem; }
+        .sms-badge { min-width: 13px; height: 13px; border-radius: 7px; font-size: 0.52rem; }
+
+        /* ── 티커 ── */
+        .ticker-bar { top: 48px; height: 28px; }
+        .ticker-label { padding: 0 0.5rem; font-size: 0.58rem; gap: 0.25rem; }
+        .ticker-dot { width: 5px; height: 5px; }
+        .ticker-item { font-size: 0.65rem; padding: 0 1.2rem; }
+
+        /* ── 지도 ── */
+        #map { top: 76px !important; }
+
+        /* ── 결과·SMS 패널 → 하단 bottom-sheet ── */
+        .result-panel,
+        .sms-panel {
+            top: auto !important;
+            bottom: 0; left: 0; right: 0;
+            width: 100% !important;
+            height: 62vh;
+            border-left: none;
+            border-top: 1px solid var(--border);
+            border-radius: 16px 16px 0 0;
+            transform: translateY(100%) !important;
+        }
+        .result-panel.open,
+        .sms-panel.open { transform: translateY(0) !important; }
+
+        /* ── 결과 FAB (모바일 전용) ── */
+        .result-fab {
+            position: fixed; bottom: 198px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 505;
+            display: none; align-items: center; gap: 0.45rem;
+            padding: 0.58rem 1.4rem; border-radius: 24px;
+            background: var(--recommend); color: #fff;
+            font-size: 0.78rem; font-weight: 700; border: none;
+            cursor: pointer; white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(168,85,247,0.5);
+        }
+        @keyframes fabPop {
+            from { transform: translateX(-50%) scale(0.7); opacity: 0; }
+            to   { transform: translateX(-50%) scale(1);   opacity: 1; }
+        }
+        .result-fab.pop { animation: fabPop 0.35s cubic-bezier(0.34,1.4,0.64,1) forwards; }
+
+        /* 패널 상단 드래그 힌트 */
+        .result-panel::before,
+        .sms-panel::before {
+            content: ''; display: block;
+            width: 36px; height: 4px; border-radius: 2px;
+            background: var(--border);
+            margin: 8px auto 0;
+        }
+
+        /* 모바일에서 FAB 표시 허용 */
+        @media (max-width: 640px) {
+            .result-fab { display: flex; }
+        }
+
+        /* ── 경보 단계 패널 ── */
+        .alert-panel {
+            bottom: auto; top: 84px; left: 0.6rem;
+            width: 162px; padding: 0.5rem 0.7rem; border-radius: 10px;
+        }
+        .alert-panel-title { font-size: 0.56rem; margin-bottom: 0.38rem; }
+        .alert-step { height: 4px; }
+        .alert-steps { margin-bottom: 0.32rem; gap: 0.22rem; }
+        .alert-badge { font-size: 0.66rem; }
+        .alert-desc { font-size: 0.56rem; }
+
+        /* ── 피해현황 카운터 ── */
+        .damage-panel {
+            bottom: auto; top: 84px; right: 0.6rem;
+            width: 140px; padding: 0.5rem 0.7rem; border-radius: 10px;
+        }
+        .damage-panel-title { font-size: 0.56rem; margin-bottom: 0.38rem; }
+        .damage-lbl { font-size: 0.58rem; }
+        .damage-val { font-size: 0.72rem; }
+
+        /* ── 플로팅 컨트롤 → 하단 전체폭 ── */
+        .float-ctrl {
+            bottom: 0; left: 0; right: 0; width: 100%;
+            border-radius: 0; border: none;
+            border-top: 1px solid var(--border);
+            padding: 0.7rem 1rem 0.9rem;
+            z-index: 490;
+        }
+        .float-ctrl-title { display: none; }
+        .location-status { font-size: 0.7rem; margin-bottom: 0.45rem; }
+        .ctrl-btn-row { margin-bottom: 0.45rem; }
+        .ctrl-btn { font-size: 0.7rem; padding: 0.4rem 0; }
+        .run-btn { font-size: 0.78rem; padding: 0.55rem; }
+
+        /* ── 범례 ── */
+        .legend {
+            bottom: 158px; font-size: 0.56rem;
+            padding: 0.26rem 0.55rem; gap: 0.4rem;
+            max-width: calc(100vw - 2rem);
+            flex-wrap: wrap; justify-content: center;
+        }
+        .legend-dot { width: 7px; height: 7px; }
+
+        /* ── SMS 팝업 ── */
+        .sms-popup-wrap { top: 76px; width: calc(100vw - 1.5rem); }
+
+        /* ── Leaflet 줌 버튼 위치 ── */
+        .leaflet-bottom.leaflet-right { bottom: 152px; }
+    }
     </style>
 </head>
 <body>
@@ -231,10 +648,34 @@
         <a href="/" class="header-back">← 포트폴리오</a>
         <div class="header-logo">🚨 <span>재난</span>대응 시뮬레이터</div>
         <div class="disaster-tabs" id="disasterTabs"></div>
+        <button class="sms-btn" id="smsBtn">
+            📱 재난문자 <span class="sms-badge" id="smsBadge">4</span>
+        </button>
     </header>
+
+    <!-- 속보 티커 -->
+    <div class="ticker-bar">
+        <div class="ticker-label"><div class="ticker-dot"></div>속보</div>
+        <div class="ticker-track" id="tickerTrack"></div>
+    </div>
 
     <!-- Leaflet 지도 -->
     <div id="map"></div>
+
+    <!-- 재난 단계 경보 패널 -->
+    <div class="alert-panel" id="alertPanel">
+        <div class="alert-panel-title">⚠️ 재난 경보 단계</div>
+        <div class="alert-steps" id="alertSteps">
+            <div class="alert-step" data-lv="1"></div>
+            <div class="alert-step" data-lv="2"></div>
+            <div class="alert-step" data-lv="3"></div>
+            <div class="alert-step" data-lv="4"></div>
+        </div>
+        <div class="alert-row">
+            <div class="alert-badge" id="alertBadge"></div>
+            <div class="alert-desc" id="alertDesc"></div>
+        </div>
+    </div>
 
     <!-- 플로팅 컨트롤 -->
     <div class="float-ctrl">
@@ -249,7 +690,7 @@
 
     <!-- 우측 결과 패널 -->
     <div class="result-panel" id="resultPanel">
-        <div class="panel-header">
+        <div class="panel-header" id="resultPanelHeader">
             <div>
                 <div class="panel-title">시뮬레이션 결과</div>
                 <div class="panel-sub" id="panelSub"></div>
@@ -257,6 +698,62 @@
             <button class="panel-close" id="panelClose">✕</button>
         </div>
         <div class="panel-body" id="panelBody"></div>
+    </div>
+
+    <!-- SMS 수신함 패널 -->
+    <div class="sms-panel" id="smsPanel">
+        <div class="panel-header">
+            <div class="panel-title">📱 재난 수신함</div>
+            <button class="panel-close" id="smsPanelClose">✕</button>
+        </div>
+        <div class="sms-tab-bar">
+            <button class="sms-tab active" id="tabSms">재난문자 <span class="sms-tab-count" id="tabSmsCount">4</span></button>
+            <button class="sms-tab" id="tabIncident">재난사고 <span class="sms-tab-count" id="tabIncidentCount">3</span></button>
+        </div>
+        <div class="panel-body" id="smsPanelBody"></div>
+    </div>
+
+    <!-- 재난문자 자동 팝업 -->
+    <div class="sms-popup-wrap" id="smsPopupWrap">
+        <div class="sms-popup">
+            <div class="sms-popup-head">
+                <span>📱</span>
+                <span class="sms-popup-head-title">재난문자</span>
+                <button class="sms-popup-head-close" id="smsPopupClose">✕</button>
+            </div>
+            <div class="sms-popup-meta">
+                <span class="sms-popup-agency" id="smsPopupAgency"></span>
+                <span class="sms-popup-time" id="smsPopupTime"></span>
+            </div>
+            <div class="sms-popup-text" id="smsPopupText"></div>
+            <div class="sms-popup-footer">
+                <button class="sms-popup-dismiss" id="smsPopupDismiss">닫기</button>
+                <button class="sms-popup-view" id="smsPopupViewBtn">전체 보기 →</button>
+            </div>
+            <div class="sms-popup-progress"><div class="sms-popup-bar" id="smsPopupBar"></div></div>
+        </div>
+    </div>
+
+    <!-- 결과 보기 FAB (모바일 전용) -->
+    <button class="result-fab" id="resultFab" style="display:none">
+        📋 <span id="resultFabText">결과 보기</span>
+    </button>
+
+    <!-- 피해현황 카운터 -->
+    <div class="damage-panel">
+        <div class="damage-panel-title">📊 피해 현황</div>
+        <div class="damage-row">
+            <span class="damage-lbl">이재민</span>
+            <span class="damage-val hi" id="dmgDisplaced">0</span>
+        </div>
+        <div class="damage-row">
+            <span class="damage-lbl">신고 건수</span>
+            <span class="damage-val" id="dmgReports">0</span>
+        </div>
+        <div class="damage-row">
+            <span class="damage-lbl">대피소 가동</span>
+            <span class="damage-val" id="dmgShelter">0%</span>
+        </div>
     </div>
 
     <!-- 범례 -->
@@ -303,32 +800,125 @@
 
     const DANGER_ZONES = {
         FLOOD: [
-            { riskLevel:3, name:'강남 저지대',    coords:[[37.510,127.035],[37.510,127.060],[37.500,127.060],[37.500,127.035]] },
-            { riskLevel:2, name:'잠원 침수우려',  coords:[[37.518,127.000],[37.518,127.025],[37.508,127.025],[37.508,127.000]] },
-            { riskLevel:2, name:'영등포 저지대',  coords:[[37.530,126.880],[37.530,126.910],[37.515,126.910],[37.515,126.880]] },
-            { riskLevel:1, name:'마포 하천변',    coords:[[37.548,126.920],[37.548,126.940],[37.538,126.940],[37.538,126.920]] }
+            { riskLevel:3, name:'강남 저지대',    lat:37.505, lng:127.048, radius:1400 },
+            { riskLevel:2, name:'잠원 침수우려',  lat:37.513, lng:127.013, radius:1000 },
+            { riskLevel:2, name:'영등포 저지대',  lat:37.522, lng:126.895, radius:1200 },
+            { riskLevel:1, name:'마포 하천변',    lat:37.543, lng:126.930, radius:800  }
         ],
         QUAKE: [
-            { riskLevel:2, name:'은평 단층 인근', coords:[[37.615,126.915],[37.615,126.950],[37.595,126.950],[37.595,126.915]] },
-            { riskLevel:2, name:'용산 구조물밀집',coords:[[37.538,126.975],[37.538,126.998],[37.525,126.998],[37.525,126.975]] },
-            { riskLevel:1, name:'종로 노후건물',  coords:[[37.582,126.965],[37.582,126.992],[37.572,126.992],[37.572,126.965]] },
-            { riskLevel:3, name:'서대문 단층대',  coords:[[37.568,126.930],[37.568,126.955],[37.555,126.955],[37.555,126.930]] }
+            { riskLevel:2, name:'은평 단층 인근', lat:37.605, lng:126.933, radius:1500 },
+            { riskLevel:2, name:'용산 구조물밀집',lat:37.532, lng:126.987, radius:900  },
+            { riskLevel:1, name:'종로 노후건물',  lat:37.577, lng:126.979, radius:900  },
+            { riskLevel:3, name:'서대문 단층대',  lat:37.562, lng:126.943, radius:1100 }
         ],
         COLD: [
-            { riskLevel:2, name:'노원 고령밀집',  coords:[[37.665,127.048],[37.665,127.072],[37.648,127.072],[37.648,127.048]] },
-            { riskLevel:1, name:'강북 취약계층',  coords:[[37.645,127.018],[37.645,127.038],[37.632,127.038],[37.632,127.018]] },
-            { riskLevel:1, name:'중구 노숙인밀집',coords:[[37.568,126.988],[37.568,127.005],[37.558,127.005],[37.558,126.988]] },
-            { riskLevel:2, name:'도봉 독거노인',  coords:[[37.678,127.038],[37.678,127.058],[37.662,127.058],[37.662,127.038]] }
+            { riskLevel:2, name:'노원 고령밀집',  lat:37.657, lng:127.060, radius:1100 },
+            { riskLevel:1, name:'강북 취약계층',  lat:37.639, lng:127.028, radius:800  },
+            { riskLevel:1, name:'중구 노숙인밀집',lat:37.563, lng:126.997, radius:700  },
+            { riskLevel:2, name:'도봉 독거노인',  lat:37.670, lng:127.048, radius:1000 }
         ],
         CHEMICAL: [
-            { riskLevel:3, name:'마포 산업단지',  coords:[[37.548,126.895],[37.548,126.920],[37.535,126.920],[37.535,126.895]] },
-            { riskLevel:2, name:'구로 공단지역',  coords:[[37.500,126.875],[37.500,126.900],[37.485,126.900],[37.485,126.875]] },
-            { riskLevel:2, name:'영등포 산업시설',coords:[[37.525,126.893],[37.525,126.915],[37.512,126.915],[37.512,126.893]] },
-            { riskLevel:1, name:'성수 공장지대',  coords:[[37.548,127.050],[37.548,127.068],[37.538,127.068],[37.538,127.050]] }
+            { riskLevel:3, name:'마포 산업단지',  lat:37.542, lng:126.908, radius:1100 },
+            { riskLevel:2, name:'구로 공단지역',  lat:37.493, lng:126.888, radius:1100 },
+            { riskLevel:2, name:'영등포 산업시설',lat:37.519, lng:126.904, radius:1000 },
+            { riskLevel:1, name:'성수 공장지대',  lat:37.543, lng:127.059, radius:700  }
         ]
     };
 
     const RISK_COLORS = { 3:'#ef4444', 2:'#f97316', 1:'#eab308' };
+    const SEV_LABEL   = { 3:'위험', 2:'경계', 1:'주의' };
+
+    const ALERT_LEVELS = {
+        FLOOD:    { level:4, label:'심각', desc:'대규모 침수 피해 발생 중', color:'#ef4444' },
+        QUAKE:    { level:3, label:'경계', desc:'여진 및 피해 확산 우려',   color:'#f97316' },
+        COLD:     { level:2, label:'주의', desc:'취약계층 집중 관리 중',    color:'#eab308' },
+        CHEMICAL: { level:4, label:'심각', desc:'긴급 대피 명령 발령 중',   color:'#ef4444' }
+    };
+
+    const DAMAGE_STATS = {
+        FLOOD:    { displaced:1247, reports:342, shelter:78 },
+        QUAKE:    { displaced:523,  reports:891, shelter:45 },
+        COLD:     { displaced:89,   reports:156, shelter:62 },
+        CHEMICAL: { displaced:2341, reports:127, shelter:91 }
+    };
+
+    const INCIDENTS = {
+        FLOOD: [
+            { id:'f1', icon:'🌊', severity:3, title:'지하주차장 침수·차량 고립',  address:'강남구 논현동 211',     time:'13:38', lat:37.511, lng:127.027, detail:'지하 2층까지 침수, 차량 23대 고립. 소방대 현장 대응 중.' },
+            { id:'f2', icon:'🚨', severity:2, title:'반지하 침수·주민 고립',      address:'서초구 잠원동 45',       time:'13:21', lat:37.512, lng:127.014, detail:'반지하 주민 4명 고립. 119 구조 요청 접수, 구조 진행 중.' },
+            { id:'f3', icon:'🌊', severity:1, title:'지하보도 침수 통제',          address:'영등포구 여의도동 광장', time:'13:05', lat:37.525, lng:126.921, detail:'지하보도 양방향 통제. 배수 작업 중, 우회로 안내 중.' }
+        ],
+        QUAKE: [
+            { id:'q1', icon:'⚠️', severity:3, title:'건물 외벽 균열·주민 대피',  address:'서대문구 홍은동 322',    time:'09:31', lat:37.589, lng:126.935, detail:'5층 건물 외벽 균열 발생. 주민 긴급 대피 완료. 구조안전 점검 중.' },
+            { id:'q2', icon:'💥', severity:3, title:'지하 가스관 파손·누출',      address:'용산구 이태원동 118',    time:'09:24', lat:37.534, lng:126.994, detail:'지하 가스관 파손 의심. 반경 200m 대피 조치. 한국가스공사 출동.' },
+            { id:'q3', icon:'⚠️', severity:2, title:'노후 담장 붕괴·부상',       address:'종로구 창신동 44',       time:'09:19', lat:37.578, lng:127.014, detail:'노후 담장 붕괴, 보행자 1명 경상. 현장 통제 및 응급처치 중.' }
+        ],
+        COLD: [
+            { id:'c1', icon:'🚑', severity:3, title:'독거노인 저체온증 응급',     address:'노원구 상계동 662',      time:'07:12', lat:37.655, lng:127.062, detail:'78세 독거노인 저체온증 발견. 119 이송 중. 의식 있음.' },
+            { id:'c2', icon:'❄️', severity:2, title:'수도관 동파·아파트 단수',   address:'도봉구 방학동 173',      time:'07:42', lat:37.668, lng:127.047, detail:'아파트 수도관 동파로 3개 동 단수. 복구 예정 15:00.' },
+            { id:'c3', icon:'🚑', severity:2, title:'노숙인 응급후송',            address:'중구 서울역 광장',       time:'06:55', lat:37.555, lng:126.970, detail:'노숙인 2명 저체온증 증세로 발견, 병원 이송 완료.' }
+        ],
+        CHEMICAL: [
+            { id:'ch1', icon:'☣️', severity:3, title:'암모니아 배관 파열·누출',  address:'마포구 상암동 1605',     time:'11:03', lat:37.575, lng:126.893, detail:'냉동창고 암모니아 배관 파열. 반경 500m 대피령. 화학구조대 진입 중.' },
+            { id:'ch2', icon:'☣️', severity:2, title:'도금공장 화학폐수 유출',   address:'구로구 가산동 481',      time:'11:21', lat:37.480, lng:126.882, detail:'도금 공장 폐수 유출. 인근 하천 오염 우려. 환경부 현장 조사 중.' },
+            { id:'ch3', icon:'🔥', severity:2, title:'화학약품 창고 화재',        address:'영등포구 문래동 3가',    time:'11:35', lat:37.519, lng:126.900, detail:'화학약품 보관 창고 화재. 소방차 8대 진압 중. 인명피해 없음.' }
+        ]
+    };
+
+    // ══ 속보 & 재난문자 가상 데이터 ══════════════════════════════
+    const ALERTS = {
+        FLOOD: [
+            { time: '13:42', text: '[긴급] 한강 수위 경계 수준 돌파, 잠수교 차량 통제 시작' },
+            { time: '13:28', text: '서초·강남 저지대 침수 주의보 발령, 주민 대피 권고' },
+            { time: '13:15', text: '기상청: 시간당 80mm 이상 강수 예상, 오후까지 지속' },
+            { time: '13:01', text: '영등포소방서, 이동식 양수기 전진 배치 완료' }
+        ],
+        QUAKE: [
+            { time: '09:17', text: '[긴급] 서울 서대문구 규모 4.1 지진 발생, 여진 주의보' },
+            { time: '09:22', text: '지하철 2·5호선 일시 운행 중단, 시설 안전 점검 중' },
+            { time: '09:35', text: '서울 전역 건물 육안 점검 권고, 균열 발견 시 즉시 신고' },
+            { time: '09:48', text: '기상청: 향후 48시간 여진 가능성 지속, 이동 자제 당부' }
+        ],
+        COLD: [
+            { time: '07:00', text: '[한파특보] 서울 체감온도 영하 23도, 역대 1월 최저 기록 경신' },
+            { time: '07:14', text: '노원·도봉 고령 독거노인 안전 확인 비상 체계 가동' },
+            { time: '07:30', text: '서울시 한파쉼터 264개소 24시간 운영 전환 결정' },
+            { time: '07:55', text: '수도 동파 급증, 한국수자원공사 비상복구팀 전진 배치' }
+        ],
+        CHEMICAL: [
+            { time: '11:03', text: '[긴급] 마포구 산업단지 화학물질 누출, 반경 500m 대피령' },
+            { time: '11:18', text: '환경부, 유해화학물질 누출 3등급 비상 발령' },
+            { time: '11:29', text: '서울소방재난본부 화학구조대 현장 진입, 누출 차단 작업 중' },
+            { time: '11:47', text: '마포·영등포 일대 창문 닫고 실내 대피 유지 권고' }
+        ]
+    };
+
+    const MESSAGES = {
+        FLOOD: [
+            { agency: '서울특별시', time: '13:42', body: '[재난문자] 강남·서초 저지대 침수 위험. 즉시 3층 이상으로 대피하거나 인근 대피소로 이동하세요. -서울시' },
+            { agency: '행정안전부', time: '13:15', body: '[재난경보] 수도권 집중호우 경보 발령. 하천변·저지대 접근 금지. 기상 상황 수시 확인 바랍니다.' },
+            { agency: '강남구청', time: '13:01', body: '[긴급] 강남구 전역 침수 대피령. 반지하·1층 거주자 즉시 대피. 대피소: 강남구민체육관 외 5개소' },
+            { agency: '소방청', time: '12:48', body: '홍수 시 행동요령: 1)전기차단기 내리기 2)높은 곳으로 이동 3)119 신고 4)유속 강한 물 절대 진입 금지' }
+        ],
+        QUAKE: [
+            { agency: '기상청', time: '09:17', body: '[재난문자] 지진 발생! 책상 아래 대피 후 흔들림 멈추면 신속히 밖으로 이동. 엘리베이터 이용 금지. -기상청' },
+            { agency: '서대문구청', time: '09:25', body: '[긴급] 서대문구 단층대 인근 건물 퇴거 명령. 인근 공원·운동장으로 즉시 대피하세요.' },
+            { agency: '기상청', time: '09:41', body: '[여진경보] 규모 2.5 이상 여진 3회 감지. 건물 내부 이동 자제, 지정 대피소를 유지하세요.' },
+            { agency: '행정안전부', time: '09:55', body: '지진 행동요령: 가스밸브 잠금 / 문열어 출구 확보 / 계단 이용 / 라디오·TV로 공식 정보 청취' }
+        ],
+        COLD: [
+            { agency: '서울특별시', time: '07:00', body: '[재난문자] 한파경보 발령. 외출 자제, 보온 철저히. 독거노인·어린이 특히 주의. 이상 징후 시 119 신고. -서울시' },
+            { agency: '한국수자원공사', time: '07:20', body: '[한파] 동파 예방: 수도꼭지 조금 틀어두기, 보일러 정상 가동 확인. 수도 동파 신고: ☎120' },
+            { agency: '보건복지부', time: '07:35', body: '[긴급] 노숙인 보호 비상 가동. 인근 노숙인 발견 시 즉시 ☎129 신고 바랍니다.' },
+            { agency: '소방청', time: '07:50', body: '한파 시 저체온증 증상(심한 떨림·의식저하) 발견 시 즉시 119 신고 후 따뜻한 장소로 이동' }
+        ],
+        CHEMICAL: [
+            { agency: '소방청', time: '11:03', body: '[재난문자] 마포구 화학물질 누출. 즉시 실내 대피, 창문 밀폐, 에어컨·환기 중지. 외출 금지. -소방청' },
+            { agency: '환경부', time: '11:18', body: '[긴급] 누출 화학물질: 암모니아 추정. 눈·코·목 자극 증상 발생 시 즉시 119 신고.' },
+            { agency: '마포구청', time: '11:30', body: '[대피명령] 마포구 망원·합정동 전역 즉시 대피. 지정 대피소: 마포아트센터(마포구 월드컵북로 400)' },
+            { agency: '행정안전부', time: '11:45', body: '화학사고 행동요령: 1)문 창문 닫기 2)젖은 수건으로 틈막기 3)바람 불어오는 반대방향으로 대피' }
+        ]
+    };
 
     // ══ 상태 ══════════════════════════════════════════════════
     let currentDisaster = 'FLOOD';
@@ -369,6 +959,13 @@
         renderZones();
         renderShelterMarkers();
         closePanel();
+        if (smsPanelOpen) renderSmsPanel(code);
+        startTicker(code);
+        updateSmsBadge(4);
+        hideSmsPopup();
+        renderAlertLevel(code);
+        renderDamageCounter(code);
+        setTimeout(() => showSmsPopup(code), 600);
     }
 
     // ══ 위험지역 Polygon ══════════════════════════════════════
@@ -378,18 +975,19 @@
         const zones = DANGER_ZONES[currentDisaster] || [];
         zones.forEach(zone => {
             const color = RISK_COLORS[zone.riskLevel];
-            const poly = L.polygon(zone.coords, {
+            const circle = L.circle([zone.lat, zone.lng], {
+                radius: zone.radius,
                 color: color,
                 fillColor: color,
-                fillOpacity: 0.25,
+                fillOpacity: 0.2,
                 weight: 1.5,
-                opacity: 0.8
+                opacity: 0.85
             });
-            poly.bindTooltip(
-                `<b>${zone.name}</b><br>위험도: ${'★'.repeat(zone.riskLevel)}`,
+            circle.bindTooltip(
+                `<b>${zone.name}</b><br>위험도: ${'★'.repeat(zone.riskLevel)}<br>반경 ${(zone.radius / 1000).toFixed(1)}km`,
                 { sticky: true, className: 'zone-tooltip' }
             );
-            zoneLayer.addLayer(poly);
+            zoneLayer.addLayer(circle);
         });
         zoneLayer.addTo(map);
     }
@@ -542,9 +1140,32 @@
             </div>`;
     }
 
+    let selectedResultCard = null;
+
+    function selectResultCard(card, r, marker) {
+        if (selectedResultCard) selectedResultCard.classList.remove('selected');
+        selectedResultCard = card;
+        card.classList.add('selected');
+        const isMobile = window.innerWidth <= 640;
+        const zoom = isMobile ? 14 : 15;
+        // 모바일: bottom-sheet가 화면 62vh를 차지하므로 오프셋으로 위로 이동
+        if (isMobile) {
+            const offsetPx = window.innerHeight * 0.31; // 패널 절반 높이만큼 위로
+            const targetPoint = map.project([r.shelter.lat, r.shelter.lng], zoom);
+            targetPoint.y += offsetPx;
+            const adjusted = map.unproject(targetPoint, zoom);
+            map.flyTo(adjusted, zoom, { duration: 1.1 });
+        } else {
+            map.flyTo([r.shelter.lat, r.shelter.lng], zoom, { duration: 1.1 });
+        }
+        drawRoute(userLat, userLng, r.shelter);
+        setTimeout(() => marker.openPopup(), 1200);
+    }
+
     function openPanel(results) {
         recommendMarkers.forEach(m => map.removeLayer(m));
         recommendMarkers = [];
+        selectedResultCard = null;
 
         const d = DISASTERS.find(x => x.code === currentDisaster);
         document.getElementById('panelSub').textContent =
@@ -552,7 +1173,12 @@
 
         const body = document.getElementById('panelBody');
         body.innerHTML = '';
+
+        const cards = [];
+        const markers = [];
+
         results.forEach((r, i) => {
+            const distKm = (r.distanceM / 1000).toFixed(1);
             const card = document.createElement('div');
             card.className = 'rec-card';
             card.innerHTML = `
@@ -569,46 +1195,98 @@
                     ${r.score.bonus > 0 ? scoreRow('보너스', r.score.bonus, 5) : ''}
                 </div>
                 <div class="rec-reason">${r.reason}</div>
-                <button class="rec-goto">📌 지도에서 보기</button>
+                <button class="rec-goto">🗺️ ${distKm}km · 지도에서 보기</button>
             `;
-            card.querySelector('.rec-goto').addEventListener('click', e => {
-                e.stopPropagation();
-                map.setView([r.shelter.lat, r.shelter.lng], 15);
-            });
-            body.appendChild(card);
+            cards.push(card);
 
             const marker = L.marker([r.shelter.lat, r.shelter.lng], {
                 icon: makeRecommendIcon(i + 1),
                 zIndexOffset: 500
             });
+            const fillPct = Math.round((r.shelter.current / r.shelter.capacity) * 100);
             marker.bindPopup(`
-                <div style="font-family:Inter,sans-serif;font-size:0.8rem">
-                    <b>#${i + 1} ${r.shelter.name}</b><br>
-                    <span style="color:#a855f7;font-weight:700">${r.score.total.toFixed(1)}점</span><br>
-                    ${r.reason}
+                <div style="font-family:Inter,sans-serif;font-size:0.8rem;min-width:170px">
+                    <b style="color:#a855f7">#${i + 1} ${r.shelter.name}</b><br>
+                    <span style="color:#94a3b8">종합점수</span> <b>${r.score.total.toFixed(1)}점</b><br>
+                    <span style="color:#94a3b8">거리</span> ${distKm}km · 도보 ${Math.round(r.distanceM / 80)}분<br>
+                    <span style="color:#94a3b8">수용</span> ${r.shelter.current}/${r.shelter.capacity}명 (${fillPct}%)
                 </div>
             `, { className: 'dark-popup' });
             marker.addTo(map);
+            markers.push(marker);
             recommendMarkers.push(marker);
         });
 
-        document.getElementById('resultPanel').classList.add('open');
+        results.forEach((r, i) => {
+            const card = cards[i];
+            const marker = markers[i];
+            card.addEventListener('click', () => selectResultCard(card, r, marker));
+            card.querySelector('.rec-goto').addEventListener('click', e => {
+                e.stopPropagation();
+                selectResultCard(card, r, marker);
+            });
+            body.appendChild(card);
+        });
+
+        const isMobile = window.innerWidth <= 640;
 
         if (results.length > 0) {
+            drawRoute(userLat, userLng, results[0].shelter);
+            cards[0].classList.add('selected');
+            selectedResultCard = cards[0];
+
             const bounds = L.latLngBounds(
                 results.map(r => [r.shelter.lat, r.shelter.lng])
             ).extend([userLat, userLng]);
-            map.fitBounds(bounds, { padding: [60, 380] });
+
+            if (isMobile) {
+                map.fitBounds(bounds, { padding: [60, 40] });
+                showResultFab(results.length);
+            } else {
+                map.fitBounds(bounds, { padding: [60, 380] });
+                document.getElementById('resultPanel').classList.add('open');
+            }
         }
     }
 
-    function closePanel() {
-        document.getElementById('resultPanel').classList.remove('open');
-        recommendMarkers.forEach(m => map.removeLayer(m));
-        recommendMarkers = [];
+    // ── 결과 FAB ────────────────────────────────────────────────
+    function showResultFab(count) {
+        const fab = document.getElementById('resultFab');
+        document.getElementById('resultFabText').textContent = `결과 ${count}개 보기`;
+        fab.style.display = 'flex';
+        fab.classList.remove('pop');
+        fab.offsetHeight;
+        fab.classList.add('pop');
     }
 
-    document.getElementById('panelClose').addEventListener('click', closePanel);
+    function hideResultFab() {
+        document.getElementById('resultFab').style.display = 'none';
+    }
+
+    document.getElementById('resultFab').addEventListener('click', () => {
+        document.getElementById('resultPanel').classList.add('open');
+        hideResultFab();
+    });
+
+    // ────────────────────────────────────────────────────────────
+    function closePanel() {
+        const panel = document.getElementById('resultPanel');
+        panel.classList.remove('open', 'peek');
+        recommendMarkers.forEach(m => map.removeLayer(m));
+        recommendMarkers = [];
+        clearRoute();
+        hideResultFab();
+    }
+
+    document.getElementById('panelClose').addEventListener('click', e => {
+        e.stopPropagation();
+        if (window.innerWidth <= 640) {
+            document.getElementById('resultPanel').classList.remove('open');
+            showResultFab(recommendMarkers.length);
+        } else {
+            closePanel();
+        }
+    });
 
     document.getElementById('runBtn').addEventListener('click', () => {
         const results = runSimulation();
@@ -619,10 +1297,289 @@
         openPanel(results);
     });
 
+    // ══ 속보 티커 (슬라이드업 방식) ═════════════════════════════
+    let tickerIndex = 0;
+    let tickerInterval = null;
+
+    function showTickerItem(items, idx) {
+        const track = document.getElementById('tickerTrack');
+        const item = items[idx];
+
+        const next = document.createElement('div');
+        next.className = 'ticker-item enter';
+        next.innerHTML = `<span class="ticker-time">[${item.time}]</span>${item.text}`;
+
+        const prev = track.querySelector('.ticker-item');
+        if (prev) {
+            prev.classList.remove('enter');
+            prev.classList.add('exit');
+            setTimeout(() => prev.remove(), 380);
+        }
+        track.appendChild(next);
+    }
+
+    function startTicker(code) {
+        clearInterval(tickerInterval);
+        const items = ALERTS[code] || [];
+        if (!items.length) return;
+        tickerIndex = 0;
+        showTickerItem(items, tickerIndex);
+        tickerInterval = setInterval(() => {
+            tickerIndex = (tickerIndex + 1) % items.length;
+            showTickerItem(items, tickerIndex);
+        }, 5000);
+    }
+
+    // ══ ① 재난 단계 경보 ══════════════════════════════════════════
+    function renderAlertLevel(code) {
+        const al = ALERT_LEVELS[code];
+        const panel = document.getElementById('alertPanel');
+        panel.style.setProperty('--al-color', al.color);
+        document.getElementById('alertBadge').textContent = al.label;
+        document.getElementById('alertDesc').textContent  = al.desc;
+        document.querySelectorAll('.alert-step').forEach(el => {
+            el.classList.toggle('on', Number(el.dataset.lv) <= al.level);
+        });
+    }
+
+    // ══ ② 피해현황 카운터 (카운트업) ════════════════════════════
+    const _countTimers = {};
+    function countUp(id, target, suffix) {
+        clearInterval(_countTimers[id]);
+        const el = document.getElementById(id);
+        let cur = 0;
+        const duration = 1200;
+        const steps = 48;
+        const inc = target / steps;
+        _countTimers[id] = setInterval(() => {
+            cur = Math.min(cur + inc, target);
+            el.textContent = Math.round(cur).toLocaleString() + (suffix || '');
+            if (cur >= target) clearInterval(_countTimers[id]);
+        }, duration / steps);
+    }
+
+    function renderDamageCounter(code) {
+        const s = DAMAGE_STATS[code];
+        countUp('dmgDisplaced', s.displaced, '명');
+        countUp('dmgReports',   s.reports,   '건');
+        countUp('dmgShelter',   s.shelter,   '%');
+    }
+
+    // ══ ③ 대피 경로 라인 ══════════════════════════════════════════
+    let routeLayer = null;
+
+    function clearRoute() {
+        if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
+    }
+
+    function drawRoute(fromLat, fromLng, shelter) {
+        clearRoute();
+        const distM  = haversine(fromLat, fromLng, shelter.lat, shelter.lng);
+        const walkMin = Math.round(distM / 80);
+        routeLayer = L.layerGroup();
+
+        const line = L.polyline(
+            [[fromLat, fromLng], [shelter.lat, shelter.lng]],
+            { color:'#a855f7', weight:3, dashArray:'10 7', opacity:0.9 }
+        );
+        line.bindPopup(
+            `<div class="route-popup-inner">
+                <b style="color:#a855f7">📍 → 🏠 대피 경로 (1순위)</b><br>
+                도보 약 <b>${walkMin}분</b> · ${(distM/1000).toFixed(1)}km
+             </div>`,
+            { className:'dark-popup' }
+        );
+        routeLayer.addLayer(line);
+        routeLayer.addTo(map);
+    }
+
+    // ══ 사고 마커 ════════════════════════════════════════════════
+    let incidentMarkers = [];
+
+    function clearIncidentMarkers() {
+        incidentMarkers.forEach(m => map.removeLayer(m));
+        incidentMarkers = [];
+    }
+
+    function makeIncidentIcon(inc) {
+        const colors = { 3:'#ef4444', 2:'#f97316', 1:'#eab308' };
+        const bg = colors[inc.severity] || '#f97316';
+        return L.divIcon({
+            className: '',
+            html: `<div class="incident-marker" style="width:36px;height:36px;background:${bg};box-shadow:0 0 12px ${bg}99">${inc.icon}</div>`,
+            iconSize: [36, 36], iconAnchor: [18, 18]
+        });
+    }
+
+    function flyToIncident(inc) {
+        clearIncidentMarkers();
+        map.flyTo([inc.lat, inc.lng], 15, { duration: 1.2 });
+        const marker = L.marker([inc.lat, inc.lng], { icon: makeIncidentIcon(inc), zIndexOffset: 900 });
+        marker.bindPopup(`
+            <div style="font-family:Inter,sans-serif;font-size:0.8rem;min-width:180px">
+                <div style="font-size:0.88rem;font-weight:800;margin-bottom:0.3rem">${inc.icon} ${inc.title}</div>
+                <div style="color:#94a3b8;font-size:0.7rem;margin-bottom:0.4rem">📍 ${inc.address} · ${inc.time}</div>
+                <div style="line-height:1.6">${inc.detail}</div>
+            </div>
+        `, { className: 'dark-popup' });
+        marker.addTo(map);
+        incidentMarkers.push(marker);
+        setTimeout(() => marker.openPopup(), 1300);
+    }
+
+    // ══ SMS 수신함 패널 ══════════════════════════════════════════
+    let smsPanelOpen = false;
+    let activeTab = 'sms';
+    let unreadCount = 4;
+
+    function updateSmsBadge(n) {
+        unreadCount = n;
+        const badge = document.getElementById('smsBadge');
+        badge.textContent = n;
+        badge.style.display = n > 0 ? 'flex' : 'none';
+        const btn = document.getElementById('smsBtn');
+        btn.classList.toggle('active', n > 0);
+    }
+
+    function renderSmsTab(code) {
+        const msgs = MESSAGES[code] || [];
+        const body = document.getElementById('smsPanelBody');
+        body.innerHTML = '';
+        msgs.forEach((m, i) => {
+            const card = document.createElement('div');
+            card.className = 'sms-card' + (i < 2 ? ' unread' : '');
+            card.innerHTML = `
+                <div class="sms-card-header">
+                    <span class="sms-card-agency">${m.agency}</span>
+                    <span class="sms-card-time">${m.time}</span>
+                </div>
+                <div class="sms-card-body">${m.body}</div>`;
+            card.addEventListener('click', () => card.classList.remove('unread'));
+            body.appendChild(card);
+        });
+        document.getElementById('tabSmsCount').textContent = msgs.length;
+    }
+
+    function renderIncidentTab(code) {
+        const incs = INCIDENTS[code] || [];
+        const body = document.getElementById('smsPanelBody');
+        body.innerHTML = '';
+        document.getElementById('tabIncidentCount').textContent = incs.length;
+        incs.forEach(inc => {
+            const card = document.createElement('div');
+            card.className = 'incident-card';
+            card.innerHTML = `
+                <div class="incident-card-header">
+                    <span class="incident-emoji">${inc.icon}</span>
+                    <span class="incident-title">${inc.title}</span>
+                    <span class="incident-sev incident-sev-${inc.severity}">${SEV_LABEL[inc.severity]}</span>
+                    <span class="incident-time">${inc.time}</span>
+                </div>
+                <div class="incident-addr">📍 ${inc.address}</div>
+                <div class="incident-detail">${inc.detail}</div>
+                <button class="incident-goto">🗺️ 지도에서 보기</button>`;
+            card.querySelector('.incident-goto').addEventListener('click', e => {
+                e.stopPropagation();
+                flyToIncident(inc);
+            });
+            card.addEventListener('click', () => flyToIncident(inc));
+            body.appendChild(card);
+        });
+    }
+
+    function switchTab(tab) {
+        activeTab = tab;
+        document.getElementById('tabSms').classList.toggle('active', tab === 'sms');
+        document.getElementById('tabIncident').classList.toggle('active', tab === 'incident');
+        if (tab === 'sms') renderSmsTab(currentDisaster);
+        else renderIncidentTab(currentDisaster);
+    }
+
+    function renderSmsPanel(code) {
+        if (activeTab === 'sms') renderSmsTab(code);
+        else renderIncidentTab(code);
+        const incs = INCIDENTS[code] || [];
+        document.getElementById('tabIncidentCount').textContent = incs.length;
+        const msgs = MESSAGES[code] || [];
+        document.getElementById('tabSmsCount').textContent = msgs.length;
+    }
+
+    function openSmsPanel() {
+        closePanel();
+        clearIncidentMarkers();
+        renderSmsPanel(currentDisaster);
+        document.getElementById('smsPanel').classList.add('open');
+        document.getElementById('smsBtn').classList.add('active');
+        smsPanelOpen = true;
+        updateSmsBadge(0);
+    }
+
+    function closeSmsPanel() {
+        document.getElementById('smsPanel').classList.remove('open');
+        document.getElementById('smsBtn').classList.remove('active');
+        smsPanelOpen = false;
+        clearIncidentMarkers();
+    }
+
+    document.getElementById('smsBtn').addEventListener('click', () => {
+        smsPanelOpen ? closeSmsPanel() : openSmsPanel();
+    });
+    document.getElementById('smsPanelClose').addEventListener('click', closeSmsPanel);
+    document.getElementById('tabSms').addEventListener('click', () => switchTab('sms'));
+    document.getElementById('tabIncident').addEventListener('click', () => switchTab('incident'));
+
+    // ══ 재난문자 자동 팝업 ════════════════════════════════════════
+    let popupTimer = null;
+
+    function showSmsPopup(code) {
+        const msgs = MESSAGES[code] || [];
+        if (!msgs.length) return;
+        const m = msgs[0]; // 가장 최신 문자
+        document.getElementById('smsPopupAgency').textContent = m.agency;
+        document.getElementById('smsPopupTime').textContent = m.time;
+        document.getElementById('smsPopupText').textContent = m.body;
+
+        // 진행바 리셋
+        const bar = document.getElementById('smsPopupBar');
+        bar.style.animation = 'none';
+        bar.offsetHeight;
+        bar.style.animation = 'smsBar 10s linear forwards';
+
+        const wrap = document.getElementById('smsPopupWrap');
+        wrap.classList.add('show');
+
+        clearTimeout(popupTimer);
+        popupTimer = setTimeout(hideSmsPopup, 10000);
+    }
+
+    function hideSmsPopup() {
+        clearTimeout(popupTimer);
+        const wrap = document.getElementById('smsPopupWrap');
+        wrap.style.opacity = '0';
+        wrap.style.pointerEvents = 'none';
+        setTimeout(() => {
+            wrap.classList.remove('show');
+            wrap.style.opacity = '';
+            wrap.style.pointerEvents = '';
+        }, 260);
+    }
+
+    document.getElementById('smsPopupClose').addEventListener('click', hideSmsPopup);
+    document.getElementById('smsPopupDismiss').addEventListener('click', hideSmsPopup);
+    document.getElementById('smsPopupViewBtn').addEventListener('click', () => {
+        hideSmsPopup();
+        openSmsPanel();
+    });
+
     // ══ 초기 렌더링 ═══════════════════════════════════════════
     renderTabs();
     renderZones();
     renderShelterMarkers();
+    startTicker(currentDisaster);
+    updateSmsBadge(4);
+    renderAlertLevel(currentDisaster);
+    renderDamageCounter(currentDisaster);
+    setTimeout(() => showSmsPopup(currentDisaster), 1200);
     </script>
 </body>
 </html>
