@@ -24,16 +24,18 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 
 | File | Purpose | Lines |
 |---|---|---|
-| `index.html` | Portfolio hub — card grid linking to all tools | ~490 |
-| `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3961 |
-| `asset.html` | 자산 계산기 통합 허브 — 3 tabs: compound, goal, journal | ~692 |
+| `index.html` | Portfolio hub — card grid linking to all tools | ~675 |
+| `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3984 |
+| `asset.html` | 자산 계산기 통합 허브 — 3 tabs: compound, goal, journal | ~717 |
 | `compound.html` | Redirect stub → `/asset.html?tab=compound` | 12 |
 | `goal.html` | Redirect stub → `/asset.html?tab=goal` | 12 |
 | `journal.html` | Redirect stub → `/asset.html?tab=journal` | 12 |
-| `backtest.html` | 백테스트 비교기 (up to 3-ticker comparison) | ~1281 |
-| `workout.html` | 운동 루틴 (workout routine dashboard) | ~409 |
-| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~231 |
-| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1289 |
+| `backtest.html` | 백테스트 비교기 (up to 3-ticker comparison) | ~1304 |
+| `workout.html` | 운동 루틴 (workout routine dashboard) | ~432 |
+| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~254 |
+| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1588 |
+| `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1681 |
+| `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용 | ~1120 |
 
 Each HTML file is structured: `<head>` (Inter font + inline `<style>`) → `<body>` (markup) → `<script>` (all app logic).
 
@@ -178,11 +180,13 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 
 - **`api/proxy.js`** — Vercel serverless function acting as CORS proxy. Allowlist: CNN dataviz, Yahoo Finance, open.er-api.com. Used in production; locally any static server works since the browser hits the same origin.
 - **`api/real-estate.js`** — Vercel serverless function for Korean apartment transaction data. Fetches from 공공데이터포털 (data.go.kr) sale/rent endpoints, with MOCK_ITEMS fallback. Supports region codes for Seoul/Gyeonggi districts. Used by `agents.html`.
-- **`sw.js`** — Service Worker for PWA offline support. Current `CACHE_NAME = 'fg-cache-v8'`. PRECACHE includes `/`, `/index.html`, `/fear-greed.html`, `/asset.html`, `/compound.html`, `/goal.html`, `/journal.html`, `/backtest.html`, `/workout.html`, `/agents.html`, `/commerce.html`, `/manifest.json`, `/icon.svg`. Bump `CACHE_NAME` string to invalidate on deploy; add new pages to PRECACHE when created. Note: `NETWORK_FIRST_PREFIXES` still contains a legacy `https://corsproxy.io` entry from before the Vercel proxy migration — harmless but unused.
+- **`sw.js`** — Service Worker for PWA offline support. Current `CACHE_NAME = 'fg-cache-v8'`. PRECACHE includes `/`, `/index.html`, `/fear-greed.html`, `/asset.html`, `/compound.html`, `/goal.html`, `/journal.html`, `/backtest.html`, `/workout.html`, `/agents.html`, `/commerce.html`, `/manifest.json`, `/icon.svg`. **Note:** `disaster.html` and `Certificate.html` are not yet in PRECACHE. Bump `CACHE_NAME` string to invalidate on deploy; add new pages to PRECACHE when created. Note: `NETWORK_FIRST_PREFIXES` still contains a legacy `https://corsproxy.io` entry from before the Vercel proxy migration — harmless but unused.
 - **`manifest.json`** + **`icon.svg`** — PWA web app manifest and home screen icon. Referenced in `sw.js` PRECACHE and `<link rel="manifest">` in `fear-greed.html`, but **these files do not currently exist** in the repo and need to be created.
+- **`index.backup.html`** — snapshot of `index.html` before a major restructure; not served, safe to ignore.
 - **`.codex-*`** — local test artifacts from Codex experiments; not tracked, safe to ignore.
 - **`preview-*.png`, `final-*.png`** — screenshot files from browser testing; local only, gitignored.
 - **`docs/superpowers/specs/`** — design specs for planned features (approved before implementation).
 - **`docs/superpowers/plans/`** — implementation plans generated from specs.
-  - Pending: hub redesign (`2026-04-06-hub-redesign-design.md` — spec only, no plan yet).
-  - Completed: commerce system (`2026-04-14-commerce-system.md`); backtest 3-ticker support (`2026-04-14-backtest-3ticker.md`); asset calculator hub consolidation (compound + goal + journal → `asset.html`); portfolio hub + fear-greed split (`2026-04-06-portfolio-hub.md`); calculators compound + goal (`2026-04-06-calculators.md`); journal (`2026-04-06-journal.md`); backtest (`2026-04-06-backtest.md`); watchlist tab (`2026-04-02-watchlist-tab.md`); PWA + Calendar + Share (`2026-03-27-pwa-heatmap-share.md`); market features interpreter + portfolio calculator (`2026-03-31-market-features.md`).
+  - Pending (spec + plan): commerce redesign (`2026-04-17-commerce-redesign.md` — dark slate hero panel + 3×3 tile launcher home, ERP-style, full restyle of `commerce.html`); UI Lab (`2026-04-17-ui-lab.md` — React+Tailwind CDN showcase page, implemented and reverted, plan ready to re-implement); disaster simulator enhancements (`2026-04-22-disaster-sim.md`).
+  - Pending (spec only): hub redesign (`2026-04-16-hub-redesign-design.md` — black-and-white agency style, supersedes `2026-04-06` version).
+  - Completed: disaster simulator (`disaster.html` implemented); commerce system (`2026-04-14-commerce-system.md`); backtest 3-ticker support (`2026-04-14-backtest-3ticker.md`); asset calculator hub consolidation (compound + goal + journal → `asset.html`); portfolio hub + fear-greed split (`2026-04-06-portfolio-hub.md`); calculators compound + goal (`2026-04-06-calculators.md`); journal (`2026-04-06-journal.md`); backtest (`2026-04-06-backtest.md`); watchlist tab (`2026-04-02-watchlist-tab.md`); PWA + Calendar + Share (`2026-03-27-pwa-heatmap-share.md`); market features interpreter + portfolio calculator (`2026-03-31-market-features.md`).
