@@ -13,7 +13,6 @@
 
 :root {
     --bg: #f8f7ff;
-    --bg-2: #edeafd;
     --bg-card: #ffffff;
     --ink: #1c1733;
     --ink-2: #6b6390;
@@ -22,14 +21,13 @@
     --border-2: rgba(109,40,217,0.18);
     --accent: #6d28d9;
     --accent-soft: rgba(109,40,217,0.07);
-    --nav-bg: rgba(248,247,255,0.9);
-    --card-shadow: 0 1px 3px rgba(109,40,217,0.07), 0 0 0 1px rgba(109,40,217,0.1);
-    --card-hover: 0 6px 20px -3px rgba(109,40,217,0.2), 0 0 0 1px rgba(109,40,217,0.22);
+    --nav-bg: rgba(248,247,255,0.92);
+    --card-s: 0 1px 3px rgba(109,40,217,0.08), 0 0 0 1px rgba(109,40,217,0.1);
+    --card-h: 0 8px 28px -4px rgba(109,40,217,0.22), 0 0 0 1px rgba(109,40,217,0.2);
     --dot: rgba(109,40,217,0.05);
 }
 [data-theme="dark"] {
     --bg: #0c0b14;
-    --bg-2: #151221;
     --bg-card: #1b1828;
     --ink: #edeaff;
     --ink-2: #8b84aa;
@@ -38,26 +36,22 @@
     --border-2: rgba(139,92,246,0.2);
     --accent: #a78bfa;
     --accent-soft: rgba(139,92,246,0.1);
-    --nav-bg: rgba(12,11,20,0.9);
-    --card-shadow: 0 1px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.11);
-    --card-hover: 0 6px 20px -3px rgba(139,92,246,0.28), 0 0 0 1px rgba(139,92,246,0.24);
+    --nav-bg: rgba(12,11,20,0.92);
+    --card-s: 0 1px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.12);
+    --card-h: 0 8px 28px -4px rgba(139,92,246,0.3), 0 0 0 1px rgba(139,92,246,0.25);
     --dot: rgba(139,92,246,0.04);
 }
 
-html { height: 100%; }
+html, body { height: 100%; }
 body {
     font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    height: 100dvh;
-    overflow: hidden;
+    background: var(--bg); color: var(--ink);
+    height: 100dvh; overflow: hidden;
     display: flex; flex-direction: column;
     transition: background 0.3s, color 0.3s;
 }
-
 body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
     background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
     background-size: 22px 22px;
 }
@@ -67,7 +61,7 @@ body::before {
 .nav {
     position: relative; z-index: 100; flex-shrink: 0;
     height: 46px; padding: 0 1.8rem;
-    display: flex; align-items: center; gap: 1rem;
+    display: flex; align-items: center; gap: 0.8rem;
     background: var(--nav-bg);
     backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
     border-bottom: 1px solid var(--border);
@@ -77,24 +71,15 @@ body::before {
     font-family: 'Syne', sans-serif;
     font-size: 0.85rem; font-weight: 800; letter-spacing: -0.03em;
 }
-.nav-drum {
-    flex: 1; min-width: 0; overflow: hidden;
-    position: relative; height: 100%;
-    display: flex; align-items: center;
-    cursor: ew-resize;
-    -webkit-mask: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
-    mask: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
-    perspective: 600px;
-}
-.nav-track {
-    display: flex; align-items: center; gap: 0.06rem;
-    padding: 0 1.5rem;
-    transform-origin: center center; will-change: transform; user-select: none;
+.nav-links {
+    flex: 1; display: flex; align-items: center;
+    justify-content: center; gap: 0.1rem;
+    overflow: hidden;
 }
 .nav-link {
     flex-shrink: 0; color: var(--ink-2); text-decoration: none;
-    font-size: 0.62rem; font-weight: 500;
-    padding: 0.17rem 0.44rem; border-radius: 6px;
+    font-size: 0.63rem; font-weight: 500;
+    padding: 0.18rem 0.5rem; border-radius: 6px;
     transition: color 0.15s, background 0.15s; white-space: nowrap;
 }
 .nav-link:hover, .nav-link.active { color: var(--ink); background: var(--accent-soft); }
@@ -118,13 +103,13 @@ main {
 /* ── HERO ── */
 .hero {
     flex-shrink: 0; text-align: center;
-    padding: 1.6rem 0 1.1rem;
+    padding: 2rem 0 1.4rem;
 }
 .hero-badge {
-    display: inline-flex; align-items: center; gap: 0.5rem;
+    display: inline-flex; align-items: center; gap: 0.45rem;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.61rem; font-weight: 500; letter-spacing: 0.09em;
-    color: var(--ink-3); margin-bottom: 0.55rem;
+    font-size: 0.61rem; letter-spacing: 0.09em;
+    color: var(--ink-3); margin-bottom: 0.6rem;
 }
 .badge-dot {
     width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
@@ -137,124 +122,118 @@ main {
 }
 .hero-eyebrow {
     font-family: 'Syne', sans-serif;
-    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-size: clamp(1.3rem, 2.4vw, 1.9rem);
     font-weight: 400; color: var(--ink-2);
-    letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.02rem;
+    letter-spacing: -0.03em; line-height: 1.1;
 }
 .hero-title {
     font-family: 'Syne', sans-serif;
-    font-size: clamp(2rem, 4.5vw, 3.4rem);
+    font-size: clamp(2rem, 4vw, 3rem);
     font-weight: 800; letter-spacing: -0.05em; line-height: 1.05;
-    color: var(--ink); margin-bottom: 0.45rem;
+    color: var(--ink); margin-bottom: 0.5rem;
 }
 .hero-title em { font-style: italic; color: var(--accent); }
-.hero-sub { font-size: 0.76rem; color: var(--ink-2); }
+.hero-sub { font-size: 0.75rem; color: var(--ink-2); }
 
-/* ── 3D CAROUSEL ── */
-.carousel-wrap {
+/* ── CARD SLIDER ── */
+.slider-wrap {
     flex: 1; min-height: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    width: 100%;
-    gap: 0.6rem;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 0.6rem; width: 100%;
 }
-.section-label {
+.slider-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.59rem; font-weight: 500;
-    text-transform: uppercase; letter-spacing: 0.13em; color: var(--ink-3);
+    font-size: 0.59rem; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--ink-3);
 }
-.carousel-stage {
-    position: relative;
-    width: 100%; height: 100px;
-    perspective: 900px;
-    perspective-origin: 50% 50%;
-    overflow: visible;
-    cursor: grab;
+.slider-viewport {
+    width: 100%; overflow: hidden;
+    cursor: grab; user-select: none;
+    -webkit-mask: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    mask: linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%);
 }
-.carousel-stage:active { cursor: grabbing; }
-.carousel-ring {
-    position: absolute;
-    width: 100%; height: 100%;
-    transform-style: preserve-3d;
-    transition: transform 0.55s cubic-bezier(0.25, 1, 0.5, 1);
+.slider-viewport:active { cursor: grabbing; }
+.slider-track {
+    display: flex; gap: 14px;
+    padding: 10px 0;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
 }
 
-/* Tool cards on the ring */
-.c-card {
-    position: absolute;
-    width: 210px; height: 90px;
-    top: 5px;
-    left: 50%; margin-left: -105px;
+/* Tool cards */
+.t-card {
+    flex-shrink: 0;
+    width: 230px; height: 96px;
     background: var(--bg-card);
     border-radius: 12px;
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--card-s);
     display: flex; align-items: center;
-    padding: 0 0.8rem; gap: 0.6rem;
+    padding: 0 0.85rem; gap: 0.6rem;
     text-decoration: none; color: inherit;
-    transition: box-shadow 0.2s;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+    transition: box-shadow 0.25s, transform 0.25s;
+    transform: scale(0.95);
+    opacity: 0.6;
 }
-.c-card:hover { box-shadow: var(--card-hover); }
+.t-card.active {
+    box-shadow: var(--card-h);
+    transform: scale(1.03);
+    opacity: 1;
+}
+.t-card.near { transform: scale(0.98); opacity: 0.85; }
 
-.c-icon {
-    font-size: 1.1rem; flex-shrink: 0;
-    width: 34px; height: 34px;
+.t-icon {
+    font-size: 1.15rem; flex-shrink: 0;
+    width: 36px; height: 36px;
     display: flex; align-items: center; justify-content: center;
-    background: var(--accent-soft); border-radius: 8px;
+    background: var(--accent-soft); border-radius: 9px;
     border: 1px solid var(--border);
     transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
 }
-.c-card:hover .c-icon { transform: scale(1.1) rotate(-5deg); }
-.c-body { flex: 1; min-width: 0; }
-.c-name {
-    font-size: 0.75rem; font-weight: 700;
-    color: var(--ink); letter-spacing: -0.02em;
+.t-card.active:hover .t-icon { transform: scale(1.1) rotate(-5deg); }
+.t-body { flex: 1; min-width: 0; }
+.t-name {
+    font-size: 0.78rem; font-weight: 700; color: var(--ink);
+    letter-spacing: -0.02em; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+}
+.t-desc {
+    font-size: 0.62rem; color: var(--ink-2); margin-top: 0.1rem;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.c-desc {
-    font-size: 0.61rem; color: var(--ink-2); margin-top: 0.1rem;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.c-live {
+.t-live {
     flex-shrink: 0;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.54rem; font-weight: 500; letter-spacing: 0.06em;
+    font-size: 0.53rem; letter-spacing: 0.06em;
     color: #16a34a; background: rgba(22,163,74,0.1);
-    padding: 0.13rem 0.4rem; border-radius: 999px;
+    padding: 0.12rem 0.4rem; border-radius: 999px;
 }
 
-/* Hint arrows */
-.carousel-hint {
-    display: flex; gap: 0.5rem; align-items: center;
+.slider-hint {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.58rem; color: var(--ink-3); letter-spacing: 0.05em;
+    font-size: 0.57rem; color: var(--ink-3); letter-spacing: 0.06em;
 }
-.carousel-hint span { opacity: 0.6; }
 
-/* ── STATS BAR ── */
-.stats-bar {
+/* ── STATS (OpenRouter style) ── */
+.stats-section {
     flex-shrink: 0; width: 100%;
-    height: 48px;
     border-top: 1px solid var(--border);
-    display: flex; align-items: center; gap: 2.2rem;
+    padding: 1.4rem 0 1.6rem;
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: clamp(2.5rem, 6vw, 5rem);
 }
-.stat { display: flex; align-items: baseline; gap: 0.4rem; }
-.stat-num {
+.s-stat { text-align: center; }
+.s-num {
     font-family: 'Syne', sans-serif;
-    font-size: 1.25rem; font-weight: 800;
-    color: var(--ink); letter-spacing: -0.04em; line-height: 1;
+    font-size: clamp(2rem, 3.8vw, 3rem);
+    font-weight: 800; letter-spacing: -0.05em; line-height: 1;
+    color: var(--ink);
 }
-.stat-num.hi { color: var(--accent); }
-.stat-label {
+.s-num.hi { color: var(--accent); }
+.s-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.53rem; font-weight: 500; letter-spacing: 0.1em;
+    font-size: 0.6rem; font-weight: 500; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--ink-3);
-}
-.stats-copy {
-    margin-left: auto;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.58rem; color: var(--ink-3);
+    margin-top: 0.35rem;
 }
 
 /* ── PAGE TRANSITION ── */
@@ -267,23 +246,22 @@ main {
 
 /* ── ANIMATIONS ── */
 @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: none; }
 }
 .hero          { animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
-.carousel-wrap { animation: fadeUp 0.5s 0.08s cubic-bezier(0.22,1,0.36,1) both; }
-.stats-bar     { animation: fadeUp 0.4s 0.16s cubic-bezier(0.22,1,0.36,1) both; }
+.slider-wrap   { animation: fadeUp 0.5s 0.07s cubic-bezier(0.22,1,0.36,1) both; }
+.stats-section { animation: fadeUp 0.5s 0.14s cubic-bezier(0.22,1,0.36,1) both; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 860px) {
-    .nav-link:nth-child(n+5) { display: none; }
-    main { padding: 0 1.2rem; }
+    .nav-link { font-size: 0.58rem; padding: 0.15rem 0.38rem; }
 }
-@media (max-width: 600px) {
+@media (max-width: 640px) {
     body { overflow: auto; height: auto; }
-    .carousel-stage { height: 90px; }
-    .c-card { width: 180px; margin-left: -90px; }
-    .hero { padding: 1.2rem 0 0.8rem; }
+    .nav-link:nth-child(n+5) { display: none; }
+    .hero { padding: 1.2rem 0 1rem; }
+    .stats-section { gap: 1.8rem; flex-wrap: wrap; }
 }
 </style>
 </head>
@@ -293,17 +271,15 @@ main {
 
 <nav class="nav">
     <a href="/" class="nav-logo">임광호</a>
-    <div class="nav-drum" id="navDrum">
-        <div class="nav-track" id="navTrack">
-            <a href="/" class="nav-link active">홈</a>
-            <a href="/fear-greed.html" class="nav-link">공포탐욕지수</a>
-            <a href="/asset.html" class="nav-link">자산 계산기</a>
-            <a href="/backtest.html" class="nav-link">백테스트</a>
-            <a href="/workout.html" class="nav-link">운동 루틴</a>
-            <a href="/agents.html" class="nav-link">AI 에이전트</a>
-            <a href="/disaster.html" class="nav-link">재난 시뮬레이터</a>
-            <a href="/Certificate.html" class="nav-link">자격증 문제풀이</a>
-        </div>
+    <div class="nav-links">
+        <a href="/" class="nav-link active">홈</a>
+        <a href="/fear-greed.html" class="nav-link">공포탐욕지수</a>
+        <a href="/asset.html" class="nav-link">자산 계산기</a>
+        <a href="/backtest.html" class="nav-link">백테스트</a>
+        <a href="/workout.html" class="nav-link">운동 루틴</a>
+        <a href="/agents.html" class="nav-link">AI 에이전트</a>
+        <a href="/disaster.html" class="nav-link">재난 시뮬레이터</a>
+        <a href="/Certificate.html" class="nav-link">자격증 문제풀이</a>
     </div>
     <button class="nav-theme" id="themeBtn" title="테마 전환">☾</button>
 </nav>
@@ -319,101 +295,96 @@ main {
         <div class="hero-sub">투자와 일상을 연결하는 개인 도구 모음 · Hand Crafted · Vanilla JS</div>
     </section>
 
-    <div class="carousel-wrap">
-        <div class="section-label" id="carouselLabel">🟢 라이브 서비스</div>
-
-        <div class="carousel-stage" id="carouselStage">
-            <div class="carousel-ring" id="carouselRing">
-                <a href="/fear-greed.html" class="c-card">
-                    <span class="c-icon">📊</span>
-                    <div class="c-body">
-                        <div class="c-name">공포탐욕지수</div>
-                        <div class="c-desc">CNN Fear &amp; Greed · 타임라인 · 캘린더 · 포트폴리오</div>
+    <div class="slider-wrap">
+        <div class="slider-label">🟢 라이브 서비스 — 드래그 또는 스크롤</div>
+        <div class="slider-viewport" id="sliderVp">
+            <div class="slider-track" id="sliderTrack">
+                <a href="/fear-greed.html" class="t-card">
+                    <span class="t-icon">📊</span>
+                    <div class="t-body">
+                        <div class="t-name">공포탐욕지수</div>
+                        <div class="t-desc">CNN Fear &amp; Greed · 타임라인 · 캘린더</div>
                     </div>
-                    <span class="c-live">Live</span>
+                    <span class="t-live">Live</span>
                 </a>
-                <a href="/asset.html" class="c-card">
-                    <span class="c-icon">📈</span>
-                    <div class="c-body">
-                        <div class="c-name">자산 계산기</div>
-                        <div class="c-desc">복리 · 목표 자산 시뮬레이션 · 매매일지</div>
+                <a href="/asset.html" class="t-card">
+                    <span class="t-icon">📈</span>
+                    <div class="t-body">
+                        <div class="t-name">자산 계산기</div>
+                        <div class="t-desc">복리 · 목표 자산 · 매매일지</div>
                     </div>
-                    <span class="c-live">Live</span>
+                    <span class="t-live">Live</span>
                 </a>
-                <a href="/backtest.html" class="c-card">
-                    <span class="c-icon">🧪</span>
-                    <div class="c-body">
-                        <div class="c-name">백테스트 비교기</div>
-                        <div class="c-desc">3개 종목 수익률 · CAGR · MDD 비교</div>
+                <a href="/backtest.html" class="t-card">
+                    <span class="t-icon">🧪</span>
+                    <div class="t-body">
+                        <div class="t-name">백테스트 비교기</div>
+                        <div class="t-desc">3종목 수익률 · CAGR · MDD</div>
                     </div>
-                    <span class="c-live">Live</span>
+                    <span class="t-live">Live</span>
                 </a>
-                <a href="/workout.html" class="c-card">
-                    <span class="c-icon">🏋️</span>
-                    <div class="c-body">
-                        <div class="c-name">운동 루틴</div>
-                        <div class="c-desc">주간 체크 · 세션 기록 · 카테고리별 스트릭</div>
+                <a href="/workout.html" class="t-card">
+                    <span class="t-icon">🏋️</span>
+                    <div class="t-body">
+                        <div class="t-name">운동 루틴</div>
+                        <div class="t-desc">주간 체크 · 세션 기록 · 스트릭</div>
                     </div>
-                    <span class="c-live">Live</span>
+                    <span class="t-live">Live</span>
                 </a>
-                <a href="/agents.html" class="c-card">
-                    <span class="c-icon">🤖</span>
-                    <div class="c-body">
-                        <div class="c-name">AI 에이전트</div>
-                        <div class="c-desc">서울 부동산 실거래 · AI 역할별 에이전트</div>
+                <a href="/agents.html" class="t-card">
+                    <span class="t-icon">🤖</span>
+                    <div class="t-body">
+                        <div class="t-name">AI 에이전트</div>
+                        <div class="t-desc">서울 부동산 · AI 역할별 에이전트</div>
                     </div>
-                    <span class="c-live">Live</span>
+                    <span class="t-live">Live</span>
                 </a>
-                <a href="/commerce.html" class="c-card">
-                    <span class="c-icon">🛒</span>
-                    <div class="c-body">
-                        <div class="c-name">커머스 시스템</div>
-                        <div class="c-desc">OMS · WMS · PLM — React 상태관리</div>
+                <a href="/commerce.html" class="t-card">
+                    <span class="t-icon">🛒</span>
+                    <div class="t-body">
+                        <div class="t-name">커머스 시스템</div>
+                        <div class="t-desc">OMS · WMS · PLM — React</div>
                     </div>
-                    <span class="c-live">Live</span>
+                    <span class="t-live">Live</span>
                 </a>
-                <a href="/disaster.html" class="c-card">
-                    <span class="c-icon">🚨</span>
-                    <div class="c-body">
-                        <div class="c-name">재난 대응 시뮬레이터</div>
-                        <div class="c-desc">대피소 추천 · 재난문자 · 폭우·지진·한파</div>
+                <a href="/disaster.html" class="t-card">
+                    <span class="t-icon">🚨</span>
+                    <div class="t-body">
+                        <div class="t-name">재난 시뮬레이터</div>
+                        <div class="t-desc">대피소 · 재난문자 · 경보</div>
                     </div>
-                    <span class="c-live">Live</span>
+                    <span class="t-live">Live</span>
                 </a>
-                <a href="/Certificate.html" class="c-card">
-                    <span class="c-icon">📋</span>
-                    <div class="c-body">
-                        <div class="c-name">자격증 문제풀이</div>
-                        <div class="c-desc">정보처리기사 CBT · 단원별 학습 · 오답 노트</div>
+                <a href="/Certificate.html" class="t-card">
+                    <span class="t-icon">📋</span>
+                    <div class="t-body">
+                        <div class="t-name">자격증 문제풀이</div>
+                        <div class="t-desc">정보처리기사 CBT · 오답 노트</div>
                     </div>
-                    <span class="c-live">Live</span>
+                    <span class="t-live">Live</span>
                 </a>
             </div>
         </div>
-
-        <div class="carousel-hint">
-            <span>←</span> 드래그 또는 스크롤로 회전 <span>→</span>
-        </div>
+        <div class="slider-hint" id="sliderHint">1 / 8</div>
     </div>
 
-    <div class="stats-bar">
-        <div class="stat">
-            <span class="stat-num hi">8</span>
-            <span class="stat-label">Live Tools</span>
+    <div class="stats-section">
+        <div class="s-stat">
+            <div class="s-num hi">8</div>
+            <div class="s-label">Live Tools</div>
         </div>
-        <div class="stat">
-            <span class="stat-num">Seoul</span>
-            <span class="stat-label">Based</span>
+        <div class="s-stat">
+            <div class="s-num">Seoul</div>
+            <div class="s-label">Based</div>
         </div>
-        <div class="stat">
-            <span class="stat-num">2026</span>
-            <span class="stat-label">Year</span>
+        <div class="s-stat">
+            <div class="s-num">2026</div>
+            <div class="s-label">Year</div>
         </div>
-        <div class="stat">
-            <span class="stat-num">전툴</span>
-            <span class="stat-label">Hand Crafted</span>
+        <div class="s-stat">
+            <div class="s-num">전툴</div>
+            <div class="s-label">Hand Crafted</div>
         </div>
-        <span class="stats-copy">직접 제작한 개인 도구 모음 · 2026</span>
     </div>
 </main>
 
@@ -445,219 +416,149 @@ main {
     }
     updateClock(); setInterval(updateClock, 30000);
 
-    // ── 3D Cylinder Carousel ──
+    // ── Card Slider ──
     (function () {
-        const ring   = document.getElementById('carouselRing');
-        const stage  = document.getElementById('carouselStage');
-        const cards  = [...ring.querySelectorAll('.c-card')];
-        const N      = cards.length;          // 8
-        const STEP   = 360 / N;               // 45deg each
-        const RADIUS = 320;                   // cylinder radius px
+        const vp      = document.getElementById('sliderVp');
+        const track   = document.getElementById('sliderTrack');
+        const hint    = document.getElementById('sliderHint');
+        const cards   = [...track.querySelectorAll('.t-card')];
+        const N       = cards.length;
+        const CARD_W  = 230;
+        const GAP     = 14;
+        const STEP    = CARD_W + GAP;
 
-        let angle = 0;         // current rotation (degrees, Y-axis)
-        let dragX = null;
-        let velX  = 0;
-        let lastX = 0;
-        let raf   = null;
-        let isClick = false;
+        let currentIdx = 0;
+        let dragStart  = null;
+        let dragBase   = 0;
+        let isDragging = false;
 
-        // Position cards on the cylinder
-        cards.forEach((card, i) => {
-            const a = STEP * i;
-            card.style.transform = `rotateY(${a}deg) translateZ(${RADIUS}px)`;
-        });
+        function centerOffset(idx) {
+            // Center card idx in the viewport
+            return (vp.clientWidth / 2) - (idx * STEP) - (CARD_W / 2);
+        }
 
-        function updateRing(a, animate) {
-            angle = a;
-            if (animate) {
-                ring.style.transition = 'transform 0.55s cubic-bezier(0.25,1,0.5,1)';
-            } else {
-                ring.style.transition = 'none';
-            }
-            ring.style.transform = `rotateY(${-angle}deg)`;
-
-            // Per-card opacity / scale based on facing angle
-            cards.forEach((card, i) => {
-                const cardAngle  = (STEP * i - angle % 360 + 3600) % 360;
-                const facing     = cardAngle > 180 ? cardAngle - 360 : cardAngle; // -180..180
-                const absFacing  = Math.abs(facing);
-                const visible    = absFacing < 90;
-                const opacity    = visible ? Math.pow(Math.cos(facing * Math.PI / 180), 1.5) : 0;
-                const scale      = visible ? 0.82 + 0.18 * Math.cos(facing * Math.PI / 180) : 0.7;
-                card.style.opacity      = opacity;
-                card.style.transform    = `rotateY(${STEP * i}deg) translateZ(${RADIUS}px) scale(${scale})`;
-                card.style.pointerEvents = absFacing < 30 ? 'auto' : 'none';
+        function updateCards(idx) {
+            cards.forEach((c, i) => {
+                c.classList.remove('active', 'near');
+                if (i === idx)              c.classList.add('active');
+                else if (Math.abs(i - idx) === 1) c.classList.add('near');
             });
+            hint.textContent = `${idx + 1} / ${N}`;
         }
 
-        // Snap to nearest card
-        function snapNearest() {
-            const snapped = Math.round(angle / STEP) * STEP;
-            updateRing(snapped, true);
+        function goTo(idx, animate) {
+            currentIdx = Math.max(0, Math.min(N - 1, idx));
+            track.style.transition = animate
+                ? 'transform 0.42s cubic-bezier(0.25,1,0.5,1)'
+                : 'none';
+            track.style.transform = `translateX(${centerOffset(currentIdx)}px)`;
+            updateCards(currentIdx);
         }
 
-        // Inertia
-        function inertia() {
-            if (Math.abs(velX) < 0.1) { snapNearest(); return; }
-            angle += velX;
-            velX  *= 0.92;
-            updateRing(angle, false);
-            raf = requestAnimationFrame(inertia);
-        }
+        // Init
+        window.addEventListener('resize', () => goTo(currentIdx, false));
+        goTo(0, false);
 
-        // Pointer events (drag)
-        stage.addEventListener('pointerdown', e => {
-            cancelAnimationFrame(raf);
-            dragX  = e.clientX;
-            lastX  = e.clientX;
-            velX   = 0;
-            isClick = true;
-            ring.style.transition = 'none';
-            stage.setPointerCapture(e.pointerId);
+        // Pointer drag
+        vp.addEventListener('pointerdown', e => {
+            dragStart  = e.clientX;
+            dragBase   = centerOffset(currentIdx);
+            isDragging = false;
+            track.style.transition = 'none';
+            vp.setPointerCapture(e.pointerId);
         });
-        stage.addEventListener('pointermove', e => {
-            if (dragX === null) return;
-            const delta = e.clientX - dragX;
-            if (Math.abs(delta) > 4) isClick = false;
-            velX  = (e.clientX - lastX) * 0.25;
-            lastX = e.clientX;
-            updateRing(angle - (e.clientX - dragX) * 0.18, false);
-            dragX = e.clientX;
+        vp.addEventListener('pointermove', e => {
+            if (dragStart === null) return;
+            const delta = e.clientX - dragStart;
+            if (Math.abs(delta) > 5) isDragging = true;
+            if (!isDragging) return;
+            track.style.transform = `translateX(${dragBase + delta}px)`;
         });
-        stage.addEventListener('pointerup', e => {
-            dragX = null;
-            if (isClick) { snapNearest(); return; }
-            raf = requestAnimationFrame(inertia);
+        vp.addEventListener('pointerup', e => {
+            if (dragStart === null) return;
+            const delta = e.clientX - dragStart;
+            dragStart = null;
+            if (!isDragging) return; // was a click — handled below
+            const moved = Math.round(-delta / STEP);
+            goTo(currentIdx + moved, true);
         });
 
-        // Wheel
-        stage.addEventListener('wheel', e => {
+        // Wheel (slow, one step at a time)
+        vp.addEventListener('wheel', e => {
             e.preventDefault();
-            cancelAnimationFrame(raf);
-            angle += e.deltaY * 0.08;
-            updateRing(angle, false);
-            clearTimeout(stage._wt);
-            stage._wt = setTimeout(snapNearest, 180);
+            const dir = e.deltaY > 0 ? 1 : -1;
+            goTo(currentIdx + dir, true);
         }, { passive: false });
 
-        // Keyboard
-        document.addEventListener('keydown', e => {
-            if (e.key === 'ArrowLeft')  { angle -= STEP; updateRing(Math.round(angle/STEP)*STEP, true); }
-            if (e.key === 'ArrowRight') { angle += STEP; updateRing(Math.round(angle/STEP)*STEP, true); }
-        });
-
-        // Prevent link navigation while dragging
-        cards.forEach(card => {
+        // Click navigates only when not dragging
+        cards.forEach((card, i) => {
             card.addEventListener('click', e => {
-                if (!isClick) { e.preventDefault(); return; }
-                const overlay = document.getElementById('page-overlay');
+                if (isDragging) { e.preventDefault(); return; }
+                if (i !== currentIdx) {
+                    e.preventDefault();
+                    goTo(i, true);
+                    return;
+                }
+                // Active card — navigate
                 const href = card.getAttribute('href');
                 if (!href) return;
                 e.preventDefault();
-                overlay.classList.add('leaving');
+                const ov = document.getElementById('page-overlay');
+                ov.classList.add('leaving');
                 setTimeout(() => { window.location.href = href; }, 250);
             });
         });
 
-        updateRing(0, false);
-    })();
-
-    // Nav drum carousel
-    (function () {
-        const drum  = document.getElementById('navDrum');
-        const track = document.getElementById('navTrack');
-        let offset = 0, dragX = null, startOffset = 0, resetTimer = null;
-
-        function maxOff() { return -(track.scrollWidth - drum.clientWidth + 48); }
-        function clamp(v) { return Math.max(maxOff(), Math.min(0, v)); }
-        function apply(v, tilt) {
-            offset = clamp(v);
-            track.style.transform = tilt
-                ? `translateX(${offset}px) rotateY(${tilt}deg)`
-                : `translateX(${offset}px)`;
-        }
-        function settle() {
-            clearTimeout(resetTimer);
-            resetTimer = setTimeout(() => {
-                track.style.transition = 'transform 0.45s cubic-bezier(0.25,1,0.5,1)';
-                track.style.transform  = `translateX(${offset}px) rotateY(0deg)`;
-            }, 120);
-        }
-        drum.addEventListener('wheel', e => {
-            e.preventDefault();
-            track.style.transition = 'transform 0.08s ease-out';
-            apply(offset - e.deltaY * 0.55, (e.deltaY > 0 ? 1 : -1) * -6);
-            settle();
-        }, { passive: false });
-        drum.addEventListener('pointerdown', e => {
-            dragX = e.clientX; startOffset = offset;
-            track.style.transition = 'none';
-            drum.setPointerCapture(e.pointerId);
-        });
-        drum.addEventListener('pointermove', e => {
-            if (dragX === null) return;
-            const d = e.clientX - dragX;
-            apply(startOffset + d, Math.max(-8, Math.min(8, d * 0.08)));
-        });
-        drum.addEventListener('pointerup', () => {
-            dragX = null;
-            track.style.transition = 'transform 0.45s cubic-bezier(0.25,1,0.5,1)';
-            track.style.transform = `translateX(${offset}px) rotateY(0deg)`;
+        // Keyboard
+        document.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft')  goTo(currentIdx - 1, true);
+            if (e.key === 'ArrowRight') goTo(currentIdx + 1, true);
         });
     })();
 
-    // Full-page particle canvas
+    // Particle canvas
     (function () {
         const canvas = document.getElementById('bg-canvas');
         const ctx    = canvas.getContext('2d');
-        const COUNT  = 35, LINK_DIST = 110;
-        let W, H, particles;
-
+        const COUNT  = 32, DIST = 110;
+        let W, H, pts;
         const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
-        const dotC   = () => isDark() ? 'rgba(139,92,246,0.25)' : 'rgba(109,40,217,0.15)';
+        const dotC   = () => isDark() ? 'rgba(139,92,246,0.22)' : 'rgba(109,40,217,0.14)';
         const lineC  = a  => isDark() ? `rgba(139,92,246,${a})` : `rgba(109,40,217,${a})`;
-
         function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
         function mkP() {
-            const a = Math.random()*Math.PI*2, s = 0.13+Math.random()*0.17;
-            return { x:Math.random()*W, y:Math.random()*H, vx:Math.cos(a)*s, vy:Math.sin(a)*s, r:1.1+Math.random()*1.1 };
+            const a = Math.random()*Math.PI*2, s = 0.12+Math.random()*0.16;
+            return { x:Math.random()*W, y:Math.random()*H, vx:Math.cos(a)*s, vy:Math.sin(a)*s, r:1+Math.random()*1.1 };
         }
-        function init() { resize(); particles = Array.from({length:COUNT}, mkP); }
+        function init() { resize(); pts = Array.from({length:COUNT}, mkP); }
         function draw() {
             ctx.clearRect(0,0,W,H);
-            for (const p of particles) {
+            for (const p of pts) {
                 p.x+=p.vx; p.y+=p.vy;
                 if(p.x<0||p.x>W) p.vx*=-1;
                 if(p.y<0||p.y>H) p.vy*=-1;
             }
-            for (let i=0;i<particles.length;i++) {
-                for (let j=i+1;j<particles.length;j++) {
-                    const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
-                    const d=Math.sqrt(dx*dx+dy*dy);
-                    if(d<LINK_DIST){
-                        ctx.beginPath();
-                        ctx.strokeStyle=lineC((1-d/LINK_DIST)*0.16);
-                        ctx.lineWidth=0.7;
-                        ctx.moveTo(particles[i].x,particles[i].y);
-                        ctx.lineTo(particles[j].x,particles[j].y);
-                        ctx.stroke();
-                    }
+            for (let i=0;i<pts.length;i++) for (let j=i+1;j<pts.length;j++) {
+                const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y, d=Math.sqrt(dx*dx+dy*dy);
+                if(d<DIST){
+                    ctx.beginPath();
+                    ctx.strokeStyle=lineC((1-d/DIST)*0.15);
+                    ctx.lineWidth=0.7;
+                    ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y); ctx.stroke();
                 }
             }
             ctx.fillStyle=dotC();
-            for(const p of particles){ ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
+            for(const p of pts){ ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
             requestAnimationFrame(draw);
         }
-        window.addEventListener('resize', resize);
-        init(); draw();
+        window.addEventListener('resize', resize); init(); draw();
     })();
 
-    // Page overlay reset on bfcache
+    // bfcache restore
     window.addEventListener('pageshow', e => {
         if (e.persisted) {
             const o = document.getElementById('page-overlay');
-            o.style.transition = 'none';
-            o.classList.remove('leaving');
+            o.style.transition = 'none'; o.classList.remove('leaving');
             requestAnimationFrame(() => { o.style.transition = ''; });
         }
     });
