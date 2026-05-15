@@ -13,16 +13,16 @@
 
         :root {
             --bg: #ffffff;
-            --bg-2: #f4f4f5;
-            --bg-card: #f2f2f2;
+            --bg-2: #eef2ff;
+            --bg-card: #f5f3ff;
             --ink: #09090b;
             --ink-2: #52525b;
             --ink-3: #a1a1aa;
-            --border: rgba(0,0,0,0.07);
-            --border-2: rgba(0,0,0,0.13);
-            --nav-bg: rgba(255,255,255,0.85);
-            --card-bg: rgba(255,255,255,0.6);
-            --glow: rgba(99,102,241,0.15);
+            --border: rgba(99,102,241,0.12);
+            --border-2: rgba(99,102,241,0.22);
+            --nav-bg: rgba(255,255,255,0.88);
+            --card-bg: rgba(238,242,255,0.7);
+            --glow: rgba(99,102,241,0.18);
         }
         [data-theme="dark"] {
             --bg: #09090b;
@@ -156,6 +156,9 @@
             padding: 2.5rem 2.5rem;
             display: flex; flex-direction: column; gap: 1.4rem;
         }
+        [data-theme="light"] .hero-right {
+            background: linear-gradient(155deg, #f0f9ff 0%, #faf5ff 55%, #f0f4ff 100%);
+        }
 
         /* TECH STRIP */
         .tech-strip {
@@ -165,7 +168,9 @@
         .tech-pill {
             font-size: 0.66rem; font-weight: 600; color: var(--ink-3);
             padding: 0.28rem 0.68rem; border-radius: 999px;
-            border: 1px solid var(--border-2); letter-spacing: 0.04em;
+            border: 1px solid var(--border-2);
+            background: var(--card-bg);
+            letter-spacing: 0.04em;
         }
 
         .section-label {
