@@ -525,9 +525,9 @@
     </footer>
 
     <script>
-        // Theme — persist to localStorage, default dark
+        // Theme — persist to localStorage, default light
         const themeBtn = document.getElementById('themeBtn');
-        const savedTheme = localStorage.getItem('hub-theme') || 'dark';
+        const savedTheme = localStorage.getItem('hub-theme') || 'light';
         let dark = savedTheme === 'dark';
         document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
         themeBtn.textContent = dark ? '☀' : '☾';
