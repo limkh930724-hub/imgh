@@ -74,30 +74,51 @@ body::before {
 /* ── NAV ── */
 .nav {
     position: relative; z-index: 100; flex-shrink: 0;
-    height: 52px; padding: 0 2rem;
-    display: flex; align-items: center; gap: 0.1rem;
+    height: 46px; padding: 0 1.6rem;
+    display: flex; align-items: center; gap: 0.8rem;
     background: var(--nav-bg);
     backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
     border-bottom: 1px solid var(--border);
 }
 .nav-logo {
-    margin-right: auto; color: var(--ink); text-decoration: none;
+    flex-shrink: 0; color: var(--ink); text-decoration: none;
     font-family: 'Syne', sans-serif;
-    font-size: 0.88rem; font-weight: 800; letter-spacing: -0.03em;
+    font-size: 0.85rem; font-weight: 800; letter-spacing: -0.03em;
+}
+/* Carousel wrapper */
+.nav-drum {
+    flex: 1; min-width: 0;
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+    display: flex; align-items: center;
+    cursor: ew-resize;
+    -webkit-mask: linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    mask: linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%);
+    perspective: 600px;
+}
+.nav-track {
+    display: flex; align-items: center;
+    gap: 0.08rem;
+    padding: 0 1.5rem;
+    transform-origin: center center;
+    will-change: transform;
+    user-select: none;
 }
 .nav-link {
+    flex-shrink: 0;
     color: var(--ink-2); text-decoration: none;
-    font-size: 0.65rem; font-weight: 500;
-    padding: 0.22rem 0.45rem; border-radius: 6px;
+    font-size: 0.62rem; font-weight: 500;
+    padding: 0.18rem 0.5rem; border-radius: 6px;
     transition: color 0.15s, background 0.15s;
     white-space: nowrap;
 }
-.nav-link:hover { color: var(--ink); background: var(--accent-soft); }
+.nav-link:hover, .nav-link.active { color: var(--ink); background: var(--accent-soft); }
 .nav-theme {
-    margin-left: 0.5rem; flex-shrink: 0;
-    width: 30px; height: 30px; border-radius: 8px;
+    flex-shrink: 0; margin-left: 0;
+    width: 26px; height: 26px; border-radius: 7px;
     border: 1px solid var(--border-2); background: transparent;
-    color: var(--ink-2); font-size: 0.82rem; cursor: pointer;
+    color: var(--ink-2); font-size: 0.75rem; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     transition: background 0.15s, color 0.15s;
 }
@@ -332,14 +353,18 @@ main {
 
 <nav class="nav">
     <a href="/" class="nav-logo">임광호</a>
-    <a href="/" class="nav-link">홈</a>
-    <a href="/fear-greed.html" class="nav-link">공포탐욕지수</a>
-    <a href="/asset.html" class="nav-link">자산 계산기</a>
-    <a href="/backtest.html" class="nav-link">백테스트</a>
-    <a href="/workout.html" class="nav-link">운동 루틴</a>
-    <a href="/agents.html" class="nav-link">AI 에이전트</a>
-    <a href="/disaster.html" class="nav-link">재난 시뮬레이터</a>
-    <a href="/Certificate.html" class="nav-link">자격증 문제풀이</a>
+    <div class="nav-drum" id="navDrum">
+        <div class="nav-track" id="navTrack">
+            <a href="/" class="nav-link active">홈</a>
+            <a href="/fear-greed.html" class="nav-link">공포탐욕지수</a>
+            <a href="/asset.html" class="nav-link">자산 계산기</a>
+            <a href="/backtest.html" class="nav-link">백테스트</a>
+            <a href="/workout.html" class="nav-link">운동 루틴</a>
+            <a href="/agents.html" class="nav-link">AI 에이전트</a>
+            <a href="/disaster.html" class="nav-link">재난 시뮬레이터</a>
+            <a href="/Certificate.html" class="nav-link">자격증 문제풀이</a>
+        </div>
+    </div>
     <button class="nav-theme" id="themeBtn" title="테마 전환">☾</button>
 </nav>
 
@@ -489,6 +514,59 @@ main {
     }
     updateClock();
     setInterval(updateClock, 30000);
+
+    // Nav drum carousel
+    (function () {
+        const drum  = document.getElementById('navDrum');
+        const track = document.getElementById('navTrack');
+        let offset = 0, dragStartX = null, dragOffsetStart = 0, resetTimer = null;
+
+        function maxOffset() {
+            return -(track.scrollWidth - drum.clientWidth + 48);
+        }
+        function clamp(v) { return Math.max(maxOffset(), Math.min(0, v)); }
+        function applyOffset(v, tilt) {
+            offset = clamp(v);
+            track.style.transform = tilt
+                ? `translateX(${offset}px) rotateY(${tilt}deg)`
+                : `translateX(${offset}px)`;
+        }
+        function settleTilt() {
+            clearTimeout(resetTimer);
+            resetTimer = setTimeout(() => {
+                track.style.transition = 'transform 0.45s cubic-bezier(0.25,1,0.5,1)';
+                track.style.transform  = `translateX(${offset}px) rotateY(0deg)`;
+            }, 120);
+        }
+
+        // Mouse wheel
+        drum.addEventListener('wheel', e => {
+            e.preventDefault();
+            const dir = e.deltaY > 0 ? -1 : 1;
+            track.style.transition = 'transform 0.08s ease-out';
+            applyOffset(offset - e.deltaY * 0.55, dir * -6);
+            settleTilt();
+        }, { passive: false });
+
+        // Pointer drag
+        drum.addEventListener('pointerdown', e => {
+            dragStartX = e.clientX;
+            dragOffsetStart = offset;
+            track.style.transition = 'none';
+            drum.setPointerCapture(e.pointerId);
+        });
+        drum.addEventListener('pointermove', e => {
+            if (dragStartX === null) return;
+            const delta = e.clientX - dragStartX;
+            const tilt = Math.max(-8, Math.min(8, delta * 0.08));
+            applyOffset(dragOffsetStart + delta, tilt);
+        });
+        drum.addEventListener('pointerup', () => {
+            dragStartX = null;
+            track.style.transition = 'transform 0.45s cubic-bezier(0.25,1,0.5,1)';
+            track.style.transform = `translateX(${offset}px) rotateY(0deg)`;
+        });
+    })();
 
     // Full-page particle canvas
     (function () {
