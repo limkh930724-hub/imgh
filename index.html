@@ -1,710 +1,574 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>임광호 포트폴리오</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>임광호 포트폴리오</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        :root {
-            --bg: #ffffff;
-            --bg-2: #eef2ff;
-            --bg-card: #f5f3ff;
-            --ink: #09090b;
-            --ink-2: #52525b;
-            --ink-3: #a1a1aa;
-            --border: rgba(99,102,241,0.12);
-            --border-2: rgba(99,102,241,0.22);
-            --nav-bg: rgba(255,255,255,0.88);
-            --card-bg: rgba(238,242,255,0.7);
-            --glow: rgba(99,102,241,0.18);
-        }
-        [data-theme="dark"] {
-            --bg: #09090b;
-            --bg-2: #111113;
-            --bg-card: #1c1c1c;
-            --ink: #fafafa;
-            --ink-2: #a1a1aa;
-            --ink-3: #52525b;
-            --border: rgba(255,255,255,0.06);
-            --border-2: rgba(255,255,255,0.12);
-            --nav-bg: rgba(9,9,11,0.85);
-            --card-bg: rgba(255,255,255,0.04);
-            --glow: rgba(139,92,246,0.18);
-        }
+:root {
+    --bg: #f8f7ff;
+    --bg-2: #edeafd;
+    --bg-card: #ffffff;
+    --ink: #1c1733;
+    --ink-2: #6b6390;
+    --ink-3: #a59ec6;
+    --border: rgba(109,40,217,0.1);
+    --border-2: rgba(109,40,217,0.18);
+    --accent: #6d28d9;
+    --accent-soft: rgba(109,40,217,0.07);
+    --nav-bg: rgba(248,247,255,0.9);
+    --card-shadow: 0 1px 3px rgba(109,40,217,0.07), 0 0 0 1px rgba(109,40,217,0.1);
+    --card-hover: 0 6px 20px -3px rgba(109,40,217,0.2), 0 0 0 1px rgba(109,40,217,0.22);
+    --dot: rgba(109,40,217,0.055);
+}
+[data-theme="dark"] {
+    --bg: #0c0b14;
+    --bg-2: #151221;
+    --bg-card: #1b1828;
+    --ink: #edeaff;
+    --ink-2: #8b84aa;
+    --ink-3: #534d6e;
+    --border: rgba(139,92,246,0.11);
+    --border-2: rgba(139,92,246,0.2);
+    --accent: #a78bfa;
+    --accent-soft: rgba(139,92,246,0.1);
+    --nav-bg: rgba(12,11,20,0.9);
+    --card-shadow: 0 1px 4px rgba(0,0,0,0.4), 0 0 0 1px rgba(139,92,246,0.11);
+    --card-hover: 0 6px 20px -3px rgba(139,92,246,0.28), 0 0 0 1px rgba(139,92,246,0.24);
+    --dot: rgba(139,92,246,0.045);
+}
 
-        html { overflow-x: hidden; }
-        body {
-            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-            overflow-x: hidden;
-            display: flex; flex-direction: column; min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
-        }
+html { height: 100%; }
+body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s, color 0.3s;
+    position: relative;
+}
 
-        /* NAV */
-        .topnav {
-            position: sticky; top: 0; z-index: 300;
-            height: 56px; padding: 0 2rem;
-            display: flex; align-items: center; gap: 0.2rem;
-            background: var(--nav-bg);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-            transition: background 0.3s, border-color 0.3s;
-        }
-        .topnav-logo {
-            margin-right: auto; color: var(--ink); text-decoration: none;
-            font-size: 0.88rem; font-weight: 800; letter-spacing: -0.03em;
-            transition: color 0.3s;
-        }
-        .topnav-link {
-            color: var(--ink-2); text-decoration: none;
-            font-size: 0.75rem; font-weight: 600;
-            padding: 0.38rem 0.65rem; border-radius: 8px; white-space: nowrap;
-            transition: color 0.15s, background 0.15s;
-        }
-        .topnav-link:hover, .topnav-link.active { color: var(--ink); background: var(--bg-2); }
-        .theme-btn {
-            margin-left: 0.4rem; width: 32px; height: 32px; border-radius: 8px;
-            border: 1px solid var(--border-2); background: transparent;
-            color: var(--ink); font-size: 0.9rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.15s;
-        }
-        .theme-btn:hover { background: var(--bg-2); }
+/* Dot grid */
+body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+    background-size: 22px 22px;
+}
 
-        /* HERO LAYOUT */
-        .hero {
-            display: grid;
-            grid-template-columns: 1fr 1.65fr;
-            min-height: calc(100vh - 56px - 48px);
-        }
+/* Full-page particle canvas */
+#bg-canvas {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+}
 
-        /* LEFT */
-        .hero-left {
-            position: relative;
-            padding: 3rem 2.5rem;
-            display: flex; flex-direction: column; justify-content: space-between;
-            border-right: 1px solid var(--border);
-            overflow: hidden;
-        }
-        #particle-canvas {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .hero-left > * { position: relative; z-index: 1; }
-        .hero-badge {
-            display: inline-flex; align-items: center; gap: 0.45rem;
-            font-size: 0.67rem; font-weight: 700; letter-spacing: 0.11em;
-            text-transform: uppercase; color: var(--ink-2); margin-bottom: 2.2rem;
-        }
-        .hero-badge-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.18);
-            animation: pulse 2.4s infinite;
-            flex-shrink: 0;
-        }
-        @keyframes pulse {
-            0%,100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.18); }
-            50% { box-shadow: 0 0 0 5px rgba(34,197,94,0.08); }
-        }
+/* ── NAV ── */
+.nav {
+    position: relative; z-index: 100; flex-shrink: 0;
+    height: 52px; padding: 0 2rem;
+    display: flex; align-items: center; gap: 0.1rem;
+    background: var(--nav-bg);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+    margin-right: auto; color: var(--ink); text-decoration: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem; font-weight: 800; letter-spacing: -0.03em;
+}
+.nav-link {
+    color: var(--ink-2); text-decoration: none;
+    font-size: 0.72rem; font-weight: 500;
+    padding: 0.3rem 0.58rem; border-radius: 7px;
+    transition: color 0.15s, background 0.15s;
+    white-space: nowrap;
+}
+.nav-link:hover { color: var(--ink); background: var(--accent-soft); }
+.nav-theme {
+    margin-left: 0.5rem; flex-shrink: 0;
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--border-2); background: transparent;
+    color: var(--ink-2); font-size: 0.82rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+.nav-theme:hover { background: var(--accent-soft); color: var(--ink); }
 
-        .hero-headline {
-            font-size: clamp(2.4rem, 3.8vw, 4rem);
-            font-weight: 900; letter-spacing: -0.055em; line-height: 1.05;
-            color: var(--ink); margin-bottom: 1.4rem;
-        }
-        .hero-headline em { font-style: italic; color: #8b5cf6; }
+/* ── MAIN ── */
+main {
+    flex: 1; min-height: 0;
+    display: flex; flex-direction: column;
+    padding: 0 2.4rem;
+    position: relative; z-index: 1;
+}
 
-        .hero-sub {
-            font-size: 0.92rem; line-height: 1.78;
-            color: var(--ink-2); max-width: 34ch; margin-bottom: 2.2rem;
-        }
+/* ── HERO ── */
+.hero {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 1.6rem 0 1.2rem;
+}
+.hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.64rem; font-weight: 500; letter-spacing: 0.09em;
+    color: var(--ink-3); margin-bottom: 0.7rem;
+}
+.badge-dot {
+    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.18);
+    animation: pulse 2.4s infinite;
+}
+@keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(34,197,94,0.18); }
+    50%      { box-shadow: 0 0 0 5px rgba(34,197,94,0.07); }
+}
+.hero-eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    font-weight: 400; color: var(--ink-2);
+    letter-spacing: -0.01em; margin-bottom: 0.08rem;
+}
+.hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+    font-weight: 800; letter-spacing: -0.045em; line-height: 1.1;
+    color: var(--ink); margin-bottom: 0.55rem;
+}
+.hero-title em { font-style: italic; color: var(--accent); }
+.hero-sub {
+    font-size: 0.8rem; color: var(--ink-2); line-height: 1.6;
+}
 
-        .hero-cta { display: flex; gap: 0.7rem; margin-bottom: 3.2rem; }
-        .btn-ghost {
-            display: inline-flex; align-items: center; gap: 0.35rem;
-            padding: 0.68rem 1.3rem; border-radius: 10px;
-            border: 1px solid var(--border-2);
-            background: transparent; color: var(--ink);
-            font-size: 0.8rem; font-weight: 700; text-decoration: none;
-            transition: background 0.15s;
-        }
-        .btn-ghost:hover { background: var(--bg-2); }
+/* ── CARDS SECTION ── */
+.cards-section {
+    flex: 1; min-height: 0;
+    display: flex; flex-direction: column;
+    gap: 0.45rem;
+    padding-bottom: 0.6rem;
+}
+.section-label {
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.13em; color: var(--ink-3);
+}
+.card-grid {
+    flex: 1; min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0.45rem;
+}
 
-        .hero-stats { display: flex; gap: 2.2rem; }
-        .hero-stat-num {
-            font-size: 1.55rem; font-weight: 900;
-            letter-spacing: -0.05em; color: var(--ink);
-        }
-        .hero-stat-label {
-            font-size: 0.63rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.1em;
-            color: var(--ink-3); margin-top: 0.2rem;
-        }
+/* ── TOOL CARD ── */
+.tool-card {
+    position: relative; overflow: hidden;
+    text-decoration: none; color: inherit;
+    background: var(--bg-card);
+    border-radius: 11px;
+    box-shadow: var(--card-shadow);
+    display: flex; align-items: center;
+    padding: 0 0.85rem; gap: 0.65rem;
+    transition: box-shadow 0.2s, transform 0.22s;
+}
+.tool-card:hover {
+    box-shadow: var(--card-hover);
+    transform: translateY(-2px);
+}
+.tool-card::after {
+    content: ''; position: absolute;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 65%);
+    transform: translate(-50%,-50%);
+    pointer-events: none; opacity: 0; transition: opacity 0.2s;
+    left: var(--mx,50%); top: var(--my,50%);
+}
+.tool-card:hover::after { opacity: 1; }
 
-        /* RIGHT */
-        .hero-right {
-            padding: 2.5rem 2.5rem;
-            display: flex; flex-direction: column; gap: 1.4rem;
-        }
-        [data-theme="light"] .hero-right {
-            background: linear-gradient(155deg, #f0f9ff 0%, #faf5ff 55%, #f0f4ff 100%);
-        }
+.card-icon {
+    font-size: 1.2rem; flex-shrink: 0;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-soft); border-radius: 9px;
+    border: 1px solid var(--border);
+    transition: transform 0.26s cubic-bezier(0.34,1.56,0.64,1);
+}
+.tool-card:hover .card-icon { transform: scale(1.13) rotate(-5deg); }
 
-        /* TECH STRIP */
-        .tech-strip {
-            display: flex; flex-wrap: wrap; gap: 0.4rem;
-            padding-bottom: 1.3rem; border-bottom: 1px solid var(--border);
-        }
-        .tech-pill {
-            font-size: 0.66rem; font-weight: 600; color: var(--ink-3);
-            padding: 0.28rem 0.68rem; border-radius: 999px;
-            border: 1px solid var(--border-2);
-            background: var(--card-bg);
-            letter-spacing: 0.04em;
-        }
+.card-body { flex: 1; min-width: 0; }
+.card-name {
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.02em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-desc {
+    font-size: 0.63rem; color: var(--ink-2); margin-top: 0.1rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-live {
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.56rem; font-weight: 500; letter-spacing: 0.06em;
+    color: #16a34a; background: rgba(22,163,74,0.1);
+    padding: 0.14rem 0.44rem; border-radius: 999px;
+}
+.card-arrow {
+    flex-shrink: 0; font-size: 0.82rem; color: var(--ink-3);
+    transition: color 0.15s, transform 0.15s;
+}
+.tool-card:hover .card-arrow { color: var(--accent); transform: translateX(3px); }
 
-        .section-label {
-            font-size: 0.64rem; font-weight: 800;
-            text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-3);
-        }
+/* ── COMING SOON ROW ── */
+.soon-row {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 0.5rem;
+}
+.soon-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.13em;
+    color: var(--ink-3); margin-right: 0.2rem;
+}
+.soon-chip {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-size: 0.66rem; font-weight: 600; color: var(--ink-2);
+    padding: 0.2rem 0.6rem 0.2rem 0.45rem;
+    border: 1px solid var(--border-2); border-radius: 8px;
+    background: var(--accent-soft);
+}
+.soon-chip b {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.54rem; font-weight: 500; letter-spacing: 0.06em;
+    color: var(--ink-3); font-style: normal;
+}
 
-        /* ─── SPOTLIGHT CARD LIST ─── */
-        .card-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+/* ── STATS BAR ── */
+.stats-bar {
+    flex-shrink: 0;
+    height: 42px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 2rem;
+}
+.stat { display: flex; align-items: baseline; gap: 0.45rem; }
+.stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.92rem; font-weight: 800;
+    color: var(--ink); letter-spacing: -0.03em;
+}
+.stat-num.hi { color: var(--accent); }
+.stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.57rem; font-weight: 500; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--ink-3);
+}
+.stats-copy {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem; color: var(--ink-3); letter-spacing: 0.04em;
+}
 
-        .tool-card {
-            position: relative;
-            border-radius: 14px;
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            background: var(--card-bg);
-            border: 1px solid var(--border-2);
-            transition: border-color 0.22s, transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
-        }
-        .tool-card:hover {
-            border-color: transparent;
-            transform: translateY(-4px) scale(1.025);
-            box-shadow: 0 12px 32px -6px rgba(99,102,241,0.28), 0 4px 12px -2px rgba(0,0,0,0.18);
-        }
+/* ── PAGE TRANSITION ── */
+#page-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--bg); opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+}
+#page-overlay.leaving { opacity: 1; pointer-events: all; }
 
-        /* Gradient border on hover */
-        .tool-card::before {
-            content: '';
-            position: absolute; inset: -1px;
-            border-radius: 15px;
-            padding: 1px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.22s;
-            pointer-events: none;
-        }
-        .tool-card:hover::before { opacity: 1; }
+/* ── ENTRY ANIMATIONS ── */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+.hero           { animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.cards-section  { animation: fadeUp 0.5s 0.06s cubic-bezier(0.22,1,0.36,1) both; }
+.tool-card      { animation: fadeUp 0.42s cubic-bezier(0.22,1,0.36,1) both; }
+.tool-card:nth-child(1) { animation-delay: 0.08s; }
+.tool-card:nth-child(2) { animation-delay: 0.12s; }
+.tool-card:nth-child(3) { animation-delay: 0.16s; }
+.tool-card:nth-child(4) { animation-delay: 0.20s; }
+.tool-card:nth-child(5) { animation-delay: 0.24s; }
+.tool-card:nth-child(6) { animation-delay: 0.28s; }
+.tool-card:nth-child(7) { animation-delay: 0.32s; }
+.tool-card:nth-child(8) { animation-delay: 0.36s; }
+.stats-bar      { animation: fadeUp 0.4s 0.38s cubic-bezier(0.22,1,0.36,1) both; }
 
-        /* Spotlight glow follows cursor */
-        .tool-card::after {
-            content: '';
-            position: absolute;
-            width: 320px; height: 320px;
-            border-radius: 50%;
-            background: radial-gradient(circle, var(--glow) 0%, transparent 65%);
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.25s;
-            left: var(--mx, 50%);
-            top: var(--my, 50%);
-        }
-        .tool-card:hover::after { opacity: 1; }
-
-        .card-inner {
-            position: relative; z-index: 1;
-            display: flex; align-items: center; gap: 0.75rem;
-            padding: 0.85rem 0.95rem;
-        }
-        .card-icon {
-            font-size: 1.2rem; line-height: 1; flex-shrink: 0;
-            width: 36px; height: 36px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 9px;
-            background: var(--bg-2);
-            border: 1px solid var(--border);
-            transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), background 0.2s;
-        }
-        .tool-card:hover .card-icon {
-            transform: scale(1.18) rotate(-4deg);
-            background: var(--bg);
-        }
-        .card-body { flex: 1; min-width: 0; }
-        .card-name {
-            font-size: 0.82rem; font-weight: 800;
-            letter-spacing: -0.02em; color: var(--ink);
-            margin-bottom: 0.18rem;
-        }
-        .card-desc {
-            font-size: 0.68rem; color: var(--ink-2);
-            line-height: 1.45;
-            overflow: hidden; text-overflow: ellipsis;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-        }
-        @keyframes bounceRight {
-            0%   { transform: translateX(0) scale(1); }
-            25%  { transform: translateX(10px) scale(1.2); }
-            50%  { transform: translateX(3px) scale(0.95); }
-            70%  { transform: translateX(8px) scale(1.1); }
-            85%  { transform: translateX(4px) scale(1); }
-            100% { transform: translateX(6px) scale(1); }
-        }
-        .card-arrow {
-            flex-shrink: 0;
-            font-size: 0.9rem; color: var(--ink-3);
-            transition: color 0.15s;
-        }
-        .tool-card:hover .card-arrow {
-            color: #8b5cf6;
-            animation: bounceRight 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
-        }
-        .card-live {
-            flex-shrink: 0;
-            font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em;
-            color: #22c55e; background: rgba(34,197,94,0.1);
-            padding: 0.18rem 0.5rem; border-radius: 999px;
-        }
-
-        /* COMING SOON */
-        .coming-list { display: flex; flex-direction: column; gap: 0.4rem; }
-        .coming-card {
-            display: flex; align-items: center; gap: 0.7rem;
-            padding: 0.65rem 0.9rem; border-radius: 10px;
-            border: 1px solid var(--border); color: var(--ink-3);
-        }
-        .coming-card-name { flex: 1; font-size: 0.76rem; font-weight: 700; color: var(--ink-2); }
-        .coming-tag { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; }
-
-        @keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-        body { animation: pageIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
-
-        /* PAGE TRANSITION OVERLAY */
-        #page-overlay {
-            position: fixed; inset: 0; z-index: 9999;
-            background: var(--bg);
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        #page-overlay.leaving { opacity: 1; pointer-events: all; }
-
-        /* FOOTER */
-        .page-footer {
-            height: 48px; padding: 0 2rem;
-            display: flex; align-items: center; justify-content: space-between;
-            border-top: 1px solid var(--border); background: var(--bg);
-            transition: background 0.3s, border-color 0.3s;
-        }
-        .footer-brand { font-size: 0.73rem; font-weight: 700; color: var(--ink-3); text-decoration: none; }
-        .footer-copy { font-size: 0.68rem; color: var(--ink-3); opacity: 0.6; }
-
-        /* RESPONSIVE */
-        @media (max-width: 900px) {
-            body { display: block; }
-            .hero { display: block; min-height: unset; }
-            .hero-left {
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-                padding: 2rem 1.5rem;
-            }
-            .hero-right { padding: 2rem 1.5rem; }
-            .hero-headline { font-size: clamp(2rem, 9vw, 3rem); }
-            .topnav { padding: 0 1rem; }
-            .topnav-link { font-size: 0.72rem; padding: 0.35rem 0.5rem; }
-            .page-footer { flex-wrap: wrap; height: auto; padding: 1rem; gap: 0.3rem; }
-        }
-        @media (max-width: 600px) {
-            .topnav-link:not(.active) { display: none; }
-            .hero-left { padding: 1.6rem 1.2rem; }
-            .hero-right { padding: 1.6rem 1.2rem; }
-            .hero-stats { gap: 1.5rem; }
-            .card-list { grid-template-columns: 1fr; }
-        }
-    </style>
+/* ── RESPONSIVE ── */
+@media (max-width: 960px) {
+    .nav-link:not([href="/"]) { display: none; }
+    main { padding: 0 1.4rem; }
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+    }
+}
+@media (max-width: 600px) {
+    body { overflow: auto; height: auto; }
+    main { padding: 0 1rem; }
+    .card-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        flex: none;
+    }
+    .hero { padding: 1.2rem 0 0.8rem; }
+    .stats-bar { height: auto; padding: 0.6rem 0; flex-wrap: wrap; gap: 0.8rem; }
+}
+</style>
 </head>
 <body>
-    <nav class="topnav">
-        <a href="/" class="topnav-logo">임광호</a>
-        <a href="/" class="topnav-link active">홈</a>
-        <a href="/fear-greed.html" class="topnav-link">공포탐욕지수</a>
-        <a href="/asset.html" class="topnav-link">자산 계산기</a>
-        <a href="/backtest.html" class="topnav-link">백테스트</a>
-        <a href="/workout.html" class="topnav-link">운동 루틴</a>
-        <a href="/agents.html" class="topnav-link">AI 에이전트</a>
-        <a href="/disaster.html" class="topnav-link">재난 시뮬레이터</a>
-        <a href="/Certificate.html" class="topnav-link">자격증 문제풀이</a>
-        <button class="theme-btn" id="themeBtn" title="테마 전환">☀</button>
-    </nav>
 
-    <div class="hero">
-        <div class="hero-left">
-            <canvas id="particle-canvas" aria-hidden="true"></canvas>
-            <div>
-                <div class="hero-badge">
-                    <span class="hero-badge-dot"></span>
-                    Personal Dashboard · Seoul · <span id="hero-clock">--:--</span>
-                </div>
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
 
-                <div class="hero-headline">
-                    데이터를 읽고,<br>
-                    도구를 만든다.<br>
-                    <em>Built for myself.</em>
-                </div>
+<nav class="nav">
+    <a href="/" class="nav-logo">임광호</a>
+    <a href="/" class="nav-link">홈</a>
+    <a href="/fear-greed.html" class="nav-link">공포탐욕지수</a>
+    <a href="/asset.html" class="nav-link">자산 계산기</a>
+    <a href="/backtest.html" class="nav-link">백테스트</a>
+    <a href="/workout.html" class="nav-link">운동 루틴</a>
+    <a href="/agents.html" class="nav-link">AI 에이전트</a>
+    <a href="/disaster.html" class="nav-link">재난 시뮬레이터</a>
+    <a href="/Certificate.html" class="nav-link">자격증 문제풀이</a>
+    <button class="nav-theme" id="themeBtn" title="테마 전환">☾</button>
+</nav>
 
-                <div class="hero-sub">
-                    숫자를 직접 만들고 관리합니다.<br>
-                    투자와 일상을 연결하는 개인 도구 모음.
-                </div>
+<main>
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="badge-dot"></span>
+            Personal Dashboard · Seoul · <span id="hero-clock">--:--</span>
+        </div>
+        <div class="hero-eyebrow">데이터를 읽고, 도구를 만든다</div>
+        <div class="hero-title">임광호의 <em>포트폴리오</em></div>
+        <div class="hero-sub">투자와 일상을 연결하는 개인 도구 모음 · Hand Crafted · Vanilla JS</div>
+    </section>
 
-                <div class="hero-cta">
-                    <a href="https://github.com/limkh930724-hub" target="_blank" rel="noopener" class="btn-ghost">GitHub ↗</a>
-                </div>
-            </div>
+    <div class="cards-section">
+        <div class="section-label">🟢 라이브 서비스</div>
 
-            <div class="hero-stats">
-                <div>
-                    <div class="hero-stat-num">8개</div>
-                    <div class="hero-stat-label">Live Tools</div>
+        <div class="card-grid">
+            <a href="/fear-greed.html" class="tool-card">
+                <span class="card-icon">📊</span>
+                <div class="card-body">
+                    <div class="card-name">공포탐욕지수</div>
+                    <div class="card-desc">CNN Fear &amp; Greed · 타임라인 · 캘린더 · 포트폴리오</div>
                 </div>
-                <div>
-                    <div class="hero-stat-num">전툴</div>
-                    <div class="hero-stat-label">Hand Crafted</div>
+                <span class="card-live">Live</span>
+                <span class="card-arrow">→</span>
+            </a>
+            <a href="/asset.html" class="tool-card">
+                <span class="card-icon">📈</span>
+                <div class="card-body">
+                    <div class="card-name">자산 계산기</div>
+                    <div class="card-desc">복리 · 목표 자산 시뮬레이션 · 매매일지</div>
                 </div>
-                <div>
-                    <div class="hero-stat-num">Seoul</div>
-                    <div class="hero-stat-label">Based</div>
+                <span class="card-live">Live</span>
+                <span class="card-arrow">→</span>
+            </a>
+            <a href="/backtest.html" class="tool-card">
+                <span class="card-icon">🧪</span>
+                <div class="card-body">
+                    <div class="card-name">백테스트 비교기</div>
+                    <div class="card-desc">3개 종목 수익률 · CAGR · MDD 비교</div>
                 </div>
-            </div>
+                <span class="card-live">Live</span>
+                <span class="card-arrow">→</span>
+            </a>
+            <a href="/workout.html" class="tool-card">
+                <span class="card-icon">🏋️</span>
+                <div class="card-body">
+                    <div class="card-name">운동 루틴</div>
+                    <div class="card-desc">주간 체크 · 세션 기록 · 카테고리별 스트릭</div>
+                </div>
+                <span class="card-live">Live</span>
+                <span class="card-arrow">→</span>
+            </a>
+            <a href="/agents.html" class="tool-card">
+                <span class="card-icon">🤖</span>
+                <div class="card-body">
+                    <div class="card-name">AI 에이전트</div>
+                    <div class="card-desc">서울 부동산 실거래 · AI 역할별 에이전트</div>
+                </div>
+                <span class="card-live">Live</span>
+                <span class="card-arrow">→</span>
+            </a>
+            <a href="/commerce.html" class="tool-card">
+                <span class="card-icon">🛒</span>
+                <div class="card-body">
+                    <div class="card-name">커머스 시스템</div>
+                    <div class="card-desc">OMS · WMS · PLM — React 상태관리</div>
+                </div>
+                <span class="card-live">Live</span>
+                <span class="card-arrow">→</span>
+            </a>
+            <a href="/disaster.html" class="tool-card">
+                <span class="card-icon">🚨</span>
+                <div class="card-body">
+                    <div class="card-name">재난 대응 시뮬레이터</div>
+                    <div class="card-desc">대피소 추천 · 재난문자 · 폭우·지진·한파</div>
+                </div>
+                <span class="card-live">Live</span>
+                <span class="card-arrow">→</span>
+            </a>
+            <a href="/Certificate.html" class="tool-card">
+                <span class="card-icon">📋</span>
+                <div class="card-body">
+                    <div class="card-name">자격증 문제풀이</div>
+                    <div class="card-desc">정보처리기사 CBT · 단원별 학습 · 오답 노트</div>
+                </div>
+                <span class="card-live">Live</span>
+                <span class="card-arrow">→</span>
+            </a>
         </div>
 
-        <div class="hero-right">
-            <div class="tech-strip">
-                <span class="tech-pill">Vanilla JS</span>
-                <span class="tech-pill">Chart.js</span>
-                <span class="tech-pill">Canvas API</span>
-                <span class="tech-pill">Vercel</span>
-                <span class="tech-pill">Yahoo Finance API</span>
-                <span class="tech-pill">CSS Grid</span>
-                <span class="tech-pill">PWA</span>
-            </div>
-
-            <div class="section-label">🟢 라이브 서비스</div>
-
-            <div class="card-list">
-                <a href="/fear-greed.html" class="tool-card">
-                    <div class="card-inner">
-                        <span class="card-icon">📊</span>
-                        <div class="card-body">
-                            <div class="card-name">공포탐욕지수</div>
-                            <div class="card-desc">CNN Fear &amp; Greed Index 실시간 추적 · 타임라인 · 캘린더 히트맵 · 포트폴리오</div>
-                        </div>
-                        <span class="card-live">Live</span>
-                        <span class="card-arrow">→</span>
-                    </div>
-                </a>
-
-                <a href="/asset.html" class="tool-card">
-                    <div class="card-inner">
-                        <span class="card-icon">📈</span>
-                        <div class="card-body">
-                            <div class="card-name">자산 계산기</div>
-                            <div class="card-desc">복리 계산 · 목표 자산 시뮬레이션 · 매매일지 통합</div>
-                        </div>
-                        <span class="card-live">Live</span>
-                        <span class="card-arrow">→</span>
-                    </div>
-                </a>
-
-                <a href="/backtest.html" class="tool-card">
-                    <div class="card-inner">
-                        <span class="card-icon">🧪</span>
-                        <div class="card-body">
-                            <div class="card-name">백테스트 비교기</div>
-                            <div class="card-desc">최대 3개 종목 수익률 · CAGR · MDD 비교</div>
-                        </div>
-                        <span class="card-live">Live</span>
-                        <span class="card-arrow">→</span>
-                    </div>
-                </a>
-
-                <a href="/workout.html" class="tool-card">
-                    <div class="card-inner">
-                        <span class="card-icon">🏋️</span>
-                        <div class="card-body">
-                            <div class="card-name">운동 루틴</div>
-                            <div class="card-desc">주간 루틴 체크 · 세션 기록 · 카테고리별 스트릭</div>
-                        </div>
-                        <span class="card-live">Live</span>
-                        <span class="card-arrow">→</span>
-                    </div>
-                </a>
-
-                <a href="/agents.html" class="tool-card">
-                    <div class="card-inner">
-                        <span class="card-icon">🤖</span>
-                        <div class="card-body">
-                            <div class="card-name">AI 에이전트</div>
-                            <div class="card-desc">서울 부동산 실거래 조회 · AI 역할별 에이전트 구성</div>
-                        </div>
-                        <span class="card-live">Live</span>
-                        <span class="card-arrow">→</span>
-                    </div>
-                </a>
-
-                <a href="/commerce.html" class="tool-card">
-                    <div class="card-inner">
-                        <span class="card-icon">🛒</span>
-                        <div class="card-body">
-                            <div class="card-name">커머스 시스템</div>
-                            <div class="card-desc">OMS · WMS · PLM 통합 — React 상태관리로 주문·재고·상품 흐름 구현</div>
-                        </div>
-                        <span class="card-live">Live</span>
-                        <span class="card-arrow">→</span>
-                    </div>
-                </a>
-
-                <a href="/disaster.html" class="tool-card">
-                    <div class="card-inner">
-                        <span class="card-icon">🚨</span>
-                        <div class="card-body">
-                            <div class="card-name">재난 대응 시뮬레이터</div>
-                            <div class="card-desc">재난유형 선택 후 주변 대피소 점수 기반 추천 — 폭우·지진·한파·화학사고</div>
-                        </div>
-                        <span class="card-live">Live</span>
-                        <span class="card-arrow">→</span>
-                    </div>
-                </a>
-
-                <a href="/Certificate.html" class="tool-card">
-                    <div class="card-inner">
-                        <span class="card-icon">📋</span>
-                        <div class="card-body">
-                            <div class="card-name">자격증 문제풀이</div>
-                            <div class="card-desc">정보처리기사 CBT 문제풀이 · 단원별 학습 · 오답 노트</div>
-                        </div>
-                        <span class="card-live">Live</span>
-                        <span class="card-arrow">→</span>
-                    </div>
-                </a>
-            </div>
-
-            <div class="section-label">🔮 개발 예정</div>
-            <div class="coming-list">
-                <div class="coming-card">
-                    <span>🧾</span>
-                    <span class="coming-card-name">세금 계산기</span>
-                    <span class="coming-tag">Coming Soon</span>
-                </div>
-                <div class="coming-card">
-                    <span>🏦</span>
-                    <span class="coming-card-name">대출 이자 계산기</span>
-                    <span class="coming-tag">Coming Soon</span>
-                </div>
-            </div>
+        <div class="soon-row">
+            <span class="soon-label">🔮 개발 예정</span>
+            <span class="soon-chip">🧾 세금 계산기 <b>SOON</b></span>
+            <span class="soon-chip">🏦 대출 이자 계산기 <b>SOON</b></span>
         </div>
     </div>
 
-    <div id="page-overlay"></div>
+    <div class="stats-bar">
+        <div class="stat">
+            <span class="stat-num hi">8</span>
+            <span class="stat-label">Live Tools</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num">Seoul</span>
+            <span class="stat-label">Based</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num">2026</span>
+            <span class="stat-label">Year</span>
+        </div>
+        <div class="stat">
+            <span class="stat-num">전툴</span>
+            <span class="stat-label">Hand Crafted</span>
+        </div>
+        <span class="stats-copy">직접 제작한 개인 도구 모음 · 2026</span>
+    </div>
+</main>
 
-    <footer class="page-footer">
-        <a href="/" class="footer-brand">임광호 포트폴리오</a>
-        <span class="footer-copy">직접 제작한 개인 도구 모음 · 2026</span>
-    </footer>
+<div id="page-overlay"></div>
 
-    <script>
-        // Theme — persist to localStorage, default light; migrate legacy 'dark' default to light
-        const themeBtn = document.getElementById('themeBtn');
-        if (!localStorage.getItem('hub-theme-migrated')) {
-            localStorage.setItem('hub-theme', 'light');
-            localStorage.setItem('hub-theme-migrated', '1');
-        }
-        const savedTheme = localStorage.getItem('hub-theme') || 'light';
-        let dark = savedTheme === 'dark';
+<script>
+    // Theme
+    const themeBtn = document.getElementById('themeBtn');
+    if (!localStorage.getItem('hub-theme-migrated')) {
+        localStorage.setItem('hub-theme', 'light');
+        localStorage.setItem('hub-theme-migrated', '1');
+    }
+    const savedTheme = localStorage.getItem('hub-theme') || 'light';
+    let dark = savedTheme === 'dark';
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    themeBtn.textContent = dark ? '☀' : '☾';
+
+    themeBtn.addEventListener('click', () => {
+        dark = !dark;
         document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
         themeBtn.textContent = dark ? '☀' : '☾';
+        localStorage.setItem('hub-theme', dark ? 'dark' : 'light');
+    });
 
-        themeBtn.addEventListener('click', () => {
-            dark = !dark;
-            document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-            themeBtn.textContent = dark ? '☀' : '☾';
-            localStorage.setItem('hub-theme', dark ? 'dark' : 'light');
-        });
+    // Clock
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('hero-clock').textContent =
+            String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
 
-        // Clock
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('hero-clock').textContent =
-                String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    // Full-page particle canvas
+    (function () {
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        const COUNT = 38;
+        const LINK_DIST = 120;
+        let W, H, particles;
+
+        function isDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
+        function dotC()  { return isDark() ? 'rgba(139,92,246,0.28)' : 'rgba(109,40,217,0.18)'; }
+        function lineC(a){ return isDark() ? `rgba(139,92,246,${a})` : `rgba(109,40,217,${a})`; }
+
+        function resize() {
+            W = canvas.width  = window.innerWidth;
+            H = canvas.height = window.innerHeight;
         }
-        updateClock();
-        setInterval(updateClock, 30000);
-
-        // ── Particle ground ──
-        (function () {
-            const canvas = document.getElementById('particle-canvas');
-            const ctx = canvas.getContext('2d');
-            const COUNT = 52;
-            const LINK_DIST = 120;
-            const MOUSE_DIST = 150;
-            let W, H, particles, mouse = { x: -9999, y: -9999 };
-
-            function isDark() {
-                return document.documentElement.getAttribute('data-theme') === 'dark';
+        function mkP() {
+            const a = Math.random() * Math.PI * 2, s = 0.14 + Math.random() * 0.18;
+            return { x: Math.random()*W, y: Math.random()*H, vx: Math.cos(a)*s, vy: Math.sin(a)*s, r: 1.2 + Math.random()*1.1 };
+        }
+        function init() { resize(); particles = Array.from({ length: COUNT }, mkP); }
+        function draw() {
+            ctx.clearRect(0,0,W,H);
+            for (const p of particles) {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > W) p.vx *= -1;
+                if (p.y < 0 || p.y > H) p.vy *= -1;
             }
-            function dotColor()  { return isDark() ? 'rgba(139,92,246,0.55)' : 'rgba(99,102,241,0.45)'; }
-            function lineColor() { return isDark() ? 'rgba(139,92,246,VAL)' : 'rgba(99,102,241,VAL)'; }
-
-            function resize() {
-                const r = canvas.parentElement.getBoundingClientRect();
-                W = canvas.width  = r.width;
-                H = canvas.height = r.height;
-            }
-
-            function mkParticle() {
-                const angle = Math.random() * Math.PI * 2;
-                const speed = 0.18 + Math.random() * 0.22;
-                return {
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    r: 1.6 + Math.random() * 1.4,
-                };
-            }
-
-            function init() {
-                resize();
-                particles = Array.from({ length: COUNT }, mkParticle);
-            }
-
-            function draw() {
-                ctx.clearRect(0, 0, W, H);
-                const dc = dotColor();
-
-                // update
-                for (const p of particles) {
-                    p.x += p.vx; p.y += p.vy;
-                    if (p.x < 0 || p.x > W) p.vx *= -1;
-                    if (p.y < 0 || p.y > H) p.vy *= -1;
-                }
-
-                // lines between particles
-                for (let i = 0; i < particles.length; i++) {
-                    for (let j = i + 1; j < particles.length; j++) {
-                        const dx = particles[i].x - particles[j].x;
-                        const dy = particles[i].y - particles[j].y;
-                        const d = Math.sqrt(dx * dx + dy * dy);
-                        if (d < LINK_DIST) {
-                            const alpha = (1 - d / LINK_DIST) * 0.35;
-                            ctx.beginPath();
-                            ctx.strokeStyle = lineColor().replace('VAL', alpha);
-                            ctx.lineWidth = 0.8;
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
-                        }
-                    }
-                    // lines to mouse
-                    const mdx = particles[i].x - mouse.x;
-                    const mdy = particles[i].y - mouse.y;
-                    const md  = Math.sqrt(mdx * mdx + mdy * mdy);
-                    if (md < MOUSE_DIST) {
-                        const alpha = (1 - md / MOUSE_DIST) * 0.55;
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i+1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const d = Math.sqrt(dx*dx + dy*dy);
+                    if (d < LINK_DIST) {
                         ctx.beginPath();
-                        ctx.strokeStyle = lineColor().replace('VAL', alpha);
-                        ctx.lineWidth = 1;
+                        ctx.strokeStyle = lineC((1 - d/LINK_DIST) * 0.18);
+                        ctx.lineWidth = 0.7;
                         ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(mouse.x, mouse.y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
                         ctx.stroke();
                     }
                 }
-
-                // dots
-                ctx.fillStyle = dc;
-                for (const p of particles) {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                requestAnimationFrame(draw);
             }
-
-            // mouse tracking (relative to canvas)
-            canvas.parentElement.addEventListener('mousemove', e => {
-                const r = canvas.getBoundingClientRect();
-                mouse.x = e.clientX - r.left;
-                mouse.y = e.clientY - r.top;
-            });
-            canvas.parentElement.addEventListener('mouseleave', () => {
-                mouse.x = -9999; mouse.y = -9999;
-            });
-
-            window.addEventListener('resize', () => { resize(); });
-
-            init();
-            draw();
-        })();
-
-        // Spotlight glow per card
-        document.querySelectorAll('.tool-card').forEach(card => {
-            card.addEventListener('mousemove', e => {
-                const r = card.getBoundingClientRect();
-                card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-                card.style.setProperty('--my', (e.clientY - r.top) + 'px');
-            });
-        });
-
-        // Page transition on card click
-        const overlay = document.getElementById('page-overlay');
-        document.querySelectorAll('.tool-card').forEach(card => {
-            card.addEventListener('click', e => {
-                const href = card.getAttribute('href');
-                if (!href) return;
-                e.preventDefault();
-                card.style.transition = 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s';
-                card.style.transform = 'translateY(-8px) scale(1.04)';
-                card.style.boxShadow = '0 20px 48px -8px rgba(99,102,241,0.45)';
-                setTimeout(() => {
-                    overlay.classList.add('leaving');
-                    setTimeout(() => { window.location.href = href; }, 280);
-                }, 120);
-            });
-        });
-
-        // Reset overlay and card styles on back/forward navigation (bfcache restore)
-        window.addEventListener('pageshow', (e) => {
-            if (e.persisted) {
-                overlay.style.transition = 'none';
-                overlay.classList.remove('leaving');
-                overlay.offsetHeight; // force reflow
-                overlay.style.transition = '';
-                document.querySelectorAll('.tool-card').forEach(c => {
-                    c.style.transform = '';
-                    c.style.boxShadow = '';
-                    c.style.transition = '';
-                });
+            ctx.fillStyle = dotC();
+            for (const p of particles) {
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
             }
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', resize);
+        init(); draw();
+    })();
+
+    // Spotlight glow per card
+    document.querySelectorAll('.tool-card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const r = card.getBoundingClientRect();
+            card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+            card.style.setProperty('--my', (e.clientY - r.top) + 'px');
         });
-        overlay.classList.remove('leaving');
-    </script>
+    });
+
+    // Page transition
+    const overlay = document.getElementById('page-overlay');
+    document.querySelectorAll('.tool-card').forEach(card => {
+        card.addEventListener('click', e => {
+            const href = card.getAttribute('href');
+            if (!href) return;
+            e.preventDefault();
+            overlay.classList.add('leaving');
+            setTimeout(() => { window.location.href = href; }, 250);
+        });
+    });
+    window.addEventListener('pageshow', e => {
+        if (e.persisted) {
+            overlay.style.transition = 'none';
+            overlay.classList.remove('leaving');
+            requestAnimationFrame(() => { overlay.style.transition = ''; });
+        }
+    });
+</script>
 </body>
 </html>
