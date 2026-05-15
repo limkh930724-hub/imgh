@@ -18,30 +18,41 @@ python -m http.server 8080
 
 Open `http://localhost:8080` in a browser.
 
+### 정보처리기사 quiz build script
+
+`build_study_app.py` generates `정보처리기사_문제풀이.html` (a standalone multi-exam quiz app, separate from `Certificate.html`) by parsing Korean IT exam PDF pairs. Requires `pypdf`:
+
+```bash
+pip install pypdf
+python build_study_app.py
+```
+
+The script auto-discovers PDF pairs in the repo root named `*{YYYYMMDD}*학생용*.pdf` (questions) and `*{YYYYMMDD}*해설집*.pdf` (explanations). `build_20200606_study_app.py` is an older hard-coded version for a single exam date.
+
 ## Architecture
 
 This is a **multi-page portfolio hub**. Each page is a self-contained HTML file (no modules, no bundler). All logic, styles, and markup are inline per file.
 
 | File | Purpose | Lines |
 |---|---|---|
-| `index.html` | Portfolio hub — card grid linking to all tools | ~675 |
-| `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3984 |
-| `asset.html` | 자산 계산기 통합 허브 — 3 tabs: compound, goal, journal | ~717 |
+| `index.html` | Portfolio hub — card grid linking to all tools | ~642 |
+| `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3577 |
+| `asset.html` | 자산 계산기 통합 허브 — 3 tabs: compound, goal, journal | ~664 |
 | `compound.html` | Redirect stub → `/asset.html?tab=compound` | 12 |
 | `goal.html` | Redirect stub → `/asset.html?tab=goal` | 12 |
 | `journal.html` | Redirect stub → `/asset.html?tab=journal` | 12 |
-| `backtest.html` | 백테스트 비교기 (up to 3-ticker comparison) | ~1304 |
-| `workout.html` | 운동 루틴 (workout routine dashboard) | ~432 |
-| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~254 |
-| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1588 |
-| `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1681 |
-| `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용 | ~1120 |
+| `backtest.html` | 백테스트 비교기 (up to 3-ticker comparison) | ~1197 |
+| `workout.html` | 운동 루틴 (workout routine dashboard) | ~431 |
+| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~249 |
+| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1478 |
+| `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1540 |
+| `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용 | ~1155 |
 
 Each HTML file is structured: `<head>` (Inter font + inline `<style>`) → `<body>` (markup) → `<script>` (all app logic).
 
 ### Hub (`index.html`)
 
-Responsive card grid (3-col → 2-col → 1-col) with sticky top nav. Cards link to each tool page. Cards with `card-soon` class are non-clickable (`pointer-events: none`). Dark/light toggle is handled by JS: `data-theme` attribute on `<html>`, persisted to `localStorage('hub-theme')`, default dark.
+Responsive card grid (3-col → 2-col → 1-col) with sticky top nav. Cards link to each tool page. Cards with `card-soon` class are non-clickable (`pointer-events: none`). Dark/light toggle is handled by JS: `data-theme` attribute on `<html>`, persisted to `localStorage('hub-theme')`, default light.
 
 ### Asset Calculator Hub (`asset.html`)
 
@@ -185,8 +196,8 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 - **`index.backup.html`** — snapshot of `index.html` before a major restructure; not served, safe to ignore.
 - **`.codex-*`** — local test artifacts from Codex experiments; not tracked, safe to ignore.
 - **`preview-*.png`, `final-*.png`** — screenshot files from browser testing; local only, gitignored.
-- **`docs/superpowers/specs/`** — design specs for planned features (approved before implementation).
-- **`docs/superpowers/plans/`** — implementation plans generated from specs.
+- **`docs/superpowers/specs/`** — design specs (`*-design.md`) for planned and completed features.
+- **`docs/superpowers/plans/`** — implementation plans (no `-design` suffix) generated from specs.
   - Pending (spec + plan): commerce redesign (`2026-04-17-commerce-redesign.md` — dark slate hero panel + 3×3 tile launcher home, ERP-style, full restyle of `commerce.html`); UI Lab (`2026-04-17-ui-lab.md` — React+Tailwind CDN showcase page, implemented and reverted, plan ready to re-implement); disaster simulator enhancements (`2026-04-22-disaster-sim.md`).
   - Pending (spec only): hub redesign (`2026-04-16-hub-redesign-design.md` — black-and-white agency style, supersedes `2026-04-06` version).
-  - Completed: disaster simulator (`disaster.html` implemented); commerce system (`2026-04-14-commerce-system.md`); backtest 3-ticker support (`2026-04-14-backtest-3ticker.md`); asset calculator hub consolidation (compound + goal + journal → `asset.html`); portfolio hub + fear-greed split (`2026-04-06-portfolio-hub.md`); calculators compound + goal (`2026-04-06-calculators.md`); journal (`2026-04-06-journal.md`); backtest (`2026-04-06-backtest.md`); watchlist tab (`2026-04-02-watchlist-tab.md`); PWA + Calendar + Share (`2026-03-27-pwa-heatmap-share.md`); market features interpreter + portfolio calculator (`2026-03-31-market-features.md`).
+  - Completed: disaster simulator (`disaster.html`); commerce system; backtest 3-ticker; asset calculator hub; portfolio hub + fear-greed split; calculators; journal; backtest; watchlist tab; PWA + Calendar + Share; market features (interpreter + portfolio calculator).
