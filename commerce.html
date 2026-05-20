@@ -898,7 +898,61 @@
 
     const EMPTY_FORM = { brandId:'b1', category:'뷰티', name:'', price:'', originalPrice:'', discount:'0', description:'', tags:'' };
 
-    function AdminInventorySection() { return null; }
+    function AdminInventorySection() {
+      const { products, inventory, adjustInventory } = useContext(StoreContext);
+
+      function stockStatus(productId) {
+        const { qty, threshold } = inventory[productId] ?? { qty:0, threshold:5 };
+        if (qty === 0)          return { cls:'badge-red',   label:'품절' };
+        if (qty <= threshold)   return { cls:'badge-amber', label:'부족' };
+        return                         { cls:'badge-green', label:'정상' };
+      }
+
+      return (
+        <div className="card">
+          <div className="card-header">
+            <span className="card-title">📦 재고 관리</span>
+          </div>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>상품명</th><th>브랜드</th><th>현재 재고</th><th>임계값</th><th>조정</th><th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map(p => {
+                  const brand = getBrand(p.brandId);
+                  const inv   = inventory[p.id] ?? { qty:0, threshold:5 };
+                  const st    = stockStatus(p.id);
+                  return (
+                    <tr key={p.id}>
+                      <td>{p.name}</td>
+                      <td>{brand?.name}</td>
+                      <td style={{fontWeight:700}}>{inv.qty}</td>
+                      <td style={{color:'var(--ink-3)'}}>{inv.threshold}</td>
+                      <td>
+                        <div style={{display:'flex',gap:'.3rem'}}>
+                          {[-5,-1,1,5].map(d => (
+                            <button key={d} className="btn btn-ghost btn-sm"
+                              style={{minWidth:'36px'}}
+                              disabled={d < 0 && inv.qty + d < 0}
+                              onClick={() => adjustInventory(p.id, d)}>
+                              {d > 0 ? `+${d}` : d}
+                            </button>
+                          ))}
+                        </div>
+                      </td>
+                      <td><span className={`badge ${st.cls}`}>{st.label}</span></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
     function ProductModal() {
       const { modal, setModal, inventory, addToCart, toast } = useContext(StoreContext);
       const [qty, setQty] = useState(1);
