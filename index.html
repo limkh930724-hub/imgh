@@ -12,30 +12,32 @@
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --bg: #ffffff;
-            --bg-2: #f4f4f5;
-            --bg-card: #f2f2f2;
-            --ink: #09090b;
-            --ink-2: #52525b;
-            --ink-3: #a1a1aa;
-            --border: rgba(0,0,0,0.07);
-            --border-2: rgba(0,0,0,0.13);
-            --nav-bg: rgba(255,255,255,0.85);
-            --card-bg: rgba(255,255,255,0.6);
-            --glow: rgba(99,102,241,0.15);
+            --bg: #fdf8f2;
+            --bg-2: #f4e9d8;
+            --bg-card: #fdf4e8;
+            --ink: #2c1a08;
+            --ink-2: #6b4c2a;
+            --ink-3: #b5916a;
+            --border: rgba(160,110,60,0.12);
+            --border-2: rgba(160,110,60,0.22);
+            --nav-bg: rgba(253,248,242,0.88);
+            --card-bg: rgba(253,244,232,0.72);
+            --glow: rgba(217,119,6,0.18);
+            --accent: #d97706;
         }
         [data-theme="dark"] {
-            --bg: #09090b;
-            --bg-2: #111113;
-            --bg-card: #1c1c1c;
-            --ink: #fafafa;
-            --ink-2: #a1a1aa;
-            --ink-3: #52525b;
-            --border: rgba(255,255,255,0.06);
-            --border-2: rgba(255,255,255,0.12);
-            --nav-bg: rgba(9,9,11,0.85);
-            --card-bg: rgba(255,255,255,0.04);
-            --glow: rgba(139,92,246,0.18);
+            --bg: #1b1610;
+            --bg-2: #231d15;
+            --bg-card: #2c2419;
+            --ink: #fdefd8;
+            --ink-2: #c9a87c;
+            --ink-3: #7a6040;
+            --border: rgba(160,110,60,0.12);
+            --border-2: rgba(160,110,60,0.22);
+            --nav-bg: rgba(27,22,16,0.88);
+            --card-bg: rgba(255,210,140,0.04);
+            --glow: rgba(245,158,11,0.18);
+            --accent: #f59e0b;
         }
 
         html { overflow-x: hidden; }
@@ -122,7 +124,7 @@
             font-weight: 900; letter-spacing: -0.055em; line-height: 1.05;
             color: var(--ink); margin-bottom: 1.4rem;
         }
-        .hero-headline em { font-style: italic; color: #8b5cf6; }
+        .hero-headline em { font-style: italic; color: var(--accent); }
 
         .hero-sub {
             font-size: 0.92rem; line-height: 1.78;
@@ -190,7 +192,7 @@
         .tool-card:hover {
             border-color: transparent;
             transform: translateY(-4px) scale(1.025);
-            box-shadow: 0 12px 32px -6px rgba(99,102,241,0.28), 0 4px 12px -2px rgba(0,0,0,0.18);
+            box-shadow: 0 12px 32px -6px rgba(217,119,6,0.22), 0 4px 12px -2px rgba(120,60,0,0.12);
         }
 
         /* Gradient border on hover */
@@ -199,7 +201,7 @@
             position: absolute; inset: -1px;
             border-radius: 15px;
             padding: 1px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+            background: linear-gradient(135deg, #f59e0b, #d97706, #b45309);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -269,7 +271,7 @@
             transition: color 0.15s;
         }
         .tool-card:hover .card-arrow {
-            color: #8b5cf6;
+            color: var(--accent);
             animation: bounceRight 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
         }
         .card-live {
@@ -560,8 +562,8 @@
             function isDark() {
                 return document.documentElement.getAttribute('data-theme') === 'dark';
             }
-            function dotColor()  { return isDark() ? 'rgba(139,92,246,0.55)' : 'rgba(99,102,241,0.45)'; }
-            function lineColor() { return isDark() ? 'rgba(139,92,246,VAL)' : 'rgba(99,102,241,VAL)'; }
+            function dotColor()  { return isDark() ? 'rgba(245,158,11,0.45)' : 'rgba(217,119,6,0.35)'; }
+            function lineColor() { return isDark() ? 'rgba(245,158,11,VAL)' : 'rgba(217,119,6,VAL)'; }
 
             function resize() {
                 const r = canvas.parentElement.getBoundingClientRect();
@@ -673,7 +675,7 @@
                 e.preventDefault();
                 card.style.transition = 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.15s';
                 card.style.transform = 'translateY(-8px) scale(1.04)';
-                card.style.boxShadow = '0 20px 48px -8px rgba(99,102,241,0.45)';
+                card.style.boxShadow = '0 20px 48px -8px rgba(217,119,6,0.38)';
                 setTimeout(() => {
                     overlay.classList.add('leaving');
                     setTimeout(() => { window.location.href = href; }, 280);
