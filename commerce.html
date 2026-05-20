@@ -271,7 +271,183 @@
     }
     function getBrand(brandId) { return BRANDS.find(b => b.id === brandId); }
 
-    function App() { return <div style={{padding:'2rem'}}>scaffold ok</div>; }
+    // ── Context ──
+    const StoreContext = createContext(null);
+
+    function StoreProvider({ children }) {
+      const [products,   setProducts]   = useState(() => loadOrInit('dept-products',  INIT_PRODUCTS));
+      const [inventory,  setInventory]  = useState(() => loadOrInit('dept-inventory', INIT_INVENTORY));
+      const [orders,     setOrders]     = useState(() => loadOrInit('dept-orders',    SEED_ORDERS));
+      const [cartItems,  setCartItems]  = useState(() => loadOrInit('dept-cart',      []));
+      const [currentTab, setCurrentTab] = useState('home');
+      const [shopFilter, setShopFilter] = useState({ brands:[], category:'전체', priceRange:'all', search:'' });
+      const [modal,      setModal]      = useState(null);
+      const [toasts,     setToasts]     = useState([]);
+
+      useEffect(() => { save('dept-products',  products);  }, [products]);
+      useEffect(() => { save('dept-inventory', inventory); }, [inventory]);
+      useEffect(() => { save('dept-orders',    orders);    }, [orders]);
+      useEffect(() => { save('dept-cart',      cartItems); }, [cartItems]);
+
+      function toast(msg, type = 'info') {
+        const id = Date.now() + Math.random();
+        setToasts(prev => [...prev, { id, msg, type }]);
+        setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);
+      }
+
+      function addToCart(product, qty = 1) {
+        const brand = getBrand(product.brandId);
+        setCartItems(prev => {
+          const ex = prev.find(ci => ci.productId === product.id);
+          if (ex) return prev.map(ci => ci.productId === product.id ? { ...ci, qty: ci.qty + qty } : ci);
+          return [...prev, { productId:product.id, name:product.name, brandName:brand?.name ?? '', price:product.price, qty, brandColor:brand?.color ?? '#e5e5e5' }];
+        });
+      }
+
+      function updateCartQty(productId, qty) {
+        if (qty <= 0) setCartItems(prev => prev.filter(ci => ci.productId !== productId));
+        else setCartItems(prev => prev.map(ci => ci.productId === productId ? { ...ci, qty } : ci));
+      }
+
+      function removeFromCart(productId) {
+        setCartItems(prev => prev.filter(ci => ci.productId !== productId));
+      }
+
+      function placeOrder() {
+        for (const ci of cartItems) {
+          const stock = inventory[ci.productId]?.qty ?? 0;
+          if (stock < ci.qty) throw new Error(`재고 부족: ${ci.name} (남은 수량 ${stock}개)`);
+        }
+        setInventory(prev => {
+          const next = { ...prev };
+          cartItems.forEach(ci => { next[ci.productId] = { ...next[ci.productId], qty: next[ci.productId].qty - ci.qty }; });
+          return next;
+        });
+        const order = {
+          id: makeOrderId(),
+          items: cartItems.map(ci => ({ productId:ci.productId, name:ci.name, price:ci.price, qty:ci.qty })),
+          totalAmount: cartItems.reduce((s, ci) => s + ci.price * ci.qty, 0),
+          status: 'paid',
+          createdAt: new Date().toISOString(),
+        };
+        setOrders(prev => [order, ...prev]);
+        setCartItems([]);
+        return order;
+      }
+
+      function addProduct(data) {
+        const newId = 'p' + String(Date.now()).slice(-6);
+        setProducts(prev => [...prev, { ...data, id: newId }]);
+        setInventory(prev => ({ ...prev, [newId]: { qty: 10, threshold: 5 } }));
+      }
+
+      function updateProduct(id, data) {
+        setProducts(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+      }
+
+      function deleteProduct(id) {
+        setProducts(prev => prev.filter(p => p.id !== id));
+        setCartItems(prev => prev.filter(ci => ci.productId !== id));
+      }
+
+      function adjustInventory(productId, delta) {
+        setInventory(prev => ({
+          ...prev,
+          [productId]: { ...prev[productId], qty: Math.max(0, (prev[productId]?.qty ?? 0) + delta) },
+        }));
+      }
+
+      function goToShop(filterOverride = {}) {
+        setShopFilter(prev => ({ ...prev, ...filterOverride }));
+        setCurrentTab('shop');
+      }
+
+      return (
+        <StoreContext.Provider value={{
+          products, inventory, orders, cartItems,
+          currentTab, setCurrentTab,
+          shopFilter, setShopFilter,
+          modal, setModal,
+          toasts, toast,
+          addToCart, updateCartQty, removeFromCart, placeOrder,
+          addProduct, updateProduct, deleteProduct,
+          adjustInventory, goToShop,
+        }}>
+          {children}
+        </StoreContext.Provider>
+      );
+    }
+
+    function ToastContainer({ toasts }) {
+      return (
+        <div className="toast-container">
+          {toasts.map(t => (
+            <div key={t.id} className={`toast toast-${t.type}`}>{t.msg}</div>
+          ))}
+        </div>
+      );
+    }
+
+    function TopNav() {
+      const { currentTab, setCurrentTab, cartItems } = useContext(StoreContext);
+      const cartCount = cartItems.reduce((s, ci) => s + ci.qty, 0);
+      const TABS = [
+        { id:'home',  label:'홈' },
+        { id:'shop',  label:'쇼핑몰' },
+        { id:'cart',  label:'장바구니·주문' },
+        { id:'admin', label:'관리자' },
+      ];
+      return (
+        <nav className="topnav">
+          <span className="topnav-brand">DEPT°</span>
+          <div className="topnav-tabs">
+            {TABS.map(t => (
+              <button key={t.id}
+                className={`topnav-tab${currentTab === t.id ? ' active' : ''}`}
+                onClick={() => setCurrentTab(t.id)}>
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <button className="cart-btn" onClick={() => setCurrentTab('cart')}>
+            🛒
+            {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+          </button>
+        </nav>
+      );
+    }
+
+    // Tab placeholder components (Tasks 4–7 will replace these)
+    function HomeTab()  { return <div className="page">홈</div>; }
+    function ShopTab()  { return <div className="page">쇼핑몰</div>; }
+    function CartTab()  { return <div className="page">장바구니</div>; }
+    function AdminTab() { return <div className="page">관리자</div>; }
+    function ProductModal()     { return null; }
+    function ProductFormModal() { return null; }
+
+    function AppInner() {
+      const { currentTab, modal, toasts } = useContext(StoreContext);
+      return (
+        <>
+          <TopNav />
+          {currentTab === 'home'  && <HomeTab />}
+          {currentTab === 'shop'  && <ShopTab />}
+          {currentTab === 'cart'  && <CartTab />}
+          {currentTab === 'admin' && <AdminTab />}
+          {modal?.type === 'product'     && <ProductModal />}
+          {modal?.type === 'productForm' && <ProductFormModal />}
+          <ToastContainer toasts={toasts} />
+        </>
+      );
+    }
+
+    function App() {
+      return (
+        <StoreProvider>
+          <AppInner />
+        </StoreProvider>
+      );
+    }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
