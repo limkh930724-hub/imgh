@@ -482,7 +482,150 @@
     </div>
   );
 }
-    function ShopTab()  { return <div className="page">쇼핑몰</div>; }
+    const PRICE_RANGES = [
+      { id:'all',    label:'전체' },
+      { id:'~50',    label:'5만원 이하',  test: p => p.price <= 50000 },
+      { id:'50~100', label:'5~10만원',    test: p => p.price > 50000 && p.price <= 100000 },
+      { id:'100~',   label:'10만원 이상', test: p => p.price > 100000 },
+    ];
+
+    function ShopTab() {
+      const { products, inventory, shopFilter, setShopFilter, setModal, addToCart, toast } = useContext(StoreContext);
+
+      const filtered = useMemo(() => {
+        return products.filter(p => {
+          if (shopFilter.brands.length && !shopFilter.brands.includes(p.brandId)) return false;
+          if (shopFilter.category !== '전체' && p.category !== shopFilter.category) return false;
+          if (shopFilter.priceRange !== 'all') {
+            const range = PRICE_RANGES.find(r => r.id === shopFilter.priceRange);
+            if (range && !range.test(p)) return false;
+          }
+          if (shopFilter.search) {
+            const q = shopFilter.search.toLowerCase();
+            const brand = getBrand(p.brandId);
+            if (!p.name.toLowerCase().includes(q) && !brand?.name.toLowerCase().includes(q)) return false;
+          }
+          return true;
+        });
+      }, [products, shopFilter]);
+
+      function toggleBrand(id) {
+        setShopFilter(prev => ({
+          ...prev,
+          brands: prev.brands.includes(id) ? prev.brands.filter(b => b !== id) : [...prev.brands, id],
+        }));
+      }
+
+      function handleAddToCart(e, p) {
+        e.stopPropagation();
+        addToCart(p, 1);
+        toast(`${p.name} 장바구니에 담았습니다`, 'success');
+      }
+
+      return (
+        <div className="page" style={{paddingTop:'1.5rem'}}>
+          <input className="search-bar" style={{marginBottom:'1.25rem'}}
+            placeholder="상품명 또는 브랜드 검색..."
+            value={shopFilter.search}
+            onChange={e => setShopFilter(prev => ({ ...prev, search: e.target.value }))}
+          />
+          <div className="shop-layout">
+            <div className="filter-panel">
+              <div className="filter-section">
+                <div className="filter-title">브랜드</div>
+                {BRANDS.map(b => (
+                  <label key={b.id} className="filter-option">
+                    <input type="checkbox"
+                      checked={shopFilter.brands.includes(b.id)}
+                      onChange={() => toggleBrand(b.id)}
+                    />
+                    {b.name}
+                  </label>
+                ))}
+              </div>
+              <div className="filter-section">
+                <div className="filter-title">카테고리</div>
+                {CATEGORIES.map(c => (
+                  <label key={c} className="filter-option">
+                    <input type="radio"
+                      name="category"
+                      checked={shopFilter.category === c}
+                      onChange={() => setShopFilter(prev => ({ ...prev, category: c }))}
+                    />
+                    {c}
+                  </label>
+                ))}
+              </div>
+              <div className="filter-section">
+                <div className="filter-title">가격대</div>
+                <div className="price-btn-group">
+                  {PRICE_RANGES.map(r => (
+                    <button key={r.id}
+                      className={`price-btn${shopFilter.priceRange === r.id ? ' active' : ''}`}
+                      onClick={() => setShopFilter(prev => ({ ...prev, priceRange: r.id }))}>
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button className="btn btn-ghost btn-sm" style={{width:'100%'}}
+                onClick={() => setShopFilter({ brands:[], category:'전체', priceRange:'all', search:'' })}>
+                필터 초기화
+              </button>
+            </div>
+
+            <div>
+              <div style={{fontSize:'.8rem',color:'var(--ink-3)',marginBottom:'1rem'}}>
+                {filtered.length}개 상품
+              </div>
+              {filtered.length === 0 ? (
+                <div className="empty">
+                  <div className="empty-icon">🔍</div>
+                  <div className="empty-text">조건에 맞는 상품이 없습니다</div>
+                </div>
+              ) : (
+                <div className="product-grid">
+                  {filtered.map(p => {
+                    const brand = getBrand(p.brandId);
+                    const stock = inventory[p.id]?.qty ?? 0;
+                    return (
+                      <div key={p.id} className="product-card" onClick={() => setModal({ type:'product', product:p })}>
+                        <div className="product-card-img" style={{background: brand?.color ?? '#f1f1f1'}}>
+                          {brand?.name}
+                        </div>
+                        <div className="product-card-body">
+                          <div className="product-brand">{brand?.name}</div>
+                          <div className="product-name">{p.name}</div>
+                          <div className="product-price">
+                            <span className="price-sale">{fmt(p.price)}</span>
+                            {p.discount > 0 && <>
+                              <span className="price-original">{fmt(p.originalPrice)}</span>
+                              <span className="price-badge">-{p.discount}%</span>
+                            </>}
+                          </div>
+                          {p.tags.length > 0 && (
+                            <div className="product-tags">
+                              {p.tags.map(tag => (
+                                <span key={tag} className={`tag tag-${tag}`}>{tag}</span>
+                              ))}
+                            </div>
+                          )}
+                          <button className="btn btn-primary btn-sm" style={{width:'100%',marginTop:'.75rem'}}
+                            disabled={stock === 0}
+                            onClick={e => handleAddToCart(e, p)}>
+                            {stock === 0 ? '품절' : '장바구니 담기'}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
     function CartTab()  { return <div className="page">장바구니</div>; }
     function AdminTab() { return <div className="page">관리자</div>; }
     function ProductModal()     { return null; }
