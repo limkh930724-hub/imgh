@@ -211,6 +211,66 @@
   <script type="text/babel">
     const { useState, useContext, createContext, useEffect, useRef, useMemo } = React;
 
+    // ── 상수 ──
+    const BRANDS = [
+      { id:'b1', name:'LUMI',   tagline:'빛나는 피부를 위한',   category:'뷰티',    color:'#f9a8d4' },
+      { id:'b2', name:'ARCO',   tagline:'현대적인 남성 스타일', category:'남성패션', color:'#93c5fd' },
+      { id:'b3', name:'VELO',   tagline:'움직임의 자유',        category:'스포츠',  color:'#6ee7b7' },
+      { id:'b4', name:'MASO',   tagline:'공간을 완성하는',      category:'리빙',    color:'#fcd34d' },
+      { id:'b5', name:'ELLE.K', tagline:'여성의 우아함',        category:'여성패션', color:'#c4b5fd' },
+    ];
+
+    const CATEGORIES = ['전체','여성패션','남성패션','뷰티','리빙','스포츠'];
+
+    const INIT_PRODUCTS = [
+      { id:'p01', brandId:'b1', category:'뷰티',    name:'LUMI 글로우 세럼 30ml',     price:68000,  originalPrice:85000,  discount:20, description:'히알루론산 3중 복합체로 피부 깊숙이 수분을 채워주는 세럼. 7일 사용 후 광채 피부 경험.', rating:4.8, reviewCount:234, tags:['베스트'] },
+      { id:'p02', brandId:'b1', category:'뷰티',    name:'LUMI 수분 크림 50ml',       price:52000,  originalPrice:52000,  discount:0,  description:'세라마이드와 스쿠알란이 만나 장벽을 강화하고 촉촉함을 24시간 유지합니다.', rating:4.5, reviewCount:187, tags:[] },
+      { id:'p03', brandId:'b1', category:'뷰티',    name:'LUMI 토닝 앰플 15ml',       price:89000,  originalPrice:118000, discount:25, description:'나이아신아마이드 5% 배합. 잡티와 칙칙함을 집중 개선합니다.', rating:4.9, reviewCount:412, tags:['베스트','한정'] },
+      { id:'p04', brandId:'b2', category:'남성패션', name:'ARCO 슬림 트라우저',        price:89000,  originalPrice:89000,  discount:0,  description:'스트레치 울 혼방 소재. 앵클 기장, 슬림 핏. 격식과 편안함을 동시에.', rating:4.3, reviewCount:98,  tags:['신상'] },
+      { id:'p05', brandId:'b2', category:'남성패션', name:'ARCO 옥스포드 셔츠',        price:65000,  originalPrice:82000,  discount:20, description:'2겹 직조 옥스포드 원단. 세탁 후 형태 유지. 레귤러 핏.', rating:4.4, reviewCount:156, tags:['베스트'] },
+      { id:'p06', brandId:'b2', category:'남성패션', name:'ARCO 울 오버코트',          price:248000, originalPrice:248000, discount:0,  description:'이탈리아산 울 80% 혼방. 더블 브레스트 클래식 실루엣. 베이지/차콜 2컬러.', rating:4.7, reviewCount:72,  tags:['신상'] },
+      { id:'p07', brandId:'b3', category:'스포츠',  name:'VELO 러닝 반바지',          price:42000,  originalPrice:42000,  discount:0,  description:'4방향 스트레치 + 내장 인너팬츠. 뒷면 지퍼 주머니. 5인치 기장.', rating:4.2, reviewCount:203, tags:[] },
+      { id:'p08', brandId:'b3', category:'스포츠',  name:'VELO 컴프레션 티셔츠',      price:38000,  originalPrice:49000,  discount:22, description:'UV 차단 SPF50+. 땀 배출 기능성 원단. 반소매 타이트 핏.', rating:4.5, reviewCount:341, tags:['베스트'] },
+      { id:'p09', brandId:'b3', category:'스포츠',  name:'VELO 트레이닝 재킷',        price:98000,  originalPrice:98000,  discount:0,  description:'경량 윈드브레이커 소재. 전면 풀집 + 양쪽 핸드포켓. 리플렉티브 로고.', rating:4.6, reviewCount:115, tags:['신상'] },
+      { id:'p10', brandId:'b4', category:'리빙',    name:'MASO 워시드 린넨 쿠션커버', price:28000,  originalPrice:28000,  discount:0,  description:'벨기에산 린넨 100%. 자연스러운 워싱 텍스처. 45×45cm. 지퍼 마감.', rating:4.4, reviewCount:89,  tags:[] },
+      { id:'p11', brandId:'b4', category:'리빙',    name:'MASO 오크 우드 트레이',     price:45000,  originalPrice:56000,  discount:20, description:'천연 오크 단목. 왁스 피니쉬. 250×350mm. 욕실·주방·침실 다용도.', rating:4.7, reviewCount:132, tags:['베스트'] },
+      { id:'p12', brandId:'b4', category:'리빙',    name:'MASO 콘크리트 캔들홀더 세트', price:62000, originalPrice:75000,  discount:17, description:'핸드메이드 콘크리트 홀더 2개 세트. 소·중 사이즈. 필라 캔들 호환.', rating:4.3, reviewCount:64,  tags:['한정'] },
+      { id:'p13', brandId:'b5', category:'여성패션', name:'ELLE.K 플로럴 미디원피스',  price:128000, originalPrice:128000, discount:0,  description:'실크 혼방 새틴 소재. 플로럴 패턴. 허리 드로스트링. A라인 미디 기장.', rating:4.6, reviewCount:178, tags:['신상'] },
+      { id:'p14', brandId:'b5', category:'여성패션', name:'ELLE.K 실크 블라우스',      price:96000,  originalPrice:120000, discount:20, description:'모멀리 실크 100%. 리본 넥 타이. 루즈 핏. 오피스룩·데일리룩 겸용.', rating:4.8, reviewCount:245, tags:['베스트'] },
+      { id:'p15', brandId:'b5', category:'여성패션', name:'ELLE.K 캐시미어 가디건',    price:178000, originalPrice:178000, discount:0,  description:'몽골산 캐시미어 100%. 드롭 숄더 오버사이즈. 크롭 기장. 4컬러.', rating:4.9, reviewCount:302, tags:['베스트','한정'] },
+    ];
+
+    const INIT_INVENTORY = {
+      p01:{qty:42,threshold:5}, p02:{qty:8,threshold:5},  p03:{qty:3,threshold:5},
+      p04:{qty:25,threshold:5}, p05:{qty:0,threshold:5},  p06:{qty:12,threshold:3},
+      p07:{qty:60,threshold:10}, p08:{qty:4,threshold:5}, p09:{qty:18,threshold:5},
+      p10:{qty:35,threshold:5}, p11:{qty:2,threshold:3},  p12:{qty:7,threshold:3},
+      p13:{qty:22,threshold:5}, p14:{qty:15,threshold:5}, p15:{qty:6,threshold:5},
+    };
+
+    const SEED_ORDERS = [
+      { id:'ORD-1715000001-ABC', items:[{productId:'p01',name:'LUMI 글로우 세럼 30ml',price:68000,qty:2}], totalAmount:136000, status:'delivered', createdAt:'2026-05-01T10:00:00.000Z' },
+      { id:'ORD-1715000002-DEF', items:[{productId:'p14',name:'ELLE.K 실크 블라우스',price:96000,qty:1},{productId:'p10',name:'MASO 워시드 린넨 쿠션커버',price:28000,qty:2}], totalAmount:152000, status:'shipping', createdAt:'2026-05-10T14:30:00.000Z' },
+      { id:'ORD-1715000003-GHI', items:[{productId:'p08',name:'VELO 컴프레션 티셔츠',price:38000,qty:3}], totalAmount:114000, status:'paid', createdAt:'2026-05-15T09:00:00.000Z' },
+      { id:'ORD-1715000004-JKL', items:[{productId:'p06',name:'ARCO 울 오버코트',price:248000,qty:1}], totalAmount:248000, status:'cancelled', createdAt:'2026-05-03T16:00:00.000Z' },
+      { id:'ORD-1715000005-MNO', items:[{productId:'p15',name:'ELLE.K 캐시미어 가디건',price:178000,qty:1},{productId:'p03',name:'LUMI 토닝 앰플 15ml',price:89000,qty:1}], totalAmount:267000, status:'delivered', createdAt:'2026-05-12T11:00:00.000Z' },
+    ];
+
+    // ── 헬퍼 ──
+    function loadOrInit(key, fallback) {
+      try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; }
+      catch { return fallback; }
+    }
+    function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
+    function fmt(n) { return Number(n).toLocaleString('ko-KR') + '원'; }
+    function fmtDate(iso) {
+      return new Date(iso).toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+    }
+    function makeOrderId() {
+      return `ORD-${Date.now()}-${Math.random().toString(36).slice(2,5).toUpperCase()}`;
+    }
+    function getBrand(brandId) { return BRANDS.find(b => b.id === brandId); }
+
     function App() { return <div style={{padding:'2rem'}}>scaffold ok</div>; }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
