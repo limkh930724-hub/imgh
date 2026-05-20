@@ -1027,7 +1027,7 @@
           category: form.category,
           name: form.name.trim(),
           price: Number(form.price),
-          originalPrice: Number(form.originalPrice) || Number(form.price),
+          originalPrice: form.originalPrice.trim() ? Number(form.originalPrice) : Number(form.price),
           discount: Number(form.discount) || 0,
           description: form.description.trim(),
           rating: editing?.rating ?? 4.0,
