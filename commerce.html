@@ -418,7 +418,70 @@
     }
 
     // Tab placeholder components (Tasks 4–7 will replace these)
-    function HomeTab()  { return <div className="page">홈</div>; }
+    function HomeTab() {
+  const { products, goToShop, setModal } = useContext(StoreContext);
+
+  const featured = useMemo(() => {
+    return BRANDS.map(b => products.find(p => p.brandId === b.id)).filter(Boolean);
+  }, [products]);
+
+  const CAT_ICONS = { '전체':'🏬', '여성패션':'👗', '남성패션':'👔', '뷰티':'💄', '리빙':'🛋', '스포츠':'🏃' };
+
+  return (
+    <div className="page" style={{paddingTop:'1.5rem'}}>
+      <div className="hero">
+        <div className="hero-tag">2026 Summer Collection</div>
+        <div className="hero-title">새로운 시즌,<br/>새로운 나를 만나다</div>
+        <div className="hero-sub">DEPT°가 엄선한 브랜드와 함께 이번 여름을 완성하세요.</div>
+        <button className="btn btn-primary" style={{background:'#fff',color:'#111'}}
+          onClick={() => goToShop()}>
+          지금 쇼핑하기 →
+        </button>
+      </div>
+
+      <div className="section-heading">브랜드</div>
+      <div className="brand-strip">
+        {BRANDS.map(b => (
+          <div key={b.id} className="brand-card" onClick={() => goToShop({ brands:[b.id], category:'전체' })}>
+            <div className="brand-circle" style={{background: b.color}}>{b.name}</div>
+            <div className="brand-name">{b.name}</div>
+            <div className="brand-tagline">{b.tagline}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="section-heading">카테고리</div>
+      <div className="cat-grid">
+        {CATEGORIES.map(c => (
+          <div key={c} className="cat-chip" onClick={() => goToShop({ category: c, brands:[] })}>
+            {CAT_ICONS[c] ?? ''} {c}
+          </div>
+        ))}
+      </div>
+
+      <div className="section-sep" />
+
+      <div className="section-heading">이번 주 베스트</div>
+      <div className="feat-strip">
+        {featured.map(p => {
+          const brand = getBrand(p.brandId);
+          return (
+            <div key={p.id} className="feat-card" onClick={() => setModal({ type:'product', product:p })}>
+              <div className="feat-img" style={{background: brand?.color ?? '#f1f1f1'}}>
+                {brand?.name}
+              </div>
+              <div className="feat-body">
+                <div className="feat-brand">{brand?.name}</div>
+                <div className="feat-name">{p.name}</div>
+                <div className="feat-price">{fmt(p.price)}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
     function ShopTab()  { return <div className="page">쇼핑몰</div>; }
     function CartTab()  { return <div className="page">장바구니</div>; }
     function AdminTab() { return <div className="page">관리자</div>; }
