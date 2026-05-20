@@ -1,0 +1,1450 @@
+# 백화점형 이커머스 Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** `commerce.html`을 백화점 온라인몰(홈/쇼핑몰/장바구니·주문/관리자 탭 4뷰, mockData 기반)로 전면 교체한다.
+
+**Architecture:** 단일 HTML 파일. React 18 CDN + Babel Standalone. 단일 `StoreContext`가 products/inventory/cart/orders/modal/toast 상태 전체를 관리한다. 탭 전환은 `currentTab` 상태만 바꾼다.
+
+**Tech Stack:** React 18 CDN, Babel Standalone, Inter 폰트(Google Fonts), vanilla canvas(매출 차트), localStorage 영속성
+
+---
+
+## Task 1: HTML Shell + CSS
+
+**Files:**
+- Create/Replace: `commerce.html` — 전체 파일 (HTML 뼈대 + CSS + 빈 App 컴포넌트)
+
+- [ ] **Step 1: `commerce.html` 전체를 아래 내용으로 교체한다**
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>백화점 온라인몰 | 임광호 포트폴리오</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏬</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg: #ffffff; --bg-2: #f8f8f8; --bg-3: #f1f1f1;
+      --ink: #111111; --ink-2: #555555; --ink-3: #999999;
+      --border: #e5e5e5;
+      --accent: #111111; --accent-bg: #f0f0f0;
+      --ok: #16a34a; --warn: #d97706; --danger: #dc2626;
+      --radius: 8px;
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+    /* ── TopNav ── */
+    .topnav { position: sticky; top: 0; z-index: 200; background: var(--bg); border-bottom: 1px solid var(--border); height: 56px; padding: 0 2rem; display: flex; align-items: center; }
+    .topnav-brand { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em; color: var(--ink); margin-right: 2rem; }
+    .topnav-tabs { display: flex; flex: 1; }
+    .topnav-tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 0 1rem; height: 56px; font-family: inherit; font-size: 0.875rem; font-weight: 500; color: var(--ink-3); cursor: pointer; transition: color .15s, border-color .15s; white-space: nowrap; }
+    .topnav-tab:hover { color: var(--ink-2); }
+    .topnav-tab.active { color: var(--ink); font-weight: 700; border-bottom-color: var(--ink); }
+    .cart-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; position: relative; padding: .3rem .5rem; margin-left: auto; }
+    .cart-badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: #fff; font-size: .6rem; font-weight: 800; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
+
+    /* ── Layout ── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .5rem 1rem; border-radius: var(--radius); font-family: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all .15s; }
+    .btn-primary { background: var(--ink); color: #fff; }
+    .btn-primary:hover { background: #333; }
+    .btn-primary:disabled { background: var(--ink-3); cursor: not-allowed; }
+    .btn-ghost { background: none; border-color: var(--border); color: var(--ink-2); }
+    .btn-ghost:hover { background: var(--bg-2); }
+    .btn-danger { background: none; border-color: var(--danger); color: var(--danger); }
+    .btn-danger:hover { background: #fef2f2; }
+    .btn-sm { padding: .3rem .65rem; font-size: .78rem; }
+
+    /* ── Badges ── */
+    .badge { display: inline-flex; align-items: center; padding: .18rem .48rem; border-radius: 4px; font-size: .7rem; font-weight: 700; }
+    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+    .badge-amber  { background: #fef3c7; color: #92400e; }
+    .badge-green  { background: #dcfce7; color: #166534; }
+    .badge-red    { background: #fee2e2; color: #991b1b; }
+    .badge-gray   { background: var(--bg-3); color: var(--ink-2); }
+    .badge-pink   { background: #fce7f3; color: #9d174d; }
+
+    /* ── Stat cards ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+    .stat-label { font-size: .7rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .5rem; }
+    .stat-value { font-size: 1.5rem; font-weight: 800; }
+
+    /* ── Content card ── */
+    .card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
+    .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-title { font-size: .9rem; font-weight: 700; }
+    .card-body { padding: 1.25rem; }
+
+    /* ── Table ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: .7rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; padding: .65rem 1rem; text-align: left; background: var(--bg-2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: .75rem 1rem; font-size: .82rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg-2); }
+
+    /* ── Modal ── */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .modal { background: var(--bg); border-radius: 12px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); width: 100%; }
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-size: 1rem; font-weight: 700; }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--ink-3); padding: .2rem; line-height: 1; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: .75rem; justify-content: flex-end; }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 1rem; }
+    .form-label { display: block; font-size: .78rem; font-weight: 600; color: var(--ink-2); margin-bottom: .35rem; }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: .5rem .75rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: .85rem; background: var(--bg); color: var(--ink); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--ink); }
+    .form-textarea { resize: vertical; min-height: 80px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* ── Qty stepper ── */
+    .qty-stepper { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .qty-btn { background: none; border: none; width: 32px; height: 32px; cursor: pointer; font-size: 1rem; color: var(--ink-2); display: flex; align-items: center; justify-content: center; }
+    .qty-btn:hover:not(:disabled) { background: var(--bg-2); }
+    .qty-btn:disabled { color: var(--border); cursor: not-allowed; }
+    .qty-val { width: 40px; text-align: center; font-size: .85rem; font-weight: 600; border-left: 1px solid var(--border); border-right: 1px solid var(--border); line-height: 32px; }
+
+    /* ── Toast ── */
+    .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 500; display: flex; flex-direction: column; gap: .5rem; pointer-events: none; }
+    .toast { padding: .75rem 1.25rem; border-radius: var(--radius); font-size: .85rem; font-weight: 500; color: #fff; min-width: 220px; box-shadow: 0 4px 16px rgba(0,0,0,.15); animation: slideIn .2s ease; }
+    .toast-success { background: #16a34a; }
+    .toast-error   { background: #dc2626; }
+    .toast-info    { background: var(--ink); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    /* ── Search ── */
+    .search-bar { width: 100%; padding: .65rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: .9rem; background: var(--bg-2); }
+    .search-bar:focus { outline: none; border-color: var(--ink); background: var(--bg); }
+
+    /* ── Product card ── */
+    .product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }
+    .product-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow .15s, transform .15s; background: var(--bg); }
+    .product-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); transform: translateY(-2px); }
+    .product-card-img { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; letter-spacing: -.02em; color: rgba(0,0,0,.25); }
+    .product-card-body { padding: .9rem; }
+    .product-brand { font-size: .72rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .25rem; }
+    .product-name { font-size: .88rem; font-weight: 600; line-height: 1.3; margin-bottom: .5rem; }
+    .product-price { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
+    .price-sale { font-size: .95rem; font-weight: 800; }
+    .price-original { font-size: .78rem; color: var(--ink-3); text-decoration: line-through; }
+    .price-badge { font-size: .68rem; font-weight: 700; color: #dc2626; background: #fee2e2; padding: .1rem .35rem; border-radius: 3px; }
+    .product-tags { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .5rem; }
+    .tag { font-size: .65rem; font-weight: 700; padding: .15rem .4rem; border-radius: 3px; background: var(--bg-3); color: var(--ink-2); }
+    .tag-best   { background: #fef3c7; color: #92400e; }
+    .tag-신상   { background: #dcfce7; color: #166534; }
+    .tag-한정   { background: #fce7f3; color: #9d174d; }
+
+    /* ── Shop layout ── */
+    .shop-layout { display: grid; grid-template-columns: 200px 1fr; gap: 1.5rem; align-items: start; }
+    .filter-panel { border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; position: sticky; top: 72px; }
+    .filter-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin-bottom: .75rem; }
+    .filter-section { margin-bottom: 1.25rem; }
+    .filter-option { display: flex; align-items: center; gap: .5rem; font-size: .83rem; cursor: pointer; padding: .25rem 0; }
+    .filter-option input { cursor: pointer; }
+    .price-btn-group { display: flex; flex-direction: column; gap: .3rem; }
+    .price-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: .3rem .6rem; font-family: inherit; font-size: .78rem; cursor: pointer; text-align: left; color: var(--ink-2); }
+    .price-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+    /* ── Cart ── */
+    .cart-layout { display: grid; grid-template-columns: 1fr 280px; gap: 1.5rem; align-items: start; }
+    .cart-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+    .cart-item:last-child { border-bottom: none; }
+    .cart-thumb { width: 52px; height: 52px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 800; color: rgba(0,0,0,.25); flex-shrink: 0; }
+    .cart-info { flex: 1; min-width: 0; }
+    .cart-brand { font-size: .72rem; color: var(--ink-3); font-weight: 600; text-transform: uppercase; }
+    .cart-name  { font-size: .85rem; font-weight: 600; }
+    .cart-price { font-size: .82rem; color: var(--ink-2); width: 80px; text-align: right; flex-shrink: 0; }
+    .cart-sub   { font-size: .88rem; font-weight: 700; width: 90px; text-align: right; flex-shrink: 0; }
+    .order-summary { border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; position: sticky; top: 72px; }
+    .summary-row { display: flex; justify-content: space-between; font-size: .85rem; color: var(--ink-2); padding: .35rem 0; }
+    .summary-total { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 800; padding-top: .75rem; margin-top: .5rem; border-top: 2px solid var(--ink); }
+
+    /* ── Home ── */
+    .hero { background: linear-gradient(135deg, #111 0%, #333 100%); border-radius: 16px; padding: 3.5rem 3rem; color: #fff; margin-bottom: 2.5rem; }
+    .hero-tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: .75rem; }
+    .hero-title { font-size: 2.25rem; font-weight: 800; line-height: 1.15; margin-bottom: 1rem; }
+    .hero-sub { font-size: .95rem; color: rgba(255,255,255,.65); margin-bottom: 1.75rem; }
+    .brand-strip { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 2.5rem; scrollbar-width: none; }
+    .brand-strip::-webkit-scrollbar { display: none; }
+    .brand-card { flex-shrink: 0; width: 160px; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1rem; cursor: pointer; transition: box-shadow .15s, transform .15s; text-align: center; }
+    .brand-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); transform: translateY(-2px); }
+    .brand-circle { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto .75rem; display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 800; letter-spacing: -.01em; color: rgba(0,0,0,.4); }
+    .brand-name { font-size: .85rem; font-weight: 800; letter-spacing: -.01em; margin-bottom: .25rem; }
+    .brand-tagline { font-size: .72rem; color: var(--ink-3); }
+    .cat-grid { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .cat-chip { padding: .45rem 1rem; border: 1px solid var(--border); border-radius: 20px; font-size: .82rem; cursor: pointer; transition: all .15s; background: var(--bg); }
+    .cat-chip:hover, .cat-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .section-heading { font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem; }
+    .section-sep { height: 1px; background: var(--border); margin: 2rem 0; }
+    .feat-strip { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: .5rem; scrollbar-width: none; }
+    .feat-strip::-webkit-scrollbar { display: none; }
+    .feat-card { flex-shrink: 0; width: 200px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow .15s; }
+    .feat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+    .feat-img { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: rgba(0,0,0,.22); }
+    .feat-body { padding: .75rem; }
+    .feat-brand { font-size: .68rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+    .feat-name  { font-size: .82rem; font-weight: 600; line-height: 1.3; margin: .2rem 0; }
+    .feat-price { font-size: .88rem; font-weight: 800; }
+
+    /* ── Product detail modal ── */
+    .prod-modal-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .prod-modal-img { display: flex; align-items: center; justify-content: center; height: 320px; font-size: 3rem; font-weight: 800; color: rgba(0,0,0,.22); }
+    .prod-modal-info { padding: 1.5rem; }
+    .prod-modal-brand { font-size: .75rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem; }
+    .prod-modal-name  { font-size: 1.1rem; font-weight: 800; line-height: 1.3; margin-bottom: .5rem; }
+    .prod-rating { font-size: .82rem; color: var(--ink-3); margin-bottom: .75rem; }
+    .prod-modal-price { font-size: 1.4rem; font-weight: 800; margin-bottom: .25rem; }
+    .prod-modal-original { font-size: .85rem; color: var(--ink-3); text-decoration: line-through; margin-bottom: .75rem; }
+    .prod-modal-desc { font-size: .83rem; color: var(--ink-2); line-height: 1.6; margin-bottom: 1rem; }
+    .prod-stock { font-size: .8rem; color: var(--ink-3); margin-bottom: 1rem; }
+    .prod-stock.low  { color: var(--warn); }
+    .prod-stock.out  { color: var(--danger); font-weight: 700; }
+    .qty-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+
+    /* ── Admin chart ── */
+    .chart-wrap { background: var(--bg-2); border-radius: var(--radius); padding: 1rem; }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 3rem 1rem; color: var(--ink-3); }
+    .empty-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+    .empty-text { font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useContext, createContext, useEffect, useRef, useMemo } = React;
+
+    function App() { return <div style={{padding:'2rem'}}>scaffold ok</div>; }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
+```
+
+- [ ] **Step 2: 브라우저에서 확인한다**
+
+```bash
+npx serve . -p 8080
+# http://localhost:8080/commerce.html 열기
+```
+
+확인: "scaffold ok" 텍스트가 보이면 HTML 뼈대 정상. 콘솔 에러 없어야 함.
+
+- [ ] **Step 3: 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: 백화점몰 HTML 뼈대 + 전체 CSS"
+```
+
+---
+
+## Task 2: mockData + Helper Functions
+
+**Files:**
+- Modify: `commerce.html` — `<script type="text/babel">` 안 맨 위에 상수 + 헬퍼 삽입
+
+- [ ] **Step 1: `App` 함수 위에 아래 코드를 삽입한다**
+
+```js
+// ── 상수 ──
+const BRANDS = [
+  { id:'b1', name:'LUMI',   tagline:'빛나는 피부를 위한',   category:'뷰티',    color:'#f9a8d4' },
+  { id:'b2', name:'ARCO',   tagline:'현대적인 남성 스타일', category:'남성패션', color:'#93c5fd' },
+  { id:'b3', name:'VELO',   tagline:'움직임의 자유',        category:'스포츠',  color:'#6ee7b7' },
+  { id:'b4', name:'MASO',   tagline:'공간을 완성하는',      category:'리빙',    color:'#fcd34d' },
+  { id:'b5', name:'ELLE.K', tagline:'여성의 우아함',        category:'여성패션', color:'#c4b5fd' },
+];
+
+const CATEGORIES = ['전체','여성패션','남성패션','뷰티','리빙','스포츠'];
+
+const INIT_PRODUCTS = [
+  { id:'p01', brandId:'b1', category:'뷰티',    name:'LUMI 글로우 세럼 30ml',     price:68000,  originalPrice:85000,  discount:20, description:'히알루론산 3중 복합체로 피부 깊숙이 수분을 채워주는 세럼. 7일 사용 후 광채 피부 경험.', rating:4.8, reviewCount:234, tags:['베스트'] },
+  { id:'p02', brandId:'b1', category:'뷰티',    name:'LUMI 수분 크림 50ml',       price:52000,  originalPrice:52000,  discount:0,  description:'세라마이드와 스쿠알란이 만나 장벽을 강화하고 촉촉함을 24시간 유지합니다.', rating:4.5, reviewCount:187, tags:[] },
+  { id:'p03', brandId:'b1', category:'뷰티',    name:'LUMI 토닝 앰플 15ml',       price:89000,  originalPrice:118000, discount:25, description:'나이아신아마이드 5% 배합. 잡티와 칙칙함을 집중 개선합니다.', rating:4.9, reviewCount:412, tags:['베스트','한정'] },
+  { id:'p04', brandId:'b2', category:'남성패션', name:'ARCO 슬림 트라우저',        price:89000,  originalPrice:89000,  discount:0,  description:'스트레치 울 혼방 소재. 앵클 기장, 슬림 핏. 격식과 편안함을 동시에.', rating:4.3, reviewCount:98,  tags:['신상'] },
+  { id:'p05', brandId:'b2', category:'남성패션', name:'ARCO 옥스포드 셔츠',        price:65000,  originalPrice:82000,  discount:20, description:'2겹 직조 옥스포드 원단. 세탁 후 형태 유지. 레귤러 핏.', rating:4.4, reviewCount:156, tags:['베스트'] },
+  { id:'p06', brandId:'b2', category:'남성패션', name:'ARCO 울 오버코트',          price:248000, originalPrice:248000, discount:0,  description:'이탈리아산 울 80% 혼방. 더블 브레스트 클래식 실루엣. 베이지/차콜 2컬러.', rating:4.7, reviewCount:72,  tags:['신상'] },
+  { id:'p07', brandId:'b3', category:'스포츠',  name:'VELO 러닝 반바지',          price:42000,  originalPrice:42000,  discount:0,  description:'4방향 스트레치 + 내장 인너팬츠. 뒷면 지퍼 주머니. 5인치 기장.', rating:4.2, reviewCount:203, tags:[] },
+  { id:'p08', brandId:'b3', category:'스포츠',  name:'VELO 컴프레션 티셔츠',      price:38000,  originalPrice:49000,  discount:22, description:'UV 차단 SPF50+. 땀 배출 기능성 원단. 반소매 타이트 핏.', rating:4.5, reviewCount:341, tags:['베스트'] },
+  { id:'p09', brandId:'b3', category:'스포츠',  name:'VELO 트레이닝 재킷',        price:98000,  originalPrice:98000,  discount:0,  description:'경량 윈드브레이커 소재. 전면 풀집 + 양쪽 핸드포켓. 리플렉티브 로고.', rating:4.6, reviewCount:115, tags:['신상'] },
+  { id:'p10', brandId:'b4', category:'리빙',    name:'MASO 워시드 린넨 쿠션커버', price:28000,  originalPrice:28000,  discount:0,  description:'벨기에산 린넨 100%. 자연스러운 워싱 텍스처. 45×45cm. 지퍼 마감.', rating:4.4, reviewCount:89,  tags:[] },
+  { id:'p11', brandId:'b4', category:'리빙',    name:'MASO 오크 우드 트레이',     price:45000,  originalPrice:56000,  discount:20, description:'천연 오크 단목. 왁스 피니쉬. 250×350mm. 욕실·주방·침실 다용도.', rating:4.7, reviewCount:132, tags:['베스트'] },
+  { id:'p12', brandId:'b4', category:'리빙',    name:'MASO 콘크리트 캔들홀더 세트', price:62000, originalPrice:75000,  discount:17, description:'핸드메이드 콘크리트 홀더 2개 세트. 소·중 사이즈. 필라 캔들 호환.', rating:4.3, reviewCount:64,  tags:['한정'] },
+  { id:'p13', brandId:'b5', category:'여성패션', name:'ELLE.K 플로럴 미디원피스',  price:128000, originalPrice:128000, discount:0,  description:'실크 혼방 새틴 소재. 플로럴 패턴. 허리 드로스트링. A라인 미디 기장.', rating:4.6, reviewCount:178, tags:['신상'] },
+  { id:'p14', brandId:'b5', category:'여성패션', name:'ELLE.K 실크 블라우스',      price:96000,  originalPrice:120000, discount:20, description:'모멀리 실크 100%. 리본 넥 타이. 루즈 핏. 오피스룩·데일리룩 겸용.', rating:4.8, reviewCount:245, tags:['베스트'] },
+  { id:'p15', brandId:'b5', category:'여성패션', name:'ELLE.K 캐시미어 가디건',    price:178000, originalPrice:178000, discount:0,  description:'몽골산 캐시미어 100%. 드롭 숄더 오버사이즈. 크롭 기장. 4컬러.', rating:4.9, reviewCount:302, tags:['베스트','한정'] },
+];
+
+const INIT_INVENTORY = {
+  p01:{qty:42,threshold:5}, p02:{qty:8,threshold:5},  p03:{qty:3,threshold:5},
+  p04:{qty:25,threshold:5}, p05:{qty:0,threshold:5},  p06:{qty:12,threshold:3},
+  p07:{qty:60,threshold:10}, p08:{qty:4,threshold:5}, p09:{qty:18,threshold:5},
+  p10:{qty:35,threshold:5}, p11:{qty:2,threshold:3},  p12:{qty:7,threshold:3},
+  p13:{qty:22,threshold:5}, p14:{qty:15,threshold:5}, p15:{qty:6,threshold:5},
+};
+
+const SEED_ORDERS = [
+  { id:'ORD-1715000001-ABC', items:[{productId:'p01',name:'LUMI 글로우 세럼 30ml',price:68000,qty:2}], totalAmount:136000, status:'delivered', createdAt:'2026-05-01T10:00:00.000Z' },
+  { id:'ORD-1715000002-DEF', items:[{productId:'p14',name:'ELLE.K 실크 블라우스',price:96000,qty:1},{productId:'p10',name:'MASO 워시드 린넨 쿠션커버',price:28000,qty:2}], totalAmount:152000, status:'shipping', createdAt:'2026-05-10T14:30:00.000Z' },
+  { id:'ORD-1715000003-GHI', items:[{productId:'p08',name:'VELO 컴프레션 티셔츠',price:38000,qty:3}], totalAmount:114000, status:'paid', createdAt:'2026-05-15T09:00:00.000Z' },
+  { id:'ORD-1715000004-JKL', items:[{productId:'p06',name:'ARCO 울 오버코트',price:248000,qty:1}], totalAmount:248000, status:'cancelled', createdAt:'2026-05-03T16:00:00.000Z' },
+  { id:'ORD-1715000005-MNO', items:[{productId:'p15',name:'ELLE.K 캐시미어 가디건',price:178000,qty:1},{productId:'p03',name:'LUMI 토닝 앰플 15ml',price:89000,qty:1}], totalAmount:267000, status:'delivered', createdAt:'2026-05-12T11:00:00.000Z' },
+];
+
+// ── 헬퍼 ──
+function loadOrInit(key, fallback) {
+  try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; }
+  catch { return fallback; }
+}
+function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
+function fmt(n) { return Number(n).toLocaleString('ko-KR') + '원'; }
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+function makeOrderId() {
+  return `ORD-${Date.now()}-${Math.random().toString(36).slice(2,5).toUpperCase()}`;
+}
+function getBrand(brandId) { return BRANDS.find(b => b.id === brandId); }
+```
+
+- [ ] **Step 2: 브라우저 콘솔에서 확인한다**
+
+```js
+// 브라우저 콘솔에 직접 입력
+INIT_PRODUCTS.length  // → 15
+BRANDS.length         // → 5
+fmt(68000)            // → "68,000원"
+```
+
+- [ ] **Step 3: 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: mockData(브랜드5·상품15·주문5) + 헬퍼 함수"
+```
+
+---
+
+## Task 3: StoreContext + StoreProvider + App skeleton
+
+**Files:**
+- Modify: `commerce.html` — mockData 아래에 Context/Provider/App 추가
+
+- [ ] **Step 1: mockData 블록 아래에 `StoreContext`와 `StoreProvider`를 추가한다**
+
+```jsx
+// ── Context ──
+const StoreContext = createContext(null);
+
+function StoreProvider({ children }) {
+  const [products,   setProducts]   = useState(() => loadOrInit('dept-products',  INIT_PRODUCTS));
+  const [inventory,  setInventory]  = useState(() => loadOrInit('dept-inventory', INIT_INVENTORY));
+  const [orders,     setOrders]     = useState(() => loadOrInit('dept-orders',    SEED_ORDERS));
+  const [cartItems,  setCartItems]  = useState(() => loadOrInit('dept-cart',      []));
+  const [currentTab, setCurrentTab] = useState('home');
+  const [shopFilter, setShopFilter] = useState({ brands:[], category:'전체', priceRange:'all', search:'' });
+  const [modal,      setModal]      = useState(null);
+  const [toasts,     setToasts]     = useState([]);
+
+  useEffect(() => { save('dept-products',  products);  }, [products]);
+  useEffect(() => { save('dept-inventory', inventory); }, [inventory]);
+  useEffect(() => { save('dept-orders',    orders);    }, [orders]);
+  useEffect(() => { save('dept-cart',      cartItems); }, [cartItems]);
+
+  function toast(msg, type = 'info') {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);
+  }
+
+  function addToCart(product, qty = 1) {
+    const brand = getBrand(product.brandId);
+    setCartItems(prev => {
+      const ex = prev.find(ci => ci.productId === product.id);
+      if (ex) return prev.map(ci => ci.productId === product.id ? { ...ci, qty: ci.qty + qty } : ci);
+      return [...prev, { productId:product.id, name:product.name, brandName:brand?.name ?? '', price:product.price, qty, brandColor:brand?.color ?? '#e5e5e5' }];
+    });
+  }
+
+  function updateCartQty(productId, qty) {
+    if (qty <= 0) setCartItems(prev => prev.filter(ci => ci.productId !== productId));
+    else setCartItems(prev => prev.map(ci => ci.productId === productId ? { ...ci, qty } : ci));
+  }
+
+  function removeFromCart(productId) {
+    setCartItems(prev => prev.filter(ci => ci.productId !== productId));
+  }
+
+  function placeOrder() {
+    for (const ci of cartItems) {
+      const stock = inventory[ci.productId]?.qty ?? 0;
+      if (stock < ci.qty) throw new Error(`재고 부족: ${ci.name} (남은 수량 ${stock}개)`);
+    }
+    setInventory(prev => {
+      const next = { ...prev };
+      cartItems.forEach(ci => { next[ci.productId] = { ...next[ci.productId], qty: next[ci.productId].qty - ci.qty }; });
+      return next;
+    });
+    const order = {
+      id: makeOrderId(),
+      items: cartItems.map(ci => ({ productId:ci.productId, name:ci.name, price:ci.price, qty:ci.qty })),
+      totalAmount: cartItems.reduce((s, ci) => s + ci.price * ci.qty, 0),
+      status: 'paid',
+      createdAt: new Date().toISOString(),
+    };
+    setOrders(prev => [order, ...prev]);
+    setCartItems([]);
+    return order;
+  }
+
+  function addProduct(data) {
+    const newId = 'p' + String(Date.now()).slice(-6);
+    setProducts(prev => [...prev, { ...data, id: newId }]);
+    setInventory(prev => ({ ...prev, [newId]: { qty: 10, threshold: 5 } }));
+  }
+
+  function updateProduct(id, data) {
+    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+  }
+
+  function deleteProduct(id) {
+    setProducts(prev => prev.filter(p => p.id !== id));
+    setCartItems(prev => prev.filter(ci => ci.productId !== id));
+  }
+
+  function adjustInventory(productId, delta) {
+    setInventory(prev => ({
+      ...prev,
+      [productId]: { ...prev[productId], qty: Math.max(0, (prev[productId]?.qty ?? 0) + delta) },
+    }));
+  }
+
+  function goToShop(filterOverride = {}) {
+    setShopFilter(prev => ({ ...prev, ...filterOverride }));
+    setCurrentTab('shop');
+  }
+
+  return (
+    <StoreContext.Provider value={{
+      products, inventory, orders, cartItems,
+      currentTab, setCurrentTab,
+      shopFilter, setShopFilter,
+      modal, setModal,
+      toasts, toast,
+      addToCart, updateCartQty, removeFromCart, placeOrder,
+      addProduct, updateProduct, deleteProduct,
+      adjustInventory, goToShop,
+    }}>
+      {children}
+    </StoreContext.Provider>
+  );
+}
+```
+
+- [ ] **Step 2: `App` 함수와 `AppInner`를 아래로 교체한다**
+
+```jsx
+function ToastContainer({ toasts }) {
+  return (
+    <div className="toast-container">
+      {toasts.map(t => (
+        <div key={t.id} className={`toast toast-${t.type}`}>{t.msg}</div>
+      ))}
+    </div>
+  );
+}
+
+function AppInner() {
+  const { currentTab, modal, toasts } = useContext(StoreContext);
+  return (
+    <>
+      <TopNav />
+      {currentTab === 'home'  && <HomeTab />}
+      {currentTab === 'shop'  && <ShopTab />}
+      {currentTab === 'cart'  && <CartTab />}
+      {currentTab === 'admin' && <AdminTab />}
+      {modal?.type === 'product'     && <ProductModal />}
+      {modal?.type === 'productForm' && <ProductFormModal />}
+      <ToastContainer toasts={toasts} />
+    </>
+  );
+}
+
+function App() {
+  return (
+    <StoreProvider>
+      <AppInner />
+    </StoreProvider>
+  );
+}
+```
+
+- [ ] **Step 3: `TopNav`를 `AppInner` 위에 추가한다 (아직 탭 내용은 null)**
+
+```jsx
+function TopNav() {
+  const { currentTab, setCurrentTab, cartItems } = useContext(StoreContext);
+  const cartCount = cartItems.reduce((s, ci) => s + ci.qty, 0);
+  const TABS = [
+    { id:'home',  label:'홈' },
+    { id:'shop',  label:'쇼핑몰' },
+    { id:'cart',  label:'장바구니·주문' },
+    { id:'admin', label:'관리자' },
+  ];
+  return (
+    <nav className="topnav">
+      <span className="topnav-brand">DEPT°</span>
+      <div className="topnav-tabs">
+        {TABS.map(t => (
+          <button key={t.id}
+            className={`topnav-tab${currentTab === t.id ? ' active' : ''}`}
+            onClick={() => setCurrentTab(t.id)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <button className="cart-btn" onClick={() => setCurrentTab('cart')}>
+        🛒
+        {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+      </button>
+    </nav>
+  );
+}
+
+// 탭 플레이스홀더 (Task 4~7에서 교체)
+function HomeTab()  { return <div className="page">홈</div>; }
+function ShopTab()  { return <div className="page">쇼핑몰</div>; }
+function CartTab()  { return <div className="page">장바구니</div>; }
+function AdminTab() { return <div className="page">관리자</div>; }
+function ProductModal()     { return null; }
+function ProductFormModal() { return null; }
+```
+
+- [ ] **Step 4: 브라우저에서 확인한다**
+
+탭 4개가 보이고 클릭 시 active 스타일(굵게 + 하단 인디케이터)이 바뀌면 정상.
+
+- [ ] **Step 5: 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: StoreContext + TopNav + 탭 라우팅 뼈대"
+```
+
+---
+
+## Task 4: HomeTab
+
+**Files:**
+- Modify: `commerce.html` — `function HomeTab()` 교체
+
+- [ ] **Step 1: `HomeTab` 플레이스홀더를 아래로 교체한다**
+
+```jsx
+function HomeTab() {
+  const { products, goToShop, setModal } = useContext(StoreContext);
+
+  const featured = useMemo(() => {
+    return BRANDS.map(b => products.find(p => p.brandId === b.id)).filter(Boolean);
+  }, [products]);
+
+  const CAT_ICONS = { '전체':'🏬', '여성패션':'👗', '남성패션':'👔', '뷰티':'💄', '리빙':'🛋️', '스포츠':'🏃' };
+
+  return (
+    <div className="page" style={{paddingTop:'1.5rem'}}>
+      {/* 히어로 배너 */}
+      <div className="hero">
+        <div className="hero-tag">2026 Summer Collection</div>
+        <div className="hero-title">새로운 시즌,<br/>새로운 나를 만나다</div>
+        <div className="hero-sub">DEPT°가 엄선한 브랜드와 함께 이번 여름을 완성하세요.</div>
+        <button className="btn btn-primary" style={{background:'#fff',color:'#111'}}
+          onClick={() => goToShop()}>
+          지금 쇼핑하기 →
+        </button>
+      </div>
+
+      {/* 브랜드 스트립 */}
+      <div className="section-heading">브랜드</div>
+      <div className="brand-strip">
+        {BRANDS.map(b => (
+          <div key={b.id} className="brand-card" onClick={() => goToShop({ brands:[b.id], category:'전체' })}>
+            <div className="brand-circle" style={{background: b.color}}>{b.name}</div>
+            <div className="brand-name">{b.name}</div>
+            <div className="brand-tagline">{b.tagline}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* 카테고리 퀵링크 */}
+      <div className="section-heading">카테고리</div>
+      <div className="cat-grid">
+        {CATEGORIES.map(c => (
+          <div key={c} className="cat-chip" onClick={() => goToShop({ category: c, brands:[] })}>
+            {CAT_ICONS[c] ?? ''} {c}
+          </div>
+        ))}
+      </div>
+
+      <div className="section-sep" />
+
+      {/* 추천 상품 */}
+      <div className="section-heading">이번 주 베스트</div>
+      <div className="feat-strip">
+        {featured.map(p => {
+          const brand = getBrand(p.brandId);
+          return (
+            <div key={p.id} className="feat-card" onClick={() => setModal({ type:'product', product:p })}>
+              <div className="feat-img" style={{background: brand?.color ?? '#f1f1f1'}}>
+                {brand?.name}
+              </div>
+              <div className="feat-body">
+                <div className="feat-brand">{brand?.name}</div>
+                <div className="feat-name">{p.name}</div>
+                <div className="feat-price">{fmt(p.price)}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: 브라우저에서 확인한다**
+
+홈 탭: 히어로 배너, 브랜드 5개 카드, 카테고리 6개 chip, 추천 상품 5개 가로 스크롤 표시. 브랜드 카드 클릭 시 쇼핑몰 탭으로 이동.
+
+- [ ] **Step 3: 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: HomeTab (히어로·브랜드 스트립·카테고리·추천 상품)"
+```
+
+---
+
+## Task 5: ShopTab — 필터 + 상품 그리드
+
+**Files:**
+- Modify: `commerce.html` — `function ShopTab()` 교체
+
+- [ ] **Step 1: `ShopTab` 플레이스홀더를 아래로 교체한다**
+
+```jsx
+const PRICE_RANGES = [
+  { id:'all',    label:'전체' },
+  { id:'~50',    label:'5만원 이하',    test: p => p.price <= 50000 },
+  { id:'50~100', label:'5~10만원',      test: p => p.price > 50000 && p.price <= 100000 },
+  { id:'100~',   label:'10만원 이상',   test: p => p.price > 100000 },
+];
+
+function ShopTab() {
+  const { products, inventory, shopFilter, setShopFilter, setModal, addToCart, toast } = useContext(StoreContext);
+
+  const filtered = useMemo(() => {
+    return products.filter(p => {
+      if (shopFilter.brands.length && !shopFilter.brands.includes(p.brandId)) return false;
+      if (shopFilter.category !== '전체' && p.category !== shopFilter.category) return false;
+      if (shopFilter.priceRange !== 'all') {
+        const range = PRICE_RANGES.find(r => r.id === shopFilter.priceRange);
+        if (range && !range.test(p)) return false;
+      }
+      if (shopFilter.search) {
+        const q = shopFilter.search.toLowerCase();
+        const brand = getBrand(p.brandId);
+        if (!p.name.toLowerCase().includes(q) && !brand?.name.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+  }, [products, shopFilter]);
+
+  function toggleBrand(id) {
+    setShopFilter(prev => ({
+      ...prev,
+      brands: prev.brands.includes(id) ? prev.brands.filter(b => b !== id) : [...prev.brands, id],
+    }));
+  }
+
+  function handleAddToCart(e, p) {
+    e.stopPropagation();
+    addToCart(p, 1);
+    toast(`${p.name} 장바구니에 담았습니다`, 'success');
+  }
+
+  return (
+    <div className="page" style={{paddingTop:'1.5rem'}}>
+      <input className="search-bar" style={{marginBottom:'1.25rem'}}
+        placeholder="상품명 또는 브랜드 검색..."
+        value={shopFilter.search}
+        onChange={e => setShopFilter(prev => ({ ...prev, search: e.target.value }))}
+      />
+      <div className="shop-layout">
+        {/* 필터 사이드바 */}
+        <div className="filter-panel">
+          <div className="filter-section">
+            <div className="filter-title">브랜드</div>
+            {BRANDS.map(b => (
+              <label key={b.id} className="filter-option">
+                <input type="checkbox"
+                  checked={shopFilter.brands.includes(b.id)}
+                  onChange={() => toggleBrand(b.id)}
+                />
+                {b.name}
+              </label>
+            ))}
+          </div>
+          <div className="filter-section">
+            <div className="filter-title">카테고리</div>
+            {CATEGORIES.map(c => (
+              <label key={c} className="filter-option">
+                <input type="radio"
+                  name="category"
+                  checked={shopFilter.category === c}
+                  onChange={() => setShopFilter(prev => ({ ...prev, category: c }))}
+                />
+                {c}
+              </label>
+            ))}
+          </div>
+          <div className="filter-section">
+            <div className="filter-title">가격대</div>
+            <div className="price-btn-group">
+              {PRICE_RANGES.map(r => (
+                <button key={r.id}
+                  className={`price-btn${shopFilter.priceRange === r.id ? ' active' : ''}`}
+                  onClick={() => setShopFilter(prev => ({ ...prev, priceRange: r.id }))}>
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button className="btn btn-ghost btn-sm" style={{width:'100%'}}
+            onClick={() => setShopFilter({ brands:[], category:'전체', priceRange:'all', search:'' })}>
+            필터 초기화
+          </button>
+        </div>
+
+        {/* 상품 그리드 */}
+        <div>
+          <div style={{fontSize:'.8rem',color:'var(--ink-3)',marginBottom:'1rem'}}>
+            {filtered.length}개 상품
+          </div>
+          {filtered.length === 0 ? (
+            <div className="empty">
+              <div className="empty-icon">🔍</div>
+              <div className="empty-text">조건에 맞는 상품이 없습니다</div>
+            </div>
+          ) : (
+            <div className="product-grid">
+              {filtered.map(p => {
+                const brand = getBrand(p.brandId);
+                const stock = inventory[p.id]?.qty ?? 0;
+                return (
+                  <div key={p.id} className="product-card" onClick={() => setModal({ type:'product', product:p })}>
+                    <div className="product-card-img" style={{background: brand?.color ?? '#f1f1f1'}}>
+                      {brand?.name}
+                    </div>
+                    <div className="product-card-body">
+                      <div className="product-brand">{brand?.name}</div>
+                      <div className="product-name">{p.name}</div>
+                      <div className="product-price">
+                        <span className="price-sale">{fmt(p.price)}</span>
+                        {p.discount > 0 && <>
+                          <span className="price-original">{fmt(p.originalPrice)}</span>
+                          <span className="price-badge">-{p.discount}%</span>
+                        </>}
+                      </div>
+                      {p.tags.length > 0 && (
+                        <div className="product-tags">
+                          {p.tags.map(tag => (
+                            <span key={tag} className={`tag tag-${tag}`}>{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                      <button className="btn btn-primary btn-sm" style={{width:'100%',marginTop:'.75rem'}}
+                        disabled={stock === 0}
+                        onClick={e => handleAddToCart(e, p)}>
+                        {stock === 0 ? '품절' : '장바구니 담기'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: 브라우저에서 확인한다**
+
+쇼핑몰 탭: 3열 상품 그리드 15개 표시. 브랜드 체크박스 필터 → 해당 브랜드만 표시. 카테고리 라디오 → 해당 카테고리만. 검색어 입력 → 실시간 필터. 품절 상품(p05) 버튼 disabled.
+
+- [ ] **Step 3: 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: ShopTab (필터 사이드바 + 상품 그리드 + 장바구니 담기)"
+```
+
+---
+
+## Task 6: ProductModal
+
+**Files:**
+- Modify: `commerce.html` — `function ProductModal()` 교체
+
+- [ ] **Step 1: `ProductModal` 플레이스홀더를 아래로 교체한다**
+
+```jsx
+function ProductModal() {
+  const { modal, setModal, inventory, addToCart, toast } = useContext(StoreContext);
+  const [qty, setQty] = useState(1);
+  const p = modal?.product;
+  if (!p) return null;
+  const brand = getBrand(p.brandId);
+  const stock = inventory[p.id]?.qty ?? 0;
+
+  function handleAdd() {
+    addToCart(p, qty);
+    toast(`${p.name} ${qty}개를 장바구니에 담았습니다`, 'success');
+    setModal(null);
+  }
+
+  return (
+    <div className="overlay" onClick={() => setModal(null)}>
+      <div className="modal" style={{maxWidth:'560px'}} onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <span className="modal-title">상품 상세</span>
+          <button className="modal-close" onClick={() => setModal(null)}>×</button>
+        </div>
+        <div className="prod-modal-inner">
+          <div className="prod-modal-img" style={{background: brand?.color ?? '#f1f1f1'}}>
+            {brand?.name}
+          </div>
+          <div className="prod-modal-info">
+            <div className="prod-modal-brand">{brand?.name}</div>
+            <div className="prod-modal-name">{p.name}</div>
+            <div className="prod-rating">{'★'.repeat(Math.round(p.rating))}{'☆'.repeat(5 - Math.round(p.rating))} {p.rating} ({p.reviewCount.toLocaleString()}개 리뷰)</div>
+            <div className="prod-modal-price">{fmt(p.price)}</div>
+            {p.discount > 0 && <div className="prod-modal-original">{fmt(p.originalPrice)} → {p.discount}% 할인</div>}
+            <div className="prod-modal-desc">{p.description}</div>
+            <div className={`prod-stock ${stock === 0 ? 'out' : stock <= (inventory[p.id]?.threshold ?? 5) ? 'low' : ''}`}>
+              {stock === 0 ? '품절' : stock <= (inventory[p.id]?.threshold ?? 5) ? `재고 ${stock}개 남음 (소량)` : `재고 ${stock}개`}
+            </div>
+            {stock > 0 && (
+              <div className="qty-row">
+                <div className="qty-stepper">
+                  <button className="qty-btn" disabled={qty <= 1} onClick={() => setQty(q => q - 1)}>−</button>
+                  <span className="qty-val">{qty}</span>
+                  <button className="qty-btn" disabled={qty >= stock} onClick={() => setQty(q => q + 1)}>+</button>
+                </div>
+                <span style={{fontSize:'.82rem',color:'var(--ink-3)'}}>최대 {stock}개</span>
+              </div>
+            )}
+            <button className="btn btn-primary" style={{width:'100%'}}
+              disabled={stock === 0}
+              onClick={handleAdd}>
+              {stock === 0 ? '품절' : '장바구니 담기'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: 브라우저에서 확인한다**
+
+상품 카드 클릭 → 모달 열림. 수량 +/− (재고 상한). 장바구니 담기 → 토스트 + 모달 닫힘 + 상단 🛒 뱃지 숫자 증가. 오버레이 클릭 → 닫힘.
+
+- [ ] **Step 3: 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: ProductModal (상세 팝업 + 수량 선택 + 장바구니)"
+```
+
+---
+
+## Task 7: CartTab
+
+**Files:**
+- Modify: `commerce.html` — `function CartTab()` 교체
+
+- [ ] **Step 1: `CartTab` 플레이스홀더를 아래로 교체한다**
+
+```jsx
+const STATUS_META = {
+  paid:      { label:'결제완료', cls:'badge-blue' },
+  shipping:  { label:'배송중',   cls:'badge-amber' },
+  delivered: { label:'배송완료', cls:'badge-green' },
+  cancelled: { label:'취소',     cls:'badge-red' },
+};
+
+function CartTab() {
+  const { cartItems, updateCartQty, removeFromCart, placeOrder, orders, setCurrentTab, toast } = useContext(StoreContext);
+  const subtotal = cartItems.reduce((s, ci) => s + ci.price * ci.qty, 0);
+  const shipping = subtotal >= 30000 || subtotal === 0 ? 0 : 3000;
+  const total = subtotal + shipping;
+
+  function handleOrder() {
+    try {
+      placeOrder();
+      toast('주문이 완료되었습니다! 감사합니다 🎉', 'success');
+    } catch (e) {
+      toast(e.message, 'error');
+    }
+  }
+
+  return (
+    <div className="page" style={{paddingTop:'1.5rem'}}>
+      <div className="section-heading">장바구니</div>
+
+      {cartItems.length === 0 ? (
+        <div className="empty" style={{marginBottom:'2rem'}}>
+          <div className="empty-icon">🛒</div>
+          <div className="empty-text">장바구니가 비어 있습니다</div>
+          <button className="btn btn-ghost" style={{marginTop:'1rem'}} onClick={() => setCurrentTab('shop')}>
+            쇼핑몰 가기
+          </button>
+        </div>
+      ) : (
+        <div className="cart-layout">
+          {/* 장바구니 목록 */}
+          <div className="card">
+            <div className="card-body">
+              {cartItems.map(ci => (
+                <div key={ci.productId} className="cart-item">
+                  <div className="cart-thumb" style={{background: ci.brandColor}}>{ci.brandName}</div>
+                  <div className="cart-info">
+                    <div className="cart-brand">{ci.brandName}</div>
+                    <div className="cart-name">{ci.name}</div>
+                  </div>
+                  <div className="cart-price">{fmt(ci.price)}</div>
+                  <div className="qty-stepper">
+                    <button className="qty-btn" disabled={ci.qty <= 1} onClick={() => updateCartQty(ci.productId, ci.qty - 1)}>−</button>
+                    <span className="qty-val">{ci.qty}</span>
+                    <button className="qty-btn" onClick={() => updateCartQty(ci.productId, ci.qty + 1)}>+</button>
+                  </div>
+                  <div className="cart-sub">{fmt(ci.price * ci.qty)}</div>
+                  <button className="btn btn-ghost btn-sm" onClick={() => removeFromCart(ci.productId)}>삭제</button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 주문 요약 */}
+          <div className="order-summary">
+            <div style={{fontWeight:700,marginBottom:'.75rem'}}>주문 요약</div>
+            <div className="summary-row"><span>상품 합계</span><span>{fmt(subtotal)}</span></div>
+            <div className="summary-row"><span>배송비</span><span>{shipping === 0 ? '무료' : fmt(shipping)}</span></div>
+            {shipping > 0 && <div style={{fontSize:'.72rem',color:'var(--ink-3)',textAlign:'right'}}>3만원 이상 무료배송</div>}
+            <div className="summary-total"><span>총 결제금액</span><span>{fmt(total)}</span></div>
+            <button className="btn btn-primary" style={{width:'100%',marginTop:'1rem'}} onClick={handleOrder}>
+              주문하기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 주문 내역 */}
+      <div className="section-heading" style={{marginTop:'2.5rem'}}>주문 내역</div>
+      {orders.length === 0 ? (
+        <div className="empty"><div className="empty-text">주문 내역이 없습니다</div></div>
+      ) : (
+        <div className="card">
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>주문번호</th>
+                  <th>날짜</th>
+                  <th>상품</th>
+                  <th>금액</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map(o => {
+                  const meta = STATUS_META[o.status] ?? { label: o.status, cls:'badge-gray' };
+                  return (
+                    <tr key={o.id}>
+                      <td style={{fontFamily:'monospace',fontSize:'.78rem'}}>{o.id}</td>
+                      <td style={{whiteSpace:'nowrap'}}>{fmtDate(o.createdAt)}</td>
+                      <td>{o.items.map(i => `${i.name} ×${i.qty}`).join(', ')}</td>
+                      <td style={{fontWeight:700}}>{fmt(o.totalAmount)}</td>
+                      <td><span className={`badge ${meta.cls}`}>{meta.label}</span></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: 브라우저에서 확인한다**
+
+장바구니에 상품 추가 후 탭 이동 → 목록 표시. 수량 −/+ 작동. 삭제 작동. 주문하기 → 성공 토스트 + 장바구니 비워짐 + 주문 내역에 새 행 추가. 재고 초과 시 에러 토스트.
+
+- [ ] **Step 3: 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: CartTab (장바구니 + 주문하기 + 주문 내역)"
+```
+
+---
+
+## Task 8: AdminTab — 통계 카드 + 매출 차트
+
+**Files:**
+- Modify: `commerce.html` — `function AdminTab()` 교체 (통계+차트 부분만, CRUD는 Task 9)
+
+- [ ] **Step 1: `AdminTab` 플레이스홀더를 아래로 교체한다**
+
+```jsx
+// 차트용 시드 데이터 (7일치 일별 매출)
+const CHART_DATA = [
+  { label:'5/14', value:420000 }, { label:'5/15', value:285000 },
+  { label:'5/16', value:630000 }, { label:'5/17', value:510000 },
+  { label:'5/18', value:195000 }, { label:'5/19', value:745000 },
+  { label:'5/20', value:380000 },
+];
+
+function SalesChart() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const pad = { top: 20, right: 20, bottom: 40, left: 60 };
+    ctx.clearRect(0, 0, W, H);
+    const maxVal = Math.max(...CHART_DATA.map(d => d.value));
+    const chartW = W - pad.left - pad.right;
+    const chartH = H - pad.top - pad.bottom;
+    const barW = (chartW / CHART_DATA.length) * 0.6;
+    const gap   = chartW / CHART_DATA.length;
+
+    // y축 눈금
+    ctx.fillStyle = '#999';
+    ctx.font = '11px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    [0, 0.25, 0.5, 0.75, 1].forEach(ratio => {
+      const y = pad.top + chartH - ratio * chartH;
+      ctx.fillText(fmt(maxVal * ratio).replace('원',''), pad.left - 8, y + 4);
+      ctx.strokeStyle = '#e5e5e5';
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+    });
+
+    // 바
+    CHART_DATA.forEach((d, i) => {
+      const x = pad.left + i * gap + (gap - barW) / 2;
+      const barH = (d.value / maxVal) * chartH;
+      const y = pad.top + chartH - barH;
+      ctx.fillStyle = '#111';
+      ctx.beginPath();
+      ctx.roundRect(x, y, barW, barH, 3);
+      ctx.fill();
+      // x축 레이블
+      ctx.fillStyle = '#999';
+      ctx.textAlign = 'center';
+      ctx.fillText(d.label, x + barW / 2, H - pad.bottom + 16);
+    });
+  }, []);
+
+  return (
+    <div className="chart-wrap">
+      <canvas ref={canvasRef} width={700} height={240} style={{width:'100%',height:'auto'}} />
+    </div>
+  );
+}
+
+function AdminTab() {
+  const { products, inventory, orders } = useContext(StoreContext);
+
+  const totalStock  = Object.values(inventory).reduce((s, v) => s + v.qty, 0);
+  const totalSales  = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.totalAmount, 0);
+
+  return (
+    <div className="page" style={{paddingTop:'1.5rem'}}>
+      {/* 통계 카드 */}
+      <div className="stat-grid">
+        <div className="stat-card">
+          <div className="stat-label">총 상품 수</div>
+          <div className="stat-value">{products.length}<span style={{fontSize:'.9rem',fontWeight:500,color:'var(--ink-3)'}}> 개</span></div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">총 재고량</div>
+          <div className="stat-value">{totalStock.toLocaleString()}<span style={{fontSize:'.9rem',fontWeight:500,color:'var(--ink-3)'}}> 개</span></div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">주문 건수</div>
+          <div className="stat-value">{orders.length}<span style={{fontSize:'.9rem',fontWeight:500,color:'var(--ink-3)'}}> 건</span></div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">총 매출액</div>
+          <div className="stat-value" style={{fontSize:'1.1rem'}}>{fmt(totalSales)}</div>
+        </div>
+      </div>
+
+      {/* 매출 차트 */}
+      <div className="card" style={{marginBottom:'1.5rem'}}>
+        <div className="card-header">
+          <span className="card-title">📊 일별 매출 (최근 7일)</span>
+        </div>
+        <div className="card-body">
+          <SalesChart />
+        </div>
+      </div>
+
+      {/* Task 9에서 상품 관리 추가 */}
+      <AdminProductSection />
+      {/* Task 10에서 재고 관리 추가 */}
+      <AdminInventorySection />
+    </div>
+  );
+}
+
+// Task 9 전 임시 플레이스홀더
+function AdminProductSection() { return null; }
+function AdminInventorySection() { return null; }
+```
+
+- [ ] **Step 2: 브라우저에서 확인한다**
+
+관리자 탭: 통계 카드 4개 수치 표시. 바 차트 7개 막대 정상 렌더링. 콘솔 에러 없음.
+
+- [ ] **Step 3: 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: AdminTab 통계 카드 + canvas 매출 차트"
+```
+
+---
+
+## Task 9: AdminTab — 상품 관리 CRUD + ProductFormModal
+
+**Files:**
+- Modify: `commerce.html` — `AdminProductSection` + `ProductFormModal` 교체
+
+- [ ] **Step 1: `AdminProductSection` 플레이스홀더를 아래로 교체한다**
+
+```jsx
+function AdminProductSection() {
+  const { products, inventory, deleteProduct, setModal } = useContext(StoreContext);
+
+  function handleDelete(p) {
+    if (!confirm(`"${p.name}"을(를) 삭제하시겠습니까?`)) return;
+    deleteProduct(p.id);
+  }
+
+  return (
+    <div className="card" style={{marginBottom:'1.5rem'}}>
+      <div className="card-header">
+        <span className="card-title">📐 상품 관리</span>
+        <button className="btn btn-primary btn-sm" onClick={() => setModal({ type:'productForm', product: null })}>
+          + 상품 등록
+        </button>
+      </div>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>브랜드</th><th>상품명</th><th>판매가</th><th>할인율</th><th>재고</th><th>작업</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map(p => {
+              const brand = getBrand(p.brandId);
+              const stock = inventory[p.id]?.qty ?? 0;
+              return (
+                <tr key={p.id}>
+                  <td>
+                    <span style={{display:'inline-flex',alignItems:'center',gap:'.4rem'}}>
+                      <span style={{width:10,height:10,borderRadius:'50%',background:brand?.color,display:'inline-block'}} />
+                      {brand?.name}
+                    </span>
+                  </td>
+                  <td>{p.name}</td>
+                  <td>{fmt(p.price)}</td>
+                  <td>{p.discount > 0 ? <span className="badge badge-red">-{p.discount}%</span> : '—'}</td>
+                  <td>
+                    <span className={`badge ${stock === 0 ? 'badge-red' : stock <= (inventory[p.id]?.threshold ?? 5) ? 'badge-amber' : 'badge-green'}`}>
+                      {stock}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{display:'flex',gap:'.4rem'}}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => setModal({ type:'productForm', product: p })}>수정</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p)}>삭제</button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: `ProductFormModal` 플레이스홀더를 아래로 교체한다**
+
+```jsx
+const EMPTY_FORM = { brandId:'b1', category:'뷰티', name:'', price:'', originalPrice:'', discount:'0', description:'', tags:'' };
+
+function ProductFormModal() {
+  const { modal, setModal, addProduct, updateProduct, toast } = useContext(StoreContext);
+  const editing = modal?.product ?? null;
+  const [form, setForm] = useState(() => editing
+    ? { ...editing, price: String(editing.price), originalPrice: String(editing.originalPrice), discount: String(editing.discount), tags: editing.tags.join(',') }
+    : EMPTY_FORM
+  );
+
+  function set(field, value) { setForm(prev => ({ ...prev, [field]: value })); }
+
+  function handleSubmit() {
+    if (!form.name.trim()) { toast('상품명을 입력하세요', 'error'); return; }
+    if (!form.price || isNaN(Number(form.price))) { toast('올바른 가격을 입력하세요', 'error'); return; }
+    const data = {
+      brandId: form.brandId,
+      category: form.category,
+      name: form.name.trim(),
+      price: Number(form.price),
+      originalPrice: Number(form.originalPrice) || Number(form.price),
+      discount: Number(form.discount) || 0,
+      description: form.description.trim(),
+      rating: editing?.rating ?? 4.0,
+      reviewCount: editing?.reviewCount ?? 0,
+      tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+    };
+    if (editing) {
+      updateProduct(editing.id, data);
+      toast('상품이 수정되었습니다', 'success');
+    } else {
+      addProduct(data);
+      toast('상품이 등록되었습니다', 'success');
+    }
+    setModal(null);
+  }
+
+  return (
+    <div className="overlay" onClick={() => setModal(null)}>
+      <div className="modal" style={{maxWidth:'480px'}} onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <span className="modal-title">{editing ? '상품 수정' : '상품 등록'}</span>
+          <button className="modal-close" onClick={() => setModal(null)}>×</button>
+        </div>
+        <div className="modal-body">
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">브랜드</label>
+              <select className="form-select" value={form.brandId} onChange={e => set('brandId', e.target.value)}>
+                {BRANDS.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">카테고리</label>
+              <select className="form-select" value={form.category} onChange={e => set('category', e.target.value)}>
+                {CATEGORIES.filter(c => c !== '전체').map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">상품명</label>
+            <input className="form-input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="상품명 입력" />
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">판매가 (원)</label>
+              <input className="form-input" type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0" />
+            </div>
+            <div className="form-group">
+              <label className="form-label">정가 (원)</label>
+              <input className="form-input" type="number" value={form.originalPrice} onChange={e => set('originalPrice', e.target.value)} placeholder="0 (판매가와 동일)" />
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">할인율 (%)</label>
+            <input className="form-input" type="number" min="0" max="100" value={form.discount} onChange={e => set('discount', e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">상품 설명</label>
+            <textarea className="form-textarea" value={form.description} onChange={e => set('description', e.target.value)} placeholder="상품 설명 입력" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">태그 (쉼표 구분: 베스트,신상,한정)</label>
+            <input className="form-input" value={form.tags} onChange={e => set('tags', e.target.value)} placeholder="베스트,신상" />
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-ghost" onClick={() => setModal(null)}>취소</button>
+          <button className="btn btn-primary" onClick={handleSubmit}>{editing ? '수정 완료' : '등록'}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 3: 브라우저에서 확인한다**
+
+관리자 탭 → 상품 관리 테이블 표시. `+ 상품 등록` → 모달 열림 → 필드 입력 → 등록 → 테이블에 즉시 반영 + 쇼핑몰 탭에도 표시. `수정` → 기존 값 pre-fill. `삭제` → confirm → 목록에서 제거.
+
+- [ ] **Step 4: 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: AdminTab 상품 관리 CRUD + ProductFormModal"
+```
+
+---
+
+## Task 10: AdminTab — 재고 관리
+
+**Files:**
+- Modify: `commerce.html` — `AdminInventorySection` 플레이스홀더 교체
+
+- [ ] **Step 1: `AdminInventorySection` 플레이스홀더를 아래로 교체한다**
+
+```jsx
+function AdminInventorySection() {
+  const { products, inventory, adjustInventory } = useContext(StoreContext);
+
+  function stockStatus(productId) {
+    const { qty, threshold } = inventory[productId] ?? { qty:0, threshold:5 };
+    if (qty === 0)          return { cls:'badge-red',   label:'품절' };
+    if (qty <= threshold)   return { cls:'badge-amber', label:'부족' };
+    return                         { cls:'badge-green', label:'정상' };
+  }
+
+  return (
+    <div className="card">
+      <div className="card-header">
+        <span className="card-title">📦 재고 관리</span>
+      </div>
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>상품명</th><th>브랜드</th><th>현재 재고</th><th>임계값</th><th>조정</th><th>상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map(p => {
+              const brand = getBrand(p.brandId);
+              const inv   = inventory[p.id] ?? { qty:0, threshold:5 };
+              const st    = stockStatus(p.id);
+              return (
+                <tr key={p.id}>
+                  <td>{p.name}</td>
+                  <td>{brand?.name}</td>
+                  <td style={{fontWeight:700}}>{inv.qty}</td>
+                  <td style={{color:'var(--ink-3)'}}>{inv.threshold}</td>
+                  <td>
+                    <div style={{display:'flex',gap:'.3rem'}}>
+                      {[-5,-1,1,5].map(d => (
+                        <button key={d} className="btn btn-ghost btn-sm"
+                          style={{minWidth:'36px'}}
+                          disabled={d < 0 && inv.qty + d < 0}
+                          onClick={() => adjustInventory(p.id, d)}>
+                          {d > 0 ? `+${d}` : d}
+                        </button>
+                      ))}
+                    </div>
+                  </td>
+                  <td><span className={`badge ${st.cls}`}>{st.label}</span></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+```
+
+- [ ] **Step 2: 브라우저에서 전체 흐름을 검증한다**
+
+1. 관리자 탭 → 재고 관리: 15개 상품 표시. `+1` / `−1` / `+5` / `−5` 버튼 → 재고 수치 즉시 변경.
+2. 재고 0인 상품(p05) → `−1` disabled 확인.
+3. 쇼핑몰 탭 → 해당 상품 `품절` 상태 반영 확인.
+4. 장바구니에 상품 담기 → 주문하기 → 관리자 재고 수치 감소 확인.
+5. 통계 카드 `총 재고량` 수치 변화 확인.
+
+- [ ] **Step 3: `index.html` 카드에서 링크 확인 (이미 `commerce.html`로 연결되어 있으므로 변경 불필요)**
+
+```bash
+grep "commerce.html" index.html  # 링크 존재 확인
+```
+
+- [ ] **Step 4: 최종 커밋**
+
+```bash
+git add commerce.html
+git commit -m "feat: AdminTab 재고 관리 — 백화점형 이커머스 구현 완료"
+```
+
+---
+
+## Self-Review
+
+**Spec 커버리지 체크:**
+
+| 스펙 요구사항 | 구현 태스크 |
+|---|---|
+| 상품 목록 조회 | Task 5 (ShopTab 그리드) |
+| 브랜드/카테고리 필터 | Task 5 (FilterSidebar) |
+| 상품 상세 팝업 | Task 6 (ProductModal) |
+| 장바구니 담기 | Task 5·6 (addToCart) |
+| 장바구니 수량 변경/삭제 | Task 7 (updateCartQty, removeFromCart) |
+| 주문하기 | Task 7 (placeOrder) |
+| 주문 내역 | Task 7 (orders 테이블) |
+| 관리자 상품 등록/수정/삭제 | Task 9 (AdminProductSection + ProductFormModal) |
+| 재고 관리 | Task 10 (AdminInventorySection) |
+| 매출 통계 | Task 8 (stat cards + SalesChart) |
+| Toast 알림 | Task 3 (StoreContext.toast) |
+| localStorage 영속성 | Task 3 (useEffect + save) |
+
+**타입 일관성:**
+- `addToCart(product, qty)` — Task 3 정의, Task 5·6에서 동일 시그니처 사용
+- `inventory[productId].qty` — Task 2 정의, Task 5·7·9·10에서 동일 접근 패턴
+- `modal.type: 'product' | 'productForm'` — Task 3 정의, Task 4·5·9에서 동일 값 사용
+- `STATUS_META` 키 — Task 7 정의, SEED_ORDERS status 값과 일치
+
+**플레이스홀더:** 없음. 모든 단계에 실제 코드 포함.
