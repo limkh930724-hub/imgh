@@ -837,8 +837,67 @@
       );
     }
 
-    // Task 9 전 임시 플레이스홀더
-    function AdminProductSection() { return null; }
+    function AdminProductSection() {
+      const { products, inventory, deleteProduct, setModal } = useContext(StoreContext);
+
+      function handleDelete(p) {
+        if (!confirm(`"${p.name}"을(를) 삭제하시겠습니까?`)) return;
+        deleteProduct(p.id);
+      }
+
+      return (
+        <div className="card" style={{marginBottom:'1.5rem'}}>
+          <div className="card-header">
+            <span className="card-title">📐 상품 관리</span>
+            <button className="btn btn-primary btn-sm" onClick={() => setModal({ type:'productForm', product: null })}>
+              + 상품 등록
+            </button>
+          </div>
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>브랜드</th><th>상품명</th><th>판매가</th><th>할인율</th><th>재고</th><th>작업</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map(p => {
+                  const brand = getBrand(p.brandId);
+                  const stock = inventory[p.id]?.qty ?? 0;
+                  return (
+                    <tr key={p.id}>
+                      <td>
+                        <span style={{display:'inline-flex',alignItems:'center',gap:'.4rem'}}>
+                          <span style={{width:10,height:10,borderRadius:'50%',background:brand?.color,display:'inline-block'}} />
+                          {brand?.name}
+                        </span>
+                      </td>
+                      <td>{p.name}</td>
+                      <td>{fmt(p.price)}</td>
+                      <td>{p.discount > 0 ? <span className="badge badge-red">-{p.discount}%</span> : '—'}</td>
+                      <td>
+                        <span className={`badge ${stock === 0 ? 'badge-red' : stock <= (inventory[p.id]?.threshold ?? 5) ? 'badge-amber' : 'badge-green'}`}>
+                          {stock}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{display:'flex',gap:'.4rem'}}>
+                          <button className="btn btn-ghost btn-sm" onClick={() => setModal({ type:'productForm', product: p })}>수정</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p)}>삭제</button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    const EMPTY_FORM = { brandId:'b1', category:'뷰티', name:'', price:'', originalPrice:'', discount:'0', description:'', tags:'' };
+
     function AdminInventorySection() { return null; }
     function ProductModal() {
       const { modal, setModal, inventory, addToCart, toast } = useContext(StoreContext);
@@ -896,7 +955,98 @@
         </div>
       );
     }
-    function ProductFormModal() { return null; }
+    function ProductFormModal() {
+      const { modal, setModal, addProduct, updateProduct, toast } = useContext(StoreContext);
+      const editing = modal?.product ?? null;
+      const [form, setForm] = useState(() => editing
+        ? { ...editing, price: String(editing.price), originalPrice: String(editing.originalPrice), discount: String(editing.discount), tags: editing.tags.join(',') }
+        : EMPTY_FORM
+      );
+
+      function set(field, value) { setForm(prev => ({ ...prev, [field]: value })); }
+
+      function handleSubmit() {
+        if (!form.name.trim()) { toast('상품명을 입력하세요', 'error'); return; }
+        if (!form.price || isNaN(Number(form.price))) { toast('올바른 가격을 입력하세요', 'error'); return; }
+        const data = {
+          brandId: form.brandId,
+          category: form.category,
+          name: form.name.trim(),
+          price: Number(form.price),
+          originalPrice: Number(form.originalPrice) || Number(form.price),
+          discount: Number(form.discount) || 0,
+          description: form.description.trim(),
+          rating: editing?.rating ?? 4.0,
+          reviewCount: editing?.reviewCount ?? 0,
+          tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
+        };
+        if (editing) {
+          updateProduct(editing.id, data);
+          toast('상품이 수정되었습니다', 'success');
+        } else {
+          addProduct(data);
+          toast('상품이 등록되었습니다', 'success');
+        }
+        setModal(null);
+      }
+
+      return (
+        <div className="overlay" onClick={() => setModal(null)}>
+          <div className="modal" style={{maxWidth:'480px'}} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <span className="modal-title">{editing ? '상품 수정' : '상품 등록'}</span>
+              <button className="modal-close" onClick={() => setModal(null)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">브랜드</label>
+                  <select className="form-select" value={form.brandId} onChange={e => set('brandId', e.target.value)}>
+                    {BRANDS.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">카테고리</label>
+                  <select className="form-select" value={form.category} onChange={e => set('category', e.target.value)}>
+                    {CATEGORIES.filter(c => c !== '전체').map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">상품명</label>
+                <input className="form-input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="상품명 입력" />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">판매가 (원)</label>
+                  <input className="form-input" type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="0" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">정가 (원)</label>
+                  <input className="form-input" type="number" value={form.originalPrice} onChange={e => set('originalPrice', e.target.value)} placeholder="0 (판매가와 동일)" />
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">할인율 (%)</label>
+                <input className="form-input" type="number" min="0" max="100" value={form.discount} onChange={e => set('discount', e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label className="form-label">상품 설명</label>
+                <textarea className="form-textarea" value={form.description} onChange={e => set('description', e.target.value)} placeholder="상품 설명 입력" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">태그 (쉼표 구분: 베스트,신상,한정)</label>
+                <input className="form-input" value={form.tags} onChange={e => set('tags', e.target.value)} placeholder="베스트,신상" />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-ghost" onClick={() => setModal(null)}>취소</button>
+              <button className="btn btn-primary" onClick={handleSubmit}>{editing ? '수정 완료' : '등록'}</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     function AppInner() {
       const { currentTab, modal, toasts } = useContext(StoreContext);
