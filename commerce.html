@@ -626,7 +626,114 @@
         </div>
       );
     }
-    function CartTab()  { return <div className="page">장바구니</div>; }
+    const STATUS_META = {
+      paid:      { label:'결제완료', cls:'badge-blue' },
+      shipping:  { label:'배송중',   cls:'badge-amber' },
+      delivered: { label:'배송완료', cls:'badge-green' },
+      cancelled: { label:'취소',     cls:'badge-red' },
+    };
+
+    function CartTab() {
+      const { cartItems, updateCartQty, removeFromCart, placeOrder, orders, setCurrentTab, toast } = useContext(StoreContext);
+      const subtotal = cartItems.reduce((s, ci) => s + ci.price * ci.qty, 0);
+      const shipping = subtotal >= 30000 || subtotal === 0 ? 0 : 3000;
+      const total = subtotal + shipping;
+
+      function handleOrder() {
+        try {
+          placeOrder();
+          toast('주문이 완료되었습니다! 감사합니다 🎉', 'success');
+        } catch (e) {
+          toast(e.message, 'error');
+        }
+      }
+
+      return (
+        <div className="page" style={{paddingTop:'1.5rem'}}>
+          <div className="section-heading">장바구니</div>
+
+          {cartItems.length === 0 ? (
+            <div className="empty" style={{marginBottom:'2rem'}}>
+              <div className="empty-icon">🛒</div>
+              <div className="empty-text">장바구니가 비어 있습니다</div>
+              <button className="btn btn-ghost" style={{marginTop:'1rem'}} onClick={() => setCurrentTab('shop')}>
+                쇼핑몰 가기
+              </button>
+            </div>
+          ) : (
+            <div className="cart-layout">
+              <div className="card">
+                <div className="card-body">
+                  {cartItems.map(ci => (
+                    <div key={ci.productId} className="cart-item">
+                      <div className="cart-thumb" style={{background: ci.brandColor}}>{ci.brandName}</div>
+                      <div className="cart-info">
+                        <div className="cart-brand">{ci.brandName}</div>
+                        <div className="cart-name">{ci.name}</div>
+                      </div>
+                      <div className="cart-price">{fmt(ci.price)}</div>
+                      <div className="qty-stepper">
+                        <button className="qty-btn" disabled={ci.qty <= 1} onClick={() => updateCartQty(ci.productId, ci.qty - 1)}>−</button>
+                        <span className="qty-val">{ci.qty}</span>
+                        <button className="qty-btn" onClick={() => updateCartQty(ci.productId, ci.qty + 1)}>+</button>
+                      </div>
+                      <div className="cart-sub">{fmt(ci.price * ci.qty)}</div>
+                      <button className="btn btn-ghost btn-sm" onClick={() => removeFromCart(ci.productId)}>삭제</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="order-summary">
+                <div style={{fontWeight:700,marginBottom:'.75rem'}}>주문 요약</div>
+                <div className="summary-row"><span>상품 합계</span><span>{fmt(subtotal)}</span></div>
+                <div className="summary-row"><span>배송비</span><span>{shipping === 0 ? '무료' : fmt(shipping)}</span></div>
+                {shipping > 0 && <div style={{fontSize:'.72rem',color:'var(--ink-3)',textAlign:'right'}}>3만원 이상 무료배송</div>}
+                <div className="summary-total"><span>총 결제금액</span><span>{fmt(total)}</span></div>
+                <button className="btn btn-primary" style={{width:'100%',marginTop:'1rem'}} onClick={handleOrder}>
+                  주문하기
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="section-heading" style={{marginTop:'2.5rem'}}>주문 내역</div>
+          {orders.length === 0 ? (
+            <div className="empty"><div className="empty-text">주문 내역이 없습니다</div></div>
+          ) : (
+            <div className="card">
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>주문번호</th>
+                      <th>날짜</th>
+                      <th>상품</th>
+                      <th>금액</th>
+                      <th>상태</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map(o => {
+                      const meta = STATUS_META[o.status] ?? { label: o.status, cls:'badge-gray' };
+                      return (
+                        <tr key={o.id}>
+                          <td style={{fontFamily:'monospace',fontSize:'.78rem'}}>{o.id}</td>
+                          <td style={{whiteSpace:'nowrap'}}>{fmtDate(o.createdAt)}</td>
+                          <td>{o.items.map(i => `${i.name} ×${i.qty}`).join(', ')}</td>
+                          <td style={{fontWeight:700}}>{fmt(o.totalAmount)}</td>
+                          <td><span className={`badge ${meta.cls}`}>{meta.label}</span></td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
     function AdminTab() { return <div className="page">관리자</div>; }
     function ProductModal() {
       const { modal, setModal, inventory, addToCart, toast } = useContext(StoreContext);
