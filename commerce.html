@@ -734,7 +734,112 @@
         </div>
       );
     }
-    function AdminTab() { return <div className="page">관리자</div>; }
+    // 차트용 시드 데이터 (7일치 일별 매출)
+    const CHART_DATA = [
+      { label:'5/14', value:420000 }, { label:'5/15', value:285000 },
+      { label:'5/16', value:630000 }, { label:'5/17', value:510000 },
+      { label:'5/18', value:195000 }, { label:'5/19', value:745000 },
+      { label:'5/20', value:380000 },
+    ];
+
+    function SalesChart() {
+      const canvasRef = useRef(null);
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width, H = canvas.height;
+        const pad = { top: 20, right: 20, bottom: 40, left: 60 };
+        ctx.clearRect(0, 0, W, H);
+        const maxVal = Math.max(...CHART_DATA.map(d => d.value));
+        const chartW = W - pad.left - pad.right;
+        const chartH = H - pad.top - pad.bottom;
+        const barW = (chartW / CHART_DATA.length) * 0.6;
+        const gap   = chartW / CHART_DATA.length;
+
+        // y축 눈금
+        ctx.fillStyle = '#999';
+        ctx.font = '11px Inter, sans-serif';
+        ctx.textAlign = 'right';
+        [0, 0.25, 0.5, 0.75, 1].forEach(ratio => {
+          const y = pad.top + chartH - ratio * chartH;
+          ctx.fillText(fmt(maxVal * ratio).replace('원',''), pad.left - 8, y + 4);
+          ctx.strokeStyle = '#e5e5e5';
+          ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+        });
+
+        // 바
+        CHART_DATA.forEach((d, i) => {
+          const x = pad.left + i * gap + (gap - barW) / 2;
+          const barH = (d.value / maxVal) * chartH;
+          const y = pad.top + chartH - barH;
+          ctx.fillStyle = '#111';
+          ctx.beginPath();
+          ctx.roundRect(x, y, barW, barH, 3);
+          ctx.fill();
+          // x축 레이블
+          ctx.fillStyle = '#999';
+          ctx.textAlign = 'center';
+          ctx.fillText(d.label, x + barW / 2, H - pad.bottom + 16);
+        });
+      }, []);
+
+      return (
+        <div className="chart-wrap">
+          <canvas ref={canvasRef} width={700} height={240} style={{width:'100%',height:'auto'}} />
+        </div>
+      );
+    }
+
+    function AdminTab() {
+      const { products, inventory, orders } = useContext(StoreContext);
+
+      const totalStock  = Object.values(inventory).reduce((s, v) => s + v.qty, 0);
+      const totalSales  = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.totalAmount, 0);
+
+      return (
+        <div className="page" style={{paddingTop:'1.5rem'}}>
+          {/* 통계 카드 */}
+          <div className="stat-grid">
+            <div className="stat-card">
+              <div className="stat-label">총 상품 수</div>
+              <div className="stat-value">{products.length}<span style={{fontSize:'.9rem',fontWeight:500,color:'var(--ink-3)'}}> 개</span></div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">총 재고량</div>
+              <div className="stat-value">{totalStock.toLocaleString()}<span style={{fontSize:'.9rem',fontWeight:500,color:'var(--ink-3)'}}> 개</span></div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">주문 건수</div>
+              <div className="stat-value">{orders.length}<span style={{fontSize:'.9rem',fontWeight:500,color:'var(--ink-3)'}}> 건</span></div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">총 매출액</div>
+              <div className="stat-value" style={{fontSize:'1.1rem'}}>{fmt(totalSales)}</div>
+            </div>
+          </div>
+
+          {/* 매출 차트 */}
+          <div className="card" style={{marginBottom:'1.5rem'}}>
+            <div className="card-header">
+              <span className="card-title">📊 일별 매출 (최근 7일)</span>
+            </div>
+            <div className="card-body">
+              <SalesChart />
+            </div>
+          </div>
+
+          {/* Task 9에서 상품 관리 추가 */}
+          <AdminProductSection />
+          {/* Task 10에서 재고 관리 추가 */}
+          <AdminInventorySection />
+        </div>
+      );
+    }
+
+    // Task 9 전 임시 플레이스홀더
+    function AdminProductSection() { return null; }
+    function AdminInventorySection() { return null; }
     function ProductModal() {
       const { modal, setModal, inventory, addToCart, toast } = useContext(StoreContext);
       const [qty, setQty] = useState(1);
