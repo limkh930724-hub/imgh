@@ -628,7 +628,62 @@
     }
     function CartTab()  { return <div className="page">장바구니</div>; }
     function AdminTab() { return <div className="page">관리자</div>; }
-    function ProductModal()     { return null; }
+    function ProductModal() {
+      const { modal, setModal, inventory, addToCart, toast } = useContext(StoreContext);
+      const [qty, setQty] = useState(1);
+      const p = modal?.product;
+      if (!p) return null;
+      const brand = getBrand(p.brandId);
+      const stock = inventory[p.id]?.qty ?? 0;
+
+      function handleAdd() {
+        addToCart(p, qty);
+        toast(`${p.name} ${qty}개를 장바구니에 담았습니다`, 'success');
+        setModal(null);
+      }
+
+      return (
+        <div className="overlay" onClick={() => setModal(null)}>
+          <div className="modal" style={{maxWidth:'560px'}} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <span className="modal-title">상품 상세</span>
+              <button className="modal-close" onClick={() => setModal(null)}>×</button>
+            </div>
+            <div className="prod-modal-inner">
+              <div className="prod-modal-img" style={{background: brand?.color ?? '#f1f1f1'}}>
+                {brand?.name}
+              </div>
+              <div className="prod-modal-info">
+                <div className="prod-modal-brand">{brand?.name}</div>
+                <div className="prod-modal-name">{p.name}</div>
+                <div className="prod-rating">{'★'.repeat(Math.round(p.rating))}{'☆'.repeat(5 - Math.round(p.rating))} {p.rating} ({p.reviewCount.toLocaleString()}개 리뷰)</div>
+                <div className="prod-modal-price">{fmt(p.price)}</div>
+                {p.discount > 0 && <div className="prod-modal-original">{fmt(p.originalPrice)} → {p.discount}% 할인</div>}
+                <div className="prod-modal-desc">{p.description}</div>
+                <div className={`prod-stock${stock === 0 ? ' out' : stock <= (inventory[p.id]?.threshold ?? 5) ? ' low' : ''}`}>
+                  {stock === 0 ? '품절' : stock <= (inventory[p.id]?.threshold ?? 5) ? `재고 ${stock}개 남음 (소량)` : `재고 ${stock}개`}
+                </div>
+                {stock > 0 && (
+                  <div className="qty-row">
+                    <div className="qty-stepper">
+                      <button className="qty-btn" disabled={qty <= 1} onClick={() => setQty(q => q - 1)}>−</button>
+                      <span className="qty-val">{qty}</span>
+                      <button className="qty-btn" disabled={qty >= stock} onClick={() => setQty(q => q + 1)}>+</button>
+                    </div>
+                    <span style={{fontSize:'.82rem',color:'var(--ink-3)'}}>최대 {stock}개</span>
+                  </div>
+                )}
+                <button className="btn btn-primary" style={{width:'100%'}}
+                  disabled={stock === 0}
+                  onClick={handleAdd}>
+                  {stock === 0 ? '품절' : '장바구니 담기'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
     function ProductFormModal() { return null; }
 
     function AppInner() {
