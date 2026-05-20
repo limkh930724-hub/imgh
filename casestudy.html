@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>커머스 시스템 케이스 스터디</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #ffffff;
+            --bg-2: #f4f4f5;
+            --ink: #09090b;
+            --ink-2: #52525b;
+            --ink-3: #a1a1aa;
+            --border: rgba(0,0,0,0.08);
+            --border-2: rgba(0,0,0,0.14);
+            --accent: #d97706;
+        }
+        [data-theme="dark"] {
+            --bg: #09090b;
+            --bg-2: #111113;
+            --ink: #fafafa;
+            --ink-2: #a1a1aa;
+            --ink-3: #52525b;
+            --border: rgba(255,255,255,0.07);
+            --border-2: rgba(255,255,255,0.13);
+            --accent: #f59e0b;
+        }
+
+        html { overflow-x: hidden; }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .cs-header {
+            position: sticky; top: 0; z-index: 200;
+            height: 56px; padding: 0 2rem;
+            display: flex; align-items: center; gap: 1rem;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .cs-back {
+            font-size: 0.75rem; color: var(--ink-3); text-decoration: none;
+            padding: 0.3rem 0.7rem;
+            border: 1px solid var(--border-2); border-radius: 6px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .cs-back:hover { color: var(--ink); border-color: var(--ink-3); }
+        .cs-title {
+            flex: 1; font-size: 0.85rem; font-weight: 700;
+            color: var(--ink); text-align: center;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .cs-theme-btn {
+            background: none; border: 1px solid var(--border-2);
+            border-radius: 8px; padding: 0.3rem 0.6rem;
+            cursor: pointer; font-size: 0.9rem;
+            color: var(--ink-2); transition: background 0.15s;
+        }
+        .cs-theme-btn:hover { background: var(--bg-2); }
+
+        /* TAB BAR */
+        .cs-tabs {
+            position: sticky; top: 56px; z-index: 100;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            display: flex; padding: 0 2rem;
+            transition: background 0.3s;
+        }
+        .cs-tab-btn {
+            background: none; border: none; cursor: pointer;
+            font-family: inherit; font-size: 0.82rem; font-weight: 500;
+            color: var(--ink-3); padding: 0.85rem 1.1rem;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+            white-space: nowrap;
+        }
+        .cs-tab-btn:hover { color: var(--ink-2); }
+        .cs-tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
+
+        /* PANELS */
+        .cs-panel { display: none; max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+        .cs-panel.active { display: block; }
+
+        /* DECISION CARD */
+        .decision-card {
+            border-left: 3px solid var(--accent);
+            background: var(--bg-2);
+            border-radius: 0 8px 8px 0;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .decision-card h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 0.6rem; }
+        .decision-card p { font-size: 0.83rem; line-height: 1.65; color: var(--ink-2); margin-bottom: 0.4rem; }
+        .decision-card p:last-child { margin-bottom: 0; }
+        .decision-choice { color: var(--accent); font-weight: 700; }
+
+        /* STAT CHIPS */
+        .stat-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.5rem 0; }
+        .stat-chip {
+            border: 1px solid var(--border-2);
+            border-radius: 999px; padding: 0.4rem 1rem;
+            font-size: 0.78rem; color: var(--ink-2);
+        }
+        .stat-chip strong { font-weight: 800; color: var(--ink); }
+
+        /* DIAGRAM */
+        .cs-diagram {
+            background: var(--bg-2);
+            border: 1px solid var(--border-2);
+            border-radius: 10px;
+            padding: 1.5rem 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            line-height: 1.7;
+            color: var(--ink-2);
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        /* CHECKLIST */
+        .feature-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 2rem; margin: 1.5rem 0;
+        }
+        .feature-item { font-size: 0.83rem; color: var(--ink-2); line-height: 1.6; }
+        .feature-item span { color: var(--accent); font-weight: 700; }
+
+        /* TYPOGRAPHY HELPERS */
+        .cs-panel h1 { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.5rem; }
+        .cs-panel h2 { font-size: 1rem; font-weight: 700; color: var(--ink); margin: 2rem 0 0.75rem; }
+        .cs-panel p { font-size: 0.87rem; line-height: 1.75; color: var(--ink-2); margin-bottom: 0.9rem; }
+        .cs-panel .subtitle { font-size: 1rem; color: var(--ink-3); margin-bottom: 1.5rem; }
+
+        /* LIVE BUTTON */
+        .btn-primary {
+            display: inline-block; padding: 0.65rem 1.4rem;
+            background: var(--ink); color: var(--bg);
+            border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+            text-decoration: none; transition: opacity 0.15s;
+        }
+        .btn-primary:hover { opacity: 0.8; }
+
+        /* UX DECISION BOX */
+        .ux-box {
+            background: var(--bg-2);
+            border: 1px solid var(--border-2);
+            border-radius: 8px;
+            padding: 1.1rem 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .ux-box h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .ux-box p { font-size: 0.82rem; line-height: 1.65; color: var(--ink-2); margin: 0; }
+
+        @media (max-width: 600px) {
+            .cs-panel { padding: 2rem 1.2rem 4rem; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .cs-tabs { padding: 0 0.5rem; }
+            .cs-tab-btn { padding: 0.85rem 0.7rem; font-size: 0.76rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="cs-header">
+        <a href="/" class="cs-back">← 포트폴리오</a>
+        <div class="cs-title">커머스 시스템 케이스 스터디</div>
+        <button class="cs-theme-btn" id="themeBtn">☀</button>
+    </header>
+
+    <nav class="cs-tabs">
+        <button class="cs-tab-btn active" data-tab="background">배경</button>
+        <button class="cs-tab-btn" data-tab="decisions">고민과 결정</button>
+        <button class="cs-tab-btn" data-tab="design">화면 설계</button>
+        <button class="cs-tab-btn" data-tab="result">완성</button>
+    </nav>
+
+    <main>
+        <section id="tab-background" class="cs-panel active">
+            <!-- content will be added in Task 2 -->
+        </section>
+        <section id="tab-decisions" class="cs-panel">
+            <!-- content will be added in Task 3 -->
+        </section>
+        <section id="tab-design" class="cs-panel">
+            <!-- content will be added in Task 4 -->
+        </section>
+        <section id="tab-result" class="cs-panel">
+            <!-- content will be added in Task 5 -->
+        </section>
+    </main>
+
+    <script>
+        // Theme
+        function initTheme() {
+            const saved = localStorage.getItem('hub-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            document.getElementById('themeBtn').textContent = saved === 'dark' ? '☀' : '🌙';
+        }
+        document.getElementById('themeBtn').addEventListener('click', () => {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('hub-theme', next);
+            document.getElementById('themeBtn').textContent = next === 'dark' ? '☀' : '🌙';
+        });
+        initTheme();
+
+        // Tabs
+        const TAB_IDS = ['background', 'decisions', 'design', 'result'];
+        function switchTab(id) {
+            if (!TAB_IDS.includes(id)) id = 'background';
+            document.querySelectorAll('.cs-tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === id);
+            });
+            document.querySelectorAll('.cs-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.id === 'tab-' + id);
+            });
+            location.hash = id;
+        }
+        document.querySelectorAll('.cs-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+        window.addEventListener('hashchange', () => {
+            switchTab(location.hash.replace('#', ''));
+        });
+        // Init from hash
+        const initHash = location.hash.replace('#', '');
+        if (initHash && TAB_IDS.includes(initHash)) switchTab(initHash);
+    </script>
+</body>
+</html>
