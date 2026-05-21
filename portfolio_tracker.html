@@ -199,6 +199,35 @@ canvas{display:block;width:100%;cursor:crosshair;border-radius:8px}
 .hcard-pnl{font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600}
 .hcard-pnl.p{color:var(--pos)}.hcard-pnl.n{color:var(--neg)}
 
+/* ── KPI BANNER ── */
+.kpi-banner{
+  background:var(--surf);border-bottom:1px solid var(--bd);
+  display:grid;grid-template-columns:repeat(4,1fr);
+  flex-shrink:0;
+}
+.kb-item{
+  padding:16px 22px 14px;
+  display:flex;flex-direction:column;gap:4px;
+  border-right:1px solid var(--bd);
+  position:relative;
+}
+.kb-item:last-child{border-right:none}
+.kb-item.accent-left{border-left:3px solid var(--pos);padding-left:19px}
+.kb-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.kb-val{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-.03em;line-height:1}
+.kb-val.p{color:var(--pos)}.kb-val.n{color:var(--neg)}.kb-val.neu{color:var(--text)}
+.kb-sub{font-size:11px;color:var(--sub);margin-top:1px}
+.kb-pill{
+  display:inline-block;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:700;
+  padding:2px 8px;border-radius:10px;margin-top:3px;align-self:flex-start;
+}
+.kb-pill.p{background:var(--posbg);color:var(--pos)}.kb-pill.n{background:var(--negbg);color:var(--neg)}
+@media(max-width:700px){
+  .kpi-banner{grid-template-columns:1fr 1fr}
+  .kb-item:nth-child(2){border-right:none}
+  .kb-val{font-size:20px}
+}
+
 /* ── CALENDAR MODAL ── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:999;display:none;align-items:center;justify-content:center}
 .overlay.open{display:flex}
@@ -265,6 +294,59 @@ canvas{display:block;width:100%;cursor:crosshair;border-radius:8px}
   text-decoration:none;transition:color .15s;
 }
 .gate-back:hover{color:var(--text)}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:768px){
+  html,body{height:auto!important;overflow-y:auto!important;overflow-x:hidden!important}
+  .app{height:auto;min-height:100vh}
+
+  /* topbar */
+  .topbar{padding:10px 14px;gap:8px}
+  .bsub{display:none}
+  .hero-val{font-size:13px}
+  .hero-sub{font-size:10px}
+  .back-link{display:none}
+
+  /* kpi banner: 2×2 grid */
+  .kpi-banner{grid-template-columns:1fr 1fr}
+  .kb-item:nth-child(2){border-right:none}
+  .kb-item:nth-child(3){border-top:1px solid var(--bd)}
+  .kb-item:nth-child(4){border-top:1px solid var(--bd);border-right:none}
+  .kb-val{font-size:20px}
+  .kb-item{padding:12px 14px 10px}
+
+  /* body: column stack */
+  .body{flex-direction:column;overflow:visible;flex:none}
+  .left{
+    width:100%;flex-shrink:unset;overflow-y:visible;
+    padding:12px;
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  }
+  .note{grid-column:1/-1}
+
+  /* right area */
+  .right-wrap{overflow:visible;flex:none}
+  .right{overflow:visible;flex:none;padding:8px 12px 24px}
+  #chart-area{padding:8px 12px 0}
+
+  /* holdings grid */
+  .hgrid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+
+  /* section tabs scroll */
+  .itabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .itab{flex-shrink:0}
+}
+
+@media(max-width:480px){
+  .kpi-banner{grid-template-columns:1fr 1fr}
+  .kb-val{font-size:17px}
+  .left{grid-template-columns:1fr}
+  .hgrid{grid-template-columns:1fr 1fr}
+  .hcard-pct{font-size:18px}
+  .top-right{gap:4px}
+  .cal-btn span{display:none}
+  canvas#trendCanvas{height:72px!important}
+}
 
 /* back link in topbar */
 .back-link{
@@ -356,6 +438,9 @@ canvas{display:block;width:100%;cursor:crosshair;border-radius:8px}
     </div>
   </div>
 </div>
+
+<!-- KPI BANNER -->
+<div class="kpi-banner" id="kpi-banner"></div>
 
 <!-- BODY -->
 <div class="body">
@@ -562,7 +647,7 @@ function trendCardHTML() {
       <div class="trend-hint">${diff != null ? `${diffLabel} · ` : ''}hover로 상세 보기</div>
     </div>
     <div class="chart-wrap">
-      <canvas id="trendCanvas" style="width:100%;height:88px;display:block"></canvas>
+      <canvas id="trendCanvas" style="width:100%;height:clamp(64px,12vw,88px);display:block"></canvas>
       <div class="chart-tooltip" id="chartTip"></div>
     </div>
   </div>`;
@@ -821,13 +906,39 @@ function attachChartHover() {
   });
 }
 
+// ════════════ KPI BANNER ════════════
+function renderKpiBanner() {
+  const s=snapshots[activeSnap];
+  const prev=snapshots[activeSnap-1];
+  const assetDiff=prev?s.totalAsset-prev.totalAsset:null;
+  const pnlDiff=prev?s.totalPnl-prev.totalPnl:null;
+  document.getElementById('kpi-banner').innerHTML=`
+    <div class="kb-item">
+      <div class="kb-lbl">총 투자 자산 (원금)</div>
+      <div class="kb-val neu">${man(s.totalAsset)}만원</div>
+      ${assetDiff!=null?`<span class="kb-pill ${pc(assetDiff)}">${sg(assetDiff)}${man(assetDiff)}만 전회대비</span>`:''}
+    </div>
+    <div class="kb-item accent-left">
+      <div class="kb-lbl">현재 평가액</div>
+      <div class="kb-val ${pc(s.totalPnl)}">${man(s.totalEval)}만원</div>
+      <div class="kb-sub">원금 대비 ${sg(s.totalPnl)}${man(s.totalPnl)}만원</div>
+    </div>
+    <div class="kb-item">
+      <div class="kb-lbl">수익률</div>
+      <div class="kb-val ${pc(s.returnPct)}">${sg(s.returnPct)}${s.returnPct.toFixed(2)}%</div>
+      <div class="kb-sub">${prev?`전회 ${sg(prev.returnPct)}${prev.returnPct.toFixed(2)}%`:'첫 기록'}</div>
+    </div>
+    <div class="kb-item">
+      <div class="kb-lbl">총 손익</div>
+      <div class="kb-val ${pc(s.totalPnl)}">${sg(s.totalPnl)}${man(s.totalPnl)}만</div>
+      ${pnlDiff!=null?`<span class="kb-pill ${pc(pnlDiff)}">${sg(pnlDiff)}${man(pnlDiff)}만</span>`:''}
+    </div>
+  `;
+}
+
 // ════════════ LEFT PANEL ════════════
 function renderLeft() {
   const s=snapshots[activeSnap];
-  const prev=snapshots[activeSnap-1];
-  // 전회 대비 투자자산(원금) 변동
-  const assetDiff=prev?s.totalAsset-prev.totalAsset:null;
-  const pnlDiff=prev?s.totalPnl-prev.totalPnl:null;
 
   // donut data from sections with amt
   const donutSegs=s.sections.map((sec,i)=>{
@@ -843,29 +954,6 @@ function renderLeft() {
   const maxAbsPnl=Math.max(...allPnl.map(d=>Math.abs(d.v)));
 
   document.getElementById('left').innerHTML = `
-    <div class="kpi-grid">
-      <div class="kpi full">
-        <div class="kpi-lbl">총 투자 자산 (원금)</div>
-        <div class="kpi-val neu">${man(s.totalAsset)}만원</div>
-        ${assetDiff!=null?`<span class="pill ${pc(assetDiff)}">${sg(assetDiff)}${man(assetDiff)}만 전회대비</span>`:''}
-      </div>
-      <div class="kpi full" style="border-left:3px solid var(--pos)">
-        <div class="kpi-lbl">현재 평가액</div>
-        <div class="kpi-val ${pc(s.totalPnl)}">${man(s.totalEval)}만원</div>
-        <div class="kpi-sub">원금 대비 ${sg(s.totalPnl)}${man(s.totalPnl)}만원</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-lbl">수익률</div>
-        <div class="kpi-val ${pc(s.returnPct)}">${sg(s.returnPct)}${s.returnPct.toFixed(2)}%</div>
-        <div class="kpi-sub">${prev?`전회 ${sg(prev.returnPct)}${prev.returnPct.toFixed(2)}%`:'첫 기록'}</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-lbl">총 손익</div>
-        <div class="kpi-val ${pc(s.totalPnl)}">${sg(s.totalPnl)}${man(s.totalPnl)}만</div>
-        ${pnlDiff!=null?`<span class="pill ${pc(pnlDiff)}">${sg(pnlDiff)}${man(pnlDiff)}만</span>`:''}
-      </div>
-    </div>
-
     <!-- Donut -->
     <div class="scard">
       <div class="scard-title">자산 구성 비율</div>
@@ -910,10 +998,8 @@ function renderLeft() {
   `;
 
   document.getElementById('hero').innerHTML = `
-    <div class="hero-val">${man(s.totalAsset)}만원</div>
-    <div class="hero-sub" style="color:${s.returnPct>=0?'var(--pos)':'var(--neg)'}">
-      평가액 ${man(s.totalEval)}만 · ${sg(s.returnPct)}${s.returnPct.toFixed(2)}%
-    </div>
+    <div style="font-size:11px;color:var(--sub)">기준일</div>
+    <div style="font-size:14px;font-weight:700;font-family:'JetBrains Mono',monospace">${s.label}</div>
   `;
   document.getElementById('cal-lbl').textContent=s.date;
 }
@@ -1011,7 +1097,7 @@ function setSec(name){
   });
 }
 
-function render(){renderLeft();renderRight();}
+function render(){renderKpiBanner();renderLeft();renderRight();}
 window.addEventListener('resize', () => requestAnimationFrame(() => drawChart(-1)));
 render();
 </script>
