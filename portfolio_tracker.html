@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포트폴리오 트래커</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* default = light */
+:root, [data-theme="light"]{
+  --bg:#ddeeff; --surf:#f0f8ff; --surf2:#e4f2fc; --surf3:#d8ecf8;
+  --bd:#b8d8ef; --bd2:#93c0e0; --text:#0d2540; --sub:#3a6890; --dim:#6a9fc0;
+  --accent:#1a6db5; --pos:#c0000a; --posbg:rgba(192,0,10,.1);
+  --neg:#1252a8; --negbg:rgba(18,82,168,.1);
+  --shadow:0 4px 24px rgba(30,80,140,.15);
+}
+[data-theme="dark"]{
+  --bg:#0d1018; --surf:#161b26; --surf2:#1e2535; --surf3:#252d40;
+  --bd:#2a3148; --bd2:#37415a; --text:#e8edf8; --sub:#7c89a8; --dim:#475069;
+  --accent:#5b8df6; --pos:#e03535; --posbg:rgba(224,53,53,.15);
+  --neg:#3b82de; --negbg:rgba(59,130,222,.15);
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+}
+
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
+
+.app{display:flex;flex-direction:column;height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:var(--surf);border-bottom:1px solid var(--bd);
+  padding:11px 20px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+}
+.brand{display:flex;align-items:center;gap:9px}
+.bdot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.bname{font-size:14px;font-weight:700}
+.bsub{font-size:11px;color:var(--sub)}
+.top-right{display:flex;align-items:center;gap:8px}
+.hero-val{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em}
+.hero-sub{font-size:11px;margin-top:1px;text-align:right}
+
+.icon-btn{
+  width:34px;height:34px;border-radius:8px;border:1px solid var(--bd2);
+  background:var(--surf2);color:var(--text);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  transition:background .15s;flex-shrink:0;
+}
+.icon-btn:hover{background:var(--surf3)}
+.cal-btn{
+  display:flex;align-items:center;gap:6px;padding:7px 13px;
+  border-radius:8px;border:1px solid var(--bd2);background:var(--surf2);
+  color:var(--text);cursor:pointer;font-size:12px;font-weight:600;
+  font-family:'Noto Sans KR',sans-serif;transition:background .15s;
+}
+.cal-btn:hover{background:var(--surf3)}
+
+/* ── LAYOUT ── */
+.body{display:flex;flex:1;overflow:hidden}
+
+/* ── LEFT PANEL ── */
+.left{
+  width:260px;flex-shrink:0;background:var(--surf);border-right:1px solid var(--bd);
+  overflow-y:auto;padding:14px 13px;display:flex;flex-direction:column;gap:10px;
+  scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;
+}
+
+/* KPI cards */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.kpi{background:var(--surf2);border:1px solid var(--bd);border-radius:9px;padding:10px 12px}
+.kpi.full{grid-column:1/-1}
+.kpi-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:3px}
+.kpi-val{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em}
+.kpi-val.p{color:var(--pos)}.kpi-val.n{color:var(--neg)}.kpi-val.neu{color:var(--text)}
+.kpi-sub{font-size:10px;color:var(--sub);margin-top:2px}
+.pill{display:inline-block;font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:700;padding:2px 6px;border-radius:10px;margin-top:3px}
+.pill.p{background:var(--posbg);color:var(--pos)}.pill.n{background:var(--negbg);color:var(--neg)}
+
+/* section card */
+.scard{background:var(--surf2);border:1px solid var(--bd);border-radius:9px;padding:11px 13px}
+.scard-title{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+
+/* donut chart */
+.donut-wrap{display:flex;align-items:center;gap:12px}
+.donut-svg-wrap{position:relative;flex-shrink:0}
+.donut-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;pointer-events:none;
+}
+.donut-center-val{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--text)}
+.donut-center-lbl{font-size:8px;color:var(--sub);margin-top:1px}
+.donut-legend{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+.dl-row{display:flex;align-items:center;gap:5px}
+.dl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dl-name{font-size:10px;color:var(--sub);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl-pct{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--text)}
+
+/* section bar chart */
+.bar-chart{display:flex;flex-direction:column;gap:6px}
+.bc-row{display:flex;flex-direction:column;gap:2px}
+.bc-label-row{display:flex;justify-content:space-between;align-items:center}
+.bc-name{font-size:10px;color:var(--sub)}
+.bc-val{font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600}
+.bc-track{height:5px;background:var(--bd);border-radius:3px;overflow:hidden}
+.bc-fill{height:100%;border-radius:3px;transition:width .6s ease}
+
+/* note */
+.note{font-size:10px;color:var(--dim);line-height:1.9;padding:2px 0}
+
+/* ── RIGHT CONTENT ── */
+.right-wrap{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+}
+.right{
+  flex:1;overflow-y:auto;padding:10px 16px 16px;display:flex;flex-direction:column;gap:10px;
+  scrollbar-width:thin;scrollbar-color:var(--bd2) transparent;
+}
+#chart-area{
+  flex-shrink:0;padding:12px 16px 0;
+}
+
+/* ── TREND CHART ── */
+.trend-card{
+  background:var(--surf);border:1px solid var(--bd);border-radius:14px;
+  padding:14px 16px 10px;overflow:hidden;
+}
+.trend-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.trend-title{font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.trend-badge{
+  font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;
+  background:var(--posbg);color:var(--pos);font-family:'JetBrains Mono',monospace;
+}
+.trend-hint{font-size:10px;color:var(--dim)}
+.chart-wrap{position:relative;width:100%}
+canvas{display:block;width:100%;cursor:crosshair;border-radius:8px}
+
+/* pill tooltip */
+.chart-tooltip{
+  position:absolute;pointer-events:none;
+  background:var(--surf);border:1px solid var(--bd2);
+  border-radius:12px;padding:9px 13px;min-width:170px;
+  box-shadow:0 12px 40px rgba(0,0,0,.45);
+  opacity:0;transition:opacity .12s ease;z-index:20;
+  backdrop-filter:blur(8px);
+}
+.chart-tooltip.show{opacity:1}
+.tt-date{
+  font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;
+  color:var(--accent);margin-bottom:7px;letter-spacing:.04em;
+}
+.tt-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:2px}
+.tt-label{font-size:10px;color:var(--sub)}
+.tt-val{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.tt-val.p{color:var(--pos)}.tt-val.n{color:var(--neg)}.tt-val.neu{color:var(--text)}
+.tt-div{height:1px;background:var(--bd);margin:5px 0}
+.tt-chip{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;
+  padding:2px 8px;border-radius:20px;margin-top:5px;
+}
+.tt-chip.p{background:var(--posbg);color:var(--pos)}
+.tt-chip.n{background:var(--negbg);color:var(--neg)}
+
+/* ── HOLDINGS SECTION ── */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sec-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sub)}
+.itabs{display:flex;gap:4px;flex-wrap:wrap}
+.itab{
+  padding:4px 11px;font-size:11px;font-weight:600;border-radius:16px;cursor:pointer;
+  border:1px solid var(--bd2);background:var(--surf2);color:var(--sub);
+  transition:all .15s;font-family:'Noto Sans KR',sans-serif;
+}
+.itab:hover{color:var(--text)}.itab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.sec-block{display:none}.sec-block.on{display:block}
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:7px;padding-top:3px}
+
+/* holdings grid — horizontal bar style */
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:7px;margin-bottom:3px}
+.hcard{
+  background:var(--surf2);border:1px solid var(--bd);border-radius:9px;
+  padding:11px 13px;display:flex;flex-direction:column;gap:7px;
+  transition:border-color .15s;
+}
+.hcard:hover{border-color:var(--bd2)}
+.hcard-row1{display:flex;justify-content:space-between;align-items:flex-start;gap:6px}
+.hcard-name{font-size:11px;font-weight:600;color:var(--text);line-height:1.35;word-break:keep-all}
+.hcard-tk{display:inline-block;font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--dim);background:var(--bd);padding:1px 5px;border-radius:3px;margin-top:3px}
+.hcard-pct{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:-.03em;white-space:nowrap;line-height:1}
+.hcard-pct.p{color:var(--pos)}.hcard-pct.n{color:var(--neg)}
+.hbar{height:4px;background:var(--bd);border-radius:2px;overflow:hidden}
+.hbar-fill{height:100%;border-radius:2px}
+.hbar-fill.p{background:var(--pos)}.hbar-fill.n{background:var(--neg)}
+.hcard-row3{display:flex;justify-content:space-between;align-items:center}
+.hcard-meta{font-size:10px;color:var(--sub)}
+.hcard-pnl{font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600}
+.hcard-pnl.p{color:var(--pos)}.hcard-pnl.n{color:var(--neg)}
+
+/* ── CALENDAR MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:999;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.cal-modal{
+  background:var(--surf);border:1px solid var(--bd2);border-radius:16px;
+  padding:22px;width:330px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+  animation:pop .2s ease;
+}
+@keyframes pop{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:scale(1)}}
+.cal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.cal-month-lbl{font-size:15px;font-weight:700}
+.cal-navs{display:flex;gap:5px}
+.cal-nav{width:28px;height:28px;border-radius:7px;border:1px solid var(--bd2);background:var(--surf2);color:var(--text);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.cal-nav:hover{background:var(--surf3)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cday-name{text-align:center;font-size:10px;font-weight:600;color:var(--dim);padding:3px 0}
+.cday{text-align:center;padding:7px 0;font-size:12px;border-radius:7px;color:var(--dim);font-family:'JetBrains Mono',monospace;position:relative}
+.cday.has{cursor:pointer;color:var(--text);font-weight:600;background:var(--surf2);border:1px solid var(--bd2)}
+.cday.has:hover{background:var(--surf3)}
+.cday.has.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cday.has::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent)}
+.cday.has.sel::after{background:#fff}
+.cal-footer{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.cal-hint{font-size:10px;color:var(--dim)}
+.cal-close-btn{padding:6px 16px;border-radius:7px;border:1px solid var(--bd2);background:var(--surf2);color:var(--text);cursor:pointer;font-size:11px;font-weight:600;font-family:'Noto Sans KR',sans-serif}
+.cal-close-btn:hover{background:var(--surf3)}
+
+/* ── PASSWORD GATE ── */
+#pt-gate{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .35s ease;
+}
+#pt-gate.hidden{opacity:0;pointer-events:none}
+.gate-box{
+  background:var(--surf);border:1px solid var(--bd2);border-radius:18px;
+  padding:40px 36px;width:340px;text-align:center;
+  box-shadow:0 24px 64px rgba(0,0,0,.35);
+}
+.gate-icon{font-size:2.4rem;margin-bottom:16px}
+.gate-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px}
+.gate-sub{font-size:12px;color:var(--sub);margin-bottom:28px}
+.gate-input{
+  width:100%;padding:12px 16px;
+  background:var(--surf2);border:1px solid var(--bd2);border-radius:10px;
+  color:var(--text);font-size:22px;font-family:'JetBrains Mono',monospace;
+  letter-spacing:.25em;text-align:center;outline:none;
+  transition:border-color .15s;
+}
+.gate-input:focus{border-color:var(--accent)}
+.gate-input.shake{animation:shake .35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.gate-btn{
+  width:100%;margin-top:16px;padding:12px;
+  background:var(--accent);color:#fff;border:none;border-radius:10px;
+  font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;
+  transition:opacity .15s;
+}
+.gate-btn:hover{opacity:.88}
+.gate-err{font-size:11px;color:var(--pos);margin-top:10px;min-height:16px}
+.gate-back{
+  display:inline-block;margin-top:18px;font-size:11px;color:var(--sub);
+  text-decoration:none;transition:color .15s;
+}
+.gate-back:hover{color:var(--text)}
+
+/* back link in topbar */
+.back-link{
+  font-size:11px;color:var(--sub);text-decoration:none;
+  padding:5px 10px;border:1px solid var(--bd2);border-radius:7px;
+  transition:color .15s,border-color .15s;margin-right:4px;
+}
+.back-link:hover{color:var(--text);border-color:var(--sub)}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="pt-gate">
+  <div class="gate-box">
+    <div class="gate-icon">🔒</div>
+    <div class="gate-title">포트폴리오 트래커</div>
+    <div class="gate-sub">비밀번호를 입력하세요</div>
+    <input id="gate-input" class="gate-input" type="password" maxlength="8" inputmode="numeric" placeholder="••••" autocomplete="off">
+    <button class="gate-btn" onclick="checkPw()">확인</button>
+    <div class="gate-err" id="gate-err"></div>
+    <a href="/" class="gate-back">← 포트폴리오</a>
+  </div>
+</div>
+<script>
+(function(){
+  const HASH='35e21decf2695431546ce811fab05eef7650089ff25b413ba447687b61397126';
+  async function sha256(str){
+    const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+  function unlock(){
+    const gate=document.getElementById('pt-gate');
+    gate.classList.add('hidden');
+    setTimeout(()=>{gate.style.display='none';},360);
+  }
+  if(sessionStorage.getItem('pt-auth')==='1'){unlock();return;}
+  window.checkPw=async function(){
+    const val=document.getElementById('gate-input').value;
+    const h=await sha256(val);
+    if(h===HASH){
+      sessionStorage.setItem('pt-auth','1');
+      unlock();
+    } else {
+      const inp=document.getElementById('gate-input');
+      const err=document.getElementById('gate-err');
+      inp.classList.remove('shake');
+      void inp.offsetWidth;
+      inp.classList.add('shake');
+      inp.value='';
+      err.textContent='비밀번호가 틀렸습니다';
+    }
+  };
+  document.getElementById('gate-input').addEventListener('keydown',e=>{if(e.key==='Enter')window.checkPw();});
+})();
+</script>
+
+<div class="app">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <a href="/" class="back-link">← 포트폴리오</a>
+    <div class="bdot"></div>
+    <span class="bname">포트폴리오 트래커</span>
+    <span class="bsub">임광호 · 보름 단위 업데이트</span>
+  </div>
+  <div class="top-right">
+    <div style="text-align:right" id="hero"></div>
+    <button class="cal-btn" onclick="openCal()">📅 <span id="cal-lbl">날짜 선택</span></button>
+    <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="테마 전환">🌙</button>
+  </div>
+</div>
+
+<!-- CALENDAR MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeCalModal()">
+  <div class="cal-modal">
+    <div class="cal-top">
+      <div class="cal-month-lbl" id="cal-month-lbl"></div>
+      <div class="cal-navs">
+        <button class="cal-nav" onclick="shiftCal(-1)">‹</button>
+        <button class="cal-nav" onclick="shiftCal(1)">›</button>
+      </div>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-footer">
+      <span class="cal-hint">● 데이터 있는 날짜</span>
+      <button class="cal-close-btn" onclick="closeCalModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body">
+  <div class="left" id="left"></div>
+  <div class="right-wrap">
+    <div id="chart-area"></div>
+    <div class="right" id="right"></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  DATA  ← 새 날짜 추가 시 여기에 append
+// ════════════════════════════════════════════
+const snapshots = [
+  {
+    date:"2025-03-31", label:"25.03.31",
+    totalAsset:92032475, totalEval:89884391, totalPnl:1203000, returnPct:1.15,
+    sections:[
+      {name:"국내주식", rows:[
+        {name:"TIGER 미국S&P500",ticker:"국내ETF",qty:"828주",amt:21006360,pnl:4346930,pct:30.19},
+      ]},
+      {name:"국채/안전자산", rows:[
+        {name:"아이셰어즈 0-3개월 국채 ETF",ticker:"SGOV",qty:"200주",amt:null,pnl:1007511,pct:3.41},
+        {name:"디렉션 20+년 미국채 3배 ETF",ticker:"TMF",qty:"180주",amt:null,pnl:150068,pct:1.53},
+      ]},
+      {name:"레버리지ETF", rows:[
+        {name:"프로세어즈 S&P500 3배 ETF",ticker:"UPRO",qty:"73주",amt:null,pnl:594448,pct:6.21},
+        {name:"프로세어즈 QQQ 3배 ETF",ticker:"TQQQ",qty:"171주",amt:null,pnl:77609,pct:0.77},
+        {name:"프로세어즈 S&P500 2배 ETF",ticker:"SSO",qty:"33주",amt:null,pnl:-187621,pct:-6.97},
+        {name:"프로세어즈 QQQ 2배 ETF",ticker:"QLD",qty:"28주",amt:null,pnl:-256388,pct:-9.40},
+        {name:"디렉션 테슬라 2배 ETF",ticker:"TSLL",qty:"65주",amt:null,pnl:-234167,pct:-17.29},
+        {name:"디렉션 반도체 3배 ETF",ticker:"SOXL",qty:"43주",amt:null,pnl:-78272,pct:-2.76},
+      ]},
+      {name:"인컴/배당", rows:[
+        {name:"JP모건 에퀴티 프리미엄 인컴 ETF",ticker:"JEPI",qty:"5주",amt:null,pnl:-477,pct:-0.11},
+        {name:"JP모건 나스닥 프리미엄 인컴 ETF",ticker:"JEPQ",qty:"6주",amt:null,pnl:-26258,pct:-5.05},
+        {name:"아이셰어즈 코어 배당성장주 ETF",ticker:"DGRO",qty:"1주",amt:null,pnl:-1921,pct:-1.79},
+        {name:"슈왑 미국 배당주 ETF",ticker:"SCHD",qty:"1주",amt:null,pnl:8348,pct:21.89},
+      ]},
+    ]
+  },
+  {
+    date:"2026-04-14", label:"26.04.14",
+    totalAsset:102049205, totalEval:92641626, totalPnl:12031159, returnPct:14.93,
+    sections:[
+      {name:"국내주식", rows:[
+        {name:"TIGER 미국S&P500",ticker:"국내ETF",qty:"828주",amt:21006360,pnl:5190070,pct:32.81},
+      ]},
+      {name:"국채/안전자산", rows:[
+        {name:"아이셰어즈 0-3개월 국채 ETF",ticker:"SGOV",qty:"150주",amt:22315350,pnl:218862,pct:1.00},
+        {name:"디렉션 20+년 미국채 3배 ETF",ticker:"TMF",qty:"180주",amt:9750240,pnl:-31633,pct:-0.33},
+      ]},
+      {name:"레버리지ETF", rows:[
+        {name:"프로세어즈 QQQ 3배 ETF",ticker:"TQQQ",qty:"188주",amt:14176328,pnl:3050585,pct:27.42},
+        {name:"프로세어즈 S&P500 3배 ETF",ticker:"UPRO",qty:"82주",amt:13757304,pnl:2807445,pct:25.64},
+        {name:"프로세어즈 QQQ 2배 ETF",ticker:"QLD",qty:"33주",amt:3409989,pnl:195000,pct:8.07},
+        {name:"프로세어즈 S&P500 2배 ETF",ticker:"SSO",qty:"39주",amt:3326388,pnl:146217,pct:4.60},
+        {name:"디렉션 테슬라 2배 ETF",ticker:"TSLL",qty:"90주",amt:1453140,pnl:51667,pct:3.69},
+        {name:"디렉션 반도체 3배 ETF",ticker:"SOXL",qty:"10주",amt:1211820,pnl:539345,pct:80.20},
+        {name:"디렉션 마이크로소프트 2배 ETF",ticker:"MSFO",qty:"30주",amt:1115310,pnl:-146313,pct:-11.60},
+      ]},
+      {name:"인컴/배당", rows:[
+        {name:"JP모건 나스닥 프리미엄 인컴 ETF",ticker:"JEPQ",qty:"6주",amt:515304,pnl:-3747,pct:-0.72},
+        {name:"JP모건 에퀴티 프리미엄 인컴 ETF",ticker:"JEPI",qty:"5주",amt:428680,pnl:-3014,pct:-0.70},
+        {name:"아이셰어즈 코어 배당성장주 ETF",ticker:"DGRO",qty:"1주",amt:107033,pnl:-84,pct:-0.08},
+        {name:"슈왑 미국 배당주 ETF",ticker:"SCHD",qty:"1주",amt:45539,pnl:7411,pct:19.44},
+      ]},
+      {name:"개별주식", rows:[
+        {name:"테슬라",ticker:"TSLA",qty:"0.0007주",amt:4062,pnl:1280,pct:44.45},
+        {name:"애플",ticker:"AAPL",qty:"0.0006주",amt:2381,pnl:1041,pct:77.69},
+        {name:"코카콜라",ticker:"KO",qty:"0.0017주",amt:1331,pnl:222,pct:20.02},
+      ]},
+      {name:"기타/CMA", rows:[
+        {name:"CMA 원화RP",ticker:"CMA",qty:"-",amt:15011,pnl:5,pct:0.03},
+        {name:"CMA RP",ticker:"CMA",qty:"-",amt:56,pnl:2,pct:3.70},
+      ]},
+    ]
+  },
+  {
+    date:"2026-04-28", label:"26.04.28",
+    totalAsset:108369140, totalEval:96555252, totalPnl:16002297, returnPct:19.87,
+    sections:[
+      {name:"국내주식", rows:[
+        {name:"TIGER 미국S&P500",ticker:"국내ETF",qty:"828주",amt:21743280,pnl:5926990,pct:37.47},
+      ]},
+      {name:"국채/안전자산", rows:[
+        {name:"아이셰어즈 0-3개월 국채 ETF",ticker:"SGOV",qty:"150주",amt:22261200,pnl:185712,pct:0.76},
+        {name:"디렉션 20+년 미국채 3배 ETF",ticker:"TMF",qty:"180주",amt:9397980,pnl:-384093,pct:-3.93},
+      ]},
+      {name:"레버리지ETF", rows:[
+        {name:"프로세어즈 QQQ 3배 ETF",ticker:"TQQQ",qty:"166주",amt:15143682,pnl:5048698,pct:50.01},
+        {name:"프로세어즈 S&P500 3배 ETF",ticker:"UPRO",qty:"73주",amt:13699107,pnl:3723404,pct:37.32},
+        {name:"프로세어즈 QQQ 2배 ETF",ticker:"QLD",qty:"44주",amt:5168152,pnl:720353,pct:16.22},
+        {name:"프로세어즈 S&P500 2배 ETF",ticker:"SSO",qty:"52주",amt:4776772,pnl:432618,pct:9.96},
+        {name:"디렉션 테슬라 2배 ETF",ticker:"TSLL",qty:"94주",amt:1677054,pnl:204001,pct:13.85},
+        {name:"디렉션 마이크로소프트 2배 ETF",ticker:"MSFO",qty:"30주",amt:1311990,pnl:50367,pct:3.99},
+        {name:"디렉션 반도체 3배 ETF",ticker:"SOXL",qty:"1주",amt:170924,pnl:103677,pct:154.17},
+      ]},
+      {name:"인컴/배당", rows:[
+        {name:"JP모건 나스닥 프리미엄 인컴 ETF",ticker:"JEPQ",qty:"6주",amt:522234,pnl:3183,pct:0.61},
+        {name:"JP모건 에퀴티 프리미엄 인컴 ETF",ticker:"JEPI",qty:"6주",amt:506490,pnl:3447,pct:0.68},
+        {name:"아이셰어즈 코어 배당성장주 ETF",ticker:"DGRO",qty:"1주",amt:107166,pnl:49,pct:0.08},
+        {name:"슈왑 미국 배당주 ETF",ticker:"SCHD",qty:"1주",amt:46074,pnl:7946,pct:20.84},
+      ]},
+      {name:"개별주식", rows:[
+        {name:"테슬라",ticker:"TSLA",qty:"0.0007주",amt:4292,pnl:1480,pct:52.63},
+        {name:"애플",ticker:"AAPL",qty:"0.0006주",amt:2456,pnl:1126,pct:84.66},
+        {name:"코카콜라",ticker:"KO",qty:"0.0017주",amt:1322,pnl:221,pct:20.07},
+      ]},
+      {name:"기타/CMA", rows:[
+        {name:"CMA 원화RP",ticker:"CMA",qty:"-",amt:15021,pnl:15,pct:0.10},
+        {name:"CMA RP",ticker:"CMA",qty:"-",amt:56,pnl:2,pct:3.70},
+      ]},
+    ]
+  },
+  {
+    date:"2026-05-15", label:"26.05.15",
+    totalAsset:123597414, totalEval:117294586, totalPnl:25468282, returnPct:27.74,
+    sections:[
+      {name:"국내주식", rows:[
+        {name:"TIGER 미국S&P500",       ticker:"국내ETF", qty:"840주",  amt:23335200, pnl: 7203605, pct:44.86},
+        {name:"TIGER 미국나스닥100",    ticker:"국내ETF", qty:"15주",   amt: 2920125, pnl:  425515, pct:17.06},
+        {name:"TIGER 미국배당다우존스", ticker:"국내ETF", qty:"11주",   amt: 1803445, pnl:  110440, pct: 6.52},
+      ]},
+      {name:"국채/안전자산", rows:[
+        {name:"아이셰어즈 0-3개월 국채 ETF", ticker:"SGOV", qty:"150주", amt:22508250, pnl:  412762, pct: 1.87},
+        {name:"디렉션 20+년 미국채 3배 ETF",  ticker:"TMF",  qty:"183주", amt: 9136092, pnl: -797970, pct:-8.03},
+      ]},
+      {name:"레버리지ETF", rows:[
+        {name:"프로세어즈 QQQ 3배 ETF",        ticker:"TQQQ", qty:"187주", amt:21225248, pnl: 6955457, pct:72.99},
+        {name:"프로세어즈 S&P500 3배 ETF",     ticker:"UPRO", qty:"80주",  amt:16976240, pnl: 5611989, pct:49.38},
+        {name:"프로세어즈 QQQ 2배 ETF",        ticker:"QLD",  qty:"54주",  amt: 7382502, pnl: 1698998, pct:29.89},
+        {name:"프로세어즈 S&P500 2배 ETF",     ticker:"SSO",  qty:"60주",  amt: 6014160, pnl:  917258, pct:18.00},
+        {name:"디렉션 테슬라 2배 ETF",         ticker:"TSLL", qty:"110주", amt: 2577520, pnl:  758545, pct:41.70},
+        {name:"디렉션 마이크로소프트 2배 ETF", ticker:"MSFO", qty:"30주",  amt: 1213830, pnl:  -47793, pct:-3.79},
+        {name:"디렉션 반도체 3배 ETF",         ticker:"SOXL", qty:"1주",   amt:  253545, pnl:  186298, pct:277.04},
+      ]},
+      {name:"인컴/배당", rows:[
+        {name:"JP모건 에퀴티 프리미엄 인컴 ETF", ticker:"JEPI", qty:"15주", amt:1251900, pnl:    631, pct: 0.05},
+        {name:"JP모건 나스닥 프리미엄 인컴 ETF", ticker:"JEPQ", qty:"7주",  amt: 624757, pnl: -19259, pct:-2.99},  
+        {name:"슈왑 미국 배당주 ETF",            ticker:"SCHD", qty:"1주",  amt:  47461, pnl:   9333, pct:24.49},
+      ]},
+      {name:"개별주식", rows:[
+        {name:"테슬라",   ticker:"TSLA", qty:"0.00774주", amt:5014,  pnl:2202,  pct:78.31},
+        {name:"애플",     ticker:"AAPL", qty:"0.00621주", amt:2773,  pnl:1433,  pct:106.94},
+        {name:"코카콜라", ticker:"KO",   qty:"0.01177주", amt:1421,  pnl: 312,  pct:28.13},
+      ]},
+      {name:"기타/CMA", rows:[
+        {name:"CMA 원화RP (NH투자증권)", ticker:"CMA", qty:"-", amt:15046, pnl:  5, pct:0.03},
+        {name:"CMA RP (삼성증권)",       ticker:"CMA", qty:"-", amt:   57, pnl:  3, pct:5.56},
+      ]},
+    ]
+  }
+];
+
+// ════════════ PALETTE ════════════
+const COLORS=['#5b8df6','#34d399','#f0b429','#a78bfa','#f97316','#22d3ee','#fb7185'];
+const sg=n=>n>=0?'+':'';
+const pc=n=>n>=0?'p':'n';
+const won=n=>n==null?'—':Math.abs(n).toLocaleString('ko-KR')+'원';
+const man=n=>Math.round(n/10000).toLocaleString();
+
+let activeSnap=snapshots.length-1;
+let activeSec='전체';
+let calYear=new Date().getFullYear();
+let calMonth=new Date().getMonth();
+
+// ════════════ DONUT SVG ════════════
+function donutSVG(segs, W=110, sw=18) {
+  const r=(W-sw)/2, cx=W/2, cy=W/2, circ=2*Math.PI*r;
+  const total=segs.reduce((a,s)=>a+s.v,0);
+  let off=0;
+  const paths=segs.map(s=>{
+    const frac=total>0?s.v/total:0;
+    const dash=frac*circ, gap=circ-dash;
+    const p=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+      stroke="${s.c}" stroke-width="${sw}"
+      stroke-dasharray="${dash.toFixed(1)} ${gap.toFixed(1)}"
+      stroke-dashoffset="${(-off).toFixed(1)}"
+      transform="rotate(-90 ${cx} ${cy})"/>`;
+    off+=dash; return p;
+  });
+  return `<svg width="${W}" height="${W}" viewBox="0 0 ${W} ${W}">${paths.join('')}
+    <circle cx="${cx}" cy="${cy}" r="${r-sw/2-1}" fill="var(--surf2)"/>
+  </svg>`;
+}
+
+// ════════════ INTERACTIVE CANVAS CHART ════════════
+function trendCardHTML() {
+  const cur  = snapshots[activeSnap];
+  const prev = snapshots[activeSnap - 1];
+  const diff = prev ? cur.totalAsset - prev.totalAsset : null;
+  const diffStr = diff != null ? (diff >= 0 ? '+' : '') + man(diff) + '만' : '';
+  const diffCls = diff != null ? (diff >= 0 ? 'p' : 'n') : '';
+  const diffLabel = prev ? `전회(${prev.label}) 대비` : '';
+  return `<div class="trend-card">
+    <div class="trend-header">
+      <div class="trend-title">
+        📈 투자 자산 추이
+        ${diff != null ? `<span class="trend-badge" title="${diffLabel}">${diffStr}</span>` : ''}
+      </div>
+      <div class="trend-hint">${diff != null ? `${diffLabel} · ` : ''}hover로 상세 보기</div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="trendCanvas" style="width:100%;height:88px;display:block"></canvas>
+      <div class="chart-tooltip" id="chartTip"></div>
+    </div>
+  </div>`;
+}
+
+function drawChart(hoverIdx = -1) {
+  const canvas = document.getElementById('trendCanvas');
+  if (!canvas) return;
+
+  const DPR = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const W = rect.width || canvas.parentElement?.clientWidth || 400;
+  const H = 88;
+  canvas.width  = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  const PAD = { t: 14, r: 18, b: 24, l: 56 };
+  const iw  = W - PAD.l - PAD.r;
+  const ih  = H - PAD.t - PAD.b;
+  const n   = snapshots.length;
+
+  // 두 선 모두 포함한 min/max
+  const allVals = snapshots.flatMap(s => [s.totalAsset, s.totalEval]);
+  const minV = Math.min(...allVals) * 0.955;
+  const maxV = Math.max(...allVals) * 1.025;
+
+  const xOf  = i => PAD.l + (n > 1 ? i / (n - 1) : 0.5) * iw;
+  const yOf  = v => PAD.t + (1 - (v - minV) / (maxV - minV)) * ih;
+
+  const cs = getComputedStyle(document.documentElement);
+  const cv = k => cs.getPropertyValue(k).trim();
+
+  function withAlpha(col, a) {
+    col = col.trim();
+    if (col.startsWith('#')) {
+      const full = col.length === 4
+        ? '#' + col[1]+col[1]+col[2]+col[2]+col[3]+col[3] : col;
+      const r=parseInt(full.slice(1,3),16), g=parseInt(full.slice(3,5),16), b=parseInt(full.slice(5,7),16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+    if (col.startsWith('rgba')) return col.replace(/,\s*[\d.]+\)$/, `,${a})`);
+    if (col.startsWith('rgb'))  return col.replace('rgb(','rgba(').replace(')',`,${a})`);
+    return `rgba(128,128,128,${a})`;
+  }
+
+  const posCol    = cv('--pos');
+  const accentCol = cv('--accent');
+  const subCol    = cv('--sub');
+
+  // ── Y-axis grid + labels
+  ctx.font = '9px JetBrains Mono, monospace';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 3; i++) {
+    const v = minV + (maxV - minV) * i / 3;
+    const y = yOf(v);
+    ctx.strokeStyle = withAlpha(cv('--bd'), 0.5);
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([2, 5]);
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(PAD.l + iw, y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = cv('--dim');
+    ctx.fillText(Math.round(v / 10000).toLocaleString() + '만', PAD.l - 5, y + 3.5);
+  }
+
+  // ── bezier path builder
+  function bezierPath(pts) {
+    if (pts.length < 2) return;
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 0; i < pts.length - 1; i++) {
+      const cpx = (pts[i].x + pts[i+1].x) / 2;
+      ctx.bezierCurveTo(cpx, pts[i].y, cpx, pts[i+1].y, pts[i+1].x, pts[i+1].y);
+    }
+  }
+
+  const assetPts = snapshots.map((s,i) => ({ x: xOf(i), y: yOf(s.totalAsset) }));
+  const evalPts  = snapshots.map((s,i) => ({ x: xOf(i), y: yOf(s.totalEval)  }));
+
+  // ── [1] 평가액 영역 채우기 (연한 빨강)
+  const gradEval = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + ih);
+  gradEval.addColorStop(0,   withAlpha(posCol, 0.18));
+  gradEval.addColorStop(0.7, withAlpha(posCol, 0.05));
+  gradEval.addColorStop(1,   withAlpha(posCol, 0));
+  bezierPath(evalPts);
+  ctx.lineTo(evalPts[evalPts.length-1].x, PAD.t + ih);
+  ctx.lineTo(evalPts[0].x, PAD.t + ih);
+  ctx.closePath();
+  ctx.fillStyle = gradEval;
+  ctx.fill();
+
+  // ── [2] 평가액 선 (빨강 실선)
+  bezierPath(evalPts);
+  ctx.strokeStyle = posCol;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // ── [3] 투자 원금 선 (점선, 회색)
+  bezierPath(assetPts);
+  ctx.strokeStyle = withAlpha(subCol, 0.6);
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // ── 범례
+  ctx.font = '8px Noto Sans KR, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = withAlpha(posCol, 0.9);
+  ctx.fillText('━ 평가액', PAD.l + 4, PAD.t + 10);
+  ctx.fillStyle = withAlpha(subCol, 0.7);
+  ctx.fillText('┅ 투자원금', PAD.l + 52, PAD.t + 10);
+
+  // ── hover 수직선
+  if (hoverIdx >= 0) {
+    const hx = xOf(hoverIdx);
+    const gradLine = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + ih);
+    gradLine.addColorStop(0, withAlpha(accentCol, 0.5));
+    gradLine.addColorStop(1, withAlpha(accentCol, 0));
+    ctx.strokeStyle = gradLine;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(hx, PAD.t); ctx.lineTo(hx, PAD.t + ih); ctx.stroke();
+  }
+
+  // ── dots: 평가액(큰 dot) + 원금(작은 dot)
+  snapshots.forEach((s, i) => {
+    const isHover   = i === hoverIdx;
+    const isActive  = i === activeSnap;
+    const highlight = isActive || isHover;
+
+    // 평가액 dot
+    const ex = xOf(i), ey = yOf(s.totalEval);
+    if (highlight) {
+      const g = ctx.createRadialGradient(ex, ey, 0, ex, ey, 13);
+      g.addColorStop(0, withAlpha(isHover ? accentCol : posCol, 0.22));
+      g.addColorStop(1, withAlpha(isHover ? accentCol : posCol, 0));
+      ctx.beginPath(); ctx.arc(ex, ey, 13, 0, Math.PI*2);
+      ctx.fillStyle = g; ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.arc(ex, ey, highlight ? 5 : 3.5, 0, Math.PI*2);
+    ctx.fillStyle = isHover ? accentCol : posCol;
+    ctx.strokeStyle = cv('--surf');
+    ctx.lineWidth = 2;
+    ctx.fill(); ctx.stroke();
+
+    // 투자원금 dot (작은 다이아몬드 느낌으로 정사각형)
+    const ax = xOf(i), ay = yOf(s.totalAsset);
+    const sr = highlight ? 3.5 : 2.5;
+    ctx.save();
+    ctx.translate(ax, ay);
+    ctx.rotate(Math.PI / 4);
+    ctx.beginPath();
+    ctx.rect(-sr, -sr, sr*2, sr*2);
+    ctx.fillStyle = withAlpha(subCol, highlight ? 0.9 : 0.5);
+    ctx.strokeStyle = cv('--surf');
+    ctx.lineWidth = 1.5;
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+
+    // x-label
+    ctx.textAlign = 'center';
+    ctx.fillStyle = highlight ? cv('--text') : cv('--dim');
+    ctx.font = highlight ? 'bold 9px Noto Sans KR, sans-serif' : '9px Noto Sans KR, sans-serif';
+    ctx.fillText(s.label, xOf(i), PAD.t + ih + 14);
+  });
+
+  canvas._meta = { xOf, yOf, iw, ih, PAD, W, H };
+}
+
+// ─ Tooltip hover logic
+function attachChartHover() {
+  const canvas = document.getElementById('trendCanvas');
+  const tip    = document.getElementById('chartTip');
+  if (!canvas || !tip) return;
+
+  let lastHover = -1;
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const { xOf, PAD, iw, W } = canvas._meta || {};
+    if (!xOf) return;
+    // map mouse position to canvas logical coordinates
+    const scaleX = W / rect.width;
+    const mx = (e.clientX - rect.left) * scaleX;
+
+    if (mx < PAD.l - 10 || mx > PAD.l + iw + 10) {
+      tip.classList.remove('show');
+      if (lastHover !== -1) { lastHover = -1; drawChart(-1); }
+      return;
+    }
+
+    let closest = 0, minDist = Infinity;
+    snapshots.forEach((s, i) => {
+      const d = Math.abs(xOf(i) - mx);
+      if (d < minDist) { minDist = d; closest = i; }
+    });
+
+    if (closest !== lastHover) { lastHover = closest; drawChart(closest); }
+
+    const s    = snapshots[closest];
+    const prev = snapshots[closest - 1];
+    const diff = prev ? s.totalAsset - prev.totalAsset : null;
+    const retCls = s.returnPct >= 0 ? 'p' : 'n';
+    const diffCls = diff != null ? (diff >= 0 ? 'p' : 'n') : 'neu';
+
+    tip.innerHTML = `
+      <div class="tt-date">📅 ${s.date}</div>
+      <div class="tt-row">
+        <span class="tt-label">투자 자산</span>
+        <span class="tt-val neu">${s.totalAsset.toLocaleString()}원</span>
+      </div>
+      <div class="tt-row">
+        <span class="tt-label">현재 평가액</span>
+        <span class="tt-val ${s.totalPnl>=0?'p':'n'}">${s.totalEval.toLocaleString()}원</span>
+      </div>
+      <div class="tt-div"></div>
+      <div class="tt-row">
+        <span class="tt-label">손익</span>
+        <span class="tt-val ${s.totalPnl>=0?'p':'n'}">${sg(s.totalPnl)}${s.totalPnl.toLocaleString()}원</span>
+      </div>
+      <div class="tt-row">
+        <span class="tt-label">수익률</span>
+        <span class="tt-val ${retCls}">${sg(s.returnPct)}${s.returnPct.toFixed(2)}%</span>
+      </div>
+      ${diff != null ? `
+        <div class="tt-div"></div>
+        <span class="tt-chip ${diffCls}">${diffCls==='p'?'▲':'▼'} 전회 대비 ${sg(diff)}${man(diff)}만원</span>
+      ` : ''}
+    `;
+
+    // smart tooltip positioning
+    const tipW = 180;
+    const wrapW = canvas.parentElement.offsetWidth;
+    const { H: metaH } = canvas._meta;
+    const cx = xOf(closest) / scaleX;
+    let tx = cx + 14;
+    if (tx + tipW > wrapW - 8) tx = cx - tipW - 14;
+    const scaleY = rect.height / metaH;
+    const cy = canvas._meta.yOf(s.totalEval) * scaleY;
+    const tipH = tip.offsetHeight || 110;
+    let ty = cy - tipH / 2;
+    ty = Math.max(4, Math.min(ty, rect.height - tipH - 4));
+
+    tip.style.left = tx + 'px';
+    tip.style.top  = ty + 'px';
+    tip.classList.add('show');
+  });
+
+  canvas.addEventListener('mouseleave', () => {
+    tip.classList.remove('show');
+    lastHover = -1;
+    drawChart(-1);
+  });
+}
+
+// ════════════ LEFT PANEL ════════════
+function renderLeft() {
+  const s=snapshots[activeSnap];
+  const prev=snapshots[activeSnap-1];
+  // 전회 대비 투자자산(원금) 변동
+  const assetDiff=prev?s.totalAsset-prev.totalAsset:null;
+  const pnlDiff=prev?s.totalPnl-prev.totalPnl:null;
+
+  // donut data from sections with amt
+  const donutSegs=s.sections.map((sec,i)=>{
+    const v=sec.rows.reduce((a,r)=>a+(r.amt||0),0);
+    return {name:sec.name,v,pct:s.totalAsset>0?v/s.totalAsset*100:0,c:COLORS[i%COLORS.length]};
+  }).filter(d=>d.v>0);
+
+  // bar chart: pnl per section
+  const allPnl=s.sections.map((sec,i)=>{
+    const v=sec.rows.reduce((a,r)=>a+r.pnl,0);
+    return {name:sec.name,v,c:COLORS[i%COLORS.length]};
+  });
+  const maxAbsPnl=Math.max(...allPnl.map(d=>Math.abs(d.v)));
+
+  document.getElementById('left').innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi full">
+        <div class="kpi-lbl">총 투자 자산 (원금)</div>
+        <div class="kpi-val neu">${man(s.totalAsset)}만원</div>
+        ${assetDiff!=null?`<span class="pill ${pc(assetDiff)}">${sg(assetDiff)}${man(assetDiff)}만 전회대비</span>`:''}
+      </div>
+      <div class="kpi full" style="border-left:3px solid var(--pos)">
+        <div class="kpi-lbl">현재 평가액</div>
+        <div class="kpi-val ${pc(s.totalPnl)}">${man(s.totalEval)}만원</div>
+        <div class="kpi-sub">원금 대비 ${sg(s.totalPnl)}${man(s.totalPnl)}만원</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">수익률</div>
+        <div class="kpi-val ${pc(s.returnPct)}">${sg(s.returnPct)}${s.returnPct.toFixed(2)}%</div>
+        <div class="kpi-sub">${prev?`전회 ${sg(prev.returnPct)}${prev.returnPct.toFixed(2)}%`:'첫 기록'}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">총 손익</div>
+        <div class="kpi-val ${pc(s.totalPnl)}">${sg(s.totalPnl)}${man(s.totalPnl)}만</div>
+        ${pnlDiff!=null?`<span class="pill ${pc(pnlDiff)}">${sg(pnlDiff)}${man(pnlDiff)}만</span>`:''}
+      </div>
+    </div>
+
+    <!-- Donut -->
+    <div class="scard">
+      <div class="scard-title">자산 구성 비율</div>
+      <div class="donut-wrap">
+        <div class="donut-svg-wrap">
+          ${donutSVG(donutSegs)}
+          <div class="donut-center">
+            <div class="donut-center-val">${man(s.totalAsset)}만</div>
+            <div class="donut-center-lbl">투자 원금</div>
+          </div>
+        </div>
+        <div class="donut-legend">
+          ${donutSegs.map(d=>`
+            <div class="dl-row">
+              <div class="dl-dot" style="background:${d.c}"></div>
+              <span class="dl-name">${d.name}</span>
+              <span class="dl-pct">${d.pct.toFixed(0)}%</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Section P&L bar -->
+    <div class="scard">
+      <div class="scard-title">섹션별 손익</div>
+      <div class="bar-chart">
+        ${allPnl.map(d=>{
+          const w=maxAbsPnl>0?Math.abs(d.v)/maxAbsPnl*100:0;
+          const col=d.v>=0?'var(--pos)':'var(--neg)';
+          return `<div class="bc-row">
+            <div class="bc-label-row">
+              <span class="bc-name">${d.name}</span>
+              <span class="bc-val" style="color:${col}">${sg(d.v)}${won(d.v)}</span>
+            </div>
+            <div class="bc-track"><div class="bc-fill" style="width:${w.toFixed(1)}%;background:${col}"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="note">🔴 빨강 = 수익 &nbsp;|&nbsp; 🔵 파랑 = 손실<br>※ 투자 권유가 아닙니다</div>
+  `;
+
+  document.getElementById('hero').innerHTML = `
+    <div class="hero-val">${man(s.totalAsset)}만원</div>
+    <div class="hero-sub" style="color:${s.returnPct>=0?'var(--pos)':'var(--neg)'}">
+      평가액 ${man(s.totalEval)}만 · ${sg(s.returnPct)}${s.returnPct.toFixed(2)}%
+    </div>
+  `;
+  document.getElementById('cal-lbl').textContent=s.date;
+}
+
+// ════════════ RIGHT PANEL ════════════
+function renderRight() {
+  const s=snapshots[activeSnap];
+  const secNames=['전체',...s.sections.map(sec=>sec.name)];
+
+  // chart always goes into its own fixed div
+  document.getElementById('chart-area').innerHTML = trendCardHTML();
+
+  const tabs=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div class="itabs">${secNames.map(n=>`<button class="itab${n===activeSec?' active':''}" onclick="setSec('${n}')">${n}</button>`).join('')}</div>
+  </div>`;
+
+  const panels=s.sections.map(sec=>{
+    const on=activeSec==='전체'||activeSec===sec.name;
+    const lbl=activeSec==='전체'?`<div class="sec-lbl">${sec.name}</div>`:'';
+    const cards=sec.rows.map(r=>{
+      const w=Math.min(Math.abs(r.pct),100);
+      return `<div class="hcard">
+        <div class="hcard-row1">
+          <div class="hcard-info">
+            <div class="hcard-name">${r.name}</div>
+            <span class="hcard-tk">${r.ticker}</span>
+          </div>
+          <div class="hcard-pct ${pc(r.pct)}">${sg(r.pct)}${r.pct.toFixed(2)}%</div>
+        </div>
+        <div class="hbar"><div class="hbar-fill ${pc(r.pct)}" style="width:${w}%"></div></div>
+        <div class="hcard-row3">
+          <div class="hcard-meta">${r.qty}${r.amt?' · '+man(r.amt)+'만':''}</div>
+          <div class="hcard-pnl ${pc(r.pnl)}">${sg(r.pnl)}${won(r.pnl)}</div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="sec-block${on?' on':''}" data-sec="${sec.name}">${lbl}<div class="hgrid">${cards}</div></div>`;
+  }).join('');
+
+  document.getElementById('right').innerHTML = tabs + panels;
+
+  // chart-area is always visible and has stable width — draw after one rAF
+  requestAnimationFrame(() => { drawChart(-1); attachChartHover(); });
+}
+
+// ════════════ CALENDAR ════════════
+function buildCalGrid() {
+  const dateMap={};
+  snapshots.forEach((s,i)=>{dateMap[s.date]=i;});
+  const months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('cal-month-lbl').textContent=`${calYear}년 ${months[calMonth]}`;
+  const grid=document.getElementById('cal-grid');
+  const days=['일','월','화','수','목','금','토'];
+  grid.innerHTML=days.map(d=>`<div class="cday-name">${d}</div>`).join('');
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  for(let i=0;i<firstDay;i++) grid.innerHTML+=`<div class="cday"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const idx=dateMap[ds];
+    const has=idx!==undefined;
+    const sel=has&&idx===activeSnap;
+    const onclick=has?`onclick="pickDate(${idx})"`:'';
+    grid.innerHTML+=`<div class="cday${has?' has':''}${sel?' sel':''}" ${onclick}>${d}</div>`;
+  }
+}
+function openCal(){
+  const d=new Date(snapshots[activeSnap].date);
+  calYear=d.getFullYear();calMonth=d.getMonth();
+  buildCalGrid();
+  document.getElementById('overlay').classList.add('open');
+}
+function closeCalModal(){document.getElementById('overlay').classList.remove('open');}
+function shiftCal(dir){calMonth+=dir;if(calMonth<0){calMonth=11;calYear--}if(calMonth>11){calMonth=0;calYear++}buildCalGrid();}
+function pickDate(idx){activeSnap=idx;activeSec='전체';render();closeCalModal();}
+
+// ════════════ THEME ════════════
+function toggleTheme(){
+  const h=document.documentElement;
+  const isLight=h.dataset.theme==='light';
+  h.dataset.theme=isLight?'dark':'light';
+  document.getElementById('theme-btn').textContent=isLight?'☀️':'🌙';
+  requestAnimationFrame(()=>drawChart(-1));
+}
+
+// ════════════ SECTION FILTER ════════════
+function setSec(name){
+  activeSec=name;
+  document.querySelectorAll('.itab').forEach(t=>t.classList.toggle('active',t.textContent===name));
+  document.querySelectorAll('.sec-block').forEach(b=>{
+    const on=name==='전체'||b.dataset.sec===name;
+    b.classList.toggle('on',on);
+    const lbl=b.querySelector('.sec-lbl');
+    if(lbl)lbl.style.display=name==='전체'?'':'none';
+  });
+}
+
+function render(){renderLeft();renderRight();}
+window.addEventListener('resize', () => requestAnimationFrame(() => drawChart(-1)));
+render();
+</script>
+</body>
+</html>
