@@ -271,7 +271,30 @@
             <p>기존 포트폴리오 툴과 키 충돌을 막기 위해 <code>dept-</code> 접두사를 통일했다. 새로고침 후 Context 초기화 시 localStorage를 읽어 마지막 상태를 복원한다. 시드 데이터(INIT_PRODUCTS 등)는 해당 키가 비어 있을 때만 적용된다.</p>
         </section>
         <section id="tab-result" class="cs-panel">
-            <!-- content will be added in Task 5 -->
+            <h1>완성</h1>
+            <p class="subtitle">구현된 것과 배운 것</p>
+
+            <h2>구현 기능</h2>
+            <div class="feature-grid">
+                <div class="feature-item"><span>✓</span> 상품 목록 / 필터 / 검색</div>
+                <div class="feature-item"><span>✓</span> 상품 상세 모달</div>
+                <div class="feature-item"><span>✓</span> 장바구니 담기 / 수량 조절</div>
+                <div class="feature-item"><span>✓</span> 주문하기 / 재고 차감</div>
+                <div class="feature-item"><span>✓</span> 주문 내역 조회</div>
+                <div class="feature-item"><span>✓</span> 관리자 상품 CRUD</div>
+                <div class="feature-item"><span>✓</span> 재고 수량 조정</div>
+                <div class="feature-item"><span>✓</span> 매출 통계 canvas 차트</div>
+                <div class="feature-item"><span>✓</span> localStorage 영속성</div>
+                <div class="feature-item"><span>✓</span> Toast 알림 시스템</div>
+            </div>
+
+            <h2>직접 해보기</h2>
+            <p>쇼핑몰 탭에서 상품을 골라 장바구니에 담고, 주문까지 이어지는 흐름을 직접 확인할 수 있다. 관리자 탭에서 상품을 추가하거나 재고를 조정하면 쇼핑몰에 즉시 반영된다.</p>
+            <a href="/commerce.html" class="btn-primary">→ 커머스 시스템 열기</a>
+
+            <h2>회고</h2>
+            <p>단일 HTML 안에서 React 설계 원칙(단방향 데이터 흐름, Context 분리)을 지키는 것이 가장 어려운 제약이었다. 컴포넌트가 늘어날수록 같은 파일 안에서 의존성을 관리해야 했고, 스크롤 한 번에 전체 코드를 파악할 수 있어야 했다.</p>
+            <p>빌드 도구 없이 Babel Standalone만으로 JSX를 쓰는 방식은 개발 속도와 포트폴리오 접근성 사이의 최선의 트레이드오프였다. 실제 프로젝트라면 Vite + TypeScript를 선택했겠지만, "누구나 파일 하나만 열면 바로 볼 수 있다"는 포트폴리오의 핵심 가치를 지키는 선택이었다.</p>
         </section>
     </main>
 
