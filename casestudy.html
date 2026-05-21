@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>커머스 시스템 케이스 스터디</title>
+    <title>기획 케이스 스터디 — 포트폴리오</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -16,8 +16,8 @@
             --ink: #09090b;
             --ink-2: #52525b;
             --ink-3: #a1a1aa;
-            --border: rgba(0,0,0,0.08);
-            --border-2: rgba(0,0,0,0.14);
+            --border: rgba(0,0,0,0.07);
+            --border-2: rgba(0,0,0,0.13);
             --accent: #d97706;
         }
         [data-theme="dark"] {
@@ -26,8 +26,8 @@
             --ink: #fafafa;
             --ink-2: #a1a1aa;
             --ink-3: #52525b;
-            --border: rgba(255,255,255,0.07);
-            --border-2: rgba(255,255,255,0.13);
+            --border: rgba(255,255,255,0.06);
+            --border-2: rgba(255,255,255,0.12);
             --accent: #f59e0b;
         }
 
@@ -47,7 +47,6 @@
             display: flex; align-items: center; gap: 1rem;
             background: var(--bg);
             border-bottom: 1px solid var(--border);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             transition: background 0.3s, border-color 0.3s;
         }
         .cs-back {
@@ -57,10 +56,9 @@
             transition: color 0.15s, border-color 0.15s;
         }
         .cs-back:hover { color: var(--ink); border-color: var(--ink-3); }
-        .cs-title {
+        .cs-logo {
             flex: 1; font-size: 0.85rem; font-weight: 700;
             color: var(--ink); text-align: center;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .cs-theme-btn {
             background: none; border: 1px solid var(--border-2);
@@ -70,104 +68,87 @@
         }
         .cs-theme-btn:hover { background: var(--bg-2); }
 
-        /* TAB BAR */
-        .cs-tabs {
-            position: sticky; top: 56px; z-index: 100;
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-            display: flex; padding: 0 2rem;
-            transition: background 0.3s;
+        /* HERO */
+        .gallery-hero {
+            max-width: 860px; margin: 0 auto;
+            padding: 4rem 2rem 2.5rem;
         }
-        .cs-tab-btn {
-            background: none; border: none; cursor: pointer;
-            font-family: inherit; font-size: 0.82rem; font-weight: 500;
-            color: var(--ink-3); padding: 0.85rem 1.1rem;
-            border-bottom: 2px solid transparent;
-            transition: color 0.15s, border-color 0.15s;
-            white-space: nowrap;
+        .gallery-hero h1 {
+            font-size: 2.2rem; font-weight: 900; letter-spacing: -0.04em;
+            line-height: 1.15; margin-bottom: 0.6rem;
         }
-        .cs-tab-btn:hover { color: var(--ink-2); }
-        .cs-tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
-
-        /* PANELS */
-        .cs-panel { display: none; max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
-        .cs-panel.active { display: block; }
-
-        /* DECISION CARD */
-        .decision-card {
-            border-left: 3px solid var(--accent);
-            background: var(--bg-2);
-            border-radius: 0 8px 8px 0;
-            padding: 1.25rem 1.5rem;
-            margin-bottom: 1rem;
+        .gallery-hero p {
+            font-size: 0.95rem; color: var(--ink-3); line-height: 1.6;
         }
-        .decision-card h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 0.6rem; }
-        .decision-card p { font-size: 0.83rem; line-height: 1.65; color: var(--ink-2); margin-bottom: 0.4rem; }
-        .decision-card p:last-child { margin-bottom: 0; }
-        .decision-choice { color: var(--accent); font-weight: 700; }
+        .gallery-hero .accent { color: var(--accent); }
 
-        /* STAT CHIPS */
-        .stat-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.5rem 0; }
-        .stat-chip {
-            border: 1px solid var(--border-2);
-            border-radius: 999px; padding: 0.4rem 1rem;
-            font-size: 0.78rem; color: var(--ink-2);
-        }
-        .stat-chip strong { font-weight: 800; color: var(--ink); }
-
-        /* DIAGRAM */
-        .cs-diagram {
-            background: var(--bg-2);
-            border: 1px solid var(--border-2);
-            border-radius: 10px;
-            padding: 1.5rem 2rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            line-height: 1.7;
-            color: var(--ink-2);
-            overflow-x: auto;
-            margin: 1.5rem 0;
-        }
-
-        /* CHECKLIST */
-        .feature-grid {
+        /* CARD GRID */
+        .cs-grid {
+            max-width: 860px; margin: 0 auto;
+            padding: 0 2rem 6rem;
             display: grid; grid-template-columns: 1fr 1fr;
-            gap: 0.5rem 2rem; margin: 1.5rem 0;
+            gap: 1rem;
         }
-        .feature-item { font-size: 0.83rem; color: var(--ink-2); line-height: 1.6; }
-        .feature-item span { color: var(--accent); font-weight: 700; }
 
-        /* TYPOGRAPHY HELPERS */
-        .cs-panel h1 { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.5rem; }
-        .cs-panel h2 { font-size: 1rem; font-weight: 700; color: var(--ink); margin: 2rem 0 0.75rem; }
-        .cs-panel p { font-size: 0.87rem; line-height: 1.75; color: var(--ink-2); margin-bottom: 0.9rem; }
-        .cs-panel .subtitle { font-size: 1rem; color: var(--ink-3); margin-bottom: 1.5rem; }
-
-        /* LIVE BUTTON */
-        .btn-primary {
-            display: inline-block; padding: 0.65rem 1.4rem;
-            background: var(--ink); color: var(--bg);
-            border-radius: 8px; font-size: 0.85rem; font-weight: 600;
-            text-decoration: none; transition: opacity 0.15s;
-        }
-        .btn-primary:hover { opacity: 0.8; }
-
-        /* UX DECISION BOX */
-        .ux-box {
+        /* CASE STUDY CARD */
+        .cs-card {
+            display: flex; flex-direction: column;
+            padding: 1.5rem;
             background: var(--bg-2);
             border: 1px solid var(--border-2);
-            border-radius: 8px;
-            padding: 1.1rem 1.4rem;
-            margin-bottom: 1rem;
+            border-radius: 14px;
+            text-decoration: none; color: inherit;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            position: relative; overflow: hidden;
         }
-        .ux-box h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
-        .ux-box p { font-size: 0.82rem; line-height: 1.65; color: var(--ink-2); margin: 0; }
+        .cs-card::before {
+            content: '';
+            position: absolute; inset: 0;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent), transparent);
+            opacity: 0; transition: opacity 0.25s;
+            pointer-events: none;
+        }
+        .cs-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .cs-card:hover::before { opacity: 0.04; }
+
+        .cs-card-icon { font-size: 2rem; margin-bottom: 1rem; line-height: 1; }
+        .cs-card-name {
+            font-size: 1rem; font-weight: 800; letter-spacing: -0.02em;
+            margin-bottom: 0.3rem;
+        }
+        .cs-card-tags {
+            display: flex; flex-wrap: wrap; gap: 0.35rem;
+            margin-bottom: 0.85rem;
+        }
+        .cs-card-tag {
+            font-size: 0.68rem; font-weight: 600;
+            color: var(--ink-3);
+            background: var(--bg);
+            border: 1px solid var(--border-2);
+            border-radius: 999px; padding: 0.2rem 0.55rem;
+        }
+        .cs-card-desc {
+            font-size: 0.82rem; line-height: 1.65; color: var(--ink-2);
+            flex: 1;
+        }
+        .cs-card-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 1.2rem; padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .cs-card-meta { font-size: 0.72rem; color: var(--ink-3); }
+        .cs-card-arrow {
+            font-size: 1rem; color: var(--accent);
+            transition: transform 0.2s;
+        }
+        .cs-card:hover .cs-card-arrow { transform: translateX(3px); }
 
         @media (max-width: 600px) {
-            .cs-panel { padding: 2rem 1.2rem 4rem; }
-            .feature-grid { grid-template-columns: 1fr; }
-            .cs-tabs { padding: 0 0.5rem; }
-            .cs-tab-btn { padding: 0.85rem 0.7rem; font-size: 0.76rem; }
+            .cs-grid { grid-template-columns: 1fr; }
+            .gallery-hero { padding: 2.5rem 1.2rem 2rem; }
+            .gallery-hero h1 { font-size: 1.6rem; }
+            .cs-grid { padding: 0 1.2rem 4rem; }
         }
     </style>
     <script>
@@ -180,132 +161,50 @@
 <body>
     <header class="cs-header">
         <a href="/" class="cs-back">← 포트폴리오</a>
-        <div class="cs-title">커머스 시스템 케이스 스터디</div>
+        <div class="cs-logo">기획 케이스 스터디</div>
         <button class="cs-theme-btn" id="themeBtn">☀</button>
     </header>
 
-    <nav class="cs-tabs">
-        <button class="cs-tab-btn active" data-tab="background">배경</button>
-        <button class="cs-tab-btn" data-tab="decisions">고민과 결정</button>
-        <button class="cs-tab-btn" data-tab="design">화면 설계</button>
-        <button class="cs-tab-btn" data-tab="result">완성</button>
-    </nav>
-
     <main>
-        <section id="tab-background" class="cs-panel active">
-            <h1>커머스 시스템</h1>
-            <p class="subtitle">"백화점형 이커머스 — 기획부터 구현까지"</p>
-            <a href="/commerce.html" class="btn-primary" target="_blank">라이브 보기 →</a>
+        <div class="gallery-hero">
+            <h1>설계 과정을<br><span class="accent">기록합니다</span></h1>
+            <p>툴 하나를 만들 때 무엇을 고민하고, 어떻게 결정했는지 — 왜·어떻게·무엇을 만들었는지 기록한 기획 문서입니다.</p>
+        </div>
 
-            <h2>왜 만들었나</h2>
-            <p>기존 커머스 툴은 OMS·WMS·PLM 관리 도구에 가까웠다. 상품을 직접 골라 장바구니에 담고 주문하는 실제 쇼핑 경험이 없었다. "관리자가 아니라 구매자로서도 써보고 싶은 커머스"를 만들고 싶다는 생각에서 출발했다.</p>
-            <p>목표는 단순했다. 백화점처럼 여러 브랜드가 입점해 있고, 상품을 탐색하고, 장바구니에 담아 주문하고, 관리자 화면에서 재고와 매출을 확인할 수 있는 흐름을 하나의 HTML 파일 안에 담는 것.</p>
-            <p>포트폴리오 특성상 서버도, 빌드 도구도, 패키지 매니저도 없다. 단일 HTML만으로 실제 서비스처럼 동작하는 커머스를 만드는 것이 핵심 제약이자 도전이었다.</p>
+        <div class="cs-grid">
+            <a href="/casestudy-commerce.html" class="cs-card">
+                <div class="cs-card-icon">🛒</div>
+                <div class="cs-card-name">커머스 시스템</div>
+                <div class="cs-card-tags">
+                    <span class="cs-card-tag">React CDN</span>
+                    <span class="cs-card-tag">StoreContext</span>
+                    <span class="cs-card-tag">localStorage</span>
+                </div>
+                <p class="cs-card-desc">백화점형 이커머스 — 왜 React를 썼나, 상태를 어떻게 설계했나, 단일 HTML로 어디까지 갈 수 있나. 기획에서 구현까지의 흐름을 담았습니다.</p>
+                <div class="cs-card-footer">
+                    <span class="cs-card-meta">기능 10개 · 컴포넌트 12개 · ~1,200줄</span>
+                    <span class="cs-card-arrow">→</span>
+                </div>
+            </a>
 
-            <div class="stat-chips">
-                <div class="stat-chip">개발 기간 <strong>1일</strong></div>
-                <div class="stat-chip">구현 기능 <strong>10개</strong></div>
-                <div class="stat-chip">컴포넌트 <strong>12개</strong></div>
-                <div class="stat-chip">코드 <strong>~1,200줄</strong></div>
-            </div>
-        </section>
-        <section id="tab-decisions" class="cs-panel">
-            <h1>고민과 결정</h1>
-            <p class="subtitle">설계 과정에서 맞닥뜨린 네 가지 선택지</p>
-
-            <div class="decision-card">
-                <h3>결정 1 — 기술 선택</h3>
-                <p><strong>고민:</strong> 빌드 없이 컴포넌트 기반 UI를 만들 수 있나</p>
-                <p>A. React CDN + Babel Standalone &nbsp;|&nbsp; B. Vanilla JS</p>
-                <p><span class="decision-choice">→ 선택: A (React CDN)</span></p>
-                <p>이유: 상품·재고·장바구니·주문이 서로 연동되어 상태 복잡도가 높다. 컴포넌트 단위로 UI를 나누지 않으면 DOM 조작 코드가 스파게티가 된다. Babel Standalone은 빌드 도구 없이 JSX를 쓸 수 있어 포트폴리오 제약(단일 HTML)과도 양립한다.</p>
-            </div>
-
-            <div class="decision-card">
-                <h3>결정 2 — 상태 관리 구조</h3>
-                <p><strong>고민:</strong> 장바구니와 재고가 여러 탭에서 동시에 읽힌다</p>
-                <p>A. 단일 StoreContext &nbsp;|&nbsp; B. 탭별 로컬 상태</p>
-                <p><span class="decision-choice">→ 선택: A (단일 StoreContext)</span></p>
-                <p>이유: 재고 차감(관리자) → 품절 표시(쇼핑몰) → 주문 검증(장바구니)은 한 흐름이다. 탭마다 상태를 따로 두면 동기화 버그가 불가피하다. Context 하나로 products / inventory / cart / orders를 소유하고 각 탭은 읽기만 하는 단방향 구조를 택했다.</p>
-            </div>
-
-            <div class="decision-card">
-                <h3>결정 3 — 데이터 설계</h3>
-                <p><strong>고민:</strong> 백엔드 없이 실제 DB처럼 동작하게 하려면</p>
-                <p>A. localStorage + 시드 데이터 &nbsp;|&nbsp; B. 단순 하드코딩</p>
-                <p><span class="decision-choice">→ 선택: A (localStorage + 시드 데이터)</span></p>
-                <p>이유: 새로고침 후에도 상태가 유지되어야 한다. 관리자에서 상품을 추가하면 쇼핑몰 탭에 즉시 반영되어야 포트폴리오 가치가 있다. INIT_PRODUCTS / INIT_INVENTORY / SEED_ORDERS로 초기값을 세팅하고, 이후 모든 변경은 localStorage에 쓰는 방식으로 실제 DB 흐름을 흉내냈다.</p>
-            </div>
-
-            <div class="decision-card">
-                <h3>결정 4 — 화면 구조</h3>
-                <p><strong>고민:</strong> 기능이 많아서 페이지를 분리해야 하나</p>
-                <p>A. 단일 HTML 4탭 SPA &nbsp;|&nbsp; B. 기능별 멀티페이지</p>
-                <p><span class="decision-choice">→ 선택: A (단일 HTML SPA)</span></p>
-                <p>이유: 포트폴리오의 "단일 HTML 원칙"을 유지하고 싶었다. Context를 공유하면 탭 전환만으로 홈·쇼핑몰·장바구니·관리자를 커버할 수 있다. 멀티페이지면 Context를 localStorage 경유로 연결해야 하는데, 그러면 SPA의 이점(즉각적 상태 공유)이 사라진다.</p>
-            </div>
-        </section>
-        <section id="tab-design" class="cs-panel">
-            <h1>화면 설계</h1>
-            <p class="subtitle">4탭 구조와 단방향 데이터 흐름</p>
-
-            <h2>컴포넌트 구조</h2>
-            <div class="cs-diagram">
-┌──────────┐  ┌──────────┐  ┌────────────┐  ┌──────────┐
-│  홈 탭   │  │ 쇼핑몰 탭 │  │ 장바구니·주문│  │ 관리자 탭 │
-│ HomeTab  │  │ ShopTab  │  │  CartTab   │  │ AdminTab │
-└────┬─────┘  └────┬─────┘  └─────┬──────┘  └────┬─────┘
-     └─────────────┴───────────────┴───────────────┘
-                         StoreContext
-              products / inventory / cart / orders
-            </div>
-
-            <h2>데이터 흐름</h2>
-            <p>StoreContext가 4개 상태(products / inventory / cart / orders)를 소유하고, 각 탭은 읽기만 한다. 쓰기는 반드시 Context의 액션 함수(addToCart, placeOrder, adjustInventory 등)를 통해서만 가능하다. 단방향 흐름 덕분에 어느 탭에서 상태가 바뀌어도 다른 탭에 즉시 반영된다.</p>
-
-            <h2>UX 결정</h2>
-            <div class="ux-box">
-                <h3>모달 통합 — 단일 modal 상태 객체</h3>
-                <p>상품 상세와 상품 등록·수정 폼을 별도 boolean 상태로 관리하면 두 모달이 동시에 열리는 버그가 생긴다. <code>modal: { type: 'product' | 'productForm', product }</code> 단일 객체 하나로 통합해 원천 차단했다. null이면 닫힘, 객체면 열림.</p>
-            </div>
-            <div class="ux-box">
-                <h3>Toast 알림 — 우하단 3초 자동 제거</h3>
-                <p>장바구니 담기, 주문 완료, 재고 부족 오류 세 가지 피드백을 모두 우하단 toast로 통일했다. alert()은 흐름을 막고, 인라인 에러 메시지는 위치를 찾아야 한다. Toast는 사용자가 하던 일을 방해하지 않으면서 결과를 즉시 알려준다. setTimeout 3초로 자동 제거.</p>
-            </div>
-
-            <h2>localStorage 키 설계</h2>
-            <p>기존 포트폴리오 툴과 키 충돌을 막기 위해 <code>dept-</code> 접두사를 통일했다. 새로고침 후 Context 초기화 시 localStorage를 읽어 마지막 상태를 복원한다. 시드 데이터(INIT_PRODUCTS 등)는 해당 키가 비어 있을 때만 적용된다.</p>
-        </section>
-        <section id="tab-result" class="cs-panel">
-            <h1>완성</h1>
-            <p class="subtitle">구현된 것과 배운 것</p>
-
-            <h2>구현 기능</h2>
-            <div class="feature-grid">
-                <div class="feature-item"><span>✓</span> 상품 목록 / 필터 / 검색</div>
-                <div class="feature-item"><span>✓</span> 상품 상세 모달</div>
-                <div class="feature-item"><span>✓</span> 장바구니 담기 / 수량 조절</div>
-                <div class="feature-item"><span>✓</span> 주문하기 / 재고 차감</div>
-                <div class="feature-item"><span>✓</span> 주문 내역 조회</div>
-                <div class="feature-item"><span>✓</span> 관리자 상품 CRUD</div>
-                <div class="feature-item"><span>✓</span> 재고 수량 조정</div>
-                <div class="feature-item"><span>✓</span> 매출 통계 canvas 차트</div>
-                <div class="feature-item"><span>✓</span> localStorage 영속성</div>
-                <div class="feature-item"><span>✓</span> Toast 알림 시스템</div>
-            </div>
-
-            <h2>직접 해보기</h2>
-            <p>쇼핑몰 탭에서 상품을 골라 장바구니에 담고, 주문까지 이어지는 흐름을 직접 확인할 수 있다. 관리자 탭에서 상품을 추가하거나 재고를 조정하면 쇼핑몰에 즉시 반영된다.</p>
-            <a href="/commerce.html" class="btn-primary">→ 커머스 시스템 열기</a>
-
-            <h2>회고</h2>
-            <p>단일 HTML 안에서 React 설계 원칙(단방향 데이터 흐름, Context 분리)을 지키는 것이 가장 어려운 제약이었다. 컴포넌트가 늘어날수록 같은 파일 안에서 의존성을 관리해야 했고, 스크롤 한 번에 전체 코드를 파악할 수 있어야 했다.</p>
-            <p>빌드 도구 없이 Babel Standalone만으로 JSX를 쓰는 방식은 개발 속도와 포트폴리오 접근성 사이의 최선의 트레이드오프였다. 실제 프로젝트라면 Vite + TypeScript를 선택했겠지만, "누구나 파일 하나만 열면 바로 볼 수 있다"는 포트폴리오의 핵심 가치를 지키는 선택이었다.</p>
-        </section>
+            <a href="/casestudy-feargreed.html" class="cs-card">
+                <div class="cs-card-icon">📊</div>
+                <div class="cs-card-name">공포탐욕지수</div>
+                <div class="cs-card-tags">
+                    <span class="cs-card-tag">Canvas API</span>
+                    <span class="cs-card-tag">Vercel Proxy</span>
+                    <span class="cs-card-tag">i18n</span>
+                </div>
+                <p class="cs-card-desc">CNN Fear &amp; Greed Index 실시간 추적 — CORS를 어떻게 해결했나, 게이지를 어떻게 그렸나, 1시간 캐시가 왜 정답인가. API부터 캔버스까지.</p>
+                <div class="cs-card-footer">
+                    <span class="cs-card-meta">기능 12개 · 탭 5개 · ~3,600줄</span>
+                    <span class="cs-card-arrow">→</span>
+                </div>
+            </a>
+        </div>
     </main>
 
     <script>
-        // Theme
         function initTheme() {
             const saved = localStorage.getItem('hub-theme') || 'light';
             document.documentElement.setAttribute('data-theme', saved);
@@ -318,31 +217,6 @@
             document.getElementById('themeBtn').textContent = next === 'dark' ? '☀' : '☾';
         });
         initTheme();
-
-        // Tabs
-        const TAB_IDS = ['background', 'decisions', 'design', 'result'];
-        function updateTabUI(id) {
-            if (!TAB_IDS.includes(id)) id = 'background';
-            document.querySelectorAll('.cs-tab-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.tab === id);
-            });
-            document.querySelectorAll('.cs-panel').forEach(panel => {
-                panel.classList.toggle('active', panel.id === 'tab-' + id);
-            });
-        }
-        function switchTab(id) {
-            updateTabUI(id);
-            location.hash = id;
-        }
-        document.querySelectorAll('.cs-tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-        });
-        window.addEventListener('hashchange', () => {
-            updateTabUI(location.hash.replace('#', ''));
-        });
-        // Init from hash
-        const initHash = location.hash.replace('#', '');
-        if (initHash && TAB_IDS.includes(initHash)) updateTabUI(initHash);
     </script>
 </body>
 </html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공포탐욕지수 — 기획 케이스 스터디</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #ffffff;
+            --bg-2: #f4f4f5;
+            --ink: #09090b;
+            --ink-2: #52525b;
+            --ink-3: #a1a1aa;
+            --border: rgba(0,0,0,0.08);
+            --border-2: rgba(0,0,0,0.14);
+            --accent: #d97706;
+        }
+        [data-theme="dark"] {
+            --bg: #09090b;
+            --bg-2: #111113;
+            --ink: #fafafa;
+            --ink-2: #a1a1aa;
+            --ink-3: #52525b;
+            --border: rgba(255,255,255,0.07);
+            --border-2: rgba(255,255,255,0.13);
+            --accent: #f59e0b;
+        }
+
+        html { overflow-x: hidden; }
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        .cs-header {
+            position: sticky; top: 0; z-index: 200;
+            height: 56px; padding: 0 2rem;
+            display: flex; align-items: center; gap: 1rem;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .cs-back {
+            font-size: 0.75rem; color: var(--ink-3); text-decoration: none;
+            padding: 0.3rem 0.7rem;
+            border: 1px solid var(--border-2); border-radius: 6px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .cs-back:hover { color: var(--ink); border-color: var(--ink-3); }
+        .cs-title {
+            flex: 1; font-size: 0.85rem; font-weight: 700;
+            color: var(--ink); text-align: center;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .cs-theme-btn {
+            background: none; border: 1px solid var(--border-2);
+            border-radius: 8px; padding: 0.3rem 0.6rem;
+            cursor: pointer; font-size: 0.9rem;
+            color: var(--ink-2); transition: background 0.15s;
+        }
+        .cs-theme-btn:hover { background: var(--bg-2); }
+
+        /* TAB BAR */
+        .cs-tabs {
+            position: sticky; top: 56px; z-index: 100;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            display: flex; padding: 0 2rem;
+            transition: background 0.3s;
+        }
+        .cs-tab-btn {
+            background: none; border: none; cursor: pointer;
+            font-family: inherit; font-size: 0.82rem; font-weight: 500;
+            color: var(--ink-3); padding: 0.85rem 1.1rem;
+            border-bottom: 2px solid transparent;
+            transition: color 0.15s, border-color 0.15s;
+            white-space: nowrap;
+        }
+        .cs-tab-btn:hover { color: var(--ink-2); }
+        .cs-tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
+
+        /* PANELS */
+        .cs-panel { display: none; max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+        .cs-panel.active { display: block; }
+
+        /* DECISION CARD */
+        .decision-card {
+            border-left: 3px solid var(--accent);
+            background: var(--bg-2);
+            border-radius: 0 8px 8px 0;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .decision-card h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 0.6rem; }
+        .decision-card p { font-size: 0.83rem; line-height: 1.65; color: var(--ink-2); margin-bottom: 0.4rem; }
+        .decision-card p:last-child { margin-bottom: 0; }
+        .decision-choice { color: var(--accent); font-weight: 700; }
+
+        /* STAT CHIPS */
+        .stat-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.5rem 0; }
+        .stat-chip {
+            border: 1px solid var(--border-2);
+            border-radius: 999px; padding: 0.4rem 1rem;
+            font-size: 0.78rem; color: var(--ink-2);
+        }
+        .stat-chip strong { font-weight: 800; color: var(--ink); }
+
+        /* DIAGRAM */
+        .cs-diagram {
+            background: var(--bg-2);
+            border: 1px solid var(--border-2);
+            border-radius: 10px;
+            padding: 1.5rem 2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            line-height: 1.7;
+            color: var(--ink-2);
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        /* CHECKLIST */
+        .feature-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 2rem; margin: 1.5rem 0;
+        }
+        .feature-item { font-size: 0.83rem; color: var(--ink-2); line-height: 1.6; }
+        .feature-item span { color: var(--accent); font-weight: 700; }
+
+        /* TYPOGRAPHY HELPERS */
+        .cs-panel h1 { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.5rem; }
+        .cs-panel h2 { font-size: 1rem; font-weight: 700; color: var(--ink); margin: 2rem 0 0.75rem; }
+        .cs-panel p { font-size: 0.87rem; line-height: 1.75; color: var(--ink-2); margin-bottom: 0.9rem; }
+        .cs-panel .subtitle { font-size: 1rem; color: var(--ink-3); margin-bottom: 1.5rem; }
+
+        /* LIVE BUTTON */
+        .btn-primary {
+            display: inline-block; padding: 0.65rem 1.4rem;
+            background: var(--ink); color: var(--bg);
+            border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+            text-decoration: none; transition: opacity 0.15s;
+        }
+        .btn-primary:hover { opacity: 0.8; }
+
+        /* UX DECISION BOX */
+        .ux-box {
+            background: var(--bg-2);
+            border: 1px solid var(--border-2);
+            border-radius: 8px;
+            padding: 1.1rem 1.4rem;
+            margin-bottom: 1rem;
+        }
+        .ux-box h3 { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .ux-box p { font-size: 0.82rem; line-height: 1.65; color: var(--ink-2); margin: 0; }
+
+        @media (max-width: 600px) {
+            .cs-panel { padding: 2rem 1.2rem 4rem; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .cs-tabs { padding: 0 0.5rem; }
+            .cs-tab-btn { padding: 0.85rem 0.7rem; font-size: 0.76rem; }
+        }
+    </style>
+    <script>
+        (function() {
+            var t = localStorage.getItem('hub-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+</head>
+<body>
+    <header class="cs-header">
+        <a href="/casestudy.html" class="cs-back">← 케이스 스터디</a>
+        <div class="cs-title">공포탐욕지수 — 기획 케이스 스터디</div>
+        <button class="cs-theme-btn" id="themeBtn">☀</button>
+    </header>
+
+    <nav class="cs-tabs">
+        <button class="cs-tab-btn active" data-tab="background">배경</button>
+        <button class="cs-tab-btn" data-tab="decisions">고민과 결정</button>
+        <button class="cs-tab-btn" data-tab="design">화면 설계</button>
+        <button class="cs-tab-btn" data-tab="result">완성</button>
+    </nav>
+
+    <main>
+        <section id="tab-background" class="cs-panel active">
+            <h1>공포탐욕지수</h1>
+            <p class="subtitle">"CNN Fear &amp; Greed Index 실시간 추적 — API부터 캔버스까지"</p>
+            <a href="/fear-greed.html" class="btn-primary" target="_blank">라이브 보기 →</a>
+
+            <h2>왜 만들었나</h2>
+            <p>주식 시장의 분위기를 숫자 하나로 보고 싶었다. CNN이 제공하는 Fear &amp; Greed Index는 변동성, 시장 모멘텀, 안전자산 수요 등 7개 지표를 종합해 0~100 사이의 수치로 시장 심리를 나타낸다. 문제는 공식 페이지가 국내에서 느리고, 데이터만 뽑아서 내 방식으로 시각화할 수 없다는 것이었다.</p>
+            <p>"내가 원하는 방식으로 보자." 게이지, 타임라인, 캘린더 히트맵, 워치리스트를 하나의 앱에 담기로 했다. 한국어/영어 전환, 다크/라이트 테마도 처음부터 설계에 포함했다.</p>
+            <p>서버 없이 Vercel 서버리스 함수 하나로 CORS 문제를 해결하고, 캔버스 API로 게이지와 타임라인을 직접 그리는 것이 핵심 기술적 도전이었다.</p>
+
+            <div class="stat-chips">
+                <div class="stat-chip">개발 기간 <strong>~3일</strong></div>
+                <div class="stat-chip">구현 기능 <strong>12개</strong></div>
+                <div class="stat-chip">탭 구성 <strong>5개</strong></div>
+                <div class="stat-chip">코드 <strong>~3,600줄</strong></div>
+            </div>
+        </section>
+
+        <section id="tab-decisions" class="cs-panel">
+            <h1>고민과 결정</h1>
+            <p class="subtitle">설계 과정에서 맞닥뜨린 네 가지 선택지</p>
+
+            <div class="decision-card">
+                <h3>결정 1 — CORS 프록시</h3>
+                <p><strong>고민:</strong> 브라우저에서 CNN API와 Yahoo Finance를 직접 호출하면 CORS 오류가 난다</p>
+                <p>A. Vercel 서버리스 함수 자체 프록시 &nbsp;|&nbsp; B. corsproxy.io 같은 외부 서비스</p>
+                <p><span class="decision-choice">→ 선택: A (Vercel 서버리스 프록시)</span></p>
+                <p>이유: 외부 프록시는 서비스 중단·정책 변경에 취약하다. 실제로 개발 중 corsproxy.io가 일시적으로 막혀 API 호출이 전부 실패한 경험이 있었다. Vercel에 <code>api/proxy.js</code> 하나를 두면 도메인 허용 목록도 직접 관리할 수 있고, 포트폴리오 배포 인프라와 일체화된다.</p>
+            </div>
+
+            <div class="decision-card">
+                <h3>결정 2 — 차트 렌더링 전략</h3>
+                <p><strong>고민:</strong> 게이지·타임라인·인디케이터를 모두 같은 방식으로 그릴 수 있나</p>
+                <p>A. 전부 Canvas API &nbsp;|&nbsp; B. 게이지·타임라인은 Canvas, 인디케이터는 Chart.js</p>
+                <p><span class="decision-choice">→ 선택: B (혼합 전략)</span></p>
+                <p>이유: 게이지(바늘+호)와 타임라인(구간 색상+오버레이)은 커스텀 렌더링이 필요해 Canvas가 맞다. 반면 인디케이터(7개 서브지표 라인차트)는 Chart.js가 제공하는 tooltip·zoom·legend가 그대로 필요하다. 도구를 목적에 맞게 쓰는 것이 최선이었다. Chart.js는 첫 탭 클릭 시 lazy-load해 초기 로딩 비용도 줄였다.</p>
+            </div>
+
+            <div class="decision-card">
+                <h3>결정 3 — 다국어(i18n) 구조</h3>
+                <p><strong>고민:</strong> 한국어/영어 전환을 어떻게 관리하나</p>
+                <p>A. 인라인 TRANSLATIONS 객체 (단일 HTML) &nbsp;|&nbsp; B. 별도 JSON 파일 fetch</p>
+                <p><span class="decision-choice">→ 선택: A (인라인 TRANSLATIONS)</span></p>
+                <p>이유: 단일 HTML 원칙을 지키면 파일 하나로 오프라인에서도 동작한다. JSON fetch는 네트워크 요청이 한 번 더 필요하고, 실패 시 fallback 처리가 복잡해진다. <code>TRANSLATIONS.en</code> / <code>TRANSLATIONS.ko</code> 두 객체를 나란히 두고, <code>t('key')</code> 함수 하나로 현재 언어 값을 꺼내는 방식으로 단순하게 처리했다.</p>
+            </div>
+
+            <div class="decision-card">
+                <h3>결정 4 — 데이터 갱신 주기</h3>
+                <p><strong>고민:</strong> FGI 지수를 얼마나 자주 새로 가져올까</p>
+                <p>A. 1시간 캐시 (환율·시장 티커 포함) &nbsp;|&nbsp; B. 실시간 polling</p>
+                <p><span class="decision-choice">→ 선택: A (1시간 캐시)</span></p>
+                <p>이유: CNN FGI는 분 단위로 바뀌지 않는다. 데이터 특성상 하루에 몇 번 업데이트되는 지수를 매분 fetching하면 API 부하만 늘고 사용자에게는 차이가 없다. 환율·시장 티커도 포트폴리오 참고용이므로 1시간 주기면 충분하다. 캐시는 브라우저 메모리에만 저장하고 새로고침 시 재요청한다.</p>
+            </div>
+        </section>
+
+        <section id="tab-design" class="cs-panel">
+            <h1>화면 설계</h1>
+            <p class="subtitle">5탭 구조와 데이터 흐름</p>
+
+            <h2>탭 구조</h2>
+            <div class="cs-diagram">
+┌──────────┐  ┌──────────┐  ┌────────────┐  ┌──────────┐  ┌──────────┐
+│ Overview │  │ Timeline │  │ Indicators │  │ Calendar │  │Watchlist │
+│ 게이지   │  │ 캔버스   │  │ Chart.js   │  │ 히트맵   │  │ 워치리스트│
+│ 히스토리 │  │ 기간선택 │  │ (lazy)     │  │ 연도선택 │  │ 포트폴리오│
+└────┬─────┘  └────┬─────┘  └─────┬──────┘  └────┬─────┘  └────┬─────┘
+     └─────────────┴───────────────┴───────────────┴─────────────┘
+                                 fetchData()
+                    CNN API → applyData() → historicalData
+            </div>
+
+            <h2>데이터 흐름</h2>
+            <p><code>fetchData()</code>가 CNN API를 호출해 현재 FGI 점수와 히스토리 데이터를 받아온다. <code>applyData()</code>가 게이지 애니메이션, 히스토리 카드, 타임라인 렌더링을 순서대로 실행한다. 각 탭의 캔버스는 자신이 활성화될 때만 그린다. S&amp;P 500 오버레이는 사용자가 토글할 때 <code>fetchAndCacheSP500()</code>을 한 번만 호출하고 이후 캐시를 재사용한다.</p>
+
+            <h2>CORS 프록시 URL 인코딩</h2>
+            <div class="ux-box">
+                <h3>encodeURIComponent 필수 규칙</h3>
+                <p>Yahoo Finance URL에 <code>&amp;</code>가 포함되어 있어 인코딩 없이 프록시에 넘기면 쿼리 파라미터가 분리된다. <code>CORS_PROXY + encodeURIComponent(url)</code>로 전체 URL을 인코딩해야 Yahoo가 완전한 요청을 받는다. 이 규칙을 어기면 데이터는 오는데 차트가 빈다.</p>
+            </div>
+
+            <h2>캔버스 렌더링 설계</h2>
+            <div class="ux-box">
+                <h3>게이지 — 바늘 회전 공식</h3>
+                <p>게이지 바늘은 <code>rot = angle + Math.PI / 2</code>로 계산한다. 조건 분기 없이 일정한 오프셋을 더하는 방식이 유일하게 올바른 수식이다. 조건문을 추가하면 특정 구간에서 레이블이 뒤집히는 버그가 발생한다.</p>
+            </div>
+            <div class="ux-box">
+                <h3>타임라인 — S&P500 nearest-neighbor 매칭</h3>
+                <p>FGI 히스토리 타임스탬프(밀리초)와 Yahoo 타임스탬프(<code>ts * 1000</code>)를 날짜 문자열로 비교하면 타임존 오프셋으로 하루씩 밀린다. ±3일 이내 nearest-neighbor로 매칭해야 정확하다. S&amp;P500은 자체 min/max로 0~100 정규화 후 FGI와 같은 좌표계에 그린다.</p>
+            </div>
+
+            <h2>localStorage 키</h2>
+            <p>언어(<code>fg-lang</code>), 테마(<code>fg-theme</code>), 워치리스트(<code>fg-watchlist</code>), 포트폴리오(<code>fg-portfolio</code>)를 각각 독립적으로 저장한다. 갤러리 허브와 테마를 공유하지 않고 앱 전용 키를 사용해 키 충돌을 방지했다.</p>
+        </section>
+
+        <section id="tab-result" class="cs-panel">
+            <h1>완성</h1>
+            <p class="subtitle">구현된 것과 배운 것</p>
+
+            <h2>구현 기능</h2>
+            <div class="feature-grid">
+                <div class="feature-item"><span>✓</span> FGI 게이지 캔버스 (바늘 애니메이션)</div>
+                <div class="feature-item"><span>✓</span> 타임라인 캔버스 (기간 선택)</div>
+                <div class="feature-item"><span>✓</span> S&amp;P 500 오버레이 토글</div>
+                <div class="feature-item"><span>✓</span> 인디케이터 Chart.js (7개 서브지표)</div>
+                <div class="feature-item"><span>✓</span> 캘린더 히트맵 (연도별)</div>
+                <div class="feature-item"><span>✓</span> 워치리스트 탭</div>
+                <div class="feature-item"><span>✓</span> 포트폴리오 계산기 (P&amp;L)</div>
+                <div class="feature-item"><span>✓</span> 환율 / 시장 티커 실시간</div>
+                <div class="feature-item"><span>✓</span> 한국어 / 영어 전환 (i18n)</div>
+                <div class="feature-item"><span>✓</span> 다크 / 라이트 테마</div>
+                <div class="feature-item"><span>✓</span> 공유 버튼 (navigator.share)</div>
+                <div class="feature-item"><span>✓</span> PWA (Service Worker, 오프라인)</div>
+            </div>
+
+            <h2>직접 해보기</h2>
+            <p>Overview 탭에서 현재 공포탐욕지수를 확인하고, Timeline에서 과거 흐름을 보고, S&amp;P 500 오버레이를 켜서 시장 수익률과 비교해보자. 워치리스트에 종목을 추가하면 현재가와 등락이 표시된다.</p>
+            <a href="/fear-greed.html" class="btn-primary">→ 공포탐욕지수 앱 열기</a>
+
+            <h2>회고</h2>
+            <p>가장 어려운 부분은 CORS 프록시와 URL 인코딩이었다. Yahoo Finance URL에 <code>&amp;interval=1d</code>처럼 쿼리 파라미터가 여러 개 붙을 때, 인코딩 없이 프록시에 넘기면 Yahoo가 불완전한 요청을 받아 빈 데이터를 돌려준다. 원인을 찾는 데 예상보다 훨씬 많은 시간이 걸렸다.</p>
+            <p>Canvas로 게이지를 직접 그리는 것은 좌표 수식과 씨름하는 과정이었다. 바늘 회전 공식 하나에 조건 분기를 넣었다가 특정 구간에서 레이블이 뒤집히는 버그를 만났다. 결국 <code>Math.PI / 2</code> 오프셋 하나로 고정하는 것이 정답이었다. "덜 영리하게 짜는 것이 더 견고하다"는 교훈이었다.</p>
+        </section>
+    </main>
+
+    <script>
+        function initTheme() {
+            const saved = localStorage.getItem('hub-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            document.getElementById('themeBtn').textContent = saved === 'dark' ? '☀' : '☾';
+        }
+        document.getElementById('themeBtn').addEventListener('click', () => {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('hub-theme', next);
+            document.getElementById('themeBtn').textContent = next === 'dark' ? '☀' : '☾';
+        });
+        initTheme();
+
+        const TAB_IDS = ['background', 'decisions', 'design', 'result'];
+        function updateTabUI(id) {
+            if (!TAB_IDS.includes(id)) id = 'background';
+            document.querySelectorAll('.cs-tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === id);
+            });
+            document.querySelectorAll('.cs-panel').forEach(panel => {
+                panel.classList.toggle('active', panel.id === 'tab-' + id);
+            });
+        }
+        function switchTab(id) {
+            updateTabUI(id);
+            location.hash = id;
+        }
+        document.querySelectorAll('.cs-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+        });
+        window.addEventListener('hashchange', () => {
+            updateTabUI(location.hash.replace('#', ''));
+        });
+        const initHash = location.hash.replace('#', '');
+        if (initHash && TAB_IDS.includes(initHash)) updateTabUI(initHash);
+    </script>
+</body>
+</html>
