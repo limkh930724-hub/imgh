@@ -240,7 +240,35 @@
             </div>
         </section>
         <section id="tab-design" class="cs-panel">
-            <!-- content will be added in Task 4 -->
+            <h1>화면 설계</h1>
+            <p class="subtitle">4탭 구조와 단방향 데이터 흐름</p>
+
+            <h2>컴포넌트 구조</h2>
+            <div class="cs-diagram">
+┌──────────┐  ┌──────────┐  ┌────────────┐  ┌──────────┐
+│  홈 탭   │  │ 쇼핑몰 탭 │  │ 장바구니·주문│  │ 관리자 탭 │
+│ HomeTab  │  │ ShopTab  │  │  CartTab   │  │ AdminTab │
+└────┬─────┘  └────┬─────┘  └─────┬──────┘  └────┬─────┘
+     └─────────────┴───────────────┴───────────────┘
+                         StoreContext
+              products / inventory / cart / orders
+            </div>
+
+            <h2>데이터 흐름</h2>
+            <p>StoreContext가 4개 상태(products / inventory / cart / orders)를 소유하고, 각 탭은 읽기만 한다. 쓰기는 반드시 Context의 액션 함수(addToCart, placeOrder, adjustInventory 등)를 통해서만 가능하다. 단방향 흐름 덕분에 어느 탭에서 상태가 바뀌어도 다른 탭에 즉시 반영된다.</p>
+
+            <h2>UX 결정</h2>
+            <div class="ux-box">
+                <h3>모달 통합 — 단일 modal 상태 객체</h3>
+                <p>상품 상세와 상품 등록·수정 폼을 별도 boolean 상태로 관리하면 두 모달이 동시에 열리는 버그가 생긴다. <code>modal: { type: 'product' | 'productForm', product }</code> 단일 객체 하나로 통합해 원천 차단했다. null이면 닫힘, 객체면 열림.</p>
+            </div>
+            <div class="ux-box">
+                <h3>Toast 알림 — 우하단 3초 자동 제거</h3>
+                <p>장바구니 담기, 주문 완료, 재고 부족 오류 세 가지 피드백을 모두 우하단 toast로 통일했다. alert()은 흐름을 막고, 인라인 에러 메시지는 위치를 찾아야 한다. Toast는 사용자가 하던 일을 방해하지 않으면서 결과를 즉시 알려준다. setTimeout 3초로 자동 제거.</p>
+            </div>
+
+            <h2>localStorage 키 설계</h2>
+            <p>기존 포트폴리오 툴과 키 충돌을 막기 위해 <code>dept-</code> 접두사를 통일했다. 새로고침 후 Context 초기화 시 localStorage를 읽어 마지막 상태를 복원한다. 시드 데이터(INIT_PRODUCTS 등)는 해당 키가 비어 있을 때만 적용된다.</p>
         </section>
         <section id="tab-result" class="cs-panel">
             <!-- content will be added in Task 5 -->
