@@ -74,13 +74,14 @@
             position: sticky; top: 56px; z-index: 100;
             background: var(--bg);
             border-bottom: 1px solid var(--border);
-            display: flex; padding: 0 2rem;
+            display: flex; justify-content: center;
             transition: background 0.3s;
         }
+        .cs-tabs-inner { display: flex; max-width: 860px; width: 100%; padding: 0 2rem; }
         .cs-tab-btn {
             background: none; border: none; cursor: pointer;
-            font-family: inherit; font-size: 0.82rem; font-weight: 500;
-            color: var(--ink-3); padding: 0.85rem 1.1rem;
+            font-family: inherit; font-size: 0.85rem; font-weight: 500;
+            color: var(--ink-3); padding: 0.9rem 1.4rem;
             border-bottom: 2px solid transparent;
             transition: color 0.15s, border-color 0.15s;
             white-space: nowrap;
@@ -89,8 +90,22 @@
         .cs-tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
 
         /* PANELS */
-        .cs-panel { display: none; max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+        .cs-panel { display: none; max-width: 860px; margin: 0 auto; padding: 3rem 2rem 6rem; }
         .cs-panel.active { display: block; }
+
+        /* FIXED FAB */
+        .cs-fab {
+            position: fixed; bottom: 2rem; right: 2rem; z-index: 500;
+            background: var(--ink); color: var(--bg);
+            border: none; border-radius: 12px;
+            padding: 0.65rem 1.15rem;
+            font-family: inherit; font-size: 0.8rem; font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+            transition: opacity 0.15s, transform 0.15s;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .cs-fab:hover { opacity: 0.85; transform: translateY(-2px); }
 
         /* DECISION CARD */
         .decision-card {
@@ -184,17 +199,20 @@
     </header>
 
     <nav class="cs-tabs">
-        <button class="cs-tab-btn active" data-tab="background">배경</button>
-        <button class="cs-tab-btn" data-tab="decisions">고민과 결정</button>
-        <button class="cs-tab-btn" data-tab="design">화면 설계</button>
-        <button class="cs-tab-btn" data-tab="result">완성</button>
+        <div class="cs-tabs-inner">
+            <button class="cs-tab-btn active" data-tab="background">배경</button>
+            <button class="cs-tab-btn" data-tab="decisions">고민과 결정</button>
+            <button class="cs-tab-btn" data-tab="design">화면 설계</button>
+            <button class="cs-tab-btn" data-tab="result">완성</button>
+        </div>
     </nav>
+
+    <a href="/fear-greed.html" class="cs-fab" target="_blank">↗ 라이브</a>
 
     <main>
         <section id="tab-background" class="cs-panel active">
             <h1>공포탐욕지수</h1>
             <p class="subtitle">"CNN Fear &amp; Greed Index 실시간 추적 — API부터 캔버스까지"</p>
-            <a href="/fear-greed.html" class="btn-primary" target="_blank">라이브 보기 →</a>
 
             <h2>왜 만들었나</h2>
             <p>주식 시장의 분위기를 숫자 하나로 보고 싶었다. CNN이 제공하는 Fear &amp; Greed Index는 변동성, 시장 모멘텀, 안전자산 수요 등 7개 지표를 종합해 0~100 사이의 수치로 시장 심리를 나타낸다. 문제는 공식 페이지가 국내에서 느리고, 데이터만 뽑아서 내 방식으로 시각화할 수 없다는 것이었다.</p>

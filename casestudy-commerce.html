@@ -75,13 +75,14 @@
             position: sticky; top: 56px; z-index: 100;
             background: var(--bg);
             border-bottom: 1px solid var(--border);
-            display: flex; padding: 0 2rem;
+            display: flex; justify-content: center;
             transition: background 0.3s;
         }
+        .cs-tabs-inner { display: flex; max-width: 860px; width: 100%; padding: 0 2rem; }
         .cs-tab-btn {
             background: none; border: none; cursor: pointer;
-            font-family: inherit; font-size: 0.82rem; font-weight: 500;
-            color: var(--ink-3); padding: 0.85rem 1.1rem;
+            font-family: inherit; font-size: 0.85rem; font-weight: 500;
+            color: var(--ink-3); padding: 0.9rem 1.4rem;
             border-bottom: 2px solid transparent;
             transition: color 0.15s, border-color 0.15s;
             white-space: nowrap;
@@ -90,8 +91,22 @@
         .cs-tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
 
         /* PANELS */
-        .cs-panel { display: none; max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+        .cs-panel { display: none; max-width: 860px; margin: 0 auto; padding: 3rem 2rem 6rem; }
         .cs-panel.active { display: block; }
+
+        /* FIXED FAB */
+        .cs-fab {
+            position: fixed; bottom: 2rem; right: 2rem; z-index: 500;
+            background: var(--ink); color: var(--bg);
+            border: none; border-radius: 12px;
+            padding: 0.65rem 1.15rem;
+            font-family: inherit; font-size: 0.8rem; font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+            transition: opacity 0.15s, transform 0.15s;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .cs-fab:hover { opacity: 0.85; transform: translateY(-2px); }
 
         /* DECISION CARD */
         .decision-card {
@@ -185,17 +200,20 @@
     </header>
 
     <nav class="cs-tabs">
-        <button class="cs-tab-btn active" data-tab="background">배경</button>
-        <button class="cs-tab-btn" data-tab="decisions">고민과 결정</button>
-        <button class="cs-tab-btn" data-tab="design">화면 설계</button>
-        <button class="cs-tab-btn" data-tab="result">완성</button>
+        <div class="cs-tabs-inner">
+            <button class="cs-tab-btn active" data-tab="background">배경</button>
+            <button class="cs-tab-btn" data-tab="decisions">고민과 결정</button>
+            <button class="cs-tab-btn" data-tab="design">화면 설계</button>
+            <button class="cs-tab-btn" data-tab="result">완성</button>
+        </div>
     </nav>
+
+    <a href="/commerce.html" class="cs-fab" target="_blank">↗ 라이브</a>
 
     <main>
         <section id="tab-background" class="cs-panel active">
             <h1>커머스 시스템</h1>
             <p class="subtitle">"백화점형 이커머스 — 기획부터 구현까지"</p>
-            <a href="/commerce.html" class="btn-primary" target="_blank">라이브 보기 →</a>
 
             <h2>왜 만들었나</h2>
             <p>기존 커머스 툴은 OMS·WMS·PLM 관리 도구에 가까웠다. 상품을 직접 골라 장바구니에 담고 주문하는 실제 쇼핑 경험이 없었다. "관리자가 아니라 구매자로서도 써보고 싶은 커머스"를 만들고 싶다는 생각에서 출발했다.</p>
