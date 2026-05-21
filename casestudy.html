@@ -170,6 +170,12 @@
             .cs-tab-btn { padding: 0.85rem 0.7rem; font-size: 0.76rem; }
         }
     </style>
+    <script>
+        (function() {
+            var t = localStorage.getItem('hub-theme');
+            if (t) document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
 </head>
 <body>
     <header class="cs-header">
@@ -303,19 +309,19 @@
         function initTheme() {
             const saved = localStorage.getItem('hub-theme') || 'light';
             document.documentElement.setAttribute('data-theme', saved);
-            document.getElementById('themeBtn').textContent = saved === 'dark' ? '☀' : '🌙';
+            document.getElementById('themeBtn').textContent = saved === 'dark' ? '☀' : '☾';
         }
         document.getElementById('themeBtn').addEventListener('click', () => {
             const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('hub-theme', next);
-            document.getElementById('themeBtn').textContent = next === 'dark' ? '☀' : '🌙';
+            document.getElementById('themeBtn').textContent = next === 'dark' ? '☀' : '☾';
         });
         initTheme();
 
         // Tabs
         const TAB_IDS = ['background', 'decisions', 'design', 'result'];
-        function switchTab(id) {
+        function updateTabUI(id) {
             if (!TAB_IDS.includes(id)) id = 'background';
             document.querySelectorAll('.cs-tab-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.tab === id);
@@ -323,17 +329,20 @@
             document.querySelectorAll('.cs-panel').forEach(panel => {
                 panel.classList.toggle('active', panel.id === 'tab-' + id);
             });
+        }
+        function switchTab(id) {
+            updateTabUI(id);
             location.hash = id;
         }
         document.querySelectorAll('.cs-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
         window.addEventListener('hashchange', () => {
-            switchTab(location.hash.replace('#', ''));
+            updateTabUI(location.hash.replace('#', ''));
         });
         // Init from hash
         const initHash = location.hash.replace('#', '');
-        if (initHash && TAB_IDS.includes(initHash)) switchTab(initHash);
+        if (initHash && TAB_IDS.includes(initHash)) updateTabUI(initHash);
     </script>
 </body>
 </html>
