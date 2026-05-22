@@ -1141,6 +1141,24 @@
 
       function set(field, value) { setForm(prev => ({ ...prev, [field]: value })); }
 
+      function handleDiscountChange(val) {
+        setForm(prev => {
+          const disc = Number(val) || 0;
+          const orig = Number(prev.originalPrice) || Number(prev.price) || 0;
+          const newPrice = disc > 0 && orig > 0 ? String(Math.round(orig * (1 - disc / 100))) : prev.price;
+          return { ...prev, discount: val, price: newPrice };
+        });
+      }
+
+      function handleOriginalPriceChange(val) {
+        setForm(prev => {
+          const orig = Number(val) || 0;
+          const disc = Number(prev.discount) || 0;
+          const newPrice = disc > 0 && orig > 0 ? String(Math.round(orig * (1 - disc / 100))) : val;
+          return { ...prev, originalPrice: val, price: newPrice };
+        });
+      }
+
       function handleSubmit() {
         if (!form.name.trim()) { toast('상품명을 입력하세요', 'error'); return; }
         if (!form.price || isNaN(Number(form.price))) { toast('올바른 가격을 입력하세요', 'error'); return; }
@@ -1193,12 +1211,12 @@
                 </div>
                 <div className="form-group">
                   <label className="form-label">정가 (원)</label>
-                  <input className="form-input" type="number" value={form.originalPrice} onChange={e => set('originalPrice', e.target.value)} placeholder="0" />
+                  <input className="form-input" type="number" value={form.originalPrice} onChange={e => handleOriginalPriceChange(e.target.value)} placeholder="0" />
                 </div>
               </div>
               <div className="form-group">
                 <label className="form-label">할인율 (%)</label>
-                <input className="form-input" type="number" min="0" max="100" value={form.discount} onChange={e => set('discount', e.target.value)} />
+                <input className="form-input" type="number" min="0" max="100" value={form.discount} onChange={e => handleDiscountChange(e.target.value)} />
               </div>
               <div className="form-group">
                 <label className="form-label">상품 설명</label>
