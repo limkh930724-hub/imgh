@@ -3,209 +3,254 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>백화점 온라인몰 | 임광호 포트폴리오</title>
+  <title>IGH | 임광호 포트폴리오</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏬</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     :root {
-      --bg: #ffffff; --bg-2: #f8f8f8; --bg-3: #f1f1f1;
-      --ink: #111111; --ink-2: #555555; --ink-3: #999999;
-      --border: #e5e5e5;
-      --accent: #111111; --accent-bg: #f0f0f0;
-      --ok: #16a34a; --warn: #d97706; --danger: #dc2626;
+      --bg: #0D0D0D; --bg-2: #171717; --bg-3: #222222;
+      --ink: #F0EBE3; --ink-2: #9E9590; --ink-3: #5E5A56;
+      --border: #2C2C2C;
+      --accent: #C9A87C; --accent-bg: rgba(201,168,124,0.12);
+      --ok: #52c472; --warn: #e5a443; --danger: #e05555;
       --radius: 8px;
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
 
     /* ── TopNav ── */
-    .topnav { position: sticky; top: 0; z-index: 200; background: var(--bg); border-bottom: 1px solid var(--border); height: 56px; padding: 0 2rem; display: flex; align-items: center; }
-    .topnav-brand { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.03em; color: var(--ink); margin-right: 2rem; }
-    .topnav-back { font-size: .75rem; color: var(--ink-3); text-decoration: none; padding: .3rem .7rem; border: 1px solid var(--border); border-radius: 6px; margin-right: 1rem; transition: color .15s, border-color .15s; white-space: nowrap; }
-    .topnav-back:hover { color: var(--ink); border-color: var(--ink-2); }
+    .topnav { position: sticky; top: 0; z-index: 200; background: rgba(13,13,13,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); height: 56px; padding: 0 2rem; display: flex; align-items: center; }
+    .topnav-brand { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.12em; color: var(--ink); margin-right: 2rem; }
+    .topnav-back { font-size: .72rem; color: var(--ink-3); text-decoration: none; padding: .28rem .65rem; border: 1px solid var(--border); border-radius: 6px; margin-right: 1rem; transition: color .15s, border-color .15s; white-space: nowrap; }
+    .topnav-back:hover { color: var(--ink); border-color: var(--ink-3); }
     .topnav-tabs { display: flex; flex: 1; }
-    .topnav-tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 0 1rem; height: 56px; font-family: inherit; font-size: 0.875rem; font-weight: 500; color: var(--ink-3); cursor: pointer; transition: color .15s, border-color .15s; white-space: nowrap; }
+    .topnav-tab { background: none; border: none; border-bottom: 2px solid transparent; padding: 0 1rem; height: 56px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; font-weight: 500; color: var(--ink-3); cursor: pointer; transition: color .15s, border-color .15s; white-space: nowrap; }
     .topnav-tab:hover { color: var(--ink-2); }
-    .topnav-tab.active { color: var(--ink); font-weight: 700; border-bottom-color: var(--ink); }
+    .topnav-tab.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--accent); }
     .cart-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; position: relative; padding: .3rem .5rem; margin-left: auto; }
-    .cart-badge { position: absolute; top: -2px; right: -2px; background: var(--danger); color: #fff; font-size: .6rem; font-weight: 800; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
+    .cart-badge { position: absolute; top: -2px; right: -2px; background: var(--accent); color: #000; font-size: .6rem; font-weight: 800; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
 
     /* ── Layout ── */
     .page { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
     /* ── Buttons ── */
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .5rem 1rem; border-radius: var(--radius); font-family: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all .15s; }
-    .btn-primary { background: var(--ink); color: #fff; }
-    .btn-primary:hover { background: #333; }
-    .btn-primary:disabled { background: var(--ink-3); cursor: not-allowed; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .5rem 1rem; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all .15s; }
+    .btn-primary { background: var(--accent); color: #0D0D0D; }
+    .btn-primary:hover { background: #D4B88A; }
+    .btn-primary:disabled { background: var(--bg-3); color: var(--ink-3); cursor: not-allowed; border-color: var(--border); }
     .btn-ghost { background: none; border-color: var(--border); color: var(--ink-2); }
-    .btn-ghost:hover { background: var(--bg-2); }
+    .btn-ghost:hover { background: var(--bg-2); color: var(--ink); }
     .btn-danger { background: none; border-color: var(--danger); color: var(--danger); }
-    .btn-danger:hover { background: #fef2f2; }
+    .btn-danger:hover { background: rgba(224,85,85,0.1); }
     .btn-sm { padding: .3rem .65rem; font-size: .78rem; }
 
     /* ── Badges ── */
     .badge { display: inline-flex; align-items: center; padding: .18rem .48rem; border-radius: 4px; font-size: .7rem; font-weight: 700; }
-    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
-    .badge-amber  { background: #fef3c7; color: #92400e; }
-    .badge-green  { background: #dcfce7; color: #166534; }
-    .badge-red    { background: #fee2e2; color: #991b1b; }
+    .badge-blue   { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .badge-amber  { background: rgba(245,158,11,0.15);  color: #fbbf24; }
+    .badge-green  { background: rgba(74,222,128,0.15);  color: #4ade80; }
+    .badge-red    { background: rgba(248,113,113,0.15); color: #f87171; }
     .badge-gray   { background: var(--bg-3); color: var(--ink-2); }
-    .badge-pink   { background: #fce7f3; color: #9d174d; }
+    .badge-pink   { background: rgba(244,114,182,0.15); color: #f472b6; }
 
     /* ── Stat cards ── */
     .stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-bottom: 1.5rem; }
-    .stat-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
-    .stat-label { font-size: .7rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .5rem; }
-    .stat-value { font-size: 1.5rem; font-weight: 800; }
+    .stat-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+    .stat-label { font-size: .68rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--ink); }
 
     /* ── Content card ── */
-    .card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
+    .card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 1.5rem; }
     .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .card-title { font-size: .9rem; font-weight: 700; }
+    .card-title { font-size: .9rem; font-weight: 700; color: var(--ink); }
     .card-body { padding: 1.25rem; }
 
     /* ── Table ── */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
-    th { font-size: .7rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; padding: .65rem 1rem; text-align: left; background: var(--bg-2); border-bottom: 1px solid var(--border); white-space: nowrap; }
-    td { padding: .75rem 1rem; font-size: .82rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th { font-size: .68rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; padding: .65rem 1rem; text-align: left; background: var(--bg-3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: .75rem 1rem; font-size: .82rem; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--ink); }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--bg-2); }
+    tr:hover td { background: var(--bg-3); }
 
     /* ── Modal ── */
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-    .modal { background: var(--bg); border-radius: 12px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); width: 100%; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .modal { background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,.7); width: 100%; }
     .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .modal-title { font-size: 1rem; font-weight: 700; }
-    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--ink-3); padding: .2rem; line-height: 1; }
+    .modal-title { font-size: .95rem; font-weight: 700; color: var(--ink); }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--ink-3); padding: .2rem; line-height: 1; transition: color .15s; }
+    .modal-close:hover { color: var(--ink); }
     .modal-body { padding: 1.5rem; }
     .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: .75rem; justify-content: flex-end; }
 
     /* ── Form ── */
     .form-group { margin-bottom: 1rem; }
     .form-label { display: block; font-size: .78rem; font-weight: 600; color: var(--ink-2); margin-bottom: .35rem; }
-    .form-input, .form-select, .form-textarea { width: 100%; padding: .5rem .75rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: .85rem; background: var(--bg); color: var(--ink); }
-    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--ink); }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: .5rem .75rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: .85rem; background: var(--bg-3); color: var(--ink); }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--accent); }
     .form-textarea { resize: vertical; min-height: 80px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
     /* ── Qty stepper ── */
     .qty-stepper { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    .qty-btn { background: none; border: none; width: 32px; height: 32px; cursor: pointer; font-size: 1rem; color: var(--ink-2); display: flex; align-items: center; justify-content: center; }
-    .qty-btn:hover:not(:disabled) { background: var(--bg-2); }
+    .qty-btn { background: none; border: none; width: 32px; height: 32px; cursor: pointer; font-size: 1rem; color: var(--ink-2); display: flex; align-items: center; justify-content: center; transition: background .12s; }
+    .qty-btn:hover:not(:disabled) { background: var(--bg-3); color: var(--ink); }
     .qty-btn:disabled { color: var(--border); cursor: not-allowed; }
-    .qty-val { width: 40px; text-align: center; font-size: .85rem; font-weight: 600; border-left: 1px solid var(--border); border-right: 1px solid var(--border); line-height: 32px; }
+    .qty-val { width: 40px; text-align: center; font-size: .85rem; font-weight: 600; border-left: 1px solid var(--border); border-right: 1px solid var(--border); line-height: 32px; color: var(--ink); }
 
     /* ── Toast ── */
     .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 500; display: flex; flex-direction: column; gap: .5rem; pointer-events: none; }
-    .toast { padding: .75rem 1.25rem; border-radius: var(--radius); font-size: .85rem; font-weight: 500; color: #fff; min-width: 220px; box-shadow: 0 4px 16px rgba(0,0,0,.15); animation: slideIn .2s ease; }
-    .toast-success { background: #16a34a; }
-    .toast-error   { background: #dc2626; }
-    .toast-info    { background: var(--ink); }
+    .toast { padding: .75rem 1.25rem; border-radius: var(--radius); font-size: .85rem; font-weight: 500; min-width: 220px; box-shadow: 0 4px 24px rgba(0,0,0,.5); animation: slideIn .2s ease; }
+    .toast-success { background: var(--bg-2); color: var(--ok);     border: 1px solid rgba(82,196,114,0.4); }
+    .toast-error   { background: var(--bg-2); color: var(--danger); border: 1px solid rgba(224,85,85,0.4); }
+    .toast-info    { background: var(--bg-2); color: var(--ink);    border: 1px solid var(--border); }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
 
     /* ── Search ── */
-    .search-bar { width: 100%; padding: .65rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: .9rem; background: var(--bg-2); }
-    .search-bar:focus { outline: none; border-color: var(--ink); background: var(--bg); }
+    .search-bar { width: 100%; padding: .65rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: .9rem; background: var(--bg-2); color: var(--ink); transition: border-color .15s; }
+    .search-bar:focus { outline: none; border-color: var(--accent); }
+    .search-bar::placeholder { color: var(--ink-3); }
 
     /* ── Product card ── */
-    .product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.25rem; }
-    .product-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow .15s, transform .15s; background: var(--bg); }
-    .product-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); transform: translateY(-2px); }
-    .product-card-img { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; letter-spacing: -.02em; color: rgba(0,0,0,.25); }
-    .product-card-body { padding: .9rem; }
-    .product-brand { font-size: .72rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .25rem; }
-    .product-name { font-size: .88rem; font-weight: 600; line-height: 1.3; margin-bottom: .5rem; }
+    .product-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.1rem; }
+    .product-card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: border-color .2s, transform .2s; background: var(--bg-2); }
+    .product-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .product-card-img { height: 130px; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; letter-spacing: .04em; color: rgba(0,0,0,.3); }
+    .product-card-body { padding: .85rem; }
+    .product-brand { font-size: .65rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: .2rem; }
+    .product-name { font-size: .84rem; font-weight: 500; line-height: 1.35; margin-bottom: .45rem; color: var(--ink); }
     .product-price { display: flex; align-items: baseline; gap: .4rem; flex-wrap: wrap; }
-    .price-sale { font-size: .95rem; font-weight: 800; }
-    .price-original { font-size: .78rem; color: var(--ink-3); text-decoration: line-through; }
-    .price-badge { font-size: .68rem; font-weight: 700; color: #dc2626; background: #fee2e2; padding: .1rem .35rem; border-radius: 3px; }
-    .product-tags { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .5rem; }
-    .tag { font-size: .65rem; font-weight: 700; padding: .15rem .4rem; border-radius: 3px; background: var(--bg-3); color: var(--ink-2); }
-    .tag-베스트 { background: #fef3c7; color: #92400e; }
-    .tag-신상   { background: #dcfce7; color: #166534; }
-    .tag-한정   { background: #fce7f3; color: #9d174d; }
+    .price-sale { font-size: .92rem; font-weight: 700; color: var(--ink); }
+    .price-original { font-size: .76rem; color: var(--ink-3); text-decoration: line-through; }
+    .price-badge { font-size: .65rem; font-weight: 700; color: var(--accent); background: var(--accent-bg); padding: .1rem .35rem; border-radius: 3px; }
+    .product-tags { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .45rem; }
+    .tag { font-size: .62rem; font-weight: 700; padding: .15rem .4rem; border-radius: 3px; background: var(--bg-3); color: var(--ink-2); }
+    .tag-베스트 { background: rgba(245,158,11,0.15);  color: #fbbf24; }
+    .tag-신상   { background: rgba(74,222,128,0.15);  color: #4ade80; }
+    .tag-한정   { background: rgba(244,114,182,0.15); color: #f472b6; }
 
     /* ── Shop layout ── */
-    .shop-layout { display: grid; grid-template-columns: 200px 1fr; gap: 1.5rem; align-items: start; }
-    .filter-panel { border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; position: sticky; top: 72px; }
-    .filter-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); margin-bottom: .75rem; }
-    .filter-section { margin-bottom: 1.25rem; }
-    .filter-option { display: flex; align-items: center; gap: .5rem; font-size: .83rem; cursor: pointer; padding: .25rem 0; }
-    .filter-option input { cursor: pointer; }
+    .shop-layout { display: grid; grid-template-columns: 196px 1fr; gap: 1.5rem; align-items: start; }
+    .filter-panel { background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; position: sticky; top: 72px; }
+    .filter-title { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-3); margin-bottom: .7rem; }
+    .filter-section { margin-bottom: 1.2rem; }
+    .filter-option { display: flex; align-items: center; gap: .5rem; font-size: .83rem; cursor: pointer; padding: .25rem 0; color: var(--ink-2); transition: color .12s; }
+    .filter-option:hover { color: var(--ink); }
+    .filter-option input { cursor: pointer; accent-color: var(--accent); }
     .price-btn-group { display: flex; flex-direction: column; gap: .3rem; }
-    .price-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: .3rem .6rem; font-family: inherit; font-size: .78rem; cursor: pointer; text-align: left; color: var(--ink-2); }
-    .price-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .price-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: .35rem .7rem; font-family: 'DM Sans', sans-serif; font-size: .78rem; cursor: pointer; text-align: left; color: var(--ink-2); transition: all .15s; }
+    .price-btn:hover { border-color: var(--ink-3); color: var(--ink); }
+    .price-btn.active { background: var(--accent); color: #0D0D0D; border-color: var(--accent); font-weight: 600; }
+
+    /* ── Mobile filter ── */
+    .mobile-filter-bar { display: none; align-items: center; gap: .5rem; margin-bottom: 1rem; overflow-x: auto; scrollbar-width: none; padding-bottom: .25rem; }
+    .mobile-filter-bar::-webkit-scrollbar { display: none; }
+    .mobile-filter-toggle { flex-shrink: 0; display: inline-flex; align-items: center; gap: .35rem; padding: .38rem .85rem; border: 1px solid var(--border); border-radius: 20px; background: var(--bg-2); color: var(--ink-2); font-family: 'DM Sans', sans-serif; font-size: .8rem; cursor: pointer; white-space: nowrap; transition: all .15s; }
+    .mobile-filter-toggle.active { border-color: var(--accent); color: var(--accent); }
+    .filter-chip { flex-shrink: 0; padding: .35rem .8rem; border: 1px solid var(--border); border-radius: 20px; font-size: .78rem; cursor: pointer; background: var(--bg-2); color: var(--ink-2); transition: all .15s; }
+    .filter-chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+    .filter-drawer { background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
 
     /* ── Cart ── */
     .cart-layout { display: grid; grid-template-columns: 1fr 280px; gap: 1.5rem; align-items: start; }
     .cart-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border); }
     .cart-item:last-child { border-bottom: none; }
-    .cart-thumb { width: 52px; height: 52px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: .85rem; font-weight: 800; color: rgba(0,0,0,.25); flex-shrink: 0; }
+    .cart-thumb { width: 52px; height: 52px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: .85rem; font-weight: 700; color: rgba(0,0,0,.3); flex-shrink: 0; }
     .cart-info { flex: 1; min-width: 0; }
-    .cart-brand { font-size: .72rem; color: var(--ink-3); font-weight: 600; text-transform: uppercase; }
-    .cart-name  { font-size: .85rem; font-weight: 600; }
+    .cart-brand { font-size: .65rem; color: var(--ink-3); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .cart-name  { font-size: .85rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .cart-price { font-size: .82rem; color: var(--ink-2); width: 80px; text-align: right; flex-shrink: 0; }
-    .cart-sub   { font-size: .88rem; font-weight: 700; width: 90px; text-align: right; flex-shrink: 0; }
-    .order-summary { border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; position: sticky; top: 72px; }
+    .cart-sub   { font-size: .88rem; font-weight: 700; width: 90px; text-align: right; flex-shrink: 0; color: var(--ink); }
+    .order-summary { background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; position: sticky; top: 72px; }
     .summary-row { display: flex; justify-content: space-between; font-size: .85rem; color: var(--ink-2); padding: .35rem 0; }
-    .summary-total { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 800; padding-top: .75rem; margin-top: .5rem; border-top: 2px solid var(--ink); }
+    .summary-total { display: flex; justify-content: space-between; font-size: 1rem; font-weight: 700; padding-top: .75rem; margin-top: .5rem; border-top: 1px solid var(--border); color: var(--ink); }
 
-    /* ── Home ── */
-    .hero { background: linear-gradient(135deg, #111 0%, #333 100%); border-radius: 16px; padding: 3.5rem 3rem; color: #fff; margin-bottom: 2.5rem; }
-    .hero-tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.5); margin-bottom: .75rem; }
-    .hero-title { font-size: 2.25rem; font-weight: 800; line-height: 1.15; margin-bottom: 1rem; }
-    .hero-sub { font-size: .95rem; color: rgba(255,255,255,.65); margin-bottom: 1.75rem; }
-    .brand-strip { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: .5rem; margin-bottom: 2.5rem; scrollbar-width: none; }
-    .brand-strip::-webkit-scrollbar { display: none; }
-    .brand-card { flex-shrink: 0; width: 160px; border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1rem; cursor: pointer; transition: box-shadow .15s, transform .15s; text-align: center; }
-    .brand-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); transform: translateY(-2px); }
-    .brand-circle { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto .75rem; display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 800; letter-spacing: -.01em; color: rgba(0,0,0,.4); }
-    .brand-name { font-size: .85rem; font-weight: 800; letter-spacing: -.01em; margin-bottom: .25rem; }
-    .brand-tagline { font-size: .72rem; color: var(--ink-3); }
-    .cat-grid { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
-    .cat-chip { padding: .45rem 1rem; border: 1px solid var(--border); border-radius: 20px; font-size: .82rem; cursor: pointer; transition: all .15s; background: var(--bg); }
-    .cat-chip:hover, .cat-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
-    .section-heading { font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem; }
+    /* ── Home hero ── */
+    .hero-wrap { background: linear-gradient(160deg, #0D0D0D 0%, #1A1508 55%, #0D0D0D 100%); border-bottom: 1px solid var(--border); padding: 4.5rem 0 3.5rem; overflow: hidden; position: relative; margin-bottom: 0; }
+    .hero-wrap::before { content: 'IGH'; position: absolute; right: 4%; top: 50%; transform: translateY(-50%); font-family: 'Cormorant Garamond', serif; font-size: 20rem; font-weight: 700; color: rgba(201,168,124,0.05); letter-spacing: .08em; pointer-events: none; line-height: 1; }
+    .hero-inner { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+    .hero-tag { font-size: .68rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.1rem; }
+    .hero-title { font-family: 'Cormorant Garamond', serif; font-size: 3.4rem; font-weight: 600; line-height: 1.12; margin-bottom: 1rem; color: var(--ink); }
+    .hero-sub { font-size: .93rem; color: var(--ink-3); margin-bottom: 2.25rem; line-height: 1.7; max-width: 400px; }
+
+    /* ── Home content ── */
+    .home-content { max-width: 1100px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    .section-heading { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 600; margin-bottom: 1.1rem; color: var(--ink); letter-spacing: .01em; }
     .section-sep { height: 1px; background: var(--border); margin: 2rem 0; }
-    .feat-strip { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: .5rem; scrollbar-width: none; }
+    .brand-strip { display: flex; gap: .9rem; overflow-x: auto; padding-bottom: .75rem; margin-bottom: 2.5rem; scrollbar-width: none; scroll-snap-type: x mandatory; }
+    .brand-strip::-webkit-scrollbar { display: none; }
+    .brand-card { flex-shrink: 0; width: 152px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem 1rem; cursor: pointer; transition: border-color .2s, transform .2s; text-align: center; scroll-snap-align: start; }
+    .brand-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .brand-circle { width: 52px; height: 52px; border-radius: 50%; margin: 0 auto .7rem; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: .92rem; font-weight: 700; letter-spacing: .04em; color: rgba(0,0,0,.35); }
+    .brand-name { font-size: .82rem; font-weight: 700; letter-spacing: .02em; margin-bottom: .3rem; color: var(--ink); }
+    .brand-tagline { font-size: .7rem; color: var(--ink-3); line-height: 1.45; }
+    .cat-grid { display: flex; gap: .55rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .cat-chip { padding: .38rem .88rem; border: 1px solid var(--border); border-radius: 20px; font-size: .8rem; cursor: pointer; transition: all .15s; background: var(--bg-2); color: var(--ink-2); }
+    .cat-chip:hover { border-color: var(--ink-3); color: var(--ink); }
+    .cat-chip.active { background: var(--accent); color: #0D0D0D; border-color: var(--accent); font-weight: 600; }
+    .feat-strip { display: flex; gap: .9rem; overflow-x: auto; padding-bottom: .75rem; scrollbar-width: none; scroll-snap-type: x mandatory; }
     .feat-strip::-webkit-scrollbar { display: none; }
-    .feat-card { flex-shrink: 0; width: 200px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: box-shadow .15s; }
-    .feat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); }
-    .feat-img { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: rgba(0,0,0,.22); }
+    .feat-card { flex-shrink: 0; width: 185px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; cursor: pointer; transition: border-color .2s, transform .2s; scroll-snap-align: start; }
+    .feat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .feat-img { height: 115px; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 700; color: rgba(0,0,0,.27); }
     .feat-body { padding: .75rem; }
-    .feat-brand { font-size: .68rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
-    .feat-name  { font-size: .82rem; font-weight: 600; line-height: 1.3; margin: .2rem 0; }
-    .feat-price { font-size: .88rem; font-weight: 800; }
+    .feat-brand { font-size: .63rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .07em; }
+    .feat-name  { font-size: .82rem; font-weight: 500; line-height: 1.35; margin: .22rem 0 .3rem; color: var(--ink); }
+    .feat-price { font-size: .88rem; font-weight: 700; color: var(--accent); }
 
-    /* ── Product detail modal ── */
-    .prod-modal-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-    .prod-modal-img { display: flex; align-items: center; justify-content: center; height: 320px; font-size: 3rem; font-weight: 800; color: rgba(0,0,0,.22); }
-    .prod-modal-info { padding: 1.5rem; }
-    .prod-modal-brand { font-size: .75rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .35rem; }
-    .prod-modal-name  { font-size: 1.1rem; font-weight: 800; line-height: 1.3; margin-bottom: .5rem; }
-    .prod-rating { font-size: .82rem; color: var(--ink-3); margin-bottom: .75rem; }
-    .prod-modal-price { font-size: 1.4rem; font-weight: 800; margin-bottom: .25rem; }
-    .prod-modal-original { font-size: .85rem; color: var(--ink-3); text-decoration: line-through; margin-bottom: .75rem; }
-    .prod-modal-desc { font-size: .83rem; color: var(--ink-2); line-height: 1.6; margin-bottom: 1rem; }
-    .prod-stock { font-size: .8rem; color: var(--ink-3); margin-bottom: 1rem; }
-    .prod-stock.low  { color: var(--warn); }
-    .prod-stock.out  { color: var(--danger); font-weight: 700; }
+    /* ── Product modal ── */
+    .prod-modal-inner { display: grid; grid-template-columns: 1fr 1fr; }
+    .prod-modal-img { display: flex; align-items: center; justify-content: center; height: 300px; font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 700; color: rgba(0,0,0,.26); }
+    .prod-modal-info { padding: 1.75rem; }
+    .prod-modal-brand { font-size: .68rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+    .prod-modal-name  { font-size: 1.1rem; font-weight: 600; line-height: 1.3; margin-bottom: .5rem; color: var(--ink); }
+    .prod-rating { font-size: .8rem; color: var(--accent); margin-bottom: .75rem; }
+    .prod-modal-price { font-size: 1.45rem; font-weight: 700; margin-bottom: .25rem; color: var(--ink); }
+    .prod-modal-original { font-size: .83rem; color: var(--ink-3); margin-bottom: .75rem; }
+    .prod-modal-desc { font-size: .82rem; color: var(--ink-2); line-height: 1.65; margin-bottom: 1rem; }
+    .prod-stock { display: inline-flex; align-items: center; gap: .3rem; font-size: .76rem; font-weight: 600; padding: .28rem .7rem; border-radius: 20px; margin-bottom: 1rem; }
+    .prod-stock.ok  { background: rgba(82,196,114,0.12); color: var(--ok); }
+    .prod-stock.low { background: rgba(229,164,67,0.12);  color: var(--warn); }
+    .prod-stock.out { background: rgba(224,85,85,0.12);   color: var(--danger); }
     .qty-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
 
     /* ── Admin chart ── */
-    .chart-wrap { background: var(--bg-2); border-radius: var(--radius); padding: 1rem; }
+    .chart-wrap { background: var(--bg-3); border-radius: var(--radius); padding: 1rem; }
 
     /* ── Empty state ── */
     .empty { text-align: center; padding: 3rem 1rem; color: var(--ink-3); }
     .empty-icon { font-size: 2.5rem; margin-bottom: .75rem; }
     .empty-text { font-size: .9rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .topnav { padding: 0 1rem; }
+      .topnav-back { display: none; }
+      .topnav-brand { font-size: 1.3rem; margin-right: .75rem; }
+      .topnav-tab { padding: 0 .6rem; font-size: .78rem; }
+      .hero-wrap { padding: 2.75rem 0 2.25rem; }
+      .hero-wrap::before { font-size: 8rem; right: -1rem; opacity: .6; }
+      .hero-title { font-size: 2.3rem; }
+      .shop-layout { grid-template-columns: 1fr; }
+      .filter-panel { display: none; }
+      .mobile-filter-bar { display: flex; }
+      .product-grid { grid-template-columns: repeat(2,1fr); gap: .75rem; }
+      .cart-layout { grid-template-columns: 1fr; }
+      .cart-price { display: none; }
+      .stat-grid { grid-template-columns: repeat(2,1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .prod-modal-inner { grid-template-columns: 1fr; }
+      .prod-modal-img { height: 200px; }
+    }
+    @media (max-width: 420px) {
+      .topnav-tab { padding: 0 .4rem; font-size: .72rem; }
+      .product-grid { gap: .55rem; }
+    }
   </style>
 </head>
 <body>
@@ -213,7 +258,6 @@
   <script type="text/babel">
     const { useState, useContext, createContext, useEffect, useRef, useMemo } = React;
 
-    // ── 상수 ──
     const BRANDS = [
       { id:'b1', name:'LUMI',   tagline:'빛나는 피부를 위한',   category:'뷰티',    color:'#f9a8d4' },
       { id:'b2', name:'ARCO',   tagline:'현대적인 남성 스타일', category:'남성패션', color:'#93c5fd' },
@@ -225,27 +269,27 @@
     const CATEGORIES = ['전체','여성패션','남성패션','뷰티','리빙','스포츠'];
 
     const INIT_PRODUCTS = [
-      { id:'p01', brandId:'b1', category:'뷰티',    name:'LUMI 글로우 세럼 30ml',     price:68000,  originalPrice:85000,  discount:20, description:'히알루론산 3중 복합체로 피부 깊숙이 수분을 채워주는 세럼. 7일 사용 후 광채 피부 경험.', rating:4.8, reviewCount:234, tags:['베스트'] },
-      { id:'p02', brandId:'b1', category:'뷰티',    name:'LUMI 수분 크림 50ml',       price:52000,  originalPrice:52000,  discount:0,  description:'세라마이드와 스쿠알란이 만나 장벽을 강화하고 촉촉함을 24시간 유지합니다.', rating:4.5, reviewCount:187, tags:[] },
-      { id:'p03', brandId:'b1', category:'뷰티',    name:'LUMI 토닝 앰플 15ml',       price:89000,  originalPrice:118000, discount:25, description:'나이아신아마이드 5% 배합. 잡티와 칙칙함을 집중 개선합니다.', rating:4.9, reviewCount:412, tags:['베스트','한정'] },
-      { id:'p04', brandId:'b2', category:'남성패션', name:'ARCO 슬림 트라우저',        price:89000,  originalPrice:89000,  discount:0,  description:'스트레치 울 혼방 소재. 앵클 기장, 슬림 핏. 격식과 편안함을 동시에.', rating:4.3, reviewCount:98,  tags:['신상'] },
-      { id:'p05', brandId:'b2', category:'남성패션', name:'ARCO 옥스포드 셔츠',        price:65000,  originalPrice:82000,  discount:20, description:'2겹 직조 옥스포드 원단. 세탁 후 형태 유지. 레귤러 핏.', rating:4.4, reviewCount:156, tags:['베스트'] },
-      { id:'p06', brandId:'b2', category:'남성패션', name:'ARCO 울 오버코트',          price:248000, originalPrice:248000, discount:0,  description:'이탈리아산 울 80% 혼방. 더블 브레스트 클래식 실루엣. 베이지/차콜 2컬러.', rating:4.7, reviewCount:72,  tags:['신상'] },
-      { id:'p07', brandId:'b3', category:'스포츠',  name:'VELO 러닝 반바지',          price:42000,  originalPrice:42000,  discount:0,  description:'4방향 스트레치 + 내장 인너팬츠. 뒷면 지퍼 주머니. 5인치 기장.', rating:4.2, reviewCount:203, tags:[] },
-      { id:'p08', brandId:'b3', category:'스포츠',  name:'VELO 컴프레션 티셔츠',      price:38000,  originalPrice:49000,  discount:22, description:'UV 차단 SPF50+. 땀 배출 기능성 원단. 반소매 타이트 핏.', rating:4.5, reviewCount:341, tags:['베스트'] },
-      { id:'p09', brandId:'b3', category:'스포츠',  name:'VELO 트레이닝 재킷',        price:98000,  originalPrice:98000,  discount:0,  description:'경량 윈드브레이커 소재. 전면 풀집 + 양쪽 핸드포켓. 리플렉티브 로고.', rating:4.6, reviewCount:115, tags:['신상'] },
-      { id:'p10', brandId:'b4', category:'리빙',    name:'MASO 워시드 린넨 쿠션커버', price:28000,  originalPrice:28000,  discount:0,  description:'벨기에산 린넨 100%. 자연스러운 워싱 텍스처. 45×45cm. 지퍼 마감.', rating:4.4, reviewCount:89,  tags:[] },
-      { id:'p11', brandId:'b4', category:'리빙',    name:'MASO 오크 우드 트레이',     price:45000,  originalPrice:56000,  discount:20, description:'천연 오크 단목. 왁스 피니쉬. 250×350mm. 욕실·주방·침실 다용도.', rating:4.7, reviewCount:132, tags:['베스트'] },
-      { id:'p12', brandId:'b4', category:'리빙',    name:'MASO 콘크리트 캔들홀더 세트', price:62000, originalPrice:75000,  discount:17, description:'핸드메이드 콘크리트 홀더 2개 세트. 소·중 사이즈. 필라 캔들 호환.', rating:4.3, reviewCount:64,  tags:['한정'] },
-      { id:'p13', brandId:'b5', category:'여성패션', name:'ELLE.K 플로럴 미디원피스',  price:128000, originalPrice:128000, discount:0,  description:'실크 혼방 새틴 소재. 플로럴 패턴. 허리 드로스트링. A라인 미디 기장.', rating:4.6, reviewCount:178, tags:['신상'] },
-      { id:'p14', brandId:'b5', category:'여성패션', name:'ELLE.K 실크 블라우스',      price:96000,  originalPrice:120000, discount:20, description:'모멀리 실크 100%. 리본 넥 타이. 루즈 핏. 오피스룩·데일리룩 겸용.', rating:4.8, reviewCount:245, tags:['베스트'] },
-      { id:'p15', brandId:'b5', category:'여성패션', name:'ELLE.K 캐시미어 가디건',    price:178000, originalPrice:178000, discount:0,  description:'몽골산 캐시미어 100%. 드롭 숄더 오버사이즈. 크롭 기장. 4컬러.', rating:4.9, reviewCount:302, tags:['베스트','한정'] },
+      { id:'p01', brandId:'b1', category:'뷰티',    name:'LUMI 글로우 세럼 30ml',       price:68000,  originalPrice:85000,  discount:20, description:'히알루론산 3중 복합체로 피부 깊숙이 수분을 채워주는 세럼. 7일 사용 후 광채 피부 경험.', rating:4.8, reviewCount:234, tags:['베스트'] },
+      { id:'p02', brandId:'b1', category:'뷰티',    name:'LUMI 수분 크림 50ml',         price:52000,  originalPrice:52000,  discount:0,  description:'세라마이드와 스쿠알란이 만나 장벽을 강화하고 촉촉함을 24시간 유지합니다.',        rating:4.5, reviewCount:187, tags:[] },
+      { id:'p03', brandId:'b1', category:'뷰티',    name:'LUMI 토닝 앰플 15ml',         price:89000,  originalPrice:118000, discount:25, description:'나이아신아마이드 5% 배합. 잡티와 칙칙함을 집중 개선합니다.',                      rating:4.9, reviewCount:412, tags:['베스트','한정'] },
+      { id:'p04', brandId:'b2', category:'남성패션', name:'ARCO 슬림 트라우저',          price:89000,  originalPrice:89000,  discount:0,  description:'스트레치 울 혼방 소재. 앵클 기장, 슬림 핏. 격식과 편안함을 동시에.',              rating:4.3, reviewCount:98,  tags:['신상'] },
+      { id:'p05', brandId:'b2', category:'남성패션', name:'ARCO 옥스포드 셔츠',          price:65000,  originalPrice:82000,  discount:20, description:'2겹 직조 옥스포드 원단. 세탁 후 형태 유지. 레귤러 핏.',                          rating:4.4, reviewCount:156, tags:['베스트'] },
+      { id:'p06', brandId:'b2', category:'남성패션', name:'ARCO 울 오버코트',            price:248000, originalPrice:248000, discount:0,  description:'이탈리아산 울 80% 혼방. 더블 브레스트 클래식 실루엣. 베이지/차콜 2컬러.',        rating:4.7, reviewCount:72,  tags:['신상'] },
+      { id:'p07', brandId:'b3', category:'스포츠',  name:'VELO 러닝 반바지',            price:42000,  originalPrice:42000,  discount:0,  description:'4방향 스트레치 + 내장 인너팬츠. 뒷면 지퍼 주머니. 5인치 기장.',                  rating:4.2, reviewCount:203, tags:[] },
+      { id:'p08', brandId:'b3', category:'스포츠',  name:'VELO 컴프레션 티셔츠',        price:38000,  originalPrice:49000,  discount:22, description:'UV 차단 SPF50+. 땀 배출 기능성 원단. 반소매 타이트 핏.',                         rating:4.5, reviewCount:341, tags:['베스트'] },
+      { id:'p09', brandId:'b3', category:'스포츠',  name:'VELO 트레이닝 재킷',          price:98000,  originalPrice:98000,  discount:0,  description:'경량 윈드브레이커 소재. 전면 풀집 + 양쪽 핸드포켓. 리플렉티브 로고.',            rating:4.6, reviewCount:115, tags:['신상'] },
+      { id:'p10', brandId:'b4', category:'리빙',    name:'MASO 워시드 린넨 쿠션커버',   price:28000,  originalPrice:28000,  discount:0,  description:'벨기에산 린넨 100%. 자연스러운 워싱 텍스처. 45×45cm. 지퍼 마감.',               rating:4.4, reviewCount:89,  tags:[] },
+      { id:'p11', brandId:'b4', category:'리빙',    name:'MASO 오크 우드 트레이',       price:45000,  originalPrice:56000,  discount:20, description:'천연 오크 단목. 왁스 피니쉬. 250×350mm. 욕실·주방·침실 다용도.',                rating:4.7, reviewCount:132, tags:['베스트'] },
+      { id:'p12', brandId:'b4', category:'리빙',    name:'MASO 콘크리트 캔들홀더 세트', price:62000,  originalPrice:75000,  discount:17, description:'핸드메이드 콘크리트 홀더 2개 세트. 소·중 사이즈. 필라 캔들 호환.',               rating:4.3, reviewCount:64,  tags:['한정'] },
+      { id:'p13', brandId:'b5', category:'여성패션', name:'ELLE.K 플로럴 미디원피스',    price:128000, originalPrice:128000, discount:0,  description:'실크 혼방 새틴 소재. 플로럴 패턴. 허리 드로스트링. A라인 미디 기장.',           rating:4.6, reviewCount:178, tags:['신상'] },
+      { id:'p14', brandId:'b5', category:'여성패션', name:'ELLE.K 실크 블라우스',        price:96000,  originalPrice:120000, discount:20, description:'모멀리 실크 100%. 리본 넥 타이. 루즈 핏. 오피스룩·데일리룩 겸용.',              rating:4.8, reviewCount:245, tags:['베스트'] },
+      { id:'p15', brandId:'b5', category:'여성패션', name:'ELLE.K 캐시미어 가디건',      price:178000, originalPrice:178000, discount:0,  description:'몽골산 캐시미어 100%. 드롭 숄더 오버사이즈. 크롭 기장. 4컬러.',                 rating:4.9, reviewCount:302, tags:['베스트','한정'] },
     ];
 
     const INIT_INVENTORY = {
       p01:{qty:42,threshold:5}, p02:{qty:8,threshold:5},  p03:{qty:3,threshold:5},
       p04:{qty:25,threshold:5}, p05:{qty:0,threshold:5},  p06:{qty:12,threshold:3},
-      p07:{qty:60,threshold:10}, p08:{qty:4,threshold:5}, p09:{qty:18,threshold:5},
+      p07:{qty:60,threshold:10},p08:{qty:4,threshold:5},  p09:{qty:18,threshold:5},
       p10:{qty:35,threshold:5}, p11:{qty:2,threshold:3},  p12:{qty:7,threshold:3},
       p13:{qty:22,threshold:5}, p14:{qty:15,threshold:5}, p15:{qty:6,threshold:5},
     };
@@ -258,7 +302,6 @@
       { id:'ORD-1715000005-MNO', items:[{productId:'p15',name:'ELLE.K 캐시미어 가디건',price:178000,qty:1},{productId:'p03',name:'LUMI 토닝 앰플 15ml',price:89000,qty:1}], totalAmount:267000, status:'delivered', createdAt:'2026-05-12T11:00:00.000Z' },
     ];
 
-    // ── 헬퍼 ──
     function loadOrInit(key, fallback) {
       try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; }
       catch { return fallback; }
@@ -266,14 +309,18 @@
     function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
     function fmt(n) { return Number(n).toLocaleString('ko-KR') + '원'; }
     function fmtDate(iso) {
-      return new Date(iso).toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+      const d = new Date(iso);
+      const yy = String(d.getFullYear()).slice(2);
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const time = d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+      return `${yy}.${mm}.${dd} ${time}`;
     }
     function makeOrderId() {
       return `ORD-${Date.now()}-${Math.random().toString(36).slice(2,5).toUpperCase()}`;
     }
     function getBrand(brandId) { return BRANDS.find(b => b.id === brandId); }
 
-    // ── Context ──
     const StoreContext = createContext(null);
 
     function StoreProvider({ children }) {
@@ -302,7 +349,7 @@
         setCartItems(prev => {
           const ex = prev.find(ci => ci.productId === product.id);
           if (ex) return prev.map(ci => ci.productId === product.id ? { ...ci, qty: ci.qty + qty } : ci);
-          return [...prev, { productId:product.id, name:product.name, brandName:brand?.name ?? '', price:product.price, qty, brandColor:brand?.color ?? '#e5e5e5' }];
+          return [...prev, { productId:product.id, name:product.name, brandName:brand?.name ?? '', price:product.price, qty, brandColor:brand?.color ?? '#2C2C2C' }];
         });
       }
 
@@ -402,7 +449,7 @@
       return (
         <nav className="topnav">
           <a href="/" className="topnav-back">← 포트폴리오</a>
-          <span className="topnav-brand">DEPT°</span>
+          <span className="topnav-brand">IGH</span>
           <div className="topnav-tabs">
             {TABS.map(t => (
               <button key={t.id}
@@ -420,71 +467,74 @@
       );
     }
 
-    // Tab placeholder components (Tasks 4–7 will replace these)
     function HomeTab() {
-  const { products, goToShop, setModal } = useContext(StoreContext);
+      const { products, goToShop, setModal } = useContext(StoreContext);
 
-  const featured = useMemo(() => {
-    return BRANDS.map(b => products.find(p => p.brandId === b.id)).filter(Boolean);
-  }, [products]);
+      const featured = useMemo(() => {
+        return BRANDS.map(b => products.find(p => p.brandId === b.id)).filter(Boolean);
+      }, [products]);
 
-  const CAT_ICONS = { '전체':'🏬', '여성패션':'👗', '남성패션':'👔', '뷰티':'💄', '리빙':'🛋', '스포츠':'🏃' };
+      const CAT_ICONS = { '전체':'🏬', '여성패션':'👗', '남성패션':'👔', '뷰티':'💄', '리빙':'🛋', '스포츠':'🏃' };
 
-  return (
-    <div className="page" style={{paddingTop:'1.5rem'}}>
-      <div className="hero">
-        <div className="hero-tag">2026 Summer Collection</div>
-        <div className="hero-title">새로운 시즌,<br/>새로운 나를 만나다</div>
-        <div className="hero-sub">DEPT°가 엄선한 브랜드와 함께 이번 여름을 완성하세요.</div>
-        <button className="btn btn-primary" style={{background:'#fff',color:'#111'}}
-          onClick={() => goToShop()}>
-          지금 쇼핑하기 →
-        </button>
-      </div>
-
-      <div className="section-heading">브랜드</div>
-      <div className="brand-strip">
-        {BRANDS.map(b => (
-          <div key={b.id} className="brand-card" onClick={() => goToShop({ brands:[b.id], category:'전체' })}>
-            <div className="brand-circle" style={{background: b.color}}>{b.name}</div>
-            <div className="brand-name">{b.name}</div>
-            <div className="brand-tagline">{b.tagline}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="section-heading">카테고리</div>
-      <div className="cat-grid">
-        {CATEGORIES.map(c => (
-          <div key={c} className="cat-chip" onClick={() => goToShop({ category: c, brands:[] })}>
-            {CAT_ICONS[c] ?? ''} {c}
-          </div>
-        ))}
-      </div>
-
-      <div className="section-sep" />
-
-      <div className="section-heading">이번 주 베스트</div>
-      <div className="feat-strip">
-        {featured.map(p => {
-          const brand = getBrand(p.brandId);
-          return (
-            <div key={p.id} className="feat-card" onClick={() => setModal({ type:'product', product:p })}>
-              <div className="feat-img" style={{background: brand?.color ?? '#f1f1f1'}}>
-                {brand?.name}
-              </div>
-              <div className="feat-body">
-                <div className="feat-brand">{brand?.name}</div>
-                <div className="feat-name">{p.name}</div>
-                <div className="feat-price">{fmt(p.price)}</div>
-              </div>
+      return (
+        <>
+          <section className="hero-wrap">
+            <div className="hero-inner">
+              <div className="hero-tag">2026 Summer Collection</div>
+              <div className="hero-title">새로운 시즌,<br/>새로운 나를 만나다</div>
+              <div className="hero-sub">IGH가 엄선한 브랜드와 함께 이번 여름을 완성하세요.</div>
+              <button className="btn btn-primary" onClick={() => goToShop()}>
+                지금 쇼핑하기 →
+              </button>
             </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+          </section>
+
+          <div className="home-content">
+            <div className="section-heading">브랜드</div>
+            <div className="brand-strip">
+              {BRANDS.map(b => (
+                <div key={b.id} className="brand-card" onClick={() => goToShop({ brands:[b.id], category:'전체' })}>
+                  <div className="brand-circle" style={{background: b.color}}>{b.name}</div>
+                  <div className="brand-name">{b.name}</div>
+                  <div className="brand-tagline">{b.tagline}</div>
+                </div>
+              ))}
+            </div>
+
+            <div className="section-heading">카테고리</div>
+            <div className="cat-grid">
+              {CATEGORIES.map(c => (
+                <div key={c} className="cat-chip" onClick={() => goToShop({ category: c, brands:[] })}>
+                  {CAT_ICONS[c] ?? ''} {c}
+                </div>
+              ))}
+            </div>
+
+            <div className="section-sep" />
+
+            <div className="section-heading">이번 주 베스트</div>
+            <div className="feat-strip">
+              {featured.map(p => {
+                const brand = getBrand(p.brandId);
+                return (
+                  <div key={p.id} className="feat-card" onClick={() => setModal({ type:'product', product:p })}>
+                    <div className="feat-img" style={{background: brand?.color ?? '#2C2C2C'}}>
+                      {brand?.name}
+                    </div>
+                    <div className="feat-body">
+                      <div className="feat-brand">{brand?.name}</div>
+                      <div className="feat-name">{p.name}</div>
+                      <div className="feat-price">{fmt(p.price)}</div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      );
+    }
+
     const PRICE_RANGES = [
       { id:'all',    label:'전체' },
       { id:'~50',    label:'5만원 이하',  test: p => p.price <= 50000 },
@@ -494,6 +544,15 @@
 
     function ShopTab() {
       const { products, inventory, shopFilter, setShopFilter, setModal, addToCart, toast } = useContext(StoreContext);
+      const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+      const activeFilterCount = useMemo(() => {
+        let c = 0;
+        if (shopFilter.brands.length) c++;
+        if (shopFilter.category !== '전체') c++;
+        if (shopFilter.priceRange !== 'all') c++;
+        return c;
+      }, [shopFilter]);
 
       const filtered = useMemo(() => {
         return products.filter(p => {
@@ -525,60 +584,114 @@
         toast(`${p.name} 장바구니에 담았습니다`, 'success');
       }
 
+      function resetFilter() {
+        setShopFilter({ brands:[], category:'전체', priceRange:'all', search:'' });
+        setMobileFilterOpen(false);
+      }
+
+      const FilterContent = () => (
+        <>
+          <div className="filter-section">
+            <div className="filter-title">브랜드</div>
+            {BRANDS.map(b => (
+              <label key={b.id} className="filter-option">
+                <input type="checkbox" checked={shopFilter.brands.includes(b.id)} onChange={() => toggleBrand(b.id)} />
+                {b.name}
+              </label>
+            ))}
+          </div>
+          <div className="filter-section">
+            <div className="filter-title">카테고리</div>
+            {CATEGORIES.map(c => (
+              <label key={c} className="filter-option">
+                <input type="radio" name="mob-category" checked={shopFilter.category === c}
+                  onChange={() => setShopFilter(prev => ({ ...prev, category: c }))} />
+                {c}
+              </label>
+            ))}
+          </div>
+          <div className="filter-section">
+            <div className="filter-title">가격대</div>
+            <div className="price-btn-group">
+              {PRICE_RANGES.map(r => (
+                <button key={r.id}
+                  className={`price-btn${shopFilter.priceRange === r.id ? ' active' : ''}`}
+                  onClick={() => setShopFilter(prev => ({ ...prev, priceRange: r.id }))}>
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button className="btn btn-ghost btn-sm" style={{width:'100%'}} onClick={resetFilter}>
+            필터 초기화
+          </button>
+        </>
+      );
+
       return (
         <div className="page" style={{paddingTop:'1.5rem'}}>
-          <input className="search-bar" style={{marginBottom:'1.25rem'}}
+          <input className="search-bar" style={{marginBottom:'1rem'}}
             placeholder="상품명 또는 브랜드 검색..."
             value={shopFilter.search}
             onChange={e => setShopFilter(prev => ({ ...prev, search: e.target.value }))}
           />
-          <div className="shop-layout">
-            <div className="filter-panel">
-              <div className="filter-section">
-                <div className="filter-title">브랜드</div>
-                {BRANDS.map(b => (
-                  <label key={b.id} className="filter-option">
-                    <input type="checkbox"
-                      checked={shopFilter.brands.includes(b.id)}
-                      onChange={() => toggleBrand(b.id)}
-                    />
-                    {b.name}
-                  </label>
-                ))}
+
+          {/* 모바일 필터 바 */}
+          <div className="mobile-filter-bar">
+            <button
+              className={`mobile-filter-toggle${mobileFilterOpen ? ' active' : ''}`}
+              onClick={() => setMobileFilterOpen(v => !v)}>
+              ⚙ 필터{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+            </button>
+            {CATEGORIES.map(c => (
+              <div key={c}
+                className={`filter-chip${shopFilter.category === c ? ' active' : ''}`}
+                onClick={() => setShopFilter(prev => ({ ...prev, category: c }))}>
+                {c}
               </div>
-              <div className="filter-section">
-                <div className="filter-title">카테고리</div>
-                {CATEGORIES.map(c => (
-                  <label key={c} className="filter-option">
-                    <input type="radio"
-                      name="category"
-                      checked={shopFilter.category === c}
-                      onChange={() => setShopFilter(prev => ({ ...prev, category: c }))}
-                    />
-                    {c}
-                  </label>
-                ))}
-              </div>
-              <div className="filter-section">
-                <div className="filter-title">가격대</div>
-                <div className="price-btn-group">
-                  {PRICE_RANGES.map(r => (
-                    <button key={r.id}
-                      className={`price-btn${shopFilter.priceRange === r.id ? ' active' : ''}`}
-                      onClick={() => setShopFilter(prev => ({ ...prev, priceRange: r.id }))}>
-                      {r.label}
-                    </button>
+            ))}
+          </div>
+
+          {/* 모바일 필터 드로어 */}
+          {mobileFilterOpen && (
+            <div className="filter-drawer">
+              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem'}}>
+                <div>
+                  <div className="filter-title">브랜드</div>
+                  {BRANDS.map(b => (
+                    <label key={b.id} className="filter-option">
+                      <input type="checkbox" checked={shopFilter.brands.includes(b.id)} onChange={() => toggleBrand(b.id)} />
+                      {b.name}
+                    </label>
                   ))}
                 </div>
+                <div>
+                  <div className="filter-title">가격대</div>
+                  <div className="price-btn-group">
+                    {PRICE_RANGES.map(r => (
+                      <button key={r.id}
+                        className={`price-btn${shopFilter.priceRange === r.id ? ' active' : ''}`}
+                        onClick={() => setShopFilter(prev => ({ ...prev, priceRange: r.id }))}>
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <button className="btn btn-ghost btn-sm" style={{width:'100%'}}
-                onClick={() => setShopFilter({ brands:[], category:'전체', priceRange:'all', search:'' })}>
+              <button className="btn btn-ghost btn-sm" style={{marginTop:'.75rem'}} onClick={resetFilter}>
                 필터 초기화
               </button>
             </div>
+          )}
+
+          <div className="shop-layout">
+            {/* 데스크탑 사이드바 */}
+            <div className="filter-panel">
+              <FilterContent />
+            </div>
 
             <div>
-              <div style={{fontSize:'.8rem',color:'var(--ink-3)',marginBottom:'1rem'}}>
+              <div style={{fontSize:'.78rem',color:'var(--ink-3)',marginBottom:'1rem'}}>
                 {filtered.length}개 상품
               </div>
               {filtered.length === 0 ? (
@@ -593,7 +706,7 @@
                     const stock = inventory[p.id]?.qty ?? 0;
                     return (
                       <div key={p.id} className="product-card" onClick={() => setModal({ type:'product', product:p })}>
-                        <div className="product-card-img" style={{background: brand?.color ?? '#f1f1f1'}}>
+                        <div className="product-card-img" style={{background: brand?.color ?? '#2C2C2C'}}>
                           {brand?.name}
                         </div>
                         <div className="product-card-body">
@@ -608,12 +721,10 @@
                           </div>
                           {p.tags.length > 0 && (
                             <div className="product-tags">
-                              {p.tags.map(tag => (
-                                <span key={tag} className={`tag tag-${tag}`}>{tag}</span>
-                              ))}
+                              {p.tags.map(tag => <span key={tag} className={`tag tag-${tag}`}>{tag}</span>)}
                             </div>
                           )}
-                          <button className="btn btn-primary btn-sm" style={{width:'100%',marginTop:'.75rem'}}
+                          <button className="btn btn-primary btn-sm" style={{width:'100%',marginTop:'.7rem'}}
                             disabled={stock === 0}
                             onClick={e => handleAddToCart(e, p)}>
                             {stock === 0 ? '품절' : '장바구니 담기'}
@@ -629,6 +740,7 @@
         </div>
       );
     }
+
     const STATUS_META = {
       paid:      { label:'결제완료', cls:'badge-blue' },
       shipping:  { label:'배송중',   cls:'badge-amber' },
@@ -653,7 +765,7 @@
 
       return (
         <div className="page" style={{paddingTop:'1.5rem'}}>
-          <div className="section-heading">장바구니</div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif", fontSize:'1.35rem', fontWeight:600, marginBottom:'1.25rem'}}>장바구니</div>
 
           {cartItems.length === 0 ? (
             <div className="empty" style={{marginBottom:'2rem'}}>
@@ -688,11 +800,21 @@
               </div>
 
               <div className="order-summary">
-                <div style={{fontWeight:700,marginBottom:'.75rem'}}>주문 요약</div>
+                <div style={{fontWeight:700, marginBottom:'.75rem', color:'var(--ink)'}}>주문 요약</div>
                 <div className="summary-row"><span>상품 합계</span><span>{fmt(subtotal)}</span></div>
-                <div className="summary-row"><span>배송비</span><span>{shipping === 0 ? '무료' : fmt(shipping)}</span></div>
-                {shipping > 0 && <div style={{fontSize:'.72rem',color:'var(--ink-3)',textAlign:'right'}}>3만원 이상 무료배송</div>}
-                <div className="summary-total"><span>총 결제금액</span><span>{fmt(total)}</span></div>
+                <div className="summary-row">
+                  <span>배송비</span>
+                  <span style={{color: shipping === 0 ? 'var(--ok)' : 'var(--ink)'}}>
+                    {shipping === 0 ? '무료' : fmt(shipping)}
+                  </span>
+                </div>
+                <div style={{fontSize:'.71rem', textAlign:'right', marginTop:'.2rem',
+                  color: shipping === 0 ? 'var(--ok)' : 'var(--ink-3)'}}>
+                  {shipping === 0 ? '✓ 무료배송 적용됨' : '3만원 이상 구매 시 무료배송'}
+                </div>
+                <div className="summary-total" style={{marginTop:'.75rem'}}>
+                  <span>총 결제금액</span><span>{fmt(total)}</span>
+                </div>
                 <button className="btn btn-primary" style={{width:'100%',marginTop:'1rem'}} onClick={handleOrder}>
                   주문하기
                 </button>
@@ -700,7 +822,7 @@
             </div>
           )}
 
-          <div className="section-heading" style={{marginTop:'2.5rem'}}>주문 내역</div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif", fontSize:'1.35rem', fontWeight:600, margin:'2.5rem 0 1rem'}}>주문 내역</div>
           {orders.length === 0 ? (
             <div className="empty"><div className="empty-text">주문 내역이 없습니다</div></div>
           ) : (
@@ -708,22 +830,18 @@
               <div className="table-wrap">
                 <table>
                   <thead>
-                    <tr>
-                      <th>주문번호</th>
-                      <th>날짜</th>
-                      <th>상품</th>
-                      <th>금액</th>
-                      <th>상태</th>
-                    </tr>
+                    <tr><th>주문번호</th><th>날짜</th><th>상품</th><th>금액</th><th>상태</th></tr>
                   </thead>
                   <tbody>
                     {orders.map(o => {
                       const meta = STATUS_META[o.status] ?? { label: o.status, cls:'badge-gray' };
                       return (
                         <tr key={o.id}>
-                          <td style={{fontFamily:'monospace',fontSize:'.78rem'}}>{o.id}</td>
-                          <td style={{whiteSpace:'nowrap'}}>{fmtDate(o.createdAt)}</td>
-                          <td>{o.items.map(i => `${i.name} ×${i.qty}`).join(', ')}</td>
+                          <td style={{fontFamily:'monospace',fontSize:'.75rem',color:'var(--ink-3)'}}>{o.id}</td>
+                          <td style={{whiteSpace:'nowrap',fontSize:'.8rem'}}>{fmtDate(o.createdAt)}</td>
+                          <td style={{maxWidth:240,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                            {o.items.map(i => `${i.name} ×${i.qty}`).join(', ')}
+                          </td>
                           <td style={{fontWeight:700}}>{fmt(o.totalAmount)}</td>
                           <td><span className={`badge ${meta.cls}`}>{meta.label}</span></td>
                         </tr>
@@ -737,7 +855,7 @@
         </div>
       );
     }
-    // 차트용 시드 데이터 (7일치 일별 매출)
+
     const CHART_DATA = [
       { label:'5/14', value:420000 }, { label:'5/15', value:285000 },
       { label:'5/16', value:630000 }, { label:'5/17', value:510000 },
@@ -752,36 +870,35 @@
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         const W = canvas.width, H = canvas.height;
-        const pad = { top: 20, right: 20, bottom: 40, left: 60 };
+        const pad = { top: 20, right: 20, bottom: 40, left: 65 };
         ctx.clearRect(0, 0, W, H);
         const maxVal = Math.max(...CHART_DATA.map(d => d.value));
         const chartW = W - pad.left - pad.right;
         const chartH = H - pad.top - pad.bottom;
-        const barW = (chartW / CHART_DATA.length) * 0.6;
+        const barW = (chartW / CHART_DATA.length) * 0.55;
         const gap   = chartW / CHART_DATA.length;
 
-        // y축 눈금
-        ctx.fillStyle = '#999';
-        ctx.font = '11px Inter, sans-serif';
-        ctx.textAlign = 'right';
         [0, 0.25, 0.5, 0.75, 1].forEach(ratio => {
           const y = pad.top + chartH - ratio * chartH;
+          ctx.fillStyle = '#5E5A56';
+          ctx.font = '11px DM Sans, sans-serif';
+          ctx.textAlign = 'right';
           ctx.fillText(fmt(maxVal * ratio).replace('원',''), pad.left - 8, y + 4);
-          ctx.strokeStyle = '#e5e5e5';
+          ctx.strokeStyle = '#2C2C2C';
+          ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
         });
 
-        // 바
         CHART_DATA.forEach((d, i) => {
           const x = pad.left + i * gap + (gap - barW) / 2;
           const barH = (d.value / maxVal) * chartH;
           const y = pad.top + chartH - barH;
-          ctx.fillStyle = '#111';
+          ctx.fillStyle = '#C9A87C';
           ctx.beginPath();
           ctx.roundRect(x, y, barW, barH, 3);
           ctx.fill();
-          // x축 레이블
-          ctx.fillStyle = '#999';
+          ctx.fillStyle = '#5E5A56';
+          ctx.font = '11px DM Sans, sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText(d.label, x + barW / 2, H - pad.bottom + 16);
         });
@@ -789,52 +906,45 @@
 
       return (
         <div className="chart-wrap">
-          <canvas ref={canvasRef} width={700} height={240} style={{width:'100%',height:'auto'}} />
+          <canvas ref={canvasRef} width={700} height={230} style={{width:'100%',height:'auto'}} />
         </div>
       );
     }
 
     function AdminTab() {
       const { products, inventory, orders } = useContext(StoreContext);
-
-      const totalStock  = Object.values(inventory).reduce((s, v) => s + v.qty, 0);
-      const totalSales  = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.totalAmount, 0);
+      const totalStock = Object.values(inventory).reduce((s, v) => s + v.qty, 0);
+      const totalSales = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.totalAmount, 0);
 
       return (
         <div className="page" style={{paddingTop:'1.5rem'}}>
-          {/* 통계 카드 */}
           <div className="stat-grid">
             <div className="stat-card">
               <div className="stat-label">총 상품 수</div>
-              <div className="stat-value">{products.length}<span style={{fontSize:'.9rem',fontWeight:500,color:'var(--ink-3)'}}> 개</span></div>
+              <div className="stat-value">{products.length}<span style={{fontSize:'.9rem',fontWeight:400,color:'var(--ink-3)'}}> 개</span></div>
             </div>
             <div className="stat-card">
               <div className="stat-label">총 재고량</div>
-              <div className="stat-value">{totalStock.toLocaleString()}<span style={{fontSize:'.9rem',fontWeight:500,color:'var(--ink-3)'}}> 개</span></div>
+              <div className="stat-value">{totalStock.toLocaleString()}<span style={{fontSize:'.9rem',fontWeight:400,color:'var(--ink-3)'}}> 개</span></div>
             </div>
             <div className="stat-card">
               <div className="stat-label">주문 건수</div>
-              <div className="stat-value">{orders.length}<span style={{fontSize:'.9rem',fontWeight:500,color:'var(--ink-3)'}}> 건</span></div>
+              <div className="stat-value">{orders.length}<span style={{fontSize:'.9rem',fontWeight:400,color:'var(--ink-3)'}}> 건</span></div>
             </div>
             <div className="stat-card">
               <div className="stat-label">총 매출액</div>
-              <div className="stat-value" style={{fontSize:'1.1rem'}}>{fmt(totalSales)}</div>
+              <div className="stat-value" style={{fontSize:'1.15rem'}}>{fmt(totalSales)}</div>
             </div>
           </div>
 
-          {/* 매출 차트 */}
           <div className="card" style={{marginBottom:'1.5rem'}}>
             <div className="card-header">
               <span className="card-title">📊 일별 매출 (최근 7일)</span>
             </div>
-            <div className="card-body">
-              <SalesChart />
-            </div>
+            <div className="card-body"><SalesChart /></div>
           </div>
 
-          {/* Task 9에서 상품 관리 추가 */}
           <AdminProductSection />
-          {/* Task 10에서 재고 관리 추가 */}
           <AdminInventorySection />
         </div>
       );
@@ -859,9 +969,7 @@
           <div className="table-wrap">
             <table>
               <thead>
-                <tr>
-                  <th>브랜드</th><th>상품명</th><th>판매가</th><th>할인율</th><th>재고</th><th>작업</th>
-                </tr>
+                <tr><th>브랜드</th><th>상품명</th><th>판매가</th><th>할인율</th><th>재고</th><th>작업</th></tr>
               </thead>
               <tbody>
                 {products.map(p => {
@@ -871,13 +979,13 @@
                     <tr key={p.id}>
                       <td>
                         <span style={{display:'inline-flex',alignItems:'center',gap:'.4rem'}}>
-                          <span style={{width:10,height:10,borderRadius:'50%',background:brand?.color,display:'inline-block'}} />
+                          <span style={{width:8,height:8,borderRadius:'50%',background:brand?.color,display:'inline-block',flexShrink:0}} />
                           {brand?.name}
                         </span>
                       </td>
-                      <td>{p.name}</td>
-                      <td>{fmt(p.price)}</td>
-                      <td>{p.discount > 0 ? <span className="badge badge-red">-{p.discount}%</span> : '—'}</td>
+                      <td style={{maxWidth:200,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</td>
+                      <td style={{whiteSpace:'nowrap'}}>{fmt(p.price)}</td>
+                      <td>{p.discount > 0 ? <span className="badge badge-red">-{p.discount}%</span> : <span style={{color:'var(--ink-3)'}}>—</span>}</td>
                       <td>
                         <span className={`badge ${stock === 0 ? 'badge-red' : stock <= (inventory[p.id]?.threshold ?? 5) ? 'badge-amber' : 'badge-green'}`}>
                           {stock}
@@ -899,29 +1007,23 @@
       );
     }
 
-    const EMPTY_FORM = { brandId:'b1', category:'뷰티', name:'', price:'', originalPrice:'', discount:'0', description:'', tags:'' };
-
     function AdminInventorySection() {
       const { products, inventory, adjustInventory } = useContext(StoreContext);
 
       function stockStatus(productId) {
         const { qty, threshold } = inventory[productId] ?? { qty:0, threshold:5 };
-        if (qty === 0)          return { cls:'badge-red',   label:'품절' };
-        if (qty <= threshold)   return { cls:'badge-amber', label:'부족' };
-        return                         { cls:'badge-green', label:'정상' };
+        if (qty === 0)        return { cls:'badge-red',   label:'품절' };
+        if (qty <= threshold) return { cls:'badge-amber', label:'부족' };
+        return                       { cls:'badge-green', label:'정상' };
       }
 
       return (
         <div className="card">
-          <div className="card-header">
-            <span className="card-title">📦 재고 관리</span>
-          </div>
+          <div className="card-header"><span className="card-title">📦 재고 관리</span></div>
           <div className="table-wrap">
             <table>
               <thead>
-                <tr>
-                  <th>상품명</th><th>브랜드</th><th>현재 재고</th><th>임계값</th><th>조정</th><th>상태</th>
-                </tr>
+                <tr><th>상품명</th><th>브랜드</th><th>재고</th><th>임계값</th><th>조정</th><th>상태</th></tr>
               </thead>
               <tbody>
                 {products.map(p => {
@@ -930,15 +1032,15 @@
                   const st    = stockStatus(p.id);
                   return (
                     <tr key={p.id}>
-                      <td>{p.name}</td>
+                      <td style={{maxWidth:180,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</td>
                       <td>{brand?.name}</td>
                       <td style={{fontWeight:700}}>{inv.qty}</td>
                       <td style={{color:'var(--ink-3)'}}>{inv.threshold}</td>
                       <td>
-                        <div style={{display:'flex',gap:'.3rem'}}>
+                        <div style={{display:'flex',gap:'.25rem'}}>
                           {[-5,-1,1,5].map(d => (
                             <button key={d} className="btn btn-ghost btn-sm"
-                              style={{minWidth:'36px'}}
+                              style={{minWidth:'34px',padding:'.25rem .4rem'}}
                               disabled={d < 0 && inv.qty + d < 0}
                               onClick={() => adjustInventory(p.id, d)}>
                               {d > 0 ? `+${d}` : d}
@@ -956,6 +1058,9 @@
         </div>
       );
     }
+
+    const EMPTY_FORM = { brandId:'b1', category:'뷰티', name:'', price:'', originalPrice:'', discount:'0', description:'', tags:'' };
+
     function ProductModal() {
       const { modal, setModal, inventory, addToCart, toast } = useContext(StoreContext);
       const [qty, setQty] = useState(1);
@@ -963,6 +1068,7 @@
       if (!p) return null;
       const brand = getBrand(p.brandId);
       const stock = inventory[p.id]?.qty ?? 0;
+      const threshold = inventory[p.id]?.threshold ?? 5;
 
       function handleAdd() {
         addToCart(p, qty);
@@ -970,27 +1076,28 @@
         setModal(null);
       }
 
+      const stockCls = stock === 0 ? 'out' : stock <= threshold ? 'low' : 'ok';
+      const stockLabel = stock === 0 ? '품절' : stock <= threshold ? '소량 남음' : '재고 있음';
+
       return (
         <div className="overlay" onClick={() => setModal(null)}>
           <div className="modal" style={{maxWidth:'560px'}} onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <span className="modal-title">상품 상세</span>
+              <span className="modal-title" style={{fontFamily:"'Cormorant Garamond',serif",fontWeight:600,fontSize:'1rem'}}>{p.name}</span>
               <button className="modal-close" onClick={() => setModal(null)}>×</button>
             </div>
             <div className="prod-modal-inner">
-              <div className="prod-modal-img" style={{background: brand?.color ?? '#f1f1f1'}}>
+              <div className="prod-modal-img" style={{background: brand?.color ?? '#2C2C2C'}}>
                 {brand?.name}
               </div>
               <div className="prod-modal-info">
                 <div className="prod-modal-brand">{brand?.name}</div>
                 <div className="prod-modal-name">{p.name}</div>
-                <div className="prod-rating">{'★'.repeat(Math.round(p.rating))}{'☆'.repeat(5 - Math.round(p.rating))} {p.rating} ({p.reviewCount.toLocaleString()}개 리뷰)</div>
+                <div className="prod-rating">{'★'.repeat(Math.round(p.rating))}{'☆'.repeat(5 - Math.round(p.rating))} {p.rating} <span style={{color:'var(--ink-3)',fontSize:'.75rem'}}>({p.reviewCount.toLocaleString()}개 리뷰)</span></div>
                 <div className="prod-modal-price">{fmt(p.price)}</div>
                 {p.discount > 0 && <div className="prod-modal-original">{fmt(p.originalPrice)} → {p.discount}% 할인</div>}
                 <div className="prod-modal-desc">{p.description}</div>
-                <div className={`prod-stock${stock === 0 ? ' out' : stock <= (inventory[p.id]?.threshold ?? 5) ? ' low' : ''}`}>
-                  {stock === 0 ? '품절' : stock <= (inventory[p.id]?.threshold ?? 5) ? `재고 ${stock}개 남음 (소량)` : `재고 ${stock}개`}
-                </div>
+                <span className={`prod-stock ${stockCls}`}>{stockLabel}</span>
                 {stock > 0 && (
                   <div className="qty-row">
                     <div className="qty-stepper">
@@ -998,12 +1105,11 @@
                       <span className="qty-val">{qty}</span>
                       <button className="qty-btn" disabled={qty >= stock} onClick={() => setQty(q => q + 1)}>+</button>
                     </div>
-                    <span style={{fontSize:'.82rem',color:'var(--ink-3)'}}>최대 {stock}개</span>
+                    <span style={{fontSize:'.8rem',color:'var(--ink-3)'}}>최대 {stock}개</span>
                   </div>
                 )}
                 <button className="btn btn-primary" style={{width:'100%'}}
-                  disabled={stock === 0}
-                  onClick={handleAdd}>
+                  disabled={stock === 0} onClick={handleAdd}>
                   {stock === 0 ? '품절' : '장바구니 담기'}
                 </button>
               </div>
@@ -1012,6 +1118,7 @@
         </div>
       );
     }
+
     function ProductFormModal() {
       const { modal, setModal, addProduct, updateProduct, toast } = useContext(StoreContext);
       const editing = modal?.product ?? null;
@@ -1026,8 +1133,7 @@
         if (!form.name.trim()) { toast('상품명을 입력하세요', 'error'); return; }
         if (!form.price || isNaN(Number(form.price))) { toast('올바른 가격을 입력하세요', 'error'); return; }
         const data = {
-          brandId: form.brandId,
-          category: form.category,
+          brandId: form.brandId, category: form.category,
           name: form.name.trim(),
           price: Number(form.price),
           originalPrice: form.originalPrice.trim() ? Number(form.originalPrice) : Number(form.price),
@@ -1037,13 +1143,8 @@
           reviewCount: editing?.reviewCount ?? 0,
           tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
         };
-        if (editing) {
-          updateProduct(editing.id, data);
-          toast('상품이 수정되었습니다', 'success');
-        } else {
-          addProduct(data);
-          toast('상품이 등록되었습니다', 'success');
-        }
+        if (editing) { updateProduct(editing.id, data); toast('상품이 수정되었습니다', 'success'); }
+        else         { addProduct(data);                toast('상품이 등록되었습니다', 'success'); }
         setModal(null);
       }
 
@@ -1080,7 +1181,7 @@
                 </div>
                 <div className="form-group">
                   <label className="form-label">정가 (원)</label>
-                  <input className="form-input" type="number" value={form.originalPrice} onChange={e => set('originalPrice', e.target.value)} placeholder="0 (판매가와 동일)" />
+                  <input className="form-input" type="number" value={form.originalPrice} onChange={e => set('originalPrice', e.target.value)} placeholder="0" />
                 </div>
               </div>
               <div className="form-group">
