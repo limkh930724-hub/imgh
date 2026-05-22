@@ -47,6 +47,11 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 | `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1478 |
 | `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1540 |
 | `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용 | ~1155 |
+| `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 | ~1105 |
+| `casestudy.html` | 기획 케이스 스터디 갤러리 — 카드 그리드, 각 케이스 상세 페이지로 링크 | ~237 |
+| `casestudy-commerce.html` | 커머스 시스템 기획 케이스 스터디 상세 | ~366 |
+| `casestudy-feargreed.html` | 공포탐욕지수 기획 케이스 스터디 상세 | ~374 |
+| `casestudy-disaster.html` | 재난 대응 시뮬레이터 기획 케이스 스터디 상세 | ~420 |
 
 Each HTML file is structured: `<head>` (Inter font + inline `<style>`) → `<body>` (markup) → `<script>` (all app logic).
 
@@ -61,6 +66,25 @@ Integrated hub combining three calculators into one page with a tab bar (`?tab=c
 ### Backtest (`backtest.html`)
 
 Supports up to 3 tickers (A, B, and optional C). Ticker C is dynamically added/removed. Charts, summary cards, and comparison table all handle 3-ticker data. The diff column in the comparison table uses 1st-place vs last-place as the reference.
+
+### Portfolio Tracker (`portfolio_tracker.html`)
+
+Password-gated private portfolio tracker. Key architecture:
+
+- **Password gate** — full-screen overlay (`#pt-gate`, `position:fixed;z-index:9999`) rendered before `.app`. Gate JS runs in a blocking IIFE in `<head>` area of body, using `crypto.subtle.digest('SHA-256', ...)` to compare against the stored hash. `sessionStorage('pt-auth')` persists auth for the browser session.
+- **Data** — all snapshots are hardcoded in the `snapshots` array (no API calls). Each snapshot: `{date, label, totalAsset, totalEval, totalPnl, returnPct, sections[]}`. Add new data by appending to `snapshots`.
+- **KPI Banner** — full-width 4-column strip (총투자자산 / 현재평가액 / 수익률 / 총손익) rendered by `renderKpiBanner()`. Rendered as large `28px` numbers above the main body.
+- **Layout** — `.app` → `.topbar` → `.kpi-banner` → `.body` (`.left` sidebar 260px + `.right-wrap` flex:1). Desktop: `height:100vh; overflow:hidden`. Mobile (`≤768px`): stacks vertically, scrolling enabled.
+- **Left panel** (`renderLeft()`) — donut SVG (asset allocation by section) + horizontal bar chart (P&L per section). Donut built from `rows[].amt`; bar from `rows[].pnl`.
+- **Right panel** (`renderRight()`) — interactive canvas trend chart (`drawChart()`) + holdings cards filtered by `.itab` section tabs.
+- **Calendar modal** — date picker to switch between snapshots. Days with data highlighted; clicking calls `pickDate(idx)`.
+- **Color convention**: `--pos:#c0000a` (red = profit), `--neg:#1252a8` (blue = loss) — **inverted vs typical** financial convention.
+- **Adding a new snapshot**: append an object to `snapshots[]` with the same shape as existing entries. `render()` auto-selects the last snapshot on load.
+
+### Case Study Pages
+
+- **`casestudy.html`** — gallery index page. 3-card grid (`.cs-grid`), each card links to a detail page. Uses same `hub-theme` localStorage key as `index.html`. Add new case study by adding a `.cs-card` `<a>` element to `.cs-grid`.
+- **Detail pages** (`casestudy-*.html`) — shared structure: sticky header with `← 케이스 스터디` back link + fixed FAB `↗ 라이브` button (bottom-right, links to the live tool). Tab bar (`.cs-tabs`) with `.cs-tabs-inner` wrapper for centering. Four tabs: 배경 / 고민과 결정 / 화면 설계 / 완성. Tab switching: `switchTab(id)` sets `location.hash`, `updateTabUI(id)` updates DOM — `hashchange` listener calls `updateTabUI()` only (not `switchTab()`) to avoid circular coupling.
 
 ### Workout (`workout.html`)
 
@@ -191,7 +215,7 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 
 - **`api/proxy.js`** — Vercel serverless function acting as CORS proxy. Allowlist: CNN dataviz, Yahoo Finance, open.er-api.com. Used in production; locally any static server works since the browser hits the same origin.
 - **`api/real-estate.js`** — Vercel serverless function for Korean apartment transaction data. Fetches from 공공데이터포털 (data.go.kr) sale/rent endpoints, with MOCK_ITEMS fallback. Supports region codes for Seoul/Gyeonggi districts. Used by `agents.html`.
-- **`sw.js`** — Service Worker for PWA offline support. Current `CACHE_NAME = 'fg-cache-v8'`. PRECACHE includes `/`, `/index.html`, `/fear-greed.html`, `/asset.html`, `/compound.html`, `/goal.html`, `/journal.html`, `/backtest.html`, `/workout.html`, `/agents.html`, `/commerce.html`, `/manifest.json`, `/icon.svg`. **Note:** `disaster.html` and `Certificate.html` are not yet in PRECACHE. Bump `CACHE_NAME` string to invalidate on deploy; add new pages to PRECACHE when created. Note: `NETWORK_FIRST_PREFIXES` still contains a legacy `https://corsproxy.io` entry from before the Vercel proxy migration — harmless but unused.
+- **`sw.js`** — Service Worker for PWA offline support. Current `CACHE_NAME = 'fg-cache-v8'`. PRECACHE includes `/`, `/index.html`, `/fear-greed.html`, `/asset.html`, `/compound.html`, `/goal.html`, `/journal.html`, `/backtest.html`, `/workout.html`, `/agents.html`, `/commerce.html`, `/manifest.json`, `/icon.svg`. **Note:** `disaster.html`, `Certificate.html`, `portfolio_tracker.html`, and `casestudy*.html` are not yet in PRECACHE. Bump `CACHE_NAME` string to invalidate on deploy; add new pages to PRECACHE when created. Note: `NETWORK_FIRST_PREFIXES` still contains a legacy `https://corsproxy.io` entry from before the Vercel proxy migration — harmless but unused.
 - **`manifest.json`** + **`icon.svg`** — PWA web app manifest and home screen icon. Referenced in `sw.js` PRECACHE and `<link rel="manifest">` in `fear-greed.html`, but **these files do not currently exist** in the repo and need to be created.
 - **`index.backup.html`** — snapshot of `index.html` before a major restructure; not served, safe to ignore.
 - **`.codex-*`** — local test artifacts from Codex experiments; not tracked, safe to ignore.
@@ -203,4 +227,4 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 - **`docs/superpowers/plans/`** — implementation plans (no `-design` suffix) generated from specs.
   - Pending (spec + plan): commerce redesign (`2026-04-17-commerce-redesign.md` — dark slate hero panel + 3×3 tile launcher home, ERP-style, full restyle of `commerce.html`); UI Lab (`2026-04-17-ui-lab.md` — React+Tailwind CDN showcase page, implemented and reverted, plan ready to re-implement); disaster simulator enhancements (`2026-04-22-disaster-sim.md`).
   - Pending (spec only): hub redesign (`2026-04-16-hub-redesign-design.md` — black-and-white agency style, supersedes `2026-04-06` version).
-  - Completed: disaster simulator (`disaster.html`); commerce system; backtest 3-ticker; asset calculator hub; portfolio hub + fear-greed split; calculators; journal; backtest; watchlist tab; PWA + Calendar + Share; market features (interpreter + portfolio calculator).
+  - Completed: disaster simulator (`disaster.html`); commerce system; backtest 3-ticker; asset calculator hub; portfolio hub + fear-greed split; calculators; journal; backtest; watchlist tab; PWA + Calendar + Share; market features (interpreter + portfolio calculator); case study gallery + 3 detail pages; portfolio tracker with password gate.
