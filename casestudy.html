@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>기획 케이스 스터디 — 포트폴리오</title>
+    <title>기획 아카이브 — 포트폴리오</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -161,14 +161,14 @@
 <body>
     <header class="cs-header">
         <a href="/" class="cs-back">← 포트폴리오</a>
-        <div class="cs-logo">기획 케이스 스터디</div>
+        <div class="cs-logo">기획 아카이브</div>
         <button class="cs-theme-btn" id="themeBtn">☀</button>
     </header>
 
     <main>
         <div class="gallery-hero">
-            <h1>설계 과정을<br><span class="accent">기록합니다</span></h1>
-            <p>툴 하나를 만들 때 무엇을 고민하고, 어떻게 결정했는지 — 왜·어떻게·무엇을 만들었는지 기록한 기획 문서입니다.</p>
+            <h1>구현의 기록,<br><span class="accent">기획 아카이브</span></h1>
+            <p>툴 하나를 만들 때 무엇을 고민하고, 어떻게 결정했는지 — 배경부터 설계·결정·완성까지의 과정을 담은 아카이브입니다.</p>
         </div>
 
         <div class="cs-grid">
@@ -213,6 +213,36 @@
                 <p class="cs-card-desc">재난 유형별 대피소 추천 — 지도 라이브러리를 어떻게 골랐나, 점수를 어떻게 설계했나, 다크 전용 테마가 왜 맞는 선택이었나.</p>
                 <div class="cs-card-footer">
                     <span class="cs-card-meta">기능 12개 · 대피소 20개 · ~1,540줄</span>
+                    <span class="cs-card-arrow">→</span>
+                </div>
+            </a>
+
+            <a href="/casestudy-asset.html" class="cs-card">
+                <div class="cs-card-icon">💰</div>
+                <div class="cs-card-name">자산 계산기</div>
+                <div class="cs-card-tags">
+                    <span class="cs-card-tag">Chart.js</span>
+                    <span class="cs-card-tag">URL ?tab=</span>
+                    <span class="cs-card-tag">3탭 통합</span>
+                </div>
+                <p class="cs-card-desc">복리·목표·매매일지 세 계산기를 탭 하나로 — 왜 통합했나, URL 쿼리 파라미터로 탭을 관리한 이유, localStorage 일지 설계.</p>
+                <div class="cs-card-footer">
+                    <span class="cs-card-meta">탭 3개 · 기능 8개 · ~664줄</span>
+                    <span class="cs-card-arrow">→</span>
+                </div>
+            </a>
+
+            <a href="/casestudy-backtest.html" class="cs-card">
+                <div class="cs-card-icon">📈</div>
+                <div class="cs-card-name">백테스트 비교기</div>
+                <div class="cs-card-tags">
+                    <span class="cs-card-tag">Yahoo Finance</span>
+                    <span class="cs-card-tag">CORS Proxy</span>
+                    <span class="cs-card-tag">Chart.js</span>
+                </div>
+                <p class="cs-card-desc">최대 3종목 과거 수익률 비교 — 실시간 API를 왜 선택했나, 동적 3종목 추가를 어떻게 설계했나, CAGR·MDD 계산 로직.</p>
+                <div class="cs-card-footer">
+                    <span class="cs-card-meta">비교 지표 5개 · 최대 3종목 · ~1,200줄</span>
                     <span class="cs-card-arrow">→</span>
                 </div>
             </a>
