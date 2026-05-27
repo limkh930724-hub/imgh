@@ -71,8 +71,10 @@
             justify-content: center;
             padding: 5rem 3rem;
             position: relative;
-            overflow: hidden;
+            overflow: visible; /* 콘텐츠 클리핑 방지 */
         }
+        /* Hero만 overflow:hidden — orb 클리핑용 */
+        #hero { overflow: hidden; }
         .section--free {
             align-items: flex-start;
             padding-top: 6rem;
@@ -697,12 +699,12 @@
            MOBILE  ≤ 768px
         ═══════════════════════════ */
         @media (max-width: 768px) {
-            /* 스크롤 스냅 해제 — 콘텐츠 클리핑 방지 */
-            html { scroll-snap-type: none; }
             .section {
-                scroll-snap-align: none;
-                min-height: auto;
+                min-height: 100vh;
                 padding: 5rem 1.25rem 3.5rem;
+            }
+            .section--free {
+                min-height: auto;
             }
 
             .dot-nav { display: none; }
