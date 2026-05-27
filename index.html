@@ -524,13 +524,155 @@
         }
 
         /* ══════════════════════════════════════
-           ANIMATIONS
+           CUSTOM CURSOR
         ══════════════════════════════════════ */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(24px); }
+        * { cursor: none !important; }
+        .cursor-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent);
+            position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+            transform: translate(-50%,-50%);
+            transition: width 0.2s, height 0.2s, background 0.2s;
+        }
+        .cursor-ring {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 1.5px solid var(--accent);
+            position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998;
+            transform: translate(-50%,-50%);
+            transition: width 0.3s, height 0.3s, border-color 0.3s, opacity 0.3s;
+            opacity: 0.5;
+        }
+        .cursor-ring.hover {
+            width: 48px; height: 48px;
+            border-color: var(--accent); opacity: 0.9;
+        }
+        @media (pointer: coarse) {
+            * { cursor: auto !important; }
+            .cursor-dot, .cursor-ring { display: none; }
+        }
+
+        /* ══════════════════════════════════════
+           HERO ENTRANCE — stagger per element
+        ══════════════════════════════════════ */
+        @keyframes heroIn {
+            from { opacity: 0; transform: translateY(28px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        .section__inner { animation: fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) both; }
+        @keyframes heroInRight {
+            from { opacity: 0; transform: translateX(32px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        .hero-eyebrow  { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.05s forwards; }
+        .hero-name     { opacity:0; animation: heroIn 0.8s cubic-bezier(0.22,1,0.36,1) 0.18s forwards; }
+        .hero-title    { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.32s forwards; }
+        .hero-philosophy { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.46s forwards; }
+        .hero-tagline  { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.58s forwards; }
+        .about-chips   { opacity:0; animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) 0.70s forwards; }
+        .hero-ctas     { opacity:0; animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) 0.82s forwards; }
+        .hero-stat-grid { opacity:0; animation: heroInRight 0.9s cubic-bezier(0.22,1,0.36,1) 0.4s forwards; }
+
+        /* Stat box individual stagger via nth-child */
+        .hero-stat-grid .stat-box:nth-child(1) { animation-delay: 0.50s; }
+        .hero-stat-grid .stat-box:nth-child(2) { animation-delay: 0.62s; }
+        .hero-stat-grid .stat-box:nth-child(3) { animation-delay: 0.74s; }
+        .hero-stat-grid .stat-box:nth-child(4) { animation-delay: 0.86s; }
+        .hero-stat-grid .stat-box {
+            opacity: 0;
+            animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+
+        /* ══════════════════════════════════════
+           SCROLL REVEAL
+        ══════════════════════════════════════ */
+        [data-reveal] {
+            opacity: 0;
+            transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1) var(--reveal-delay, 0s),
+                        transform 0.7s cubic-bezier(0.22,1,0.36,1) var(--reveal-delay, 0s);
+        }
+        [data-reveal="up"]    { transform: translateY(36px); }
+        [data-reveal="left"]  { transform: translateX(-44px); }
+        [data-reveal="right"] { transform: translateX(44px); }
+        [data-reveal="scale"] { transform: scale(0.92); }
+        [data-reveal].revealed { opacity: 1; transform: none; }
+
+        /* Stagger delay classes */
+        .delay-1 { transition-delay: 0.08s !important; }
+        .delay-2 { transition-delay: 0.16s !important; }
+        .delay-3 { transition-delay: 0.24s !important; }
+        .delay-4 { transition-delay: 0.32s !important; }
+        .delay-5 { transition-delay: 0.40s !important; }
+        .delay-6 { transition-delay: 0.48s !important; }
+
+        /* ══════════════════════════════════════
+           STAT BOX GLOW
+        ══════════════════════════════════════ */
+        .stat-box {
+            position: relative; overflow: hidden;
+        }
+        .stat-box::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 20% 50%, var(--accent-3), transparent 70%);
+            opacity: 0; transition: opacity 0.4s;
+            pointer-events: none;
+        }
+        .stat-box:hover::before { opacity: 1; }
+
+        /* ══════════════════════════════════════
+           PROJECT CARD 3D TILT
+        ══════════════════════════════════════ */
+        .project-card { transform-style: preserve-3d; will-change: transform; }
+        .projects-grid { perspective: 1200px; }
+
+        /* ══════════════════════════════════════
+           SECTION LABEL LINE ANIMATION
+        ══════════════════════════════════════ */
+        .s-label::before {
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s;
+        }
+        .s-label.revealed::before { transform: scaleX(1); }
+
+        /* ══════════════════════════════════════
+           SKILLS TAG STAGGER (JS sets --i)
+        ══════════════════════════════════════ */
+        .skill-tags .tag {
+            opacity: 0; transform: scale(0.85) translateY(6px);
+            transition: opacity 0.35s, transform 0.35s;
+            transition-delay: calc(var(--i, 0) * 0.06s);
+        }
+        .skill-card.revealed .skill-tags .tag {
+            opacity: 1; transform: none;
+        }
+
+        /* ══════════════════════════════════════
+           BACKGROUND GRADIENT ORBS
+        ══════════════════════════════════════ */
+        #hero::before {
+            content: '';
+            position: absolute; width: 600px; height: 600px; border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-2) 0%, transparent 70%);
+            top: -100px; right: -100px; pointer-events: none;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+        #hero::after {
+            content: '';
+            position: absolute; width: 400px; height: 400px; border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-2) 0%, transparent 70%);
+            bottom: -80px; left: 10%; pointer-events: none;
+            animation: orbFloat 10s ease-in-out 2s infinite reverse;
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.05); }
+        }
+
+        /* Career card left/right slide */
+        .career-card:first-child { transform: translateX(-44px); }
+        .career-card:last-child  { transform: translateX(44px); }
+        .career-card { opacity: 0; transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.22,1,0.36,1); }
+        .career-card.revealed { opacity: 1; transform: translateX(0) !important; }
+        .career-card:last-child.revealed { transition-delay: 0.15s; }
 
         /* ══════════════════════════════════════
            RESPONSIVE
@@ -558,6 +700,10 @@
     </style>
 </head>
 <body>
+
+    <!-- Custom cursor -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
 
     <button class="theme-toggle" id="themeBtn" title="테마 전환">🌙</button>
 
@@ -634,8 +780,8 @@
     <!-- ══ 3. CAREER ══ -->
     <section class="section section--free" id="career">
         <div class="section__inner">
-            <p class="s-label">Career</p>
-            <h2 class="s-title">경력</h2>
+            <p class="s-label" data-reveal="up">Career</p>
+            <h2 class="s-title" data-reveal="up">경력</h2>
             <div class="career-grid">
 
                 <!-- SM -->
@@ -708,10 +854,10 @@
     <!-- ══ 4. SKILLS ══ -->
     <section class="section" id="skills">
         <div class="section__inner">
-            <p class="s-label">Skills</p>
-            <h2 class="s-title">기술 스택</h2>
+            <p class="s-label" data-reveal="up">Skills</p>
+            <h2 class="s-title" data-reveal="up">기술 스택</h2>
             <div class="skills-layout">
-                <div class="skill-card">
+                <div class="skill-card" data-reveal="up">
                     <div class="skill-card__head">
                         <div class="skill-card__icon">☕</div>
                         <p class="skill-card__title">Backend</p>
@@ -724,7 +870,7 @@
                         <span class="tag">Spring MVC</span>
                     </div>
                 </div>
-                <div class="skill-card">
+                <div class="skill-card" data-reveal="up" style="--reveal-delay:0.1s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon">🗄</div>
                         <p class="skill-card__title">Database</p>
@@ -737,7 +883,7 @@
                         <span class="tag">MyBatis</span>
                     </div>
                 </div>
-                <div class="skill-card">
+                <div class="skill-card" data-reveal="up" style="--reveal-delay:0.2s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon">🗺</div>
                         <p class="skill-card__title">GIS · Map</p>
@@ -749,7 +895,7 @@
                         <span class="tag">재난 정보 표출</span>
                     </div>
                 </div>
-                <div class="skill-card">
+                <div class="skill-card" data-reveal="up" style="--reveal-delay:0.3s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon">🌐</div>
                         <p class="skill-card__title">Frontend</p>
@@ -762,7 +908,7 @@
                         <span class="tag">Chart.js</span>
                     </div>
                 </div>
-                <div class="skill-card">
+                <div class="skill-card" data-reveal="up" style="--reveal-delay:0.4s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon">🔧</div>
                         <p class="skill-card__title">Tools &amp; Infra</p>
@@ -775,7 +921,7 @@
                         <span class="tag">Vercel</span>
                     </div>
                 </div>
-                <div class="skill-card">
+                <div class="skill-card" data-reveal="up" style="--reveal-delay:0.5s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon">📋</div>
                         <p class="skill-card__title">기획 · 문서</p>
@@ -795,12 +941,12 @@
     <!-- ══ 5. PROJECTS ══ -->
     <section class="section section--free" id="projects">
         <div class="section__inner">
-            <p class="s-label">Projects</p>
-            <h2 class="s-title">사이드 프로젝트</h2>
-            <p class="projects-meta">업무 외 시간에 직접 기획·설계·개발한 개인 프로젝트입니다. 기획부터 배포까지 단독 수행.</p>
+            <p class="s-label" data-reveal="up">Projects</p>
+            <h2 class="s-title" data-reveal="up">사이드 프로젝트</h2>
+            <p class="projects-meta" data-reveal="up">업무 외 시간에 직접 기획·설계·개발한 개인 프로젝트입니다. 기획부터 배포까지 단독 수행.</p>
             <div class="projects-grid">
 
-                <a class="project-card" href="fear-greed.html">
+                <a class="project-card" href="fear-greed.html" data-reveal="scale">
                     <div class="project-card__strip strip--green"></div>
                     <div class="project-card__body">
                         <div class="project-card__icon">📈</div>
@@ -813,7 +959,7 @@
                     </div>
                 </a>
 
-                <a class="project-card" href="commerce.html">
+                <a class="project-card" href="commerce.html" data-reveal="scale" style="--reveal-delay:0.08s">
                     <div class="project-card__strip strip--blue"></div>
                     <div class="project-card__body">
                         <div class="project-card__icon">🛒</div>
@@ -826,7 +972,7 @@
                     </div>
                 </a>
 
-                <a class="project-card" href="backtest.html">
+                <a class="project-card" href="backtest.html" data-reveal="scale" style="--reveal-delay:0.16s">
                     <div class="project-card__strip strip--amber"></div>
                     <div class="project-card__body">
                         <div class="project-card__icon">📊</div>
@@ -839,7 +985,7 @@
                     </div>
                 </a>
 
-                <a class="project-card" href="disaster.html">
+                <a class="project-card" href="disaster.html" data-reveal="scale" style="--reveal-delay:0.24s">
                     <div class="project-card__strip strip--red"></div>
                     <div class="project-card__body">
                         <div class="project-card__icon">🚨</div>
@@ -852,7 +998,7 @@
                     </div>
                 </a>
 
-                <a class="project-card" href="workout.html">
+                <a class="project-card" href="workout.html" data-reveal="scale" style="--reveal-delay:0.32s">
                     <div class="project-card__strip strip--violet"></div>
                     <div class="project-card__body">
                         <div class="project-card__icon">💪</div>
@@ -865,7 +1011,7 @@
                     </div>
                 </a>
 
-                <a class="project-card" href="portfolio_tracker.html">
+                <a class="project-card" href="portfolio_tracker.html" data-reveal="scale" style="--reveal-delay:0.40s">
                     <div class="project-card__strip strip--teal"></div>
                     <div class="project-card__body">
                         <div class="project-card__icon">💼</div>
@@ -888,13 +1034,13 @@
             <div class="contact-layout">
                 <!-- Left -->
                 <div>
-                    <p class="s-label">Contact</p>
-                    <h2 class="contact-headline">같이<br><em>일해요.</em></h2>
-                    <p class="contact-sub">
+                    <p class="s-label" data-reveal="up">Contact</p>
+                    <h2 class="contact-headline" data-reveal="up" style="--reveal-delay:0.08s">같이<br><em>일해요.</em></h2>
+                    <p class="contact-sub" data-reveal="up" style="--reveal-delay:0.18s">
                         새로운 기회나 협업에 열려 있습니다.<br>
                         아래 채널로 편하게 연락 주세요.
                     </p>
-                    <div class="contact-links">
+                    <div class="contact-links" data-reveal="up" style="--reveal-delay:0.28s">
                         <a class="contact-link" href="mailto:limkh930724@gmail.com">
                             <span class="contact-link__icon">✉️</span>
                             <span class="contact-link__text">limkh930724@gmail.com</span>
@@ -913,7 +1059,7 @@
                     </div>
                 </div>
                 <!-- Right: ID Card -->
-                <div class="contact-card">
+                <div class="contact-card" data-reveal="right">
                     <p class="contact-card__name">임광호</p>
                     <p class="contact-card__title mono">Java Backend Developer</p>
                     <div class="contact-card__divider"></div>
@@ -946,41 +1092,168 @@
     </section>
 
     <script>
-        (function () {
-            const html = document.documentElement;
-            const themeBtn = document.getElementById('themeBtn');
-            const THEME_KEY = 'hub-theme';
+    (function () {
+        /* ── 1. THEME ── */
+        const html = document.documentElement;
+        const themeBtn = document.getElementById('themeBtn');
+        const THEME_KEY = 'hub-theme';
+        function applyTheme(t) {
+            html.setAttribute('data-theme', t);
+            themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+        }
+        applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+        themeBtn.addEventListener('click', () => {
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(THEME_KEY, next);
+            applyTheme(next);
+        });
 
-            function applyTheme(t) {
-                html.setAttribute('data-theme', t);
-                themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+        /* ── 2. DOT NAV ── */
+        const sections = ['hero', 'career', 'skills', 'projects', 'contact'];
+        const dots = document.querySelectorAll('.dot-nav__dot');
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                document.getElementById(sections[i]).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+        const navObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                const idx = sections.indexOf(entry.target.id);
+                if (idx === -1) return;
+                dots.forEach(d => d.classList.remove('active'));
+                dots[idx].classList.add('active');
+            });
+        }, { threshold: 0.4 });
+        sections.forEach(id => { const el = document.getElementById(id); if (el) navObserver.observe(el); });
+
+        /* ── 3. CUSTOM CURSOR (desktop only) ── */
+        const cursorDot  = document.getElementById('cursorDot');
+        const cursorRing = document.getElementById('cursorRing');
+        if (cursorDot && cursorRing && window.matchMedia('(pointer: fine)').matches) {
+            let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+            let dotX = mouseX, dotY = mouseY;
+            let ringX = mouseX, ringY = mouseY;
+            let rafId;
+
+            document.addEventListener('mousemove', e => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function tickCursor() {
+                // Dot snaps fast; ring lags with lerp
+                dotX  += (mouseX - dotX)  * 0.85;
+                dotY  += (mouseY - dotY)  * 0.85;
+                ringX += (mouseX - ringX) * 0.12;
+                ringY += (mouseY - ringY) * 0.12;
+                cursorDot.style.left  = dotX  + 'px';
+                cursorDot.style.top   = dotY  + 'px';
+                cursorRing.style.left = ringX + 'px';
+                cursorRing.style.top  = ringY + 'px';
+                rafId = requestAnimationFrame(tickCursor);
             }
-            applyTheme(localStorage.getItem(THEME_KEY) || 'light');
-            themeBtn.addEventListener('click', () => {
-                const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-                localStorage.setItem(THEME_KEY, next);
-                applyTheme(next);
+            tickCursor();
+
+            // Scale up ring on hover targets
+            const hoverSels = 'a, button, .project-card, .stat-box, .skill-card, .career-card, .contact-link';
+            document.querySelectorAll(hoverSels).forEach(el => {
+                el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
             });
 
-            // Dot nav
-            const sections = ['hero', 'career', 'skills', 'projects', 'contact'];
-            const dots = document.querySelectorAll('.dot-nav__dot');
-            dots.forEach((dot, i) => {
-                dot.addEventListener('click', () => {
-                    document.getElementById(sections[i]).scrollIntoView({ behavior: 'smooth' });
-                });
+            // Hide cursor when leaving window
+            document.addEventListener('mouseleave', () => {
+                cursorDot.style.opacity  = '0';
+                cursorRing.style.opacity = '0';
             });
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (!entry.isIntersecting) return;
-                    const idx = sections.indexOf(entry.target.id);
-                    if (idx === -1) return;
-                    dots.forEach(d => d.classList.remove('active'));
-                    dots[idx].classList.add('active');
-                });
-            }, { threshold: 0.5 });
-            sections.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
-        })();
+            document.addEventListener('mouseenter', () => {
+                cursorDot.style.opacity  = '';
+                cursorRing.style.opacity = '';
+            });
+        }
+
+        /* ── 4. SCROLL REVEAL ── */
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    // Unobserve after reveal (one-shot)
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12 });
+
+        // data-reveal elements (career/skills labels, project cards, contact)
+        document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
+
+        // Career cards (left/right slide-in via .career-card CSS)
+        document.querySelectorAll('.career-card').forEach(el => revealObserver.observe(el));
+
+        // Skill cards (tag stagger via .skill-card.revealed CSS)
+        document.querySelectorAll('.skill-card').forEach(el => {
+            // Assign --i to each tag for stagger
+            el.querySelectorAll('.skill-tags .tag').forEach((tag, i) => {
+                tag.style.setProperty('--i', i);
+            });
+            revealObserver.observe(el);
+        });
+
+        /* ── 5. NUMBER COUNTER (hero stat boxes) ── */
+        function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+        function runCounter(numEl, target, duration) {
+            const span   = numEl.querySelector('span');
+            const suffix = span ? span.textContent : '';
+            // Replace innerHTML with a text node + span
+            const numNode = document.createTextNode('0');
+            numEl.innerHTML = '';
+            numEl.appendChild(numNode);
+            if (span) numEl.appendChild(span);
+
+            const startTime = performance.now();
+            function step(now) {
+                const elapsed  = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const value    = Math.round(easeOutCubic(progress) * target);
+                numNode.textContent = value;
+                if (progress < 1) requestAnimationFrame(step);
+                else numNode.textContent = target;
+            }
+            requestAnimationFrame(step);
+        }
+
+        // Stat boxes: run counters after CSS hero-entrance delay (~1 s)
+        const statData = [
+            { n: 1, target: 6   },
+            { n: 2, target: 60  },
+            { n: 3, target: 500 },
+            { n: 4, target: 20  },
+        ];
+        setTimeout(() => {
+            statData.forEach(({ n, target }) => {
+                const numEl = document.querySelector(
+                    `.hero-stat-grid .stat-box:nth-child(${n}) .stat-box__num`
+                );
+                if (numEl) runCounter(numEl, target, 1400);
+            });
+        }, 950);
+
+        /* ── 6. PROJECT CARD 3D TILT ── */
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect  = card.getBoundingClientRect();
+                const cx    = (e.clientX - rect.left) / rect.width  - 0.5;
+                const cy    = (e.clientY - rect.top)  / rect.height - 0.5;
+                card.style.transform =
+                    `perspective(700px) rotateY(${cx * 14}deg) rotateX(${-cy * 14}deg) translateY(-5px) scale(1.02)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+
+    })();
     </script>
 </body>
 </html>
