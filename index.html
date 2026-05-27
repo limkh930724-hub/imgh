@@ -77,6 +77,7 @@
             align-items: flex-start;
             padding-top: 6rem;
             padding-bottom: 6rem;
+            min-height: auto;
         }
         .section__inner {
             width: 100%;
@@ -677,25 +678,80 @@
         /* ══════════════════════════════════════
            RESPONSIVE
         ══════════════════════════════════════ */
+        /* ── 가로 스크롤 방지 ── */
+        html, body { overflow-x: hidden; }
+
+        /* ═══════════════════════════
+           TABLET  ≤ 900px
+        ═══════════════════════════ */
         @media (max-width: 900px) {
-            .hero-layout { grid-template-columns: 1fr; gap: 2rem; }
-            .hero-stat-grid { grid-template-columns: repeat(4, 1fr); }
+            .hero-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+            /* 2×2 그리드로 — 4열은 너무 좁음 */
+            .hero-stat-grid { grid-template-columns: repeat(2, 1fr); }
             .contact-layout { grid-template-columns: 1fr; gap: 2rem; }
+            /* ID 카드는 모바일에서 숨김 */
+            .contact-card { display: none; }
         }
+
+        /* ═══════════════════════════
+           MOBILE  ≤ 768px
+        ═══════════════════════════ */
         @media (max-width: 768px) {
+            /* 스크롤 스냅 해제 — 콘텐츠 클리핑 방지 */
+            html { scroll-snap-type: none; }
+            .section {
+                scroll-snap-align: none;
+                min-height: auto;
+                padding: 5rem 1.25rem 3.5rem;
+            }
+
             .dot-nav { display: none; }
-            .section { padding: 4rem 1.5rem; }
+
+            /* 히어로 */
+            .hero-name { font-size: clamp(2.6rem, 10vw, 3.5rem); }
+            .hero-philosophy { font-size: 1rem; }
+            .hero-tagline { font-size: 0.85rem; }
+            .hero-scroll-hint { display: none; }
+
+            /* 섹션 타이포 */
+            .s-title { font-size: clamp(1.5rem, 6vw, 2rem); }
+            .contact-headline { font-size: clamp(2rem, 9vw, 3rem); }
+
+            /* 그리드 */
             .career-grid { grid-template-columns: 1fr; }
             .skills-layout { grid-template-columns: repeat(2, 1fr); }
             .projects-grid { grid-template-columns: repeat(2, 1fr); }
             .hero-stat-grid { grid-template-columns: repeat(2, 1fr); }
+
+            /* career 카드 — 모바일에선 슬라이드 없이 바로 노출 */
+            .career-card:first-child { transform: none; }
+            .career-card:last-child  { transform: none; }
+            .career-card { opacity: 1; }
+
+            /* 프로젝트 카드 — 3D 틸트 제거 */
+            .project-card { transform-style: flat !important; will-change: auto; }
+
+            /* orb 사이즈 축소 */
+            #hero::before { width: 300px; height: 300px; }
+            #hero::after  { width: 200px; height: 200px; }
         }
+
+        /* ═══════════════════════════
+           SMALL PHONE  ≤ 520px
+        ═══════════════════════════ */
         @media (max-width: 520px) {
+            .section { padding: 4.5rem 1rem 3rem; }
+
+            .hero-name { font-size: clamp(2.2rem, 11vw, 3rem); }
+            .hero-ctas { flex-direction: column; }
+            .btn { justify-content: center; width: 100%; }
+
             .skills-layout { grid-template-columns: 1fr; }
             .projects-grid { grid-template-columns: 1fr; }
-            .hero-ctas { flex-direction: column; }
-            .btn { justify-content: center; }
             .hero-stat-grid { grid-template-columns: repeat(2, 1fr); }
+
+            .about-chips { gap: 0.5rem; }
+            .chip { font-size: 0.72rem; padding: 0.35rem 0.75rem; }
         }
     </style>
 </head>
@@ -730,9 +786,9 @@
                         안정성을 설계하는 개발자입니다.
                     </p>
                     <p class="hero-tagline">
-                        공공 재난·안전 시스템을 6년간 운영·개발하며<br>
-                        60개 부서, 연 500건 이상의 요청을 처리했습니다.<br>
-                        단순 수정이 아닌, 구조적 문제를 찾아 개선하는<br>
+                        공공 재난·안전 시스템을 6년간 운영·개발하며
+                        60개 부서, 연 500건 이상의 요청을 처리했습니다.
+                        단순 수정이 아닌, 구조적 문제를 찾아 개선하는
                         방식으로 일해왔습니다.
                     </p>
 
