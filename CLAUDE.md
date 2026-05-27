@@ -146,7 +146,7 @@ fetchAndCacheSP500()           (on-demand when overlay toggled, Yahoo v8/chart r
 
 ### CORS proxy URL encoding rule
 
-**Always** wrap the full Yahoo Finance URL in `encodeURIComponent` before appending to `CORS_PROXY`. Any `&` in the Yahoo URL that is not encoded will be parsed as a separate query parameter by corsproxy.io, causing Yahoo to receive an incomplete URL:
+**Always** wrap the full Yahoo Finance URL in `encodeURIComponent` before appending to `CORS_PROXY`. Any `&` in the Yahoo URL that is not encoded will be parsed as a separate query parameter by the proxy handler, causing Yahoo to receive an incomplete URL:
 
 ```js
 // Correct
@@ -155,6 +155,8 @@ const url = CORS_PROXY + encodeURIComponent('https://query1.finance.yahoo.com/v8
 // Wrong — &interval=1d is parsed as a separate query param by the proxy handler, not forwarded to Yahoo
 const url = `${CORS_PROXY}https://...?range=2y&interval=1d`;
 ```
+
+If you add a new upstream domain to fetch via the proxy, also add it to the `ALLOWED` array in `api/proxy.js`.
 
 ### S&P 500 overlay matching
 
@@ -194,6 +196,20 @@ Below the tab panels, outside the `.main-content` grid, sit two additional secti
 - Exchange rates (`FX_REFRESH`): 3600 seconds
 - Market ticker (`MKT_REFRESH`): 3600 seconds
 
+## localStorage key map
+
+All persisted state lives in `localStorage` (or `sessionStorage` for auth). Keys by page:
+
+| Key | Page | Contents |
+|---|---|---|
+| `hub-theme` | `index.html`, `casestudy.html` | `'light'` \| `'dark'` |
+| `fg-lang` | `fear-greed.html` | `'en'` \| `'ko'` |
+| `fg-theme` | `fear-greed.html` | `'light'` \| `'dark'` |
+| `fg-portfolio` | `fear-greed.html` | `portfolioItems[]` (without `loading` field) |
+| `fg-watchlist` | `fear-greed.html` (Watchlist tab) | watchlist ticker array |
+| `fg-workout` | `workout.html` | `{sessions, checks, categories}` |
+| `pt-auth` | `portfolio_tracker.html` | session auth flag (`sessionStorage`) |
+
 ## Coding conventions
 
 - **Indentation**: 4 spaces
@@ -204,27 +220,27 @@ Below the tab panels, outside the `.main-content` grid, sit two additional secti
 
 ## Deployment
 
-Deployed to Vercel. The `api/` directory contains serverless functions (ESM, `export default async function handler`).
+Deployed to Vercel. No `vercel.json` — Vercel's default static file serving handles all HTML pages. The `api/` directory is auto-detected as serverless functions (ESM, `export default async function handler`).
 
 Environment variable required in Vercel:
 - `DATA_GO_KR_API_KEY` (fallback name: `PUBLIC_DATA_API_KEY`) — 공공데이터포털 key for `api/real-estate.js`. Without it, the endpoint silently returns `MOCK_ITEMS`.
 
 No other env vars are needed; all other external calls go through `api/proxy.js` which has no secrets.
 
+### Serverless functions (`api/`)
+
+- **`api/proxy.js`** — CORS proxy. `ALLOWED` array gates which upstream domains are permitted (CNN dataviz, Yahoo Finance, open.er-api.com). To proxy a new domain, add its prefix to `ALLOWED`. Responses are cached with `s-maxage=60, stale-while-revalidate=300`.
+- **`api/real-estate.js`** — Korean apartment transaction data from 공공데이터포털 (data.go.kr), with `MOCK_ITEMS` fallback. Supports region codes for Seoul/Gyeonggi districts. Used by `agents.html`.
+
+### Service Worker (`sw.js`)
+
+Current `CACHE_NAME = 'fg-cache-v8'`. PRECACHE includes the main pages and assets. **Note:** `disaster.html`, `Certificate.html`, `portfolio_tracker.html`, and `casestudy*.html` are not yet in PRECACHE. When adding a new page, also add it to PRECACHE and bump `CACHE_NAME` to invalidate on deploy.
+
 ### Other files
 
-- **`api/proxy.js`** — Vercel serverless function acting as CORS proxy. Allowlist: CNN dataviz, Yahoo Finance, open.er-api.com. Used in production; locally any static server works since the browser hits the same origin.
-- **`api/real-estate.js`** — Vercel serverless function for Korean apartment transaction data. Fetches from 공공데이터포털 (data.go.kr) sale/rent endpoints, with MOCK_ITEMS fallback. Supports region codes for Seoul/Gyeonggi districts. Used by `agents.html`.
-- **`sw.js`** — Service Worker for PWA offline support. Current `CACHE_NAME = 'fg-cache-v8'`. PRECACHE includes `/`, `/index.html`, `/fear-greed.html`, `/asset.html`, `/compound.html`, `/goal.html`, `/journal.html`, `/backtest.html`, `/workout.html`, `/agents.html`, `/commerce.html`, `/manifest.json`, `/icon.svg`. **Note:** `disaster.html`, `Certificate.html`, `portfolio_tracker.html`, and `casestudy*.html` are not yet in PRECACHE. Bump `CACHE_NAME` string to invalidate on deploy; add new pages to PRECACHE when created. Note: `NETWORK_FIRST_PREFIXES` still contains a legacy `https://corsproxy.io` entry from before the Vercel proxy migration — harmless but unused.
 - **`manifest.json`** + **`icon.svg`** — PWA web app manifest and home screen icon. Referenced in `sw.js` PRECACHE and `<link rel="manifest">` in `fear-greed.html`, but **these files do not currently exist** in the repo and need to be created.
 - **`index.backup.html`** — snapshot of `index.html` before a major restructure; not served, safe to ignore.
-- **`.codex-*`** — local test artifacts from Codex experiments; not tracked, safe to ignore.
-- **`preview-*.png`, `final-*.png`, `mobile-*.png`** — screenshot files from browser testing; local only, gitignored.
-- **`.chrome-check/`** — browser screenshot artifacts from Playwright/Chrome testing; local only, safe to ignore.
 - **`.superpowers/`** — brainstorm and design artifacts generated by the superpowers skill system; not served.
 - **`.claude/worktrees/`** — isolated git worktrees created by the Claude Code worktree skill; safe to ignore.
-- **`docs/superpowers/specs/`** — design specs (`*-design.md`) for planned and completed features.
-- **`docs/superpowers/plans/`** — implementation plans (no `-design` suffix) generated from specs.
-  - Pending (spec + plan): commerce redesign (`2026-04-17-commerce-redesign.md` — dark slate hero panel + 3×3 tile launcher home, ERP-style, full restyle of `commerce.html`); UI Lab (`2026-04-17-ui-lab.md` — React+Tailwind CDN showcase page, implemented and reverted, plan ready to re-implement); disaster simulator enhancements (`2026-04-22-disaster-sim.md`); department store e-commerce (`2026-05-20-department-store.md` — full replacement of `commerce.html` with 백화점형 4-tab shopping app: 홈/쇼핑몰/장바구니·주문/관리자, React CDN + StoreContext, mockData 5 brands + 15 products, localStorage `dept-*` keys); commerce case study (`2026-05-20-casestudy-commerce.md` — new `casestudy.html` 4-tab case study page for the commerce system, Vanilla JS, `index.html` card addition).
-  - Pending (spec only): hub redesign (`2026-04-16-hub-redesign-design.md` — black-and-white agency style, supersedes `2026-04-06` version).
-  - Completed: disaster simulator (`disaster.html`); commerce system; backtest 3-ticker; asset calculator hub; portfolio hub + fear-greed split; calculators; journal; backtest; watchlist tab; PWA + Calendar + Share; market features (interpreter + portfolio calculator); case study gallery + 3 detail pages; portfolio tracker with password gate.
+- **`docs/superpowers/specs/`** — design specs (`*-design.md`) for planned features.
+- **`docs/superpowers/plans/`** — implementation plans generated from specs. Check this directory for pending feature plans before starting new work to avoid duplication.
