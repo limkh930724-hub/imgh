@@ -203,6 +203,245 @@
             .dot-nav { display: none; }
             .section { padding: 3rem 1.25rem; }
         }
+
+        /* ── About ── */
+        .about-headline {
+            font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        .about-body {
+            font-size: 1rem;
+            line-height: 1.85;
+            color: var(--text-2);
+            max-width: 640px;
+            margin-bottom: 2.5rem;
+        }
+        .about-chips {
+            display: flex; flex-wrap: wrap; gap: 0.75rem;
+        }
+        .chip {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            background: var(--accent-2);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 0.82rem; font-weight: 700;
+        }
+
+        /* ── Career ── */
+        .career-title {
+            font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+            font-weight: 800; letter-spacing: -0.02em;
+            margin-bottom: 2.5rem; color: var(--text);
+        }
+        .career-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .career-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+        }
+        .career-period {
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .career-role {
+            font-size: 1.1rem; font-weight: 800;
+            color: var(--text); margin-bottom: 0.25rem;
+        }
+        .career-project {
+            font-size: 0.875rem; font-weight: 600;
+            color: var(--text-2); margin-bottom: 0.25rem;
+        }
+        .career-meta {
+            font-size: 0.78rem; color: var(--text-2);
+            margin-bottom: 1.25rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .career-list {
+            list-style: none;
+            display: flex; flex-direction: column; gap: 0.55rem;
+            margin-bottom: 1.25rem;
+        }
+        .career-list li {
+            font-size: 0.875rem; line-height: 1.6; color: var(--text-2);
+            padding-left: 1rem; position: relative;
+        }
+        .career-list li::before {
+            content: '–';
+            position: absolute; left: 0;
+            color: var(--accent);
+        }
+        .career-tags {
+            display: flex; flex-wrap: wrap; gap: 0.4rem;
+        }
+        .tag {
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            font-size: 0.72rem; font-weight: 700;
+            color: var(--text-2);
+        }
+        @media (max-width: 768px) {
+            .career-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Skills ── */
+        .skills-title {
+            font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+            font-weight: 800; letter-spacing: -0.02em;
+            margin-bottom: 2rem; color: var(--text);
+        }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+        .skill-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+        }
+        .skill-card__title {
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--accent); margin-bottom: 0.75rem;
+        }
+        .skill-tags {
+            display: flex; flex-wrap: wrap; gap: 0.4rem;
+        }
+        @media (max-width: 768px) {
+            .skills-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .skills-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ── Projects ── */
+        .projects-header { margin-bottom: 2rem; }
+        .projects-title {
+            font-size: clamp(1.6rem, 3.5vw, 2.25rem);
+            font-weight: 800; letter-spacing: -0.02em;
+            color: var(--text); margin-bottom: 0.4rem;
+        }
+        .projects-subtitle {
+            font-size: 0.875rem; color: var(--text-2);
+        }
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            display: flex; flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            text-decoration: none; color: inherit;
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+            border-color: var(--accent);
+        }
+        .project-card__icon {
+            font-size: 1.6rem; margin-bottom: 0.75rem;
+        }
+        .project-card__name {
+            font-size: 0.95rem; font-weight: 800;
+            color: var(--text); margin-bottom: 0.2rem;
+        }
+        .project-card__sub {
+            font-size: 0.78rem; color: var(--text-2);
+            margin-bottom: 0.85rem; line-height: 1.5;
+            flex: 1;
+        }
+        .project-card__tags {
+            display: flex; flex-wrap: wrap; gap: 0.35rem;
+            margin-bottom: 0.85rem;
+        }
+        .project-card__link {
+            font-size: 0.78rem; font-weight: 700;
+            color: var(--accent); align-self: flex-start;
+        }
+        @media (max-width: 768px) {
+            .projects-grid { grid-template-columns: 1fr; }
+        }
+        @media (min-width: 481px) and (max-width: 768px) {
+            .projects-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ── Contact ── */
+        .contact-headline {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800; letter-spacing: -0.03em;
+            color: var(--text); margin-bottom: 0.75rem;
+        }
+        .contact-sub {
+            font-size: 1rem; color: var(--text-2);
+            margin-bottom: 2.5rem; line-height: 1.7;
+        }
+        .contact-links {
+            display: flex; flex-direction: column; gap: 1rem;
+            margin-bottom: 3rem;
+        }
+        .contact-link {
+            display: inline-flex; align-items: center; gap: 0.75rem;
+            font-size: 1rem; font-weight: 600;
+            color: var(--text); text-decoration: none;
+            transition: color 0.15s;
+        }
+        .contact-link:hover { color: var(--accent); }
+        .contact-link__icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            background: var(--bg-2); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+        .contact-footer {
+            font-size: 0.78rem; color: var(--text-2);
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+        }
+
+        /* ── Final Polish ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .section__inner {
+            animation: fadeUp 0.5s ease both;
+        }
+
+        #hero {
+            background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+        [data-theme="light"] #hero {
+            background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        @media (max-width: 480px) {
+            .hero-ctas { flex-direction: column; }
+            .btn { justify-content: center; }
+            .about-chips { gap: 0.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -243,40 +482,301 @@
     <!-- 2. About -->
     <section class="section" id="about">
         <div class="section__inner">
-            <!-- Task 3 -->
+            <p class="section-label">About</p>
+            <h2 class="about-headline">안정성을 설계하는<br>개발자입니다.</h2>
+            <p class="about-body">
+                서울시 재난·안전 시스템을 6년간 운영·개발하며 60개 부서와 협업하고
+                연 500건 이상의 유지관리 요청을 처리했습니다.<br><br>
+                단순 수정이 아닌, 운영 이력을 기반으로 구조적 문제를 도출하고
+                개선안을 설계·반영하는 방식으로 일해왔습니다.
+                운영 안정성과 확장성을 동시에 고려한 개발을 지향합니다.
+            </p>
+            <div class="about-chips">
+                <span class="chip">📍 서울</span>
+                <span class="chip">💼 6년차</span>
+                <span class="chip">🏛 공공 SI/SM</span>
+            </div>
         </div>
     </section>
 
     <!-- 3. Career -->
     <section class="section section--career" id="career">
         <div class="section__inner">
-            <!-- Task 4 -->
+            <p class="section-label">Career</p>
+            <h2 class="career-title">경력</h2>
+            <div class="career-grid">
+
+                <!-- SM -->
+                <div class="career-card">
+                    <p class="career-period">2020.12 — 2023.01</p>
+                    <p class="career-role">SM · 시스템 유지관리</p>
+                    <p class="career-project">서울안전누리 · 통합재난관리시스템</p>
+                    <p class="career-meta">연 4~5억 규모 · 2인 운영 · 60개 부서 협업</p>
+                    <ul class="career-list">
+                        <li>연 500건 이상 유지관리 요청 처리 (요구사항 분석 → 분류·처리)</li>
+                        <li>Java / eGovFrame 기반 기능 수정 및 개선</li>
+                        <li>Oracle SQL 튜닝 및 조회 성능 개선</li>
+                        <li>GIS 기반 재난 정보 레이어 및 표출 로직 개선</li>
+                        <li>엑셀 대량 처리 기능 개발 및 안정화</li>
+                        <li>웹 취약점 점검·보안 패치 / 웹 접근성(WA) 개선</li>
+                        <li>운영 환경 변경 영향도 분석 및 직접 배포</li>
+                    </ul>
+                    <div class="career-tags">
+                        <span class="tag">Java</span>
+                        <span class="tag">eGovFramework</span>
+                        <span class="tag">Oracle</span>
+                        <span class="tag">JSP</span>
+                        <span class="tag">GIS</span>
+                        <span class="tag">Eclipse</span>
+                    </div>
+                </div>
+
+                <!-- SI -->
+                <div class="career-card">
+                    <p class="career-period">2023.02 — 현재</p>
+                    <p class="career-role">SI · 시스템 고도화</p>
+                    <p class="career-project">재난정보관리시스템 고도화 사업</p>
+                    <p class="career-meta">약 20억 규모 · 5인 개발팀 · COSA 등록 공식 이력</p>
+                    <ul class="career-list">
+                        <li>사업계획서·기술제안서 작성 참여</li>
+                        <li>기존 시스템 구조 분석 및 개선 설계 / DB 논리·물리 설계</li>
+                        <li>화면 설계서·기능 정의서 작성 / 감리 대응 및 산출물 관리</li>
+                        <li>Java 기반 신규 기능 개발</li>
+                        <li>GIS 기반 지도 기능 고도화 및 상세정보 확장 개발</li>
+                        <li>엑셀 대량 처리 기능 구조 개선 및 표준화</li>
+                        <li>SM 경험 기반 구조적 문제 도출 및 개선안 반영</li>
+                    </ul>
+                    <div class="career-tags">
+                        <span class="tag">Java</span>
+                        <span class="tag">eGovFramework</span>
+                        <span class="tag">Oracle</span>
+                        <span class="tag">JSP</span>
+                        <span class="tag">GIS</span>
+                        <span class="tag">IntelliJ</span>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </section>
 
     <!-- 4. Skills -->
     <section class="section" id="skills">
         <div class="section__inner">
-            <!-- Task 5 -->
+            <p class="section-label">Skills</p>
+            <h2 class="skills-title">기술 스택</h2>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <p class="skill-card__title">Backend</p>
+                    <div class="skill-tags">
+                        <span class="tag">Java</span>
+                        <span class="tag">eGovFramework</span>
+                        <span class="tag">JSP</span>
+                        <span class="tag">Servlet</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <p class="skill-card__title">Database</p>
+                    <div class="skill-tags">
+                        <span class="tag">Oracle</span>
+                        <span class="tag">SQL Tuning</span>
+                        <span class="tag">DB 설계</span>
+                        <span class="tag">데이터 정합성</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <p class="skill-card__title">GIS · Map</p>
+                    <div class="skill-tags">
+                        <span class="tag">GIS 레이어</span>
+                        <span class="tag">지도 서비스</span>
+                        <span class="tag">공간 데이터</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <p class="skill-card__title">Frontend</p>
+                    <div class="skill-tags">
+                        <span class="tag">JavaScript</span>
+                        <span class="tag">HTML/CSS</span>
+                        <span class="tag">Canvas API</span>
+                        <span class="tag">React (CDN)</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <p class="skill-card__title">Tools</p>
+                    <div class="skill-tags">
+                        <span class="tag">IntelliJ</span>
+                        <span class="tag">Eclipse</span>
+                        <span class="tag">Git</span>
+                        <span class="tag">SVN</span>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <p class="skill-card__title">Personal Projects</p>
+                    <div class="skill-tags">
+                        <span class="tag">Vanilla JS</span>
+                        <span class="tag">Chart.js</span>
+                        <span class="tag">Vercel</span>
+                        <span class="tag">REST API</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- 5. Projects -->
     <section class="section" id="projects">
         <div class="section__inner">
-            <!-- Task 6 -->
+            <p class="section-label">Projects</p>
+            <div class="projects-header">
+                <h2 class="projects-title">사이드 프로젝트</h2>
+                <p class="projects-subtitle">업무 외 시간에 직접 기획·설계·개발한 개인 프로젝트입니다.</p>
+            </div>
+            <div class="projects-grid">
+
+                <a class="project-card" href="fear-greed.html">
+                    <div class="project-card__icon">📈</div>
+                    <p class="project-card__name">공포탐욕지수</p>
+                    <p class="project-card__sub">CNN Fear & Greed Index 실시간 조회. 캘린더 히트맵, S&P500 오버레이, 포트폴리오 계산기.</p>
+                    <div class="project-card__tags">
+                        <span class="tag">Canvas API</span><span class="tag">Chart.js</span><span class="tag">Yahoo Finance</span>
+                    </div>
+                    <span class="project-card__link">Live →</span>
+                </a>
+
+                <a class="project-card" href="commerce.html">
+                    <div class="project-card__icon">🛒</div>
+                    <p class="project-card__name">커머스 시스템</p>
+                    <p class="project-card__sub">OMS·WMS·PLM 통합 커머스. 관리자 대시보드, 장바구니·주문 플로우.</p>
+                    <div class="project-card__tags">
+                        <span class="tag">React CDN</span><span class="tag">Context API</span>
+                    </div>
+                    <span class="project-card__link">Live →</span>
+                </a>
+
+                <a class="project-card" href="backtest.html">
+                    <div class="project-card__icon">📊</div>
+                    <p class="project-card__name">백테스트 비교기</p>
+                    <p class="project-card__sub">3개 티커 동시 백테스트. 수익률·MDD·샤프지수 비교 테이블.</p>
+                    <div class="project-card__tags">
+                        <span class="tag">Yahoo Finance API</span><span class="tag">Chart.js</span>
+                    </div>
+                    <span class="project-card__link">Live →</span>
+                </a>
+
+                <a class="project-card" href="disaster.html">
+                    <div class="project-card__icon">🚨</div>
+                    <p class="project-card__name">재난 대응 시뮬레이터</p>
+                    <p class="project-card__sub">대피소 지도, 재난문자 시뮬레이션, 경보·경로 안내. 실무 도메인 기반 기획.</p>
+                    <div class="project-card__tags">
+                        <span class="tag">GIS · Map</span><span class="tag">Vanilla JS</span>
+                    </div>
+                    <span class="project-card__link">Live →</span>
+                </a>
+
+                <a class="project-card" href="workout.html">
+                    <div class="project-card__icon">💪</div>
+                    <p class="project-card__name">운동 루틴 트래커</p>
+                    <p class="project-card__sub">세션 기록, 체크리스트, 주간 스트릭, 통계 대시보드.</p>
+                    <div class="project-card__tags">
+                        <span class="tag">localStorage</span><span class="tag">Vanilla JS</span>
+                    </div>
+                    <span class="project-card__link">Live →</span>
+                </a>
+
+                <a class="project-card" href="portfolio_tracker.html">
+                    <div class="project-card__icon">💼</div>
+                    <p class="project-card__name">포트폴리오 트래커</p>
+                    <p class="project-card__sub">비밀번호 게이트, 스냅샷 기반 수익률 추적, 섹터 도넛 차트.</p>
+                    <div class="project-card__tags">
+                        <span class="tag">SHA-256 Auth</span><span class="tag">Canvas API</span>
+                    </div>
+                    <span class="project-card__link">Live →</span>
+                </a>
+
+            </div>
         </div>
     </section>
 
     <!-- 6. Contact -->
     <section class="section" id="contact">
         <div class="section__inner">
-            <!-- Task 7 -->
+            <p class="section-label">Contact</p>
+            <h2 class="contact-headline">같이 일해요.</h2>
+            <p class="contact-sub">
+                새로운 기회나 협업에 열려 있습니다.<br>
+                아래 채널로 편하게 연락 주세요.
+            </p>
+            <div class="contact-links">
+                <a class="contact-link" href="mailto:limkh930724@gmail.com">
+                    <span class="contact-link__icon">✉️</span>
+                    limkh930724@gmail.com
+                </a>
+                <a class="contact-link" href="https://github.com/limkh930724-hub" target="_blank" rel="noopener">
+                    <span class="contact-link__icon">🐙</span>
+                    github.com/limkh930724-hub
+                </a>
+                <a class="contact-link" href="/" id="siteLink">
+                    <span class="contact-link__icon">🌐</span>
+                    <span id="siteLinkText">포트폴리오 사이트</span>
+                </a>
+            </div>
+            <p class="contact-footer">© 2026 임광호 · Java Backend Developer</p>
         </div>
     </section>
 
     <script>
-        // Task 8: theme toggle + dot nav JS
+        (function () {
+            // ── Theme ──
+            const html = document.documentElement;
+            const themeBtn = document.getElementById('themeBtn');
+            const THEME_KEY = 'hub-theme';
+
+            function applyTheme(t) {
+                html.setAttribute('data-theme', t);
+                themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+            }
+
+            const saved = localStorage.getItem(THEME_KEY) || 'light';
+            applyTheme(saved);
+
+            themeBtn.addEventListener('click', () => {
+                const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                localStorage.setItem(THEME_KEY, next);
+                applyTheme(next);
+            });
+
+            // ── Dot Nav ──
+            const sections = ['hero', 'about', 'career', 'skills', 'projects', 'contact'];
+            const dots = document.querySelectorAll('.dot-nav__dot');
+
+            // Click → smooth scroll
+            dots.forEach((dot, i) => {
+                dot.addEventListener('click', () => {
+                    document.getElementById(sections[i]).scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            // IntersectionObserver → active dot
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const idx = sections.indexOf(entry.target.id);
+                        if (idx === -1) return;
+                        dots.forEach(d => d.classList.remove('active'));
+                        dots[idx].classList.add('active');
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) observer.observe(el);
+            });
+
+            // ── Site Link ──
+            document.getElementById('siteLinkText').textContent = window.location.host || '포트폴리오 사이트';
+            document.getElementById('siteLink').href = window.location.origin;
+        })();
     </script>
 </body>
 </html>
