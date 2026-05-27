@@ -699,12 +699,11 @@
            MOBILE  ≤ 768px
         ═══════════════════════════ */
         @media (max-width: 768px) {
-            .section {
+            /* 모든 섹션 최소 100vh — 스냅 경계가 뚫리지 않도록 */
+            .section,
+            .section--free {
                 min-height: 100vh;
                 padding: 5rem 1.25rem 3.5rem;
-            }
-            .section--free {
-                min-height: auto;
             }
 
             .dot-nav { display: none; }
