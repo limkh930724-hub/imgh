@@ -1174,7 +1174,7 @@
             reset(random) {
                 this.x  = random ? Math.random() * W : Math.random() * W;
                 this.y  = random ? Math.random() * H : Math.random() * H;
-                const spd = isMobile() ? 0.35 : 0.55;
+                const spd = isMobile() ? 0.18 : 0.28;
                 const angle = Math.random() * Math.PI * 2;
                 const speed = (Math.random() * 0.5 + 0.3) * spd;
                 this.vx = Math.cos(angle) * speed;
