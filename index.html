@@ -122,6 +122,82 @@
             margin-bottom: 1rem;
         }
 
+        /* ── Hero ── */
+        .hero-content { max-width: 680px; }
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+        .hero-eyebrow::before {
+            content: '';
+            display: inline-block; width: 24px; height: 2px;
+            background: var(--accent);
+        }
+        .hero-name {
+            font-size: clamp(2.4rem, 6vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .hero-title {
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+        .hero-tagline {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: var(--text-2);
+            max-width: 520px;
+            margin-bottom: 2.5rem;
+        }
+        .hero-ctas {
+            display: flex; gap: 0.75rem; flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.65rem 1.4rem;
+            border-radius: 8px;
+            font-family: inherit; font-size: 0.875rem; font-weight: 700;
+            cursor: pointer; text-decoration: none;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .btn--primary {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+        }
+        [data-theme="dark"] .btn--primary { color: #0f1117; }
+        .btn--outline {
+            background: transparent;
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+        .btn--outline:hover { border-color: var(--accent); color: var(--accent); }
+        .hero-scroll {
+            position: absolute;
+            bottom: 2rem; left: 50%; transform: translateX(-50%);
+            font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--text-2);
+            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+        }
+        .hero-scroll::after {
+            content: '';
+            display: block; width: 1px; height: 40px;
+            background: linear-gradient(to bottom, var(--text-2), transparent);
+            animation: scrollLine 1.6s ease-in-out infinite;
+        }
+        @keyframes scrollLine {
+            0%, 100% { opacity: 0.3; transform: scaleY(0.6); }
+            50% { opacity: 1; transform: scaleY(1); }
+        }
+
         /* ── Responsive ── */
         @media (max-width: 768px) {
             .dot-nav { display: none; }
@@ -147,7 +223,20 @@
     <!-- 1. Hero -->
     <section class="section" id="hero">
         <div class="section__inner">
-            <!-- Task 2 -->
+            <div class="hero-content">
+                <p class="hero-eyebrow">Portfolio 2026</p>
+                <h1 class="hero-name">임광호</h1>
+                <p class="hero-title">Java Backend Developer</p>
+                <p class="hero-tagline">
+                    공공 재난·안전 시스템 6년,<br>
+                    운영(SM)부터 고도화(SI)까지 전 과정을 경험한 백엔드 개발자입니다.
+                </p>
+                <div class="hero-ctas">
+                    <a class="btn btn--primary" href="https://github.com/limkh930724-hub" target="_blank" rel="noopener">GitHub ↗</a>
+                    <a class="btn btn--outline" href="#contact">Contact</a>
+                </div>
+            </div>
+            <div class="hero-scroll" aria-hidden="true">scroll</div>
         </div>
     </section>
 
