@@ -35,11 +35,12 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 |---|---|---|
 | `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact | ~1400 |
 | `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3577 |
-| `asset.html` | 자산 계산기 통합 허브 — 3 tabs: compound, goal, journal | ~664 |
-| `compound.html` | Redirect stub → `/asset.html?tab=compound` | 12 |
-| `goal.html` | Redirect stub → `/asset.html?tab=goal` | 12 |
-| `journal.html` | Redirect stub → `/asset.html?tab=journal` | 12 |
-| `backtest.html` | 백테스트 비교기 (up to 3-ticker comparison) | ~1197 |
+| `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal | ~900 |
+| `asset.html` | Redirect stub → `/finance.html?tab=compound` | 6 |
+| `compound.html` | Redirect stub → `/finance.html?tab=compound` | 12 |
+| `goal.html` | Redirect stub → `/finance.html?tab=goal` | 12 |
+| `journal.html` | Redirect stub → `/finance.html?tab=journal` | 12 |
+| `backtest.html` | Redirect stub → `/finance.html?tab=backtest` | 6 |
 | `workout.html` | 운동 루틴 (workout routine dashboard) | ~431 |
 | `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~249 |
 | `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1478 |
