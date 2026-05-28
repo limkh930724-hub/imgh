@@ -125,7 +125,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 /* ── TREND CHART ── */
 .trend-card{
   background:var(--surf);border:1px solid var(--bd);border-radius:14px;
-  padding:14px 16px 10px;overflow:hidden;
+  padding:14px 16px 10px;overflow:visible;
 }
 .trend-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .trend-title{font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
@@ -345,7 +345,7 @@ canvas{display:block;width:100%;cursor:crosshair;border-radius:8px}
   .hcard-pct{font-size:18px}
   .top-right{gap:4px}
   .cal-btn span{display:none}
-  canvas#trendCanvas{height:72px!important}
+  canvas#trendCanvas{height:120px!important}
 }
 
 /* back link in topbar */
@@ -685,7 +685,7 @@ function trendCardHTML() {
       <div class="trend-hint">${diff != null ? `${diffLabel} · ` : ''}hover로 상세 보기</div>
     </div>
     <div class="chart-wrap">
-      <canvas id="trendCanvas" style="width:100%;height:clamp(64px,12vw,88px);display:block"></canvas>
+      <canvas id="trendCanvas" style="width:100%;height:clamp(140px,16vw,200px);display:block"></canvas>
       <div class="chart-tooltip" id="chartTip"></div>
     </div>
   </div>`;
@@ -920,12 +920,13 @@ function attachChartHover() {
     `;
 
     // smart tooltip positioning
-    const tipW = 180;
+    const tipW = tip.offsetWidth || 190;
     const wrapW = canvas.parentElement.offsetWidth;
     const { H: metaH } = canvas._meta;
     const cx = xOf(closest) / scaleX;
     let tx = cx + 14;
-    if (tx + tipW > wrapW - 8) tx = cx - tipW - 14;
+    if (tx + tipW > wrapW - 4) tx = cx - tipW - 14;
+    if (tx < 4) tx = 4;
     const scaleY = rect.height / metaH;
     const cy = canvas._meta.yOf(s.totalEval) * scaleY;
     const tipH = tip.offsetHeight || 110;
