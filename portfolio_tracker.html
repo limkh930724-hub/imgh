@@ -697,14 +697,14 @@ function drawChart(hoverIdx = -1) {
 
   const DPR = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
-  const W = rect.width || canvas.parentElement?.clientWidth || 400;
-  const H = 88;
+  const W = rect.width  || canvas.parentElement?.clientWidth  || 400;
+  const H = rect.height || canvas.parentElement?.clientHeight || 160;
   canvas.width  = Math.round(W * DPR);
   canvas.height = Math.round(H * DPR);
   const ctx = canvas.getContext('2d');
   ctx.scale(DPR, DPR);
 
-  const PAD = { t: 14, r: 18, b: 24, l: 56 };
+  const PAD = { t: 20, r: 18, b: 28, l: 60 };
   const iw  = W - PAD.l - PAD.r;
   const ih  = H - PAD.t - PAD.b;
   const n   = snapshots.length;
@@ -738,10 +738,10 @@ function drawChart(hoverIdx = -1) {
   const subCol    = cv('--sub');
 
   // ── Y-axis grid + labels
-  ctx.font = '9px JetBrains Mono, monospace';
+  ctx.font = '10px JetBrains Mono, monospace';
   ctx.textAlign = 'right';
-  for (let i = 0; i <= 3; i++) {
-    const v = minV + (maxV - minV) * i / 3;
+  for (let i = 0; i <= 4; i++) {
+    const v = minV + (maxV - minV) * i / 4;
     const y = yOf(v);
     ctx.strokeStyle = withAlpha(cv('--bd'), 0.5);
     ctx.lineWidth = 0.5;
@@ -794,7 +794,7 @@ function drawChart(hoverIdx = -1) {
   ctx.setLineDash([]);
 
   // ── 범례
-  ctx.font = '8px Noto Sans KR, sans-serif';
+  ctx.font = '10px Noto Sans KR, sans-serif';
   ctx.textAlign = 'left';
   ctx.fillStyle = withAlpha(posCol, 0.9);
   ctx.fillText('━ 평가액', PAD.l + 4, PAD.t + 10);
@@ -851,8 +851,8 @@ function drawChart(hoverIdx = -1) {
     // x-label
     ctx.textAlign = 'center';
     ctx.fillStyle = highlight ? cv('--text') : cv('--dim');
-    ctx.font = highlight ? 'bold 9px Noto Sans KR, sans-serif' : '9px Noto Sans KR, sans-serif';
-    ctx.fillText(s.label, xOf(i), PAD.t + ih + 14);
+    ctx.font = highlight ? 'bold 11px Noto Sans KR, sans-serif' : '10px Noto Sans KR, sans-serif';
+    ctx.fillText(s.label, xOf(i), PAD.t + ih + 18);
   });
 
   canvas._meta = { xOf, yOf, iw, ih, PAD, W, H };
