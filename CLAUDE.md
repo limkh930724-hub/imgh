@@ -35,7 +35,7 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 |---|---|---|
 | `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact | ~1400 |
 | `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3577 |
-| `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal | ~900 |
+| `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal | ~1437 |
 | `asset.html` | Redirect stub → `/finance.html?tab=compound` | 6 |
 | `compound.html` | Redirect stub → `/finance.html?tab=compound` | 12 |
 | `goal.html` | Redirect stub → `/finance.html?tab=goal` | 12 |
@@ -51,6 +51,8 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 | `casestudy-commerce.html` | 커머스 시스템 기획 케이스 스터디 상세 | ~366 |
 | `casestudy-feargreed.html` | 공포탐욕지수 기획 케이스 스터디 상세 | ~374 |
 | `casestudy-disaster.html` | 재난 대응 시뮬레이터 기획 케이스 스터디 상세 | ~420 |
+| `casestudy-asset.html` | 자산 계산기 기획 케이스 스터디 상세 | ~401 |
+| `casestudy-backtest.html` | 백테스트 비교기 기획 케이스 스터디 상세 | ~400 |
 
 Each HTML file is structured: `<head>` (font import + inline `<style>`) → `<body>` (markup) → `<script>` (all app logic).
 
@@ -73,9 +75,9 @@ Each HTML file is structured: `<head>` (font import + inline `<style>`) → `<bo
 
 **모바일(≤768px)**: `scroll-snap-type` 유지, 모든 섹션 `min-height:100vh` 강제. dot-nav 숨김, custom cursor 숨김, 3D tilt 비활성.
 
-### Asset Calculator Hub (`asset.html`)
+### Finance Hub (`finance.html`)
 
-Integrated hub combining three calculators into one page with a tab bar (`?tab=compound|goal|journal`). Tab state is read from the URL query param on load via `initAssetTabs()`. Each tool is initialized by its own `init*Tool()` function: `initCompoundTool()`, `initGoalTool()`, `initJournalTool()`. The old individual pages (`compound.html`, `goal.html`, `journal.html`) now redirect here with the appropriate `?tab=` param.
+Integrated hub combining four financial tools into one page with a tab bar (`?tab=backtest|compound|goal|journal`). Tab state is read from the URL query param on load via `initAssetTabs()`. Each tool is initialized by its own `init*Tool()` function: `initCompoundTool()`, `initGoalTool()`, `initJournalTool()`. The old individual pages (`asset.html`, `compound.html`, `goal.html`, `journal.html`, `backtest.html`) all redirect here with the appropriate `?tab=` param.
 
 ### Backtest (`backtest.html`)
 
