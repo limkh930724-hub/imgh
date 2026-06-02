@@ -1430,6 +1430,8 @@
         /* ── 6. PROJECT CARD 3D TILT ── */
         document.querySelectorAll('.project-card').forEach(card => {
             card.addEventListener('mousemove', e => {
+                // transform transition 제거 → 마우스에 즉각 반응
+                card.style.transition = 'box-shadow 0.2s, border-color 0.2s';
                 const rect  = card.getBoundingClientRect();
                 const cx    = (e.clientX - rect.left) / rect.width  - 0.5;
                 const cy    = (e.clientY - rect.top)  / rect.height - 0.5;
@@ -1437,6 +1439,8 @@
                     `perspective(700px) rotateY(${cx * 14}deg) rotateX(${-cy * 14}deg) translateY(-5px) scale(1.02)`;
             });
             card.addEventListener('mouseleave', () => {
+                // 복귀 시에만 부드러운 transition 적용
+                card.style.transition = 'transform 0.3s ease, box-shadow 0.2s, border-color 0.2s';
                 card.style.transform = '';
             });
         });
