@@ -595,7 +595,7 @@
     <div class="tool-panel" data-main-panel="compound">
         <div class="card">
             <div class="card-title">투자 조건</div>
-            <div class="slider-row"><span class="slider-label">초기 투자금</span><input type="range" id="c-principal" min="0" max="100000000" step="1000000" value="10000000"><span class="slider-value" id="c-principal-value">₩1,000만</span></div>
+            <div class="slider-row"><span class="slider-label">초기 투자금</span><input type="range" id="c-principal" min="0" max="500000000" step="1000000" value="10000000"><span class="slider-value" id="c-principal-value">₩1,000만</span></div>
             <div class="slider-row"><span class="slider-label">연간 투자금</span><input type="range" id="c-annual" min="0" max="50000000" step="500000" value="3000000"><span class="slider-value" id="c-annual-value">₩300만</span></div>
             <div class="slider-row"><span class="slider-label">연 수익률</span><input type="range" id="c-rate" min="1" max="30" step="0.5" value="7"><span class="slider-value" id="c-rate-value">7.0%</span></div>
             <div class="slider-row"><span class="slider-label">투자 기간</span><input type="range" id="c-years" min="1" max="40" step="1" value="20"><span class="slider-value" id="c-years-value">20년</span></div>
@@ -1141,7 +1141,7 @@ function initCompoundTool() {
         const rate = Number(document.getElementById('c-rate').value);
         const years = Number(document.getElementById('c-years').value);
         document.getElementById('c-principal-value').textContent = fmtKRW(principal);
-        document.getElementById('c-annual-value').textContent = fmtKRW(annual);
+        document.getElementById('c-annual-value').textContent = fmtKRW(annual) + (annual > 0 ? ' (월 ' + fmtKRW(Math.round(annual / 12)) + ')' : '');
         document.getElementById('c-rate-value').textContent = rate.toFixed(1) + '%';
         document.getElementById('c-years-value').textContent = years + '년';
         const r = calcCompound();
