@@ -742,7 +742,7 @@ function drawChart(hoverIdx = -1) {
   const ctx = canvas.getContext('2d');
   ctx.scale(DPR, DPR);
 
-  const PAD = { t: 20, r: 18, b: 28, l: 60 };
+  const PAD = { t: 20, r: 24, b: 36, l: 60 };
   const iw  = W - PAD.l - PAD.r;
   const ih  = H - PAD.t - PAD.b;
   const n   = snapshots.length;
@@ -804,40 +804,39 @@ function drawChart(hoverIdx = -1) {
   const assetPts = snapshots.map((s,i) => ({ x: xOf(i), y: yOf(s.totalAsset) }));
   const evalPts  = snapshots.map((s,i) => ({ x: xOf(i), y: yOf(s.totalEval)  }));
 
-  // ── [1] 평가액 영역 채우기 (연한 빨강)
-  const gradEval = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + ih);
-  gradEval.addColorStop(0,   withAlpha(posCol, 0.18));
-  gradEval.addColorStop(0.7, withAlpha(posCol, 0.05));
-  gradEval.addColorStop(1,   withAlpha(posCol, 0));
-  bezierPath(evalPts);
-  ctx.lineTo(evalPts[evalPts.length-1].x, PAD.t + ih);
-  ctx.lineTo(evalPts[0].x, PAD.t + ih);
+  // ── [1] 투자자산 영역 채우기 (primary - accent)
+  const gradAsset = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + ih);
+  gradAsset.addColorStop(0,   withAlpha(accentCol, 0.22));
+  gradAsset.addColorStop(0.7, withAlpha(accentCol, 0.06));
+  gradAsset.addColorStop(1,   withAlpha(accentCol, 0));
+  bezierPath(assetPts);
+  ctx.lineTo(assetPts[assetPts.length-1].x, PAD.t + ih);
+  ctx.lineTo(assetPts[0].x, PAD.t + ih);
   ctx.closePath();
-  ctx.fillStyle = gradEval;
+  ctx.fillStyle = gradAsset;
   ctx.fill();
 
-  // ── [2] 평가액 선 (빨강 실선)
-  bezierPath(evalPts);
-  ctx.strokeStyle = posCol;
-  ctx.lineWidth = 2;
+  // ── [2] 투자자산 선 (굵은 실선, primary)
+  bezierPath(assetPts);
+  ctx.strokeStyle = accentCol;
+  ctx.lineWidth = 2.5;
   ctx.lineJoin = 'round';
   ctx.stroke();
 
-  // ── [3] 투자 원금 선 (점선, 회색)
-  bezierPath(assetPts);
-  ctx.strokeStyle = withAlpha(subCol, 0.6);
+  // ── [3] 평가액 선 (보조 - 얇은 실선, 빨강)
+  bezierPath(evalPts);
+  ctx.strokeStyle = withAlpha(posCol, 0.7);
   ctx.lineWidth = 1.5;
-  ctx.setLineDash([4, 4]);
-  ctx.stroke();
   ctx.setLineDash([]);
+  ctx.stroke();
 
   // ── 범례
   ctx.font = '10px Noto Sans KR, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillStyle = withAlpha(posCol, 0.9);
-  ctx.fillText('━ 평가액', PAD.l + 4, PAD.t + 10);
-  ctx.fillStyle = withAlpha(subCol, 0.7);
-  ctx.fillText('┅ 투자원금', PAD.l + 52, PAD.t + 10);
+  ctx.fillStyle = withAlpha(accentCol, 0.9);
+  ctx.fillText('━ 투자자산', PAD.l + 4, PAD.t + 10);
+  ctx.fillStyle = withAlpha(posCol, 0.7);
+  ctx.fillText('━ 평가액', PAD.l + 60, PAD.t + 10);
 
   // ── hover 수직선
   if (hoverIdx >= 0) {
@@ -856,41 +855,44 @@ function drawChart(hoverIdx = -1) {
     const isActive  = i === activeSnap;
     const highlight = isActive || isHover;
 
-    // 평가액 dot
-    const ex = xOf(i), ey = yOf(s.totalEval);
+    // 투자자산 dot (primary - 큰 원)
+    const ax = xOf(i), ay = yOf(s.totalAsset);
     if (highlight) {
-      const g = ctx.createRadialGradient(ex, ey, 0, ex, ey, 13);
-      g.addColorStop(0, withAlpha(isHover ? accentCol : posCol, 0.22));
-      g.addColorStop(1, withAlpha(isHover ? accentCol : posCol, 0));
-      ctx.beginPath(); ctx.arc(ex, ey, 13, 0, Math.PI*2);
+      const g = ctx.createRadialGradient(ax, ay, 0, ax, ay, 13);
+      g.addColorStop(0, withAlpha(isHover ? posCol : accentCol, 0.22));
+      g.addColorStop(1, withAlpha(isHover ? posCol : accentCol, 0));
+      ctx.beginPath(); ctx.arc(ax, ay, 13, 0, Math.PI*2);
       ctx.fillStyle = g; ctx.fill();
     }
     ctx.beginPath();
-    ctx.arc(ex, ey, highlight ? 5 : 3.5, 0, Math.PI*2);
-    ctx.fillStyle = isHover ? accentCol : posCol;
+    ctx.arc(ax, ay, highlight ? 5 : 3.5, 0, Math.PI*2);
+    ctx.fillStyle = isHover ? posCol : accentCol;
     ctx.strokeStyle = cv('--surf');
     ctx.lineWidth = 2;
     ctx.fill(); ctx.stroke();
 
-    // 투자원금 dot (작은 다이아몬드 느낌으로 정사각형)
-    const ax = xOf(i), ay = yOf(s.totalAsset);
+    // 평가액 dot (보조 - 작은 다이아몬드)
+    const ex = xOf(i), ey = yOf(s.totalEval);
     const sr = highlight ? 3.5 : 2.5;
     ctx.save();
-    ctx.translate(ax, ay);
+    ctx.translate(ex, ey);
     ctx.rotate(Math.PI / 4);
     ctx.beginPath();
     ctx.rect(-sr, -sr, sr*2, sr*2);
-    ctx.fillStyle = withAlpha(subCol, highlight ? 0.9 : 0.5);
+    ctx.fillStyle = withAlpha(posCol, highlight ? 0.85 : 0.5);
     ctx.strokeStyle = cv('--surf');
     ctx.lineWidth = 1.5;
     ctx.fill(); ctx.stroke();
     ctx.restore();
 
-    // x-label
-    ctx.textAlign = 'center';
+    // x-label (첫/마지막은 좌우로 밀어서 짤림 방지)
+    const lx = xOf(i);
+    const labelAlign = i === 0 ? 'left' : i === n - 1 ? 'right' : 'center';
+    const labelX = i === 0 ? PAD.l : i === n - 1 ? PAD.l + iw : lx;
+    ctx.textAlign = labelAlign;
     ctx.fillStyle = highlight ? cv('--text') : cv('--dim');
     ctx.font = highlight ? 'bold 11px Noto Sans KR, sans-serif' : '10px Noto Sans KR, sans-serif';
-    ctx.fillText(s.label, xOf(i), PAD.t + ih + 18);
+    ctx.fillText(s.label, labelX, PAD.t + ih + 22);
   });
 
   canvas._meta = { xOf, yOf, iw, ih, PAD, W, H };
