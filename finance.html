@@ -148,6 +148,21 @@
         /* ──── 백테스트 탭 ──── */
         .sym-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0; }
         .sym-block { border-radius: 9px; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+        .sym-input-wrap { position: relative; }
+        .sym-suggest {
+            position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+            background: var(--bg-2); border: 1px solid var(--border-2); border-radius: 8px;
+            box-shadow: var(--sh-md); max-height: 220px; overflow-y: auto; z-index: 20;
+            display: none;
+        }
+        .sym-suggest.open { display: block; }
+        .sym-suggest__item {
+            padding: 0.55rem 0.8rem; cursor: pointer; display: flex; justify-content: space-between;
+            align-items: baseline; gap: 0.6rem; font-size: 0.84rem;
+        }
+        .sym-suggest__item:hover, .sym-suggest__item.active { background: var(--accent-s); }
+        .sym-suggest__name { font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sym-suggest__ticker { font-size: 0.72rem; color: var(--ink-3); font-family: monospace; flex-shrink: 0; }
         .sym-block.a { background: #F0EDE8; border: 1px solid #D9CFC5; }
         .sym-block.b { background: #EEE9E0; border: 1px solid #D4C9B8; }
         .sym-block.c { background: #EBF0E8; border: 1px solid #C8D8C0; animation: slideIn 0.2s ease-out; }
@@ -450,19 +465,28 @@
             <div class="sym-grid" id="sym-ab-grid" style="margin-bottom:1.25rem">
                 <div class="sym-block a">
                     <div class="sym-label">종목 A</div>
-                    <input type="text" id="sym-a" class="sym-input" value="SPY"
-                           placeholder="예: AAPL, 005930.KS" autocomplete="off" spellcheck="false">
+                    <div class="sym-input-wrap">
+                        <input type="text" id="sym-a" class="sym-input" value="SPY"
+                               placeholder="예: AAPL, 삼성전자" autocomplete="off" spellcheck="false">
+                        <div class="sym-suggest" id="suggest-a"></div>
+                    </div>
                     <div class="sym-name-tag" id="name-a">· 입력 후 자동 조회</div>
                 </div>
                 <div class="sym-block b">
                     <div class="sym-label">종목 B</div>
-                    <input type="text" id="sym-b" class="sym-input" value="QQQ"
-                           placeholder="예: MSFT, BTC-USD" autocomplete="off" spellcheck="false">
+                    <div class="sym-input-wrap">
+                        <input type="text" id="sym-b" class="sym-input" value="QQQ"
+                               placeholder="예: MSFT, 카카오" autocomplete="off" spellcheck="false">
+                        <div class="sym-suggest" id="suggest-b"></div>
+                    </div>
                     <div class="sym-name-tag" id="name-b">· 입력 후 자동 조회</div>
                 </div>
                 <div id="sym-c-block" class="sym-block c" style="display:none">
                     <div class="sym-label">종목 C <button class="remove-sym-btn" onclick="hideSymC()" title="종목 C 제거">✕</button></div>
-                    <input type="text" id="sym-c" class="sym-input" placeholder="예: NVDA, TSLA" autocomplete="off" spellcheck="false">
+                    <div class="sym-input-wrap">
+                        <input type="text" id="sym-c" class="sym-input" placeholder="예: NVDA, 네이버" autocomplete="off" spellcheck="false">
+                        <div class="sym-suggest" id="suggest-c"></div>
+                    </div>
                     <div class="sym-name-tag" id="name-c">· 입력 후 자동 조회</div>
                 </div>
             </div>
@@ -748,6 +772,82 @@ function initMainTabs() {
 // ══════════════════════════════════════════════
 //  BACKTEST 로직
 // ══════════════════════════════════════════════
+
+// 주요 KOSPI/KOSDAQ 종목 (이름 검색용, 전체 상장사가 아닌 대표 종목 일부)
+const KR_STOCKS = [
+    {name:'삼성전자', ticker:'005930.KS'}, {name:'삼성전자우', ticker:'005935.KS'},
+    {name:'SK하이닉스', ticker:'000660.KS'}, {name:'LG에너지솔루션', ticker:'373220.KS'},
+    {name:'삼성바이오로직스', ticker:'207940.KS'}, {name:'현대차', ticker:'005380.KS'},
+    {name:'기아', ticker:'000270.KS'}, {name:'셀트리온', ticker:'068270.KS'},
+    {name:'POSCO홀딩스', ticker:'005490.KS'}, {name:'네이버', ticker:'035420.KS'},
+    {name:'NAVER', ticker:'035420.KS'}, {name:'삼성SDI', ticker:'006400.KS'},
+    {name:'LG화학', ticker:'051910.KS'}, {name:'KB금융', ticker:'105560.KS'},
+    {name:'신한지주', ticker:'055550.KS'}, {name:'카카오', ticker:'035720.KS'},
+    {name:'현대모비스', ticker:'012330.KS'}, {name:'삼성물산', ticker:'028260.KS'},
+    {name:'LG전자', ticker:'066570.KS'}, {name:'하나금융지주', ticker:'086790.KS'},
+    {name:'SK이노베이션', ticker:'096770.KS'}, {name:'SK', ticker:'034730.KS'},
+    {name:'한국전력', ticker:'015760.KS'}, {name:'삼성생명', ticker:'032830.KS'},
+    {name:'포스코퓨처엠', ticker:'003670.KS'}, {name:'LG', ticker:'003550.KS'},
+    {name:'우리금융지주', ticker:'316140.KS'}, {name:'한화에어로스페이스', ticker:'012450.KS'},
+    {name:'KT&G', ticker:'033780.KS'}, {name:'메리츠금융지주', ticker:'138040.KS'},
+    {name:'삼성화재', ticker:'000810.KS'}, {name:'HD현대중공업', ticker:'329180.KS'},
+    {name:'두산에너빌리티', ticker:'034020.KS'}, {name:'크래프톤', ticker:'259960.KS'},
+    {name:'한미반도체', ticker:'042700.KS'}, {name:'고려아연', ticker:'010130.KS'},
+    {name:'LG생활건강', ticker:'051900.KS'}, {name:'아모레퍼시픽', ticker:'090430.KS'},
+    {name:'HMM', ticker:'011200.KS'}, {name:'HD한국조선해양', ticker:'009540.KS'},
+    {name:'S-Oil', ticker:'010950.KS'}, {name:'현대글로비스', ticker:'086280.KS'},
+    {name:'미래에셋증권', ticker:'006800.KS'}, {name:'삼성에스디에스', ticker:'018260.KS'},
+    {name:'강원랜드', ticker:'035250.KS'}, {name:'DB하이텍', ticker:'000990.KS'},
+    {name:'JYP Ent.', ticker:'035900.KQ'}, {name:'JYP엔터테인먼트', ticker:'035900.KQ'},
+    {name:'에코프로비엠', ticker:'247540.KQ'}, {name:'에코프로', ticker:'086520.KQ'},
+    {name:'알테오젠', ticker:'196170.KQ'}, {name:'HLB', ticker:'028300.KQ'},
+    {name:'카카오게임즈', ticker:'293490.KQ'}, {name:'리노공업', ticker:'058470.KQ'},
+    {name:'펄어비스', ticker:'263750.KQ'}, {name:'에스엠', ticker:'041510.KS'},
+    {name:'SM엔터테인먼트', ticker:'041510.KS'}, {name:'위메이드', ticker:'112040.KQ'},
+];
+
+function searchKrStocks(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return KR_STOCKS.filter(s => s.name.toLowerCase().includes(q)).slice(0, 8);
+}
+
+function setupKrAutocomplete(inputId, suggestId, nameId) {
+    const input = document.getElementById(inputId);
+    const suggestEl = document.getElementById(suggestId);
+    const nameEl = document.getElementById(nameId);
+
+    function render(matches) {
+        if (!matches.length) { suggestEl.classList.remove('open'); suggestEl.innerHTML = ''; return; }
+        suggestEl.innerHTML = matches.map(s =>
+            `<div class="sym-suggest__item" data-ticker="${s.ticker}" data-name="${s.name}">
+                <span class="sym-suggest__name">${s.name}</span>
+                <span class="sym-suggest__ticker">${s.ticker}</span>
+            </div>`
+        ).join('');
+        suggestEl.classList.add('open');
+    }
+
+    input.addEventListener('input', () => {
+        render(searchKrStocks(input.value));
+    });
+
+    suggestEl.addEventListener('mousedown', (e) => {
+        const item = e.target.closest('.sym-suggest__item');
+        if (!item) return;
+        e.preventDefault();
+        input.value = item.dataset.ticker;
+        nameEl.textContent = '· ' + item.dataset.name;
+        suggestEl.classList.remove('open');
+        suggestEl.innerHTML = '';
+        input.dispatchEvent(new Event('blur'));
+    });
+
+    input.addEventListener('blur', () => {
+        setTimeout(() => suggestEl.classList.remove('open'), 120);
+    });
+}
+
 async function fetchSymbolName(sym) {
     try {
         const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d`;
@@ -779,6 +879,9 @@ function setupSymbolLookup(inputId, nameId) {
 setupSymbolLookup('sym-a', 'name-a');
 setupSymbolLookup('sym-b', 'name-b');
 setupSymbolLookup('sym-c', 'name-c');
+setupKrAutocomplete('sym-a', 'suggest-a', 'name-a');
+setupKrAutocomplete('sym-b', 'suggest-b', 'name-b');
+setupKrAutocomplete('sym-c', 'suggest-c', 'name-c');
 
 function showSymC() {
     document.getElementById('add-sym-c-btn').style.display = 'none';

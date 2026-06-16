@@ -83,6 +83,8 @@ Integrated hub combining four financial tools into one page with a tab bar (`?ta
 
 Supports up to 3 tickers (A, B, and optional C). Ticker C is dynamically added/removed. Charts, summary cards, and comparison table all handle 3-ticker data. The diff column in the comparison table uses 1st-place vs last-place as the reference. (`backtest.html` in root is just a redirect stub to this tab.)
 
+Ticker inputs (`#sym-a/b/c`) accept any Yahoo Finance symbol directly (e.g. `005930.KS`), and also support Korean-name autocomplete via `KR_STOCKS` — a small curated list of major KOSPI/KOSDAQ names mapped to their `.KS`/`.KQ` tickers (`setupKrAutocomplete()`). Typing a Korean name shows a dropdown (`.sym-suggest`); selecting an entry fills the ticker and triggers `fetchSymbolName()` to resolve the display name. This list is not exhaustive — extend `KR_STOCKS` to add more names.
+
 ### Portfolio Tracker (`portfolio_tracker.html`)
 
 Password-gated private portfolio tracker. Key architecture:
