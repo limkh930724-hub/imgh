@@ -806,6 +806,11 @@ const KR_STOCKS = [
     {name:'SM엔터테인먼트', ticker:'041510.KS'}, {name:'위메이드', ticker:'112040.KQ'},
 ];
 
+function krNameFromTicker(ticker) {
+    const hit = KR_STOCKS.find(s => s.ticker === ticker);
+    return hit ? hit.name : null;
+}
+
 function searchKrStocks(query) {
     const q = query.trim().toLowerCase();
     if (!q) return [];
@@ -1007,8 +1012,9 @@ function renderSummaryCards(symA, nameA, resA, symB, nameB, resB, symC, nameC, r
     function fill(prefix, sym, name, res) {
         const isWinner = res.cumulReturn === maxRet;
         document.getElementById(`card-${prefix}`).classList.toggle('winner', isWinner);
-        document.getElementById(`sym-label-${prefix}`).textContent = sym;
-        document.getElementById(`corp-${prefix}`).textContent = name || '';
+        const krName = krNameFromTicker(sym);
+        document.getElementById(`sym-label-${prefix}`).textContent = krName || sym;
+        document.getElementById(`corp-${prefix}`).textContent = krName ? `${sym} · ${name || ''}` : (name || '');
         document.getElementById(`badge-${prefix}`).style.display = isWinner ? '' : 'none';
         const retEl = document.getElementById(`ret-${prefix}`);
         retEl.textContent = formatPct(res.cumulReturn);
@@ -1038,12 +1044,12 @@ function renderSummaryCards(symA, nameA, resA, symB, nameB, resB, symC, nameC, r
 
 function renderTable(symA, resA, symB, resB, symC, resC) {
     const hasC = !!resC;
-    document.getElementById('th-a-text').textContent = symA;
-    document.getElementById('th-b-text').textContent = symB;
+    document.getElementById('th-a-text').textContent = krNameFromTicker(symA) || symA;
+    document.getElementById('th-b-text').textContent = krNameFromTicker(symB) || symB;
     ['th-c','tc-ret-c','tc-inv-c','tc-val-c','tc-cagr-c'].forEach(id => {
         document.getElementById(id).style.display = hasC ? '' : 'none';
     });
-    if (hasC) { document.getElementById('th-c-text').textContent = symC; document.getElementById('tc-period').colSpan = 4; }
+    if (hasC) { document.getElementById('th-c-text').textContent = krNameFromTicker(symC) || symC; document.getElementById('tc-period').colSpan = 4; }
     else document.getElementById('tc-period').colSpan = 3;
 
     const allRes = hasC ? [resA, resB, resC] : [resA, resB];
@@ -1096,10 +1102,10 @@ function renderChart(dates, resA, resB, symA, symB, mode, resC, symC) {
         return Array.from({ length: 500 }, (_, i) => arr[Math.round(i * step)]);
     }
     const datasets = [
-        { label: symA, data: downsample(isReturns ? resA.returns : resA.values), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.05)', fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.2 },
-        { label: symB, data: downsample(isReturns ? resB.returns : resB.values), borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.05)', fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.2 }
+        { label: krNameFromTicker(symA) || symA, data: downsample(isReturns ? resA.returns : resA.values), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.05)', fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.2 },
+        { label: krNameFromTicker(symB) || symB, data: downsample(isReturns ? resB.returns : resB.values), borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.05)', fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.2 }
     ];
-    if (resC) datasets.push({ label: symC, data: downsample(isReturns ? resC.returns : resC.values), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.05)', fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.2 });
+    if (resC) datasets.push({ label: krNameFromTicker(symC) || symC, data: downsample(isReturns ? resC.returns : resC.values), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.05)', fill: true, borderWidth: 2.5, pointRadius: 0, tension: 0.2 });
     const ctx = document.getElementById('btChart').getContext('2d');
     btChartInstance = new Chart(ctx, {
         type: 'line',
