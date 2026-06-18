@@ -1572,9 +1572,110 @@
         const badge    = document.getElementById('perfBadge');
         const panel    = document.getElementById('perfPanel');
         const closeBtn = document.getElementById('perfClose');
+        const scoreEl  = document.getElementById('perfScore');
+        const metrics  = { lcp: null, cls: 0, inp: 0, fcp: null, ttfb: null, dcl: null };
+
+        function safeObserve(type, callback) {
+            if (!window.PerformanceObserver) return;
+            try {
+                new PerformanceObserver(callback).observe({ type, buffered: true });
+            } catch (e) { /* entry type unsupported in this browser */ }
+        }
+
+        safeObserve('largest-contentful-paint', (list) => {
+            const entries = list.getEntries();
+            const last = entries[entries.length - 1];
+            if (last) metrics.lcp = last.renderTime || last.loadTime;
+        });
+
+        safeObserve('layout-shift', (list) => {
+            for (const entry of list.getEntries()) {
+                if (!entry.hadRecentInput) metrics.cls += entry.value;
+            }
+        });
+
+        safeObserve('event', (list) => {
+            for (const entry of list.getEntries()) {
+                if (entry.duration > metrics.inp) metrics.inp = entry.duration;
+            }
+        });
+
+        safeObserve('paint', (list) => {
+            for (const entry of list.getEntries()) {
+                if (entry.name === 'first-contentful-paint') metrics.fcp = entry.startTime;
+            }
+        });
+
+        window.addEventListener('load', () => {
+            const nav = performance.getEntriesByType('navigation')[0];
+            if (nav) {
+                metrics.ttfb = nav.responseStart;
+                metrics.dcl = nav.domContentLoadedEventEnd;
+            }
+        });
+
+        function scoreFromRange(value, good, poor) {
+            if (value == null) return 100;
+            if (value <= good) return 100;
+            if (value >= poor) return 0;
+            return Math.round(100 - ((value - good) / (poor - good)) * 100);
+        }
+
+        function computeScore() {
+            const lcpScore = scoreFromRange(metrics.lcp, 2500, 4000);
+            const clsScore = scoreFromRange(metrics.cls, 0.1, 0.25);
+            const inpScore = scoreFromRange(metrics.inp, 200, 500);
+            return Math.round(lcpScore * 0.4 + clsScore * 0.3 + inpScore * 0.3);
+        }
+
+        function bandFor(score) {
+            if (score >= 90) return 'good';
+            if (score >= 50) return 'mid';
+            return 'poor';
+        }
+
+        function updateBadge() {
+            const score = computeScore();
+            scoreEl.textContent = score;
+            badge.setAttribute('data-band', bandFor(score));
+        }
+
+        function vitalBand(metric, value) {
+            if (value == null) return '';
+            const thresholds = { lcp: [2500, 4000], cls: [0.1, 0.25], inp: [200, 500] };
+            const [good, poor] = thresholds[metric];
+            if (value <= good) return 'good';
+            if (value <= poor) return 'mid';
+            return 'poor';
+        }
+
+        function fmtMs(value) {
+            return value == null ? '--' : Math.round(value) + 'ms';
+        }
+
+        function renderPanel() {
+            const lcpChip = panel.querySelector('[data-metric="lcp"]');
+            lcpChip.querySelector('.perf-chip__value').textContent = fmtMs(metrics.lcp);
+            lcpChip.setAttribute('data-band', vitalBand('lcp', metrics.lcp));
+
+            const clsChip = panel.querySelector('[data-metric="cls"]');
+            clsChip.querySelector('.perf-chip__value').textContent = metrics.cls.toFixed(3);
+            clsChip.setAttribute('data-band', vitalBand('cls', metrics.cls));
+
+            const inpChip = panel.querySelector('[data-metric="inp"]');
+            inpChip.querySelector('.perf-chip__value').textContent = fmtMs(metrics.inp);
+            inpChip.setAttribute('data-band', vitalBand('inp', metrics.inp));
+
+            panel.querySelector('[data-metric="fcp"]').textContent = fmtMs(metrics.fcp);
+            panel.querySelector('[data-metric="ttfb"]').textContent = fmtMs(metrics.ttfb);
+            panel.querySelector('[data-metric="dcl"]').textContent = fmtMs(metrics.dcl);
+
+            updateBadge();
+        }
 
         function openPanel() {
             panel.hidden = false;
+            renderPanel();
         }
 
         function closePanel() {
@@ -1588,6 +1689,8 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !panel.hidden) closePanel();
         });
+
+        setTimeout(updateBadge, 3000);
     })();
     </script>
 </body>
