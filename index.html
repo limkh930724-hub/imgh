@@ -29,6 +29,9 @@
             --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
             --shadow:    0 4px 20px rgba(0,0,0,0.08);
             --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --perf-good: #16a34a;
+            --perf-mid:  #d97706;
+            --perf-poor: #dc2626;
         }
         [data-theme="dark"] {
             --bg:        #0a0c10;
@@ -753,6 +756,69 @@
             .about-chips { gap: 0.5rem; }
             .chip { font-size: 0.72rem; padding: 0.35rem 0.75rem; }
         }
+
+        /* ═══════════════════════════
+           PERFORMANCE MONITOR WIDGET
+        ═══════════════════════════ */
+        .perf-widget { position: fixed; bottom: 24px; right: 24px; z-index: 60; }
+        .perf-badge {
+            display: flex; align-items: center; gap: 0.35rem;
+            padding: 0.55rem 0.9rem; border-radius: 999px;
+            border: 1.5px solid var(--border-2); background: var(--bg-2);
+            color: var(--text); font-size: 0.85rem; font-weight: 700;
+            cursor: pointer; box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .perf-badge:hover { transform: scale(1.05); border-color: var(--accent); }
+        .perf-badge__score { min-width: 1.6em; text-align: right; }
+        .perf-badge[data-band="good"] .perf-badge__score { color: var(--perf-good); }
+        .perf-badge[data-band="mid"]  .perf-badge__score { color: var(--perf-mid); }
+        .perf-badge[data-band="poor"] .perf-badge__score { color: var(--perf-poor); }
+
+        .perf-panel {
+            position: absolute; bottom: 56px; right: 0; width: 300px; max-height: 70vh;
+            overflow-y: auto; background: var(--bg-2); border: 1px solid var(--border);
+            border-radius: 16px; box-shadow: var(--shadow-lg); padding: 1rem;
+        }
+        .perf-panel[hidden] { display: none; }
+        .perf-panel__header {
+            display: flex; align-items: center; justify-content: space-between;
+            font-weight: 700; font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--text);
+        }
+        .perf-panel__close {
+            background: none; border: none; color: var(--text-2); font-size: 1.1rem;
+            cursor: pointer; line-height: 1; padding: 0 0.25rem;
+        }
+        .perf-panel__close:hover { color: var(--text); }
+        .perf-section { margin-bottom: 0.9rem; }
+        .perf-section:last-child { margin-bottom: 0; }
+        .perf-section__title {
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.05em; color: var(--text-2); margin-bottom: 0.4rem;
+        }
+        .perf-chips { display: flex; gap: 0.5rem; }
+        .perf-chip {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+            padding: 0.4rem 0.3rem; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-3);
+        }
+        .perf-chip__label { font-size: 0.65rem; color: var(--text-2); font-weight: 700; }
+        .perf-chip__value { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+        .perf-chip[data-band="good"] .perf-chip__value { color: var(--perf-good); }
+        .perf-chip[data-band="mid"]  .perf-chip__value { color: var(--perf-mid); }
+        .perf-chip[data-band="poor"] .perf-chip__value { color: var(--perf-poor); }
+        .perf-rows { display: flex; flex-direction: column; gap: 0.3rem; }
+        .perf-row { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-2); }
+        .perf-row span:last-child { color: var(--text); font-weight: 600; }
+        .perf-resource-list { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.5rem; }
+        .perf-resource-row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.72rem; color: var(--text-2); }
+        .perf-resource-row__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .perf-resource-row__dur { color: var(--text); font-weight: 600; flex-shrink: 0; }
+
+        @media (max-width: 768px) {
+            .perf-widget { bottom: 16px; right: 16px; }
+            .perf-panel { width: calc(100vw - 32px); max-width: 320px; }
+        }
     </style>
 </head>
 <body>
@@ -773,6 +839,51 @@
         <button class="dot-nav__dot" data-target="projects" title="Projects"></button>
         <button class="dot-nav__dot" data-target="contact" title="Contact"></button>
     </nav>
+
+    <!-- ══ Performance Monitor Widget ══ -->
+    <div class="perf-widget" id="perfWidget">
+        <button class="perf-badge" id="perfBadge" title="성능 모니터링" aria-label="성능 모니터링 열기">
+            <span class="perf-badge__bolt">⚡</span>
+            <span class="perf-badge__score mono" id="perfScore">--</span>
+        </button>
+        <div class="perf-panel" id="perfPanel" hidden>
+            <div class="perf-panel__header">
+                <span>⚡ 성능 모니터링</span>
+                <button class="perf-panel__close" id="perfClose" aria-label="닫기">×</button>
+            </div>
+            <div class="perf-panel__body">
+                <section class="perf-section">
+                    <h4 class="perf-section__title">Core Web Vitals</h4>
+                    <div class="perf-chips">
+                        <div class="perf-chip" data-metric="lcp"><span class="perf-chip__label">LCP</span><span class="perf-chip__value mono">--</span></div>
+                        <div class="perf-chip" data-metric="cls"><span class="perf-chip__label">CLS</span><span class="perf-chip__value mono">--</span></div>
+                        <div class="perf-chip" data-metric="inp"><span class="perf-chip__label">INP</span><span class="perf-chip__value mono">--</span></div>
+                    </div>
+                </section>
+                <section class="perf-section">
+                    <h4 class="perf-section__title">로딩 세부 지표</h4>
+                    <div class="perf-rows">
+                        <div class="perf-row"><span>FCP</span><span class="mono" data-metric="fcp">--</span></div>
+                        <div class="perf-row"><span>TTFB</span><span class="mono" data-metric="ttfb">--</span></div>
+                        <div class="perf-row"><span>DOMContentLoaded</span><span class="mono" data-metric="dcl">--</span></div>
+                    </div>
+                </section>
+                <section class="perf-section">
+                    <h4 class="perf-section__title">런타임 모니터링</h4>
+                    <div class="perf-rows">
+                        <div class="perf-row"><span>FPS</span><span class="mono" data-metric="fps">--</span></div>
+                        <div class="perf-row"><span>Long Task</span><span class="mono" data-metric="longtaskCount">0</span></div>
+                        <div class="perf-row"><span>Total Blocking</span><span class="mono" data-metric="tbt">0ms</span></div>
+                    </div>
+                </section>
+                <section class="perf-section">
+                    <h4 class="perf-section__title">리소스 타이밍</h4>
+                    <div class="perf-resource-list" id="perfResources"></div>
+                    <div class="perf-rows" id="perfResourceSummary"></div>
+                </section>
+            </div>
+        </div>
+    </div>
 
     <!-- ══ 1. HERO ══ -->
     <section class="section" id="hero">
@@ -1452,6 +1563,31 @@
             });
         });
 
+    })();
+
+    /* ══════════════════════════════════════════
+       PERFORMANCE MONITOR WIDGET
+    ══════════════════════════════════════════ */
+    (function () {
+        const badge    = document.getElementById('perfBadge');
+        const panel    = document.getElementById('perfPanel');
+        const closeBtn = document.getElementById('perfClose');
+
+        function openPanel() {
+            panel.hidden = false;
+        }
+
+        function closePanel() {
+            panel.hidden = true;
+        }
+
+        badge.addEventListener('click', () => {
+            if (panel.hidden) openPanel(); else closePanel();
+        });
+        closeBtn.addEventListener('click', closePanel);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !panel.hidden) closePanel();
+        });
     })();
     </script>
 </body>
