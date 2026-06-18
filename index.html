@@ -29,6 +29,9 @@
             --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
             --shadow:    0 4px 20px rgba(0,0,0,0.08);
             --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+            --perf-good: #16a34a;
+            --perf-mid:  #d97706;
+            --perf-poor: #dc2626;
         }
         [data-theme="dark"] {
             --bg:        #0a0c10;
@@ -753,6 +756,69 @@
             .about-chips { gap: 0.5rem; }
             .chip { font-size: 0.72rem; padding: 0.35rem 0.75rem; }
         }
+
+        /* ═══════════════════════════
+           PERFORMANCE MONITOR WIDGET
+        ═══════════════════════════ */
+        .perf-widget { position: fixed; bottom: 24px; right: 24px; z-index: 60; }
+        .perf-badge {
+            display: flex; align-items: center; gap: 0.35rem;
+            padding: 0.55rem 0.9rem; border-radius: 999px;
+            border: 1.5px solid var(--border-2); background: var(--bg-2);
+            color: var(--text); font-size: 0.85rem; font-weight: 700;
+            cursor: pointer; box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .perf-badge:hover { transform: scale(1.05); border-color: var(--accent); }
+        .perf-badge__score { min-width: 1.6em; text-align: right; }
+        .perf-badge[data-band="good"] .perf-badge__score { color: var(--perf-good); }
+        .perf-badge[data-band="mid"]  .perf-badge__score { color: var(--perf-mid); }
+        .perf-badge[data-band="poor"] .perf-badge__score { color: var(--perf-poor); }
+
+        .perf-panel {
+            position: absolute; bottom: 56px; right: 0; width: 300px; max-height: 70vh;
+            overflow-y: auto; background: var(--bg-2); border: 1px solid var(--border);
+            border-radius: 16px; box-shadow: var(--shadow-lg); padding: 1rem;
+        }
+        .perf-panel[hidden] { display: none; }
+        .perf-panel__header {
+            display: flex; align-items: center; justify-content: space-between;
+            font-weight: 700; font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--text);
+        }
+        .perf-panel__close {
+            background: none; border: none; color: var(--text-2); font-size: 1.1rem;
+            cursor: pointer; line-height: 1; padding: 0 0.25rem;
+        }
+        .perf-panel__close:hover { color: var(--text); }
+        .perf-section { margin-bottom: 0.9rem; }
+        .perf-section:last-child { margin-bottom: 0; }
+        .perf-section__title {
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.05em; color: var(--text-2); margin-bottom: 0.4rem;
+        }
+        .perf-chips { display: flex; gap: 0.5rem; }
+        .perf-chip {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+            padding: 0.4rem 0.3rem; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-3);
+        }
+        .perf-chip__label { font-size: 0.65rem; color: var(--text-2); font-weight: 700; }
+        .perf-chip__value { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+        .perf-chip[data-band="good"] .perf-chip__value { color: var(--perf-good); }
+        .perf-chip[data-band="mid"]  .perf-chip__value { color: var(--perf-mid); }
+        .perf-chip[data-band="poor"] .perf-chip__value { color: var(--perf-poor); }
+        .perf-rows { display: flex; flex-direction: column; gap: 0.3rem; }
+        .perf-row { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-2); }
+        .perf-row span:last-child { color: var(--text); font-weight: 600; }
+        .perf-resource-list { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.5rem; }
+        .perf-resource-row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.72rem; color: var(--text-2); }
+        .perf-resource-row__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .perf-resource-row__dur { color: var(--text); font-weight: 600; flex-shrink: 0; }
+
+        @media (max-width: 768px) {
+            .perf-widget { bottom: 16px; right: 16px; }
+            .perf-panel { width: calc(100vw - 32px); max-width: 320px; }
+        }
     </style>
 </head>
 <body>
@@ -773,6 +839,51 @@
         <button class="dot-nav__dot" data-target="projects" title="Projects"></button>
         <button class="dot-nav__dot" data-target="contact" title="Contact"></button>
     </nav>
+
+    <!-- ══ Performance Monitor Widget ══ -->
+    <div class="perf-widget" id="perfWidget">
+        <button class="perf-badge" id="perfBadge" title="성능 모니터링" aria-label="성능 모니터링 열기">
+            <span class="perf-badge__bolt">⚡</span>
+            <span class="perf-badge__score mono" id="perfScore">--</span>
+        </button>
+        <div class="perf-panel" id="perfPanel" hidden>
+            <div class="perf-panel__header">
+                <span>⚡ 성능 모니터링</span>
+                <button class="perf-panel__close" id="perfClose" aria-label="닫기">×</button>
+            </div>
+            <div class="perf-panel__body">
+                <section class="perf-section">
+                    <h4 class="perf-section__title">Core Web Vitals</h4>
+                    <div class="perf-chips">
+                        <div class="perf-chip" data-metric="lcp"><span class="perf-chip__label">LCP</span><span class="perf-chip__value mono">--</span></div>
+                        <div class="perf-chip" data-metric="cls"><span class="perf-chip__label">CLS</span><span class="perf-chip__value mono">--</span></div>
+                        <div class="perf-chip" data-metric="inp"><span class="perf-chip__label">INP</span><span class="perf-chip__value mono">--</span></div>
+                    </div>
+                </section>
+                <section class="perf-section">
+                    <h4 class="perf-section__title">로딩 세부 지표</h4>
+                    <div class="perf-rows">
+                        <div class="perf-row"><span>FCP</span><span class="mono" data-metric="fcp">--</span></div>
+                        <div class="perf-row"><span>TTFB</span><span class="mono" data-metric="ttfb">--</span></div>
+                        <div class="perf-row"><span>DOMContentLoaded</span><span class="mono" data-metric="dcl">--</span></div>
+                    </div>
+                </section>
+                <section class="perf-section">
+                    <h4 class="perf-section__title">런타임 모니터링</h4>
+                    <div class="perf-rows">
+                        <div class="perf-row"><span>FPS</span><span class="mono" data-metric="fps">--</span></div>
+                        <div class="perf-row"><span>Long Task</span><span class="mono" data-metric="longtaskCount">0</span></div>
+                        <div class="perf-row"><span>Total Blocking</span><span class="mono" data-metric="tbt">0ms</span></div>
+                    </div>
+                </section>
+                <section class="perf-section">
+                    <h4 class="perf-section__title">리소스 타이밍</h4>
+                    <div class="perf-resource-list" id="perfResources"></div>
+                    <div class="perf-rows" id="perfResourceSummary"></div>
+                </section>
+            </div>
+        </div>
+    </div>
 
     <!-- ══ 1. HERO ══ -->
     <section class="section" id="hero">
@@ -1452,6 +1563,213 @@
             });
         });
 
+    })();
+
+    /* ══════════════════════════════════════════
+       PERFORMANCE MONITOR WIDGET
+    ══════════════════════════════════════════ */
+    (function () {
+        const badge    = document.getElementById('perfBadge');
+        const panel    = document.getElementById('perfPanel');
+        const closeBtn = document.getElementById('perfClose');
+        const scoreEl  = document.getElementById('perfScore');
+        const metrics  = { lcp: null, cls: 0, inp: 0, fcp: null, ttfb: null, dcl: null };
+
+        function safeObserve(type, callback, extraOptions) {
+            if (!window.PerformanceObserver) return;
+            try {
+                new PerformanceObserver(callback).observe(Object.assign({ type, buffered: true }, extraOptions));
+            } catch (e) { /* entry type unsupported in this browser */ }
+        }
+
+        safeObserve('largest-contentful-paint', (list) => {
+            const entries = list.getEntries();
+            const last = entries[entries.length - 1];
+            if (last) metrics.lcp = last.renderTime || last.loadTime;
+        });
+
+        safeObserve('layout-shift', (list) => {
+            for (const entry of list.getEntries()) {
+                if (!entry.hadRecentInput) metrics.cls += entry.value;
+            }
+        });
+
+        safeObserve('event', (list) => {
+            for (const entry of list.getEntries()) {
+                if (entry.duration > metrics.inp) metrics.inp = entry.duration;
+            }
+        }, { durationThreshold: 40 });
+
+        safeObserve('paint', (list) => {
+            for (const entry of list.getEntries()) {
+                if (entry.name === 'first-contentful-paint') metrics.fcp = entry.startTime;
+            }
+        });
+
+        let longtaskCount = 0;
+        let totalBlockingTime = 0;
+
+        safeObserve('longtask', (list) => {
+            for (const entry of list.getEntries()) {
+                longtaskCount += 1;
+                totalBlockingTime += Math.max(0, entry.duration - 50);
+            }
+        });
+
+        window.addEventListener('load', () => {
+            const nav = performance.getEntriesByType('navigation')[0];
+            if (nav) {
+                metrics.ttfb = nav.responseStart;
+                metrics.dcl = nav.domContentLoadedEventEnd;
+            }
+        });
+
+        function scoreFromRange(value, good, poor) {
+            if (value == null) return 100;
+            if (value <= good) return 100;
+            if (value >= poor) return 0;
+            return Math.round(100 - ((value - good) / (poor - good)) * 100);
+        }
+
+        function computeScore() {
+            const lcpScore = scoreFromRange(metrics.lcp, 2500, 4000);
+            const clsScore = scoreFromRange(metrics.cls, 0.1, 0.25);
+            const inpScore = scoreFromRange(metrics.inp, 200, 500);
+            return Math.round(lcpScore * 0.4 + clsScore * 0.3 + inpScore * 0.3);
+        }
+
+        function bandFor(score) {
+            if (score >= 90) return 'good';
+            if (score >= 50) return 'mid';
+            return 'poor';
+        }
+
+        function updateBadge() {
+            const score = computeScore();
+            scoreEl.textContent = score;
+            badge.setAttribute('data-band', bandFor(score));
+        }
+
+        function vitalBand(metric, value) {
+            if (value == null) return '';
+            const thresholds = { lcp: [2500, 4000], cls: [0.1, 0.25], inp: [200, 500] };
+            const [good, poor] = thresholds[metric];
+            if (value <= good) return 'good';
+            if (value <= poor) return 'mid';
+            return 'poor';
+        }
+
+        function fmtMs(value) {
+            return value == null ? '--' : Math.round(value) + 'ms';
+        }
+
+        function renderPanel() {
+            const lcpChip = panel.querySelector('[data-metric="lcp"]');
+            lcpChip.querySelector('.perf-chip__value').textContent = fmtMs(metrics.lcp);
+            lcpChip.setAttribute('data-band', vitalBand('lcp', metrics.lcp));
+
+            const clsChip = panel.querySelector('[data-metric="cls"]');
+            clsChip.querySelector('.perf-chip__value').textContent = metrics.cls.toFixed(3);
+            clsChip.setAttribute('data-band', vitalBand('cls', metrics.cls));
+
+            const inpChip = panel.querySelector('[data-metric="inp"]');
+            inpChip.querySelector('.perf-chip__value').textContent = fmtMs(metrics.inp);
+            inpChip.setAttribute('data-band', vitalBand('inp', metrics.inp));
+
+            panel.querySelector('[data-metric="fcp"]').textContent = fmtMs(metrics.fcp);
+            panel.querySelector('[data-metric="ttfb"]').textContent = fmtMs(metrics.ttfb);
+            panel.querySelector('[data-metric="dcl"]').textContent = fmtMs(metrics.dcl);
+
+            panel.querySelector('[data-metric="longtaskCount"]').textContent = longtaskCount;
+            panel.querySelector('[data-metric="tbt"]').textContent = Math.round(totalBlockingTime) + 'ms';
+
+            renderResources();
+            updateBadge();
+        }
+
+        function renderResources() {
+            const list = performance.getEntriesByType('resource')
+                .slice()
+                .sort((a, b) => b.duration - a.duration)
+                .slice(0, 5);
+            const listEl = document.getElementById('perfResources');
+            listEl.innerHTML = '';
+            list.forEach((r) => {
+                const name = r.name.split('/').pop().split('?')[0] || r.name;
+                const row = document.createElement('div');
+                row.className = 'perf-resource-row';
+                const nameEl = document.createElement('span');
+                nameEl.className = 'perf-resource-row__name';
+                nameEl.textContent = name;
+                const durEl = document.createElement('span');
+                durEl.className = 'perf-resource-row__dur mono';
+                durEl.textContent = Math.round(r.duration) + 'ms';
+                row.appendChild(nameEl);
+                row.appendChild(durEl);
+                listEl.appendChild(row);
+            });
+
+            const totals = { css: 0, js: 0, img: 0, etc: 0 };
+            performance.getEntriesByType('resource').forEach((r) => {
+                const t = r.initiatorType;
+                if (t === 'css' || /\.css($|\?)/.test(r.name)) totals.css += r.duration;
+                else if (t === 'script' || /\.js($|\?)/.test(r.name)) totals.js += r.duration;
+                else if (t === 'img' || /\.(png|jpg|jpeg|svg|webp|gif)($|\?)/.test(r.name)) totals.img += r.duration;
+                else totals.etc += r.duration;
+            });
+            const labels = { css: 'CSS 합계', js: 'JS 합계', img: '이미지 합계', etc: '기타 합계' };
+            const summaryEl = document.getElementById('perfResourceSummary');
+            summaryEl.innerHTML = ['css', 'js', 'img', 'etc'].map((key) =>
+                '<div class="perf-row"><span>' + labels[key] + '</span><span class="mono">' +
+                Math.round(totals[key]) + 'ms</span></div>'
+            ).join('');
+        }
+
+        let fpsRafId = null;
+        let frameCount = 0;
+        let fpsWindowStart = performance.now();
+
+        function fpsLoop(now) {
+            frameCount += 1;
+            const elapsed = now - fpsWindowStart;
+            if (elapsed >= 250) {
+                const fps = Math.round((frameCount / elapsed) * 1000);
+                const fpsEl = panel.querySelector('[data-metric="fps"]');
+                if (fpsEl) fpsEl.textContent = fps;
+                frameCount = 0;
+                fpsWindowStart = now;
+            }
+            fpsRafId = requestAnimationFrame(fpsLoop);
+        }
+
+        let liveUpdateInterval = null;
+
+        function openPanel() {
+            panel.hidden = false;
+            renderPanel();
+            fpsWindowStart = performance.now();
+            frameCount = 0;
+            fpsRafId = requestAnimationFrame(fpsLoop);
+            liveUpdateInterval = setInterval(renderPanel, 1000);
+        }
+
+        function closePanel() {
+            panel.hidden = true;
+            if (fpsRafId) cancelAnimationFrame(fpsRafId);
+            if (liveUpdateInterval) clearInterval(liveUpdateInterval);
+            fpsRafId = null;
+            liveUpdateInterval = null;
+        }
+
+        badge.addEventListener('click', () => {
+            if (panel.hidden) openPanel(); else closePanel();
+        });
+        closeBtn.addEventListener('click', closePanel);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !panel.hidden) closePanel();
+        });
+
+        setTimeout(updateBadge, 3000);
     })();
     </script>
 </body>
