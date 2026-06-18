@@ -1606,6 +1606,16 @@
             }
         });
 
+        let longtaskCount = 0;
+        let totalBlockingTime = 0;
+
+        safeObserve('longtask', (list) => {
+            for (const entry of list.getEntries()) {
+                longtaskCount += 1;
+                totalBlockingTime += Math.max(0, entry.duration - 50);
+            }
+        });
+
         window.addEventListener('load', () => {
             const nav = performance.getEntriesByType('navigation')[0];
             if (nav) {
@@ -1670,16 +1680,46 @@
             panel.querySelector('[data-metric="ttfb"]').textContent = fmtMs(metrics.ttfb);
             panel.querySelector('[data-metric="dcl"]').textContent = fmtMs(metrics.dcl);
 
+            panel.querySelector('[data-metric="longtaskCount"]').textContent = longtaskCount;
+            panel.querySelector('[data-metric="tbt"]').textContent = Math.round(totalBlockingTime) + 'ms';
+
             updateBadge();
         }
+
+        let fpsRafId = null;
+        let frameCount = 0;
+        let fpsWindowStart = performance.now();
+
+        function fpsLoop(now) {
+            frameCount += 1;
+            const elapsed = now - fpsWindowStart;
+            if (elapsed >= 250) {
+                const fps = Math.round((frameCount / elapsed) * 1000);
+                const fpsEl = panel.querySelector('[data-metric="fps"]');
+                if (fpsEl) fpsEl.textContent = fps;
+                frameCount = 0;
+                fpsWindowStart = now;
+            }
+            fpsRafId = requestAnimationFrame(fpsLoop);
+        }
+
+        let liveUpdateInterval = null;
 
         function openPanel() {
             panel.hidden = false;
             renderPanel();
+            fpsWindowStart = performance.now();
+            frameCount = 0;
+            fpsRafId = requestAnimationFrame(fpsLoop);
+            liveUpdateInterval = setInterval(renderPanel, 1000);
         }
 
         function closePanel() {
             panel.hidden = true;
+            if (fpsRafId) cancelAnimationFrame(fpsRafId);
+            if (liveUpdateInterval) clearInterval(liveUpdateInterval);
+            fpsRafId = null;
+            liveUpdateInterval = null;
         }
 
         badge.addEventListener('click', () => {
