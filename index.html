@@ -1575,10 +1575,10 @@
         const scoreEl  = document.getElementById('perfScore');
         const metrics  = { lcp: null, cls: 0, inp: 0, fcp: null, ttfb: null, dcl: null };
 
-        function safeObserve(type, callback) {
+        function safeObserve(type, callback, extraOptions) {
             if (!window.PerformanceObserver) return;
             try {
-                new PerformanceObserver(callback).observe({ type, buffered: true });
+                new PerformanceObserver(callback).observe(Object.assign({ type, buffered: true }, extraOptions));
             } catch (e) { /* entry type unsupported in this browser */ }
         }
 
@@ -1598,7 +1598,7 @@
             for (const entry of list.getEntries()) {
                 if (entry.duration > metrics.inp) metrics.inp = entry.duration;
             }
-        });
+        }, { durationThreshold: 40 });
 
         safeObserve('paint', (list) => {
             for (const entry of list.getEntries()) {
@@ -1693,12 +1693,21 @@
                 .sort((a, b) => b.duration - a.duration)
                 .slice(0, 5);
             const listEl = document.getElementById('perfResources');
-            listEl.innerHTML = list.map((r) => {
+            listEl.innerHTML = '';
+            list.forEach((r) => {
                 const name = r.name.split('/').pop().split('?')[0] || r.name;
-                return '<div class="perf-resource-row"><span class="perf-resource-row__name">' +
-                    name + '</span><span class="perf-resource-row__dur mono">' +
-                    Math.round(r.duration) + 'ms</span></div>';
-            }).join('');
+                const row = document.createElement('div');
+                row.className = 'perf-resource-row';
+                const nameEl = document.createElement('span');
+                nameEl.className = 'perf-resource-row__name';
+                nameEl.textContent = name;
+                const durEl = document.createElement('span');
+                durEl.className = 'perf-resource-row__dur mono';
+                durEl.textContent = Math.round(r.duration) + 'ms';
+                row.appendChild(nameEl);
+                row.appendChild(durEl);
+                listEl.appendChild(row);
+            });
 
             const totals = { css: 0, js: 0, img: 0, etc: 0 };
             performance.getEntriesByType('resource').forEach((r) => {
