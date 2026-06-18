@@ -1683,7 +1683,37 @@
             panel.querySelector('[data-metric="longtaskCount"]').textContent = longtaskCount;
             panel.querySelector('[data-metric="tbt"]').textContent = Math.round(totalBlockingTime) + 'ms';
 
+            renderResources();
             updateBadge();
+        }
+
+        function renderResources() {
+            const list = performance.getEntriesByType('resource')
+                .slice()
+                .sort((a, b) => b.duration - a.duration)
+                .slice(0, 5);
+            const listEl = document.getElementById('perfResources');
+            listEl.innerHTML = list.map((r) => {
+                const name = r.name.split('/').pop().split('?')[0] || r.name;
+                return '<div class="perf-resource-row"><span class="perf-resource-row__name">' +
+                    name + '</span><span class="perf-resource-row__dur mono">' +
+                    Math.round(r.duration) + 'ms</span></div>';
+            }).join('');
+
+            const totals = { css: 0, js: 0, img: 0, etc: 0 };
+            performance.getEntriesByType('resource').forEach((r) => {
+                const t = r.initiatorType;
+                if (t === 'css' || /\.css($|\?)/.test(r.name)) totals.css += r.duration;
+                else if (t === 'script' || /\.js($|\?)/.test(r.name)) totals.js += r.duration;
+                else if (t === 'img' || /\.(png|jpg|jpeg|svg|webp|gif)($|\?)/.test(r.name)) totals.img += r.duration;
+                else totals.etc += r.duration;
+            });
+            const labels = { css: 'CSS 합계', js: 'JS 합계', img: '이미지 합계', etc: '기타 합계' };
+            const summaryEl = document.getElementById('perfResourceSummary');
+            summaryEl.innerHTML = ['css', 'js', 'img', 'etc'].map((key) =>
+                '<div class="perf-row"><span>' + labels[key] + '</span><span class="mono">' +
+                Math.round(totals[key]) + 'ms</span></div>'
+            ).join('');
         }
 
         let fpsRafId = null;
