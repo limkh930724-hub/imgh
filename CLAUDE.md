@@ -10,8 +10,11 @@ When spawning subagents via the Agent tool, always set `model: "haiku"` unless t
 No build step, no package manager — all files are static HTML.
 
 ```bash
-# Recommended (Python may not be installed)
+# If Node is available (recommended)
 npx serve . -l 8080
+
+# If Python is available
+python -m http.server 8080
 ```
 
 Open `http://localhost:8080` in a browser.
@@ -33,7 +36,7 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 
 | File | Purpose | Lines |
 |---|---|---|
-| `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact | ~1400 |
+| `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact | ~1637 |
 | `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3577 |
 | `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal | ~1437 |
 | `asset.html` | Redirect stub → `/finance.html?tab=compound` | 6 |
@@ -43,7 +46,7 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 | `backtest.html` | Redirect stub → `/finance.html?tab=backtest` | 6 |
 | `workout.html` | 운동 루틴 (workout routine dashboard) | ~431 |
 | `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~249 |
-| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1478 |
+| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1161 |
 | `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1540 |
 | `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용 | ~1155 |
 | `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 | ~1105 |
