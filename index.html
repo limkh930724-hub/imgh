@@ -435,11 +435,19 @@
             box-shadow: var(--shadow-lg);
             border-color: var(--accent);
         }
+        .project-card__thumb {
+            display: block; aspect-ratio: 16 / 10; overflow: hidden;
+            background: var(--bg-3);
+        }
+        .project-card__thumb img {
+            width: 100%; height: 100%; object-fit: cover; object-position: top;
+            display: block; transition: transform 0.35s ease;
+        }
+        .project-card:hover .project-card__thumb img { transform: scale(1.04); }
         .project-card__strip {
-            height: 5px;
+            height: 3px;
         }
         .project-card__body { padding: 1.3rem; flex: 1; display: flex; flex-direction: column; }
-        .project-card__icon { font-size: 1.5rem; margin-bottom: 0.65rem; }
         .project-card__name {
             font-size: 0.95rem; font-weight: 800;
             color: var(--text); margin-bottom: 0.2rem;
@@ -449,12 +457,23 @@
             margin-bottom: 0.9rem; line-height: 1.55; flex: 1;
         }
         .project-card__tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.85rem; }
+        .project-card__links {
+            display: flex; align-items: center; gap: 0.7rem; margin-top: auto;
+        }
         .project-card__link {
             font-size: 0.75rem; font-weight: 800;
-            color: var(--accent); align-self: flex-start;
+            color: var(--accent); text-decoration: none;
             display: flex; align-items: center; gap: 0.25rem;
         }
         .project-card__link::after { content: '↗'; font-size: 0.85em; }
+        .project-card__link--cs { color: var(--text-2); }
+        .project-card__link--cs::after { content: '→'; }
+        .project-card__link--cs:hover { color: var(--accent); }
+        .projects-cs-all {
+            color: var(--accent); font-weight: 700; text-decoration: none;
+            white-space: nowrap; margin-left: 0.4rem;
+        }
+        .projects-cs-all:hover { text-decoration: underline; }
 
         /* Project accent colors */
         .strip--green   { background: linear-gradient(90deg, #16a34a, #4ade80); }
@@ -1123,86 +1142,114 @@
         <div class="section__inner">
             <p class="s-label" data-reveal="up">Projects</p>
             <h2 class="s-title" data-reveal="up">사이드 프로젝트</h2>
-            <p class="projects-meta" data-reveal="up">업무 외 시간에 직접 기획·설계·개발한 개인 프로젝트입니다. 기획부터 배포까지 단독 수행.</p>
+            <p class="projects-meta" data-reveal="up">업무 외 시간에 직접 기획·설계·개발한 개인 프로젝트입니다. 기획부터 배포까지 단독 수행. <a class="projects-cs-all" href="casestudy.html">기획 케이스 스터디 전체 보기 →</a></p>
             <div class="projects-grid">
 
-                <a class="project-card" href="fear-greed.html" data-reveal="scale">
+                <div class="project-card" data-reveal="scale">
+                    <a class="project-card__thumb" href="fear-greed.html" aria-label="공포탐욕지수 열기">
+                        <img src="assets/thumbs/thumb-feargreed.webp" alt="공포탐욕지수 스크린샷" loading="lazy">
+                    </a>
                     <div class="project-card__strip strip--green"></div>
                     <div class="project-card__body">
-                        <div class="project-card__icon">📈</div>
                         <p class="project-card__name">공포탐욕지수</p>
                         <p class="project-card__sub">CNN Fear & Greed Index 실시간 조회. 캘린더 히트맵, S&P500 오버레이, 포트폴리오 계산기.</p>
                         <div class="project-card__tags">
                             <span class="tag">Canvas API</span><span class="tag">Chart.js</span><span class="tag">Yahoo Finance</span>
                         </div>
-                        <span class="project-card__link">Live</span>
+                        <div class="project-card__links">
+                            <a class="project-card__link" href="fear-greed.html">Live</a>
+                            <a class="project-card__link project-card__link--cs" href="casestudy-feargreed.html">케이스 스터디</a>
+                        </div>
                     </div>
-                </a>
+                </div>
 
-                <a class="project-card" href="commerce.html" data-reveal="scale" style="--reveal-delay:0.08s">
+                <div class="project-card" data-reveal="scale" style="--reveal-delay:0.08s">
+                    <a class="project-card__thumb" href="commerce.html" aria-label="커머스 시스템 열기">
+                        <img src="assets/thumbs/thumb-commerce.webp" alt="커머스 시스템 스크린샷" loading="lazy">
+                    </a>
                     <div class="project-card__strip strip--blue"></div>
                     <div class="project-card__body">
-                        <div class="project-card__icon">🛒</div>
                         <p class="project-card__name">커머스 시스템</p>
                         <p class="project-card__sub">OMS·WMS·PLM 통합 커머스. 관리자 대시보드, 장바구니·주문 플로우.</p>
                         <div class="project-card__tags">
                             <span class="tag">React CDN</span><span class="tag">Context API</span>
                         </div>
-                        <span class="project-card__link">Live</span>
+                        <div class="project-card__links">
+                            <a class="project-card__link" href="commerce.html">Live</a>
+                            <a class="project-card__link project-card__link--cs" href="casestudy-commerce.html">케이스 스터디</a>
+                        </div>
                     </div>
-                </a>
+                </div>
 
-                <a class="project-card" href="finance.html" data-reveal="scale" style="--reveal-delay:0.16s">
+                <div class="project-card" data-reveal="scale" style="--reveal-delay:0.16s">
+                    <a class="project-card__thumb" href="finance.html" aria-label="금융 도구 모음 열기">
+                        <img src="assets/thumbs/thumb-finance.webp" alt="금융 도구 모음 스크린샷" loading="lazy">
+                    </a>
                     <div class="project-card__strip strip--amber"></div>
                     <div class="project-card__body">
-                        <div class="project-card__icon">💹</div>
                         <p class="project-card__name">금융 도구 모음</p>
                         <p class="project-card__sub">백테스트 비교기 · 복리 계산기 · 목표 자산 · 매매 일지 — 4탭 통합.</p>
                         <div class="project-card__tags">
                             <span class="tag">Yahoo Finance API</span><span class="tag">Chart.js</span><span class="tag">Flatpickr</span>
                         </div>
-                        <span class="project-card__link">Live</span>
+                        <div class="project-card__links">
+                            <a class="project-card__link" href="finance.html">Live</a>
+                            <a class="project-card__link project-card__link--cs" href="casestudy-backtest.html">케이스 스터디</a>
+                        </div>
                     </div>
-                </a>
+                </div>
 
-                <a class="project-card" href="disaster.html" data-reveal="scale" style="--reveal-delay:0.24s">
+                <div class="project-card" data-reveal="scale" style="--reveal-delay:0.24s">
+                    <a class="project-card__thumb" href="disaster.html" aria-label="재난 대응 시뮬레이터 열기">
+                        <img src="assets/thumbs/thumb-disaster.webp" alt="재난 대응 시뮬레이터 스크린샷" loading="lazy">
+                    </a>
                     <div class="project-card__strip strip--red"></div>
                     <div class="project-card__body">
-                        <div class="project-card__icon">🚨</div>
                         <p class="project-card__name">재난 대응 시뮬레이터</p>
                         <p class="project-card__sub">대피소 지도, 재난문자 시뮬레이션, 경보·경로 안내. 실무 도메인 기반 기획.</p>
                         <div class="project-card__tags">
                             <span class="tag">GIS · Map</span><span class="tag">Vanilla JS</span>
                         </div>
-                        <span class="project-card__link">Live</span>
+                        <div class="project-card__links">
+                            <a class="project-card__link" href="disaster.html">Live</a>
+                            <a class="project-card__link project-card__link--cs" href="casestudy-disaster.html">케이스 스터디</a>
+                        </div>
                     </div>
-                </a>
+                </div>
 
-                <a class="project-card" href="workout.html" data-reveal="scale" style="--reveal-delay:0.32s">
+                <div class="project-card" data-reveal="scale" style="--reveal-delay:0.32s">
+                    <a class="project-card__thumb" href="workout.html" aria-label="운동 루틴 트래커 열기">
+                        <img src="assets/thumbs/thumb-workout.webp" alt="운동 루틴 트래커 스크린샷" loading="lazy">
+                    </a>
                     <div class="project-card__strip strip--violet"></div>
                     <div class="project-card__body">
-                        <div class="project-card__icon">💪</div>
                         <p class="project-card__name">운동 루틴 트래커</p>
                         <p class="project-card__sub">세션 기록, 체크리스트, 주간 스트릭, 통계 대시보드.</p>
                         <div class="project-card__tags">
                             <span class="tag">localStorage</span><span class="tag">Vanilla JS</span>
                         </div>
-                        <span class="project-card__link">Live</span>
+                        <div class="project-card__links">
+                            <a class="project-card__link" href="workout.html">Live</a>
+                        </div>
                     </div>
-                </a>
+                </div>
 
-                <a class="project-card" href="portfolio_tracker.html" data-reveal="scale" style="--reveal-delay:0.40s">
+                <div class="project-card" data-reveal="scale" style="--reveal-delay:0.40s">
+                    <a class="project-card__thumb" href="portfolio_tracker.html" aria-label="포트폴리오 트래커 열기">
+                        <img src="assets/thumbs/thumb-pt.webp" alt="포트폴리오 트래커 스크린샷" loading="lazy">
+                    </a>
                     <div class="project-card__strip strip--teal"></div>
                     <div class="project-card__body">
-                        <div class="project-card__icon">💼</div>
                         <p class="project-card__name">포트폴리오 트래커</p>
                         <p class="project-card__sub">비밀번호 게이트, 스냅샷 기반 수익률 추적, 섹터 도넛 차트.</p>
                         <div class="project-card__tags">
                             <span class="tag">SHA-256 Auth</span><span class="tag">Canvas API</span>
                         </div>
-                        <span class="project-card__link">Live</span>
+                        <div class="project-card__links">
+                            <a class="project-card__link" href="portfolio_tracker.html">Live</a>
+                        </div>
                     </div>
-                </a>
+                </div>
 
             </div>
         </div>
