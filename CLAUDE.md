@@ -36,21 +36,21 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 
 | File | Purpose | Lines |
 |---|---|---|
-| `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact | ~1637 |
-| `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3577 |
-| `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal | ~1437 |
+| `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact | ~1831 |
+| `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3984 |
+| `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal | ~1546 |
 | `asset.html` | Redirect stub → `/finance.html?tab=compound` | 6 |
 | `compound.html` | Redirect stub → `/finance.html?tab=compound` | 12 |
 | `goal.html` | Redirect stub → `/finance.html?tab=goal` | 12 |
 | `journal.html` | Redirect stub → `/finance.html?tab=journal` | 12 |
 | `backtest.html` | Redirect stub → `/finance.html?tab=backtest` | 6 |
-| `workout.html` | 운동 루틴 (workout routine dashboard) | ~431 |
-| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~249 |
-| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1161 |
-| `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1540 |
-| `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용 | ~1155 |
-| `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 | ~1105 |
-| `casestudy.html` | 기획 케이스 스터디 갤러리 — 카드 그리드, 각 케이스 상세 페이지로 링크 | ~237 |
+| `workout.html` | 운동 루틴 (workout routine dashboard) | ~432 |
+| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~254 |
+| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1266 |
+| `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1681 |
+| `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용 | ~1157 |
+| `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 | ~1265 |
+| `casestudy.html` | 기획 케이스 스터디 갤러리 — 카드 그리드, 각 케이스 상세 페이지로 링크 | ~267 |
 | `casestudy-commerce.html` | 커머스 시스템 기획 케이스 스터디 상세 | ~366 |
 | `casestudy-feargreed.html` | 공포탐욕지수 기획 케이스 스터디 상세 | ~374 |
 | `casestudy-disaster.html` | 재난 대응 시뮬레이터 기획 케이스 스터디 상세 | ~420 |
@@ -67,16 +67,20 @@ Each HTML file is structured: `<head>` (font import + inline `<style>`) → `<bo
 1. `#hero` — 2-column (left: 이름·철학·CTA / right: 2×2 stat grid). 카운터 애니메이션(0→target), 히어로 stagger entrance.
 2. `#career` — 2-col grid, SM(2020–2023) vs SI(2023–현재). SI 카드에 `career-card--current` + pulse badge.
 3. `#skills` — 3-col skill card grid. 카드 진입 시 내부 태그 stagger(`--i` CSS variable).
-4. `#projects` — 6개 프로젝트 카드(3×2), `section--free`. 각 카드 상단 컬러 strip + 3D tilt(mousemove).
+4. `#projects` — 6개 프로젝트 카드(3×2), `section--free`. 카드는 `<div class="project-card">`(중첩 앵커 방지를 위해 `<a>`에서 변경), 상단 썸네일(`assets/thumbs/thumb-<slug>.webp`, slug: feargreed/commerce/finance/disaster/workout/pt, 16:10 cover, lazy) + 3px 컬러 strip + 푸터 `Live ↗ · 케이스 스터디 →` 2링크(케이스 스터디는 4개 카드만: feargreed/commerce/backtest/disaster), 3D tilt 유지. 섹션 부제: casestudy.html 갤러리로 링크. **썸네일 재캡처**: 프로덕션(imgh-one.vercel.app)에서 라이트 테마·1280×800 캡처 → sharp `.resize(1280,800,{fit:'cover',position:'top'}).webp({quality:80})` → `assets/thumbs/` (Node 18은 sharp@0.32 필요).
 5. `#contact` — 2-col (left: 링크 목록 / right: ID 카드, 모바일 숨김).
 
-**고정 UI**: `.theme-toggle`(top-right), `.dot-nav`(right side, 5 dots), `#cursorDot`+`#cursorRing`(custom cursor, desktop only).
+**고정 UI**: `.theme-toggle`(top-right), `.dot-nav`(right side, 5 dots), `#cursorDot`+`#cursorRing`(custom cursor, desktop only), `.perf-widget`(bottom-right).
+
+**성능 모니터링 위젯** (`.perf-widget`): fixed bottom-right ⚡ badge (`#perfBadge`) showing a live score; click toggles `#perfPanel`. All measurement via `PerformanceObserver` wrapped in `safeObserve()` (silently skips unsupported entry types). Panel sections: Core Web Vitals chips (LCP/CLS/INP — INP observer uses `durationThreshold: 40`), loading metrics (FCP/TTFB/DCL from the navigation entry on `load`), runtime (FPS via rAF loop with 250ms windows — the rAF loop and a 1s `renderPanel()` interval run only while the panel is open; Long Task count + TBT = Σ max(0, duration−50)), and resource timing (top-5 slowest by duration + per-type CSS/JS/img/etc totals; resource names inserted via `textContent`, not innerHTML — keep it that way). Score formula: `LCP×0.4 + CLS×0.3 + INP×0.3`, each scored 100→0 linearly across Google's good/poor thresholds (2500/4000ms, 0.1/0.25, 200/500ms). Badge bands: ≥90 good, ≥50 mid, else poor (`data-band` attribute drives color).
 
 **`#bgCanvas`**: `position:fixed; z-index:0` — Particles & Nodes Canvas 배경. 파티클 수 = `min(110, W*H/9000)`. 150px 이내 파티클끼리 선 연결, 마우스 100px 이내 반발. 테마 전환 시 색상 자동변경(라이트: `#16a34a` / 다크: `#4ade80`). 모든 `.section`은 `z-index:1`로 canvas 위에 렌더.
 
 **스크롤 리빌 시스템**: `[data-reveal]` 속성 요소에 `IntersectionObserver`로 `.revealed` 클래스 추가. `--reveal-delay` CSS 변수로 stagger 제어. `.career-card`는 좌/우 slideIn, `.skill-card.revealed`는 내부 태그 stagger.
 
 **모바일(≤768px)**: `scroll-snap-type` 유지, 모든 섹션 `min-height:100vh` 강제. dot-nav 숨김, custom cursor 숨김, 3D tilt 비활성.
+
+**구조 및 스타일**: `.section__inner` max-width는 1080px. 스킬 태그 위계: `.tag--core`(그린 틴트, 6개 핵심 태그). 히어로 칩·스킬 헤더·contact 아이콘은 인라인 스트로크 SVG(24×24 viewBox, `currentColor`).
 
 ### Finance Hub (`finance.html`)
 
@@ -95,9 +99,11 @@ Password-gated private portfolio tracker. Key architecture:
 - **Password gate** — full-screen overlay (`#pt-gate`, `position:fixed;z-index:9999`) rendered before `.app`. Gate JS runs in a blocking IIFE in `<head>` area of body, using `crypto.subtle.digest('SHA-256', ...)` to compare against the stored hash. `sessionStorage('pt-auth')` persists auth for the browser session.
 - **Data** — all snapshots are hardcoded in the `snapshots` array (no API calls). Each snapshot: `{date, label, totalAsset, totalEval, totalPnl, returnPct, sections[]}`. Add new data by appending to `snapshots`.
 - **KPI Banner** — full-width 4-column strip (총투자자산 / 현재평가액 / 수익률 / 총손익) rendered by `renderKpiBanner()`. Rendered as large `28px` numbers above the main body.
-- **Layout** — `.app` → `.topbar` → `.kpi-banner` → `.body` (`.left` sidebar 260px + `.right-wrap` flex:1). Desktop: `height:100vh; overflow:hidden`. Mobile (`≤768px`): stacks vertically, scrolling enabled.
+- **Layout** — `.app` → `.topbar` → `.kpi-banner` → `#chart-section` (full-width trend chart) → `.body` (`.left` sidebar 260px + `.right-wrap` flex:1). Desktop: `height:100vh; overflow:hidden`. Mobile (`≤768px`): stacks vertically, scrolling enabled.
+- **Trend chart** (`renderChart()`) — full-width `#chart-section` between the KPI banner and the body split; injects `trendCardHTML()` then calls `drawChart()` (interactive canvas with hover) via `requestAnimationFrame`. Redrawn on window resize.
 - **Left panel** (`renderLeft()`) — donut SVG (asset allocation by section) + horizontal bar chart (P&L per section). Donut built from `rows[].amt`; bar from `rows[].pnl`.
-- **Right panel** (`renderRight()`) — interactive canvas trend chart (`drawChart()`) + holdings cards filtered by `.itab` section tabs.
+- **Right panel** (`renderRight()`) — holdings cards filtered by `.itab` section tabs.
+- **Render entry point** — `render()` = `renderKpiBanner()` → `renderLeft()` → `renderChart()` → `renderRight()`.
 - **Calendar modal** — date picker to switch between snapshots. Days with data highlighted; clicking calls `pickDate(idx)`.
 - **Color convention**: `--pos:#c0000a` (red = profit), `--neg:#1252a8` (blue = loss) — **inverted vs typical** financial convention.
 - **Adding a new snapshot**: append an object to `snapshots[]` with the same shape as existing entries. `render()` auto-selects the last snapshot on load.
@@ -255,13 +261,15 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 
 ### Service Worker (`sw.js`)
 
-Current `CACHE_NAME = 'fg-cache-v8'`. PRECACHE includes the main pages and assets. **Note:** `finance.html` (the actual finance hub), `disaster.html`, `Certificate.html`, `portfolio_tracker.html`, and `casestudy*.html` are not yet in PRECACHE — the listed finance entries (`/compound.html`, `/goal.html`, etc.) are only the redirect stubs, not the hub itself. When adding a new page, also add it to PRECACHE and bump `CACHE_NAME` to invalidate on deploy.
+Current `CACHE_NAME = 'fg-cache-v9'`. PRECACHE includes the main pages and assets. **Note:** `finance.html` (the actual finance hub), `disaster.html`, `Certificate.html`, `portfolio_tracker.html`, and `casestudy*.html` are not yet in PRECACHE — the listed finance entries (`/compound.html`, `/goal.html`, etc.) are only the redirect stubs, not the hub itself. When adding a new page, also add it to PRECACHE and bump `CACHE_NAME` to invalidate on deploy.
 
 ### Other files
 
 - **`manifest.json`** + **`icon.svg`** — PWA web app manifest and home screen icon. Referenced in `sw.js` PRECACHE and `<link rel="manifest">` in `fear-greed.html`, but **these files do not currently exist** in the repo and need to be created.
 - **`index.backup.html`** / **`index.backup2.html`** — snapshots of `index.html` at earlier redesign checkpoints; not served, safe to ignore.
+- **`자기소개서_임광호.pdf`** — resume PDF served from root, linked from the `index.html` hero CTA (`이력서 PDF ↗` outline button, opens in new tab).
 - **`*.png` files in root** — browser screenshots taken during development/verification; not served, safe to ignore.
+- **`.chrome-check/`**, **`.understand-anything/`**, **`__pycache__/`** — tool-generated artifacts; not served, safe to ignore.
 - **`.codex-*.html`** / **`.codex-*.js`** — temporary test artifacts generated by Codex; not served, safe to ignore.
 - **`.superpowers/`** — brainstorm and design artifacts generated by the superpowers skill system; not served.
 - **`.claude/worktrees/`** — isolated git worktrees created by the Claude Code worktree skill; safe to ignore.

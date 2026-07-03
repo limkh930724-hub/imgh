@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fg-cache-v8';
+const CACHE_NAME = 'fg-cache-v9';
 
 // Static assets to cache on install
 const PRECACHE = ['/', '/index.html', '/fear-greed.html', '/asset.html', '/compound.html', '/goal.html', '/journal.html', '/backtest.html', '/workout.html', '/agents.html', '/commerce.html', '/manifest.json', '/icon.svg'];
