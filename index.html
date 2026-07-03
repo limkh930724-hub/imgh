@@ -164,6 +164,11 @@
             font-size: 0.7rem; font-weight: 700; color: var(--text-2);
             white-space: nowrap;
         }
+        .tag--core {
+            background: var(--accent-2);
+            border-color: var(--accent-3);
+            color: var(--accent);
+        }
 
         /* ══════════════════════════════════════
            HERO
@@ -864,7 +869,7 @@
 
     <!-- ══ Performance Monitor Widget ══ -->
     <div class="perf-widget" id="perfWidget">
-        <button class="perf-badge" id="perfBadge" title="성능 모니터링" aria-label="성능 모니터링 열기">
+        <button class="perf-badge" id="perfBadge" title="실시간 Core Web Vitals 점수" aria-label="성능 모니터링 열기">
             <span class="perf-badge__bolt">⚡</span>
             <span class="perf-badge__score mono" id="perfScore">--</span>
         </button>
@@ -1057,9 +1062,9 @@
                         <p class="skill-card__title">Backend</p>
                     </div>
                     <div class="skill-tags">
-                        <span class="tag">Java 8</span>
-                        <span class="tag">Spring MVC 3.2</span>
-                        <span class="tag">eGovFramework 3.1</span>
+                        <span class="tag tag--core">Java 8</span>
+                        <span class="tag tag--core">Spring MVC 3.2</span>
+                        <span class="tag tag--core">eGovFramework 3.1</span>
                         <span class="tag">JSP / Servlet</span>
                         <span class="tag">Spring AOP</span>
                         <span class="tag">Apache Tiles</span>
@@ -1073,9 +1078,9 @@
                         <p class="skill-card__title">Database</p>
                     </div>
                     <div class="skill-tags">
-                        <span class="tag">Oracle</span>
+                        <span class="tag tag--core">Oracle</span>
                         <span class="tag">MyBatis</span>
-                        <span class="tag">SQL Tuning</span>
+                        <span class="tag tag--core">SQL Tuning</span>
                         <span class="tag">다중 DB 연결</span>
                         <span class="tag">DBCP / HikariCP</span>
                         <span class="tag">Jasypt 암호화</span>
@@ -1088,7 +1093,7 @@
                         <p class="skill-card__title">GIS · Map</p>
                     </div>
                     <div class="skill-tags">
-                        <span class="tag">OpenLayers</span>
+                        <span class="tag tag--core">OpenLayers</span>
                         <span class="tag">T-Map API</span>
                         <span class="tag">V-World API</span>
                         <span class="tag">좌표변환</span>
