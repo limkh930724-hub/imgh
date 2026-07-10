@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자산 계산기 — 기획 아카이브</title>
+    <meta name="description" content="자산 계산기의 기획 배경과 설계 결정 과정을 정리한 케이스 스터디.">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="자산 계산기 — 기획 케이스 스터디">
+    <meta property="og:description" content="자산 계산기의 기획 배경과 설계 결정 과정을 정리한 케이스 스터디.">
+    <meta property="og:url" content="https://imgh-one.vercel.app/casestudy-asset.html">
+    <meta property="og:image" content="https://imgh-one.vercel.app/assets/thumbs/thumb-finance.webp">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -154,6 +161,7 @@
 
         /* TYPOGRAPHY HELPERS */
         .cs-panel h1 { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.5rem; }
+        .cs-panel h2.cs-panel-title { font-size: 1.8rem; font-weight: 800; line-height: 1.2; margin: 0 0 0.5rem; color: inherit; }
         .cs-panel h2 { font-size: 1rem; font-weight: 700; color: var(--ink); margin: 2rem 0 0.75rem; }
         .cs-panel p { font-size: 0.87rem; line-height: 1.75; color: var(--ink-2); margin-bottom: 0.9rem; }
         .cs-panel .subtitle { font-size: 1rem; color: var(--ink-3); margin-bottom: 1.5rem; }
@@ -239,7 +247,7 @@
 
         <!-- 고민과 결정 -->
         <section id="tab-decisions" class="cs-panel">
-            <h1>고민과 결정</h1>
+            <h2 class="cs-panel-title">고민과 결정</h2>
             <p class="subtitle">설계 과정에서 맞닥뜨린 네 가지 선택지</p>
 
             <div class="decision-card">
@@ -277,7 +285,7 @@
 
         <!-- 화면 설계 -->
         <section id="tab-design" class="cs-panel">
-            <h1>화면 설계</h1>
+            <h2 class="cs-panel-title">화면 설계</h2>
             <p class="subtitle">3탭 구조와 URL 기반 상태 관리</p>
 
             <h2>페이지 구조</h2>
@@ -335,7 +343,7 @@ journal.html   → location.replace('/asset.html?tab=journal')
 
         <!-- 완성 -->
         <section id="tab-result" class="cs-panel">
-            <h1>완성</h1>
+            <h2 class="cs-panel-title">완성</h2>
             <p class="subtitle">구현된 것과 배운 것</p>
 
             <h2>구현 기능</h2>

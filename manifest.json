@@ -1,0 +1,18 @@
+{
+    "name": "임광호 포트폴리오",
+    "short_name": "임광호",
+    "description": "Java 백엔드 개발자 임광호의 포트폴리오 허브 — 공포탐욕지수, 금융 도구, 커머스 시스템 등 사이드 프로젝트 모음",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#16a34a",
+    "lang": "ko",
+    "icons": [
+        {
+            "src": "/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        }
+    ]
+}

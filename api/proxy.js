@@ -1,7 +1,7 @@
 const ALLOWED = [
-    'https://production.dataviz.cnn.io',
-    'https://query1.finance.yahoo.com',
-    'https://open.er-api.com',
+    'https://production.dataviz.cnn.io/',
+    'https://query1.finance.yahoo.com/',
+    'https://open.er-api.com/',
 ];
 
 export default async function handler(req, res) {

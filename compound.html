@@ -2,11 +2,14 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=/finance.html?tab=compound">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
     <title>복리 계산기 이동 중</title>
+    <script>
+        var extra = location.search.replace(/^\?/, '');
+        location.replace('/finance.html?tab=compound' + (extra ? '&' + extra : ''));
+    </script>
+    <noscript><meta http-equiv="refresh" content="0; url=/finance.html?tab=compound"></noscript>
 </head>
-<body>
-    <script>location.replace('/finance.html?tab=compound');</script>
-</body>
+<body></body>
 </html>

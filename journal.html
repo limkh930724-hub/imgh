@@ -2,11 +2,14 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=/finance.html?tab=journal">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
     <title>매매일지 이동 중</title>
+    <script>
+        var extra = location.search.replace(/^\?/, '');
+        location.replace('/finance.html?tab=journal' + (extra ? '&' + extra : ''));
+    </script>
+    <noscript><meta http-equiv="refresh" content="0; url=/finance.html?tab=journal"></noscript>
 </head>
-<body>
-    <script>location.replace('/finance.html?tab=journal');</script>
-</body>
+<body></body>
 </html>

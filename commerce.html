@@ -4,12 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IGH | 임광호 포트폴리오</title>
+  <meta name="description" content="OMS·WMS·PLM을 하나로 묶은 커머스 시스템 데모 — React 기반 주문·재고·상품 관리 시뮬레이션.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="커머스 시스템 | 임광호 포트폴리오">
+  <meta property="og:description" content="OMS·WMS·PLM을 하나로 묶은 커머스 시스템 데모 — React 기반 주문·재고·상품 관리 시뮬레이션.">
+  <meta property="og:url" content="https://imgh-one.vercel.app/commerce.html">
+  <meta property="og:image" content="https://imgh-one.vercel.app/assets/thumbs/thumb-commerce.webp">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏬</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     :root {
@@ -31,7 +38,7 @@
       --shadow-md: 0 4px 16px rgba(28,24,20,0.08), 0 1px 4px rgba(28,24,20,0.05);
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Plus Jakarta Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+    body { font-family: 'Plus Jakarta Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; word-break: keep-all; overflow-wrap: break-word; }
 
     /* ── TopNav ── */
     .topnav { position: sticky; top: 0; z-index: 200; background: rgba(250,250,248,0.94); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); height: 56px; padding: 0 2rem; display: flex; align-items: center; }
@@ -317,7 +324,7 @@
       try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : fallback; }
       catch { return fallback; }
     }
-    function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} }
+    function save(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { console.warn('localStorage 저장 실패:', key, e); } }
     function fmt(n) { return Number(n).toLocaleString('ko-KR') + '원'; }
     function fmtDate(iso) {
       const d = new Date(iso);

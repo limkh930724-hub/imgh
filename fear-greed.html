@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1a1a1a">
     <title>공포탐욕지수 | 임광호 포트폴리오</title>
+    <meta name="description" content="CNN 공포탐욕지수를 한눈에 — 실시간 게이지, 타임라인 차트, S&P500 오버레이, 캘린더 히트맵, 관심종목까지 제공하는 시장 심리 대시보드.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="공포탐욕지수 | 임광호 포트폴리오">
+    <meta property="og:description" content="CNN 공포탐욕지수를 한눈에 — 실시간 게이지, 타임라인 차트, 캘린더 히트맵을 제공하는 시장 심리 대시보드.">
+    <meta property="og:url" content="https://imgh-one.vercel.app/fear-greed.html">
+    <meta property="og:image" content="https://imgh-one.vercel.app/assets/thumbs/thumb-feargreed.webp">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,6 +82,8 @@
             background: var(--bg);
             color: var(--text);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+            word-break: keep-all;
+            overflow-wrap: break-word;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -877,12 +886,18 @@
             .tabs {
                 width: 100%;
                 margin-left: 0;
+                /* 좁은 화면에서 라벨 잘림 방지 — 가로 스크롤 */
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
             }
+            .tabs::-webkit-scrollbar { display: none; }
             .tab {
-                flex: 1;
-                padding: 0.5rem 0.4rem;
+                flex: 1 0 auto;
+                padding: 0.5rem 0.7rem;
                 font-size: 0.75rem;
                 text-align: center;
+                white-space: nowrap;
             }
         }
 
@@ -1494,13 +1509,13 @@
         <div id="card" style="position:relative;">
             <div class="loading-overlay"><div class="spinner"></div></div>
 
-            <div class="tabs">
-                <button class="tab active" data-tab="overview" data-i18n="tabOverview">Overview</button>
-                <button class="tab" data-tab="timeline" data-i18n="tabTimeline">Timeline</button>
-                <button class="tab" data-tab="indicators" data-i18n="tabIndicators">Indicators</button>
-                <button class="tab" data-tab="calendar" data-i18n="tabCalendar">Calendar</button>
-                <button class="tab" data-tab="watchlist" data-i18n="tabWatchlist">Watchlist</button>
-                <button class="tab" data-tab="portfolio" data-i18n="tabPortfolio">Portfolio</button>
+            <div class="tabs" role="tablist">
+                <button class="tab active" role="tab" aria-selected="true" data-tab="overview" data-i18n="tabOverview">Overview</button>
+                <button class="tab" role="tab" aria-selected="false" data-tab="timeline" data-i18n="tabTimeline">Timeline</button>
+                <button class="tab" role="tab" aria-selected="false" data-tab="indicators" data-i18n="tabIndicators">Indicators</button>
+                <button class="tab" role="tab" aria-selected="false" data-tab="calendar" data-i18n="tabCalendar">Calendar</button>
+                <button class="tab" role="tab" aria-selected="false" data-tab="watchlist" data-i18n="tabWatchlist">Watchlist</button>
+                <button class="tab" role="tab" aria-selected="false" data-tab="portfolio" data-i18n="tabPortfolio">Portfolio</button>
             </div>
 
             <!-- Overview View -->
@@ -1508,7 +1523,7 @@
                 <div class="main-content">
                     <div class="gauge-section">
                         <div class="gauge-wrapper">
-                            <canvas id="gaugeCanvas" class="gauge-canvas" width="500" height="340"></canvas>
+                            <canvas id="gaugeCanvas" class="gauge-canvas" width="500" height="340" role="img" aria-label="공포탐욕지수 게이지 차트 (Fear & Greed Index gauge)"></canvas>
                         </div>
                         <div class="gauge-footer">
                             <div class="last-updated" id="lastUpdated"></div>
@@ -1584,7 +1599,7 @@
                     <button class="period-btn sp500-toggle" id="sp500ToggleBtn" data-i18n="sp500Overlay">S&amp;P 500</button>
                 </div>
                 <div class="timeline-chart-wrapper">
-                    <canvas id="timelineCanvas" class="timeline-canvas" width="900" height="400"></canvas>
+                    <canvas id="timelineCanvas" class="timeline-canvas" width="900" height="400" role="img" aria-label="공포탐욕지수 타임라인 차트 (Fear & Greed Index timeline)"></canvas>
                     <div class="chart-tooltip" id="chartTooltip">
                         <div class="tt-date"></div>
                         <div class="tt-score"></div>
@@ -1613,7 +1628,7 @@
                     <button class="period-btn" id="calBtnPrev"></button>
                 </div>
                 <div class="cal-wrapper">
-                    <canvas id="calendarCanvas"></canvas>
+                    <canvas id="calendarCanvas" role="img" aria-label="공포탐욕지수 연간 캘린더 히트맵 (Fear & Greed Index calendar heatmap)"></canvas>
                     <div class="chart-tooltip" id="calTooltip" style="display:none">
                         <div class="tt-date"></div>
                         <div class="tt-score"></div>
@@ -2084,10 +2099,18 @@
         //  TAB SWITCHING
         // ══════════════════════════════════════
         const tabs = document.querySelectorAll('.tab');
-        tabs.forEach(tab => {
+        tabs.forEach((tab, tabIdx) => {
+            tab.addEventListener('keydown', (e) => {
+                if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+                e.preventDefault();
+                const next = (tabIdx + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+                tabs[next].focus();
+                tabs[next].click();
+            });
             tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
+                tabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
                 tab.classList.add('active');
+                tab.setAttribute('aria-selected', 'true');
 
                 document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
                 const target = tab.dataset.tab;
@@ -2493,6 +2516,7 @@
         // Tooltip
         const tooltip = document.getElementById('chartTooltip');
 
+        let _tlLastHoverX = null;
         tlCanvas.addEventListener('mousemove', (e) => {
             if (filteredData.length === 0) return;
 
@@ -2526,8 +2550,11 @@
             const chartH = chartB - chartT;
             const py = chartB - (closest.y / 100) * chartH;
 
-            // Draw crosshair
-            drawTimeline();
+            // 호버 지점이 안 바뀌면 차트 재그리기 생략 (툴팁 위치만 갱신)
+            if (closest.x !== _tlLastHoverX) {
+                _tlLastHoverX = closest.x;
+                // Draw crosshair
+                drawTimeline();
             tCtx.save();
             tCtx.setLineDash([3, 3]);
             tCtx.strokeStyle = '#999';
@@ -2548,6 +2575,7 @@
             tCtx.lineWidth = 2;
             tCtx.stroke();
             tCtx.restore();
+            }
 
             // Tooltip
             const date = new Date(closest.x);
@@ -2588,6 +2616,7 @@
 
         tlCanvas.addEventListener('mouseleave', () => {
             tooltip.style.display = 'none';
+            _tlLastHoverX = null;
             if (filteredData.length > 0) drawTimeline();
         });
 
@@ -2756,6 +2785,7 @@
         //  INDICATORS (Yahoo Finance + Chart.js)
         // ══════════════════════════════════════
         let indicatorsLoaded = false;
+        let indicatorsFetching = false;
         const CORS_PROXY = '/api/proxy?url=';
         const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart/';
 
@@ -2914,6 +2944,8 @@
         }
 
         async function fetchIndicators() {
+            if (indicatorsFetching) return;
+            indicatorsFetching = true;
             const loadingEl = document.getElementById('indicatorsLoading');
             const errorEl = document.getElementById('indicatorsError');
             const containerEl = document.getElementById('indicatorsContainer');
@@ -3107,13 +3139,17 @@
                 loadingEl.style.display = 'none';
                 errorEl.style.display = 'block';
                 errorEl.textContent = `${t('indicatorsError')} (${e.message})`;
+            } finally {
+                indicatorsFetching = false;
             }
         }
 
         // ══════════════════════════════════════
         //  PORTFOLIO CALCULATOR
         // ══════════════════════════════════════
-        let portfolioItems = JSON.parse(localStorage.getItem('fg-portfolio') || '[]');
+        let portfolioItems;
+        try { portfolioItems = JSON.parse(localStorage.getItem('fg-portfolio') || '[]'); } catch { portfolioItems = []; }
+        if (!Array.isArray(portfolioItems)) portfolioItems = [];
         // shape: [{ sym: string, qty: number, buyPrice: number, currentPrice: number|null, loading: boolean }]
 
         function savePortfolio() {
@@ -3345,7 +3381,7 @@
         }
 
         // Daily cache: { date, values, prevDate, prevValues }
-        function getFxCache() { return JSON.parse(localStorage.getItem('fg-fx-cache') || 'null'); }
+        function getFxCache() { try { return JSON.parse(localStorage.getItem('fg-fx-cache') || 'null'); } catch { return null; } }
         function setFxCache(date, values, prevDate, prevValues) {
             localStorage.setItem('fg-fx-cache', JSON.stringify({ date, values, prevDate, prevValues }));
         }
@@ -3751,7 +3787,10 @@
         let wlSecondsLeft = WL_REFRESH;
 
         function getWatchlist() {
-            return JSON.parse(localStorage.getItem('fg-watchlist') || '[]');
+            try {
+                const list = JSON.parse(localStorage.getItem('fg-watchlist') || '[]');
+                return Array.isArray(list) ? list : [];
+            } catch { return []; }
         }
 
         function saveWatchlist(items) {
@@ -3946,8 +3985,8 @@
         applyTheme();
         applyTranslations();
 
-        fetchExchangeRates().then(startFxCountdown);
-        fetchMarketTicker().then(startMktCountdown);
+        fetchExchangeRates().then(startFxCountdown).catch(e => console.warn('환율 로드 실패:', e));
+        fetchMarketTicker().then(startMktCountdown).catch(e => console.warn('시장 지수 로드 실패:', e));
         fetchData();
 
         // ─── Service Worker ───────────────────────────────────────────────────────

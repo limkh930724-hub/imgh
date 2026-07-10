@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>운동 루틴 | 임광호 포트폴리오</title>
+    <meta name="description" content="운동 세션 기록, 체크리스트, 주간 스트릭을 관리하는 운동 루틴 대시보드.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="운동 루틴 | 임광호 포트폴리오">
+    <meta property="og:description" content="운동 세션 기록, 체크리스트, 주간 스트릭을 관리하는 운동 루틴 대시보드.">
+    <meta property="og:url" content="https://imgh-one.vercel.app/workout.html">
+    <meta property="og:image" content="https://imgh-one.vercel.app/assets/thumbs/thumb-workout.webp">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏋️</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,6 +21,8 @@
             font-family: 'Inter', 'Segoe UI', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
             background: radial-gradient(circle at top left, rgba(37,99,235,0.10), transparent 30%), #f5f6f1;
             color: #161616;
+            word-break: keep-all;
+            overflow-wrap: break-word;
             min-height: 100vh;
         }
         .topnav {
@@ -268,7 +277,15 @@
             try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { sessions: [], checks: {} }; }
             catch { return { sessions: [], checks: {} }; }
         }
-        function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+        function persist() {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+            catch (e) { console.warn('운동 기록 저장 실패:', e); }
+        }
+        function esc(v) {
+            return String(v).replace(/[&<>"']/g, function(c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
         function todayKey() {
             const now = new Date();
             return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
@@ -371,7 +388,7 @@
             sessions.forEach(function(session) {
                 const item = document.createElement('div');
                 item.className = 'session-item';
-                item.innerHTML = '<div class="session-top"><div class="session-title">' + session.name + '</div><div class="session-date">' + session.date.slice(0, 10) + '</div></div><div class="session-meta">' + session.category + ' · ' + session.minutes + '분 · ' + session.intensity + '</div><div class="session-note">' + (session.note || '메모 없음') + '</div>';
+                item.innerHTML = '<div class="session-top"><div class="session-title">' + esc(session.name) + '</div><div class="session-date">' + esc(session.date.slice(0, 10)) + '</div></div><div class="session-meta">' + esc(session.category) + ' · ' + esc(session.minutes) + '분 · ' + esc(session.intensity) + '</div><div class="session-note">' + esc(session.note || '메모 없음') + '</div>';
                 wrap.appendChild(item);
             });
         }

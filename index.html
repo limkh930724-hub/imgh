@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>임광호 — Java Backend Developer</title>
+    <meta name="description" content="Java 백엔드 개발자 임광호의 포트폴리오 — 공공 시스템 SM·SI 경력과 금융·커머스·재난 대응 등 셀프 기획 사이드 프로젝트 모음.">
+    <link rel="canonical" href="https://imgh-one.vercel.app/">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="임광호 — Java Backend Developer">
+    <meta property="og:description" content="공공 시스템 SM·SI 경력과 금융·커머스·재난 대응 등 셀프 기획 사이드 프로젝트 모음.">
+    <meta property="og:url" content="https://imgh-one.vercel.app/">
+    <meta property="og:image" content="https://imgh-one.vercel.app/assets/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧑‍💻</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,6 +73,9 @@
             background: transparent;
             color: var(--text);
             transition: color 0.35s;
+            /* 한국어 낱글자 꺾임 방지 */
+            word-break: keep-all;
+            overflow-wrap: break-word;
         }
         /* html이 솔리드 배경 담당 */
         html {
@@ -98,7 +111,7 @@
         /* ── Fixed UI ── */
         .theme-toggle {
             position: fixed; top: 1.25rem; right: 1.5rem; z-index: 1000;
-            width: 38px; height: 38px; border-radius: 50%;
+            width: 44px; height: 44px; border-radius: 50%;
             border: 1.5px solid var(--border-2);
             background: var(--bg); color: var(--text);
             font-size: 1rem; cursor: pointer;
@@ -728,6 +741,11 @@
            MOBILE  ≤ 768px
         ═══════════════════════════ */
         @media (max-width: 768px) {
+            /* 섹션이 뷰포트보다 길어(최대 2777px) 모바일에서는 스냅 해제 — 콘텐츠 건너뜀 방지 */
+            html { scroll-snap-type: none; }
+            /* fixed 성능 배지가 카드 텍스트를 가려 모바일에서는 숨김 (dot-nav와 동일 패턴) */
+            .perf-widget { display: none; }
+
             /* 모든 섹션 최소 100vh — 스냅 경계가 뚫리지 않도록 */
             .section,
             .section--free {
@@ -846,6 +864,93 @@
             .perf-widget { bottom: 16px; right: 16px; }
             .perf-panel { width: calc(100vw - 32px); max-width: 320px; }
         }
+
+        /* ══════════════════════════════════════
+           SIGNATURE POINTS (2026-07 리디자인)
+        ══════════════════════════════════════ */
+        /* 상단 스크롤 프로그레스 바 */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; right: 0; height: 3px;
+            z-index: 1001; pointer-events: none;
+        }
+        .scroll-progress__bar {
+            height: 100%; width: 100%;
+            background: linear-gradient(90deg, var(--accent), #4ade80);
+            transform-origin: left; transform: scaleX(0);
+        }
+
+        /* 헤드라인 하이라이트 스윕 (진입 시 1회) */
+        mark.hl {
+            color: inherit; padding: 0 0.12em; border-radius: 3px;
+            background-image: linear-gradient(120deg, rgba(22,163,74,0.20), rgba(74,222,128,0.30));
+            background-repeat: no-repeat; background-size: 0% 100%;
+            animation: hlSweep 0.9s cubic-bezier(0.22,1,0.36,1) 1.2s forwards;
+        }
+        @keyframes hlSweep { to { background-size: 100% 100%; } }
+
+        /* 터미널 타이핑 로테이션 */
+        .hero-typer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem; color: var(--text-2);
+            margin: -0.9rem 0 1.6rem; min-height: 1.5em;
+            opacity: 0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.40s forwards;
+        }
+        .hero-typer .typer-prompt { color: var(--accent); font-weight: 700; }
+        .typer-caret {
+            display: inline-block; width: 8px; height: 1.05em; margin-left: 2px;
+            background: var(--accent); vertical-align: text-bottom;
+            animation: caretBlink 1s steps(1) infinite;
+        }
+        @keyframes caretBlink { 50% { opacity: 0; } }
+
+        /* 라이브 데이터 티커 스트립 (로드 성공 시에만 표시) */
+        .live-strip {
+            display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 2rem;
+            opacity: 0; transition: opacity 0.6s;
+        }
+        .live-strip.on { opacity: 1; }
+        .live-chip {
+            display: inline-flex; align-items: center; gap: 0.45rem;
+            padding: 0.35rem 0.8rem;
+            border: 1px solid var(--border-2); border-radius: 999px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+            color: var(--text-2); text-decoration: none;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        a.live-chip:hover { border-color: var(--accent); color: var(--text); }
+        .live-chip__dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--accent); animation: livePulse 2s ease-in-out infinite;
+        }
+        .live-chip .up { color: #dc2626; }
+        .live-chip .down { color: #2563eb; }
+        @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+        /* 섹션 넘버링 */
+        .s-label__num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem; opacity: 0.55; letter-spacing: 0;
+        }
+
+        /* 프로젝트 카드 컬러 스트립 스윕 */
+        .project-card__strip { position: relative; overflow: hidden; }
+        .project-card__strip::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent);
+            transform: translateX(-100%);
+        }
+        .project-card:hover .project-card__strip::after { animation: stripSweep 0.7s ease; }
+        @keyframes stripSweep { to { transform: translateX(100%); } }
+
+        /* ── 모션 감소 설정: 애니메이션 즉시 완료 (fill-mode 최종 상태 유지) ── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -856,6 +961,8 @@
     <!-- Custom cursor -->
     <div class="cursor-dot" id="cursorDot"></div>
     <div class="cursor-ring" id="cursorRing"></div>
+
+    <div class="scroll-progress" aria-hidden="true"><div class="scroll-progress__bar" id="scrollProgressBar"></div></div>
 
     <button class="theme-toggle" id="themeBtn" title="테마 전환">🌙</button>
 
@@ -922,9 +1029,10 @@
                     <p class="hero-eyebrow">Portfolio 2026</p>
                     <h1 class="hero-name">임광호</h1>
                     <p class="hero-title">Java Backend Developer</p>
+                    <p class="hero-typer" aria-hidden="true"><span class="typer-prompt">$&nbsp;</span><span id="typerText"></span><span class="typer-caret"></span></p>
 
                     <p class="hero-philosophy">
-                        안정성을 설계하는 개발자입니다.
+                        <mark class="hl">안정성</mark>을 설계하는 개발자입니다.
                     </p>
                     <p class="hero-tagline">
                         공공 재난·안전 시스템을 6년간 운영·개발하며
@@ -946,6 +1054,9 @@
                         <a class="btn btn--outline btn--resume" href="/임광호_포트폴리오.pdf" target="_blank" rel="noopener">이력서 PDF ↗</a>
                         <a class="btn btn--outline" href="#projects">사이드 프로젝트 ↓</a>
                     </div>
+
+                    <!-- 라이브 데이터 티커 (fetch 성공 시에만 .on) -->
+                    <div class="live-strip" id="liveStrip" aria-label="실시간 시장 데이터"></div>
                 </div>
 
                 <!-- Right: 숫자 스탯 2×2 -->
@@ -978,7 +1089,7 @@
     <!-- ══ 3. CAREER ══ -->
     <section class="section section--free" id="career">
         <div class="section__inner">
-            <p class="s-label" data-reveal="up">Career</p>
+            <p class="s-label" data-reveal="up"><span class="s-label__num">01</span>Career</p>
             <h2 class="s-title" data-reveal="up">경력</h2>
             <div class="career-grid">
 
@@ -1053,7 +1164,7 @@
     <!-- ══ 4. SKILLS ══ -->
     <section class="section" id="skills">
         <div class="section__inner">
-            <p class="s-label" data-reveal="up">Skills</p>
+            <p class="s-label" data-reveal="up"><span class="s-label__num">02</span>Skills</p>
             <h2 class="s-title" data-reveal="up">기술 스택</h2>
             <div class="skills-layout">
                 <div class="skill-card" data-reveal="up">
@@ -1148,7 +1259,7 @@
     <!-- ══ 5. PROJECTS ══ -->
     <section class="section section--free" id="projects">
         <div class="section__inner">
-            <p class="s-label" data-reveal="up">Projects</p>
+            <p class="s-label" data-reveal="up"><span class="s-label__num">03</span>Projects</p>
             <h2 class="s-title" data-reveal="up">사이드 프로젝트</h2>
             <p class="projects-meta" data-reveal="up">업무 외 시간에 직접 기획·설계·개발한 개인 프로젝트입니다. 기획부터 배포까지 단독 수행. <a class="projects-cs-all" href="casestudy.html">기획 케이스 스터디 전체 보기 →</a></p>
             <div class="projects-grid">
@@ -1269,7 +1380,7 @@
             <div class="contact-layout">
                 <!-- Left -->
                 <div>
-                    <p class="s-label" data-reveal="up">Contact</p>
+                    <p class="s-label" data-reveal="up"><span class="s-label__num">04</span>Contact</p>
                     <h2 class="contact-headline" data-reveal="up" style="--reveal-delay:0.08s">함께 성장하고<br><em>싶습니다.</em></h2>
                     <p class="contact-sub" data-reveal="up" style="--reveal-delay:0.18s">
                         새로운 기술과 기능을 배우는 걸 즐깁니다.<br>
@@ -1335,6 +1446,7 @@
         const canvas = document.getElementById('bgCanvas');
         const ctx    = canvas.getContext('2d');
         const isMobile = () => window.innerWidth <= 768;
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
         let W, H, particles, animId;
         let mouse = { x: -9999, y: -9999 };
@@ -1422,22 +1534,37 @@
 
             /* 점 */
             particles.forEach(p => {
-                p.update();
+                if (!reduceMotion.matches) p.update();
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                 ctx.fillStyle = dot + dotAlpha + ')';
                 ctx.fill();
             });
 
-            animId = requestAnimationFrame(draw);
+            /* 모션 감소 설정 시 정적 1프레임만 렌더 */
+            if (!reduceMotion.matches) animId = requestAnimationFrame(draw);
         }
 
         /* ── 리사이즈 ── */
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => { init(); }, 200);
+            resizeTimer = setTimeout(() => {
+                init();
+                if (reduceMotion.matches) draw();
+            }, 200);
         });
+
+        /* ── 모션 감소 설정 변경 시 루프 재시작/정지 ── */
+        reduceMotion.addEventListener('change', () => {
+            cancelAnimationFrame(animId);
+            draw();
+        });
+
+        /* ── 정적 프레임일 때 테마 전환 색상 반영 ── */
+        new MutationObserver(() => {
+            if (reduceMotion.matches) draw();
+        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
         /* ── 마우스 ── */
         document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
@@ -1825,6 +1952,105 @@
         });
 
         setTimeout(updateBadge, 3000);
+    })();
+
+    /* ══════════════════════════════════════════
+       SIGNATURE POINTS — 프로그레스 바 · 타이퍼 · 라이브 티커
+    ══════════════════════════════════════════ */
+    (function () {
+        const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /* ── 1. 스크롤 프로그레스 바 ── */
+        const bar = document.getElementById('scrollProgressBar');
+        let progressTicking = false;
+        function updateProgress() {
+            progressTicking = false;
+            const doc = document.documentElement;
+            const max = doc.scrollHeight - window.innerHeight;
+            bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, doc.scrollTop / max) : 0) + ')';
+        }
+        window.addEventListener('scroll', () => {
+            if (!progressTicking) { progressTicking = true; requestAnimationFrame(updateProgress); }
+        }, { passive: true });
+        updateProgress();
+
+        /* ── 2. 터미널 타이핑 로테이션 ── */
+        const PHRASES = [
+            '공공 재난·안전 시스템 운영 6년',
+            '구조적 문제를 찾아 개선하는 개발',
+            '기획부터 배포까지 단독 수행',
+        ];
+        const typerEl = document.getElementById('typerText');
+        if (prefersReduce) {
+            typerEl.textContent = PHRASES[0];
+        } else {
+            let phraseIdx = 0, charIdx = 0, deleting = false;
+            function typeTick() {
+                const phrase = PHRASES[phraseIdx];
+                if (!deleting) {
+                    charIdx++;
+                    typerEl.textContent = phrase.slice(0, charIdx);
+                    if (charIdx === phrase.length) { deleting = true; setTimeout(typeTick, 2400); return; }
+                    setTimeout(typeTick, 65);
+                } else {
+                    charIdx--;
+                    typerEl.textContent = phrase.slice(0, charIdx);
+                    if (charIdx === 0) { deleting = false; phraseIdx = (phraseIdx + 1) % PHRASES.length; setTimeout(typeTick, 350); return; }
+                    setTimeout(typeTick, 28);
+                }
+            }
+            setTimeout(typeTick, 1200);
+        }
+
+        /* ── 3. 라이브 데이터 티커 (실패 시 스트립 미표시) ── */
+        const PROXY = '/api/proxy?url=';
+        const strip = document.getElementById('liveStrip');
+        async function fetchJson(url) {
+            const res = await fetch(PROXY + encodeURIComponent(url));
+            if (!res.ok) throw new Error(res.status);
+            return res.json();
+        }
+        function addChip(html, href) {
+            const chip = document.createElement(href ? 'a' : 'span');
+            chip.className = 'live-chip';
+            if (href) chip.href = href;
+            chip.innerHTML = '<span class="live-chip__dot"></span>' + html;
+            strip.appendChild(chip);
+            strip.classList.add('on');
+        }
+        function fgZone(score) {
+            if (score < 25) return '극도의 공포';
+            if (score < 45) return '공포';
+            if (score < 55) return '중립';
+            if (score < 75) return '탐욕';
+            return '극도의 탐욕';
+        }
+        function loadTicker() {
+            fetchJson('https://production.dataviz.cnn.io/index/fearandgreed/graphdata')
+                .then(d => {
+                    const score = Math.round(d?.fear_and_greed?.score);
+                    if (!isNaN(score)) addChip('공포탐욕 <strong>' + score + '</strong> ' + fgZone(score), 'fear-greed.html');
+                }).catch(() => {});
+            fetchJson('https://query1.finance.yahoo.com/v8/finance/chart/%5EKS11?range=1d&interval=1d')
+                .then(d => {
+                    const meta = d?.chart?.result?.[0]?.meta;
+                    const price = meta?.regularMarketPrice, prev = meta?.chartPreviousClose;
+                    if (!price) return;
+                    let deltaHtml = '';
+                    if (prev) {
+                        const pct = ((price - prev) / prev * 100).toFixed(2);
+                        deltaHtml = ' <span class="' + (pct >= 0 ? 'up' : 'down') + '">' + (pct >= 0 ? '▲' : '▼') + Math.abs(pct) + '%</span>';
+                    }
+                    addChip('KOSPI <strong>' + price.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + '</strong>' + deltaHtml, 'fear-greed.html');
+                }).catch(() => {});
+            fetchJson('https://open.er-api.com/v6/latest/USD')
+                .then(d => {
+                    const krw = d?.rates?.KRW;
+                    if (krw) addChip('USD/KRW <strong>' + krw.toLocaleString('ko-KR', { maximumFractionDigits: 2 }) + '</strong>');
+                }).catch(() => {});
+        }
+        if (document.readyState === 'complete') loadTicker();
+        else window.addEventListener('load', loadTicker);
     })();
     </script>
 </body>

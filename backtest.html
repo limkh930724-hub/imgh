@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>백테스트 비교기 → finance.html</title>
-    <script>location.replace('/finance.html?tab=backtest');</script>
+    <meta name="robots" content="noindex">
+    <title>백테스트 비교기 이동 중</title>
+    <script>
+        var extra = location.search.replace(/^\?/, '');
+        location.replace('/finance.html?tab=backtest' + (extra ? '&' + extra : ''));
+    </script>
+    <noscript><meta http-equiv="refresh" content="0; url=/finance.html?tab=backtest"></noscript>
 </head>
 <body></body>
 </html>
