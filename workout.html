@@ -119,6 +119,21 @@
         .sheet .confirm-row{ display:flex; gap:.5rem; padding:.5rem; }
         .sheet .confirm-row button{ text-align:center; border-radius:10px; }
         .sheet .confirm-row .yes{ background:#b91c1c; color:#fff; }
+        .wo-timer{ font-variant-numeric:tabular-nums; font-weight:800; color:var(--accent-dark); }
+        .wo-ex{ border:1px solid var(--line); border-radius:var(--radius); padding:.8rem; margin-bottom:.7rem; background:#fff; }
+        .wo-ex .we-name{ font-weight:700; margin-bottom:.5rem; }
+        .wo-set{ display:flex; gap:.5rem; align-items:center; margin-bottom:.4rem; }
+        .wo-set .s-idx{ width:1.4rem; color:var(--muted); font-size:.8rem; font-weight:700; }
+        .wo-set input{ width:4.5rem; border:1px solid var(--line); border-radius:8px; padding:.45rem .5rem; font:inherit; }
+        .wo-set .s-unit{ color:var(--muted); font-size:.78rem; }
+        .wo-check{ margin-left:auto; width:2rem; height:2rem; border-radius:8px; border:1px solid var(--line);
+            background:#fff; cursor:pointer; font-size:1rem; }
+        .wo-set.done .wo-check{ background:var(--accent); border-color:var(--accent); color:#fff; }
+        .wo-set.done input{ opacity:.55; }
+        .wo-finish{ position:sticky; bottom:0; padding:1rem 0; background:linear-gradient(transparent,var(--bg) 30%); display:flex; gap:.5rem; }
+        .wo-finish button{ flex:1; border:none; border-radius:var(--radius); padding:1rem; font-weight:800; cursor:pointer; }
+        .wo-finish .end{ background:var(--accent); color:#fff; }
+        .wo-finish .cancel{ background:#fff; border:1px solid var(--line); color:var(--muted); }
     </style>
 </head>
 <body>
@@ -155,6 +170,13 @@
     </div>
     <div id="sheet-ov" class="sheet-ov" onclick="if(event.target===this)this.classList.remove('on')">
         <div class="sheet" id="sheet-inner"></div>
+    </div>
+    <div id="workout-ov" class="overlay">
+        <div class="ov-header">
+            <span class="ov-title" id="wo-title"></span>
+            <span class="wo-timer" id="wo-timer">00:00</span>
+        </div>
+        <div class="ov-body" id="wo-body"></div>
     </div>
     <script>
         const STORAGE_KEY = 'fg-workout-v2';
@@ -323,8 +345,85 @@
             state.routines = state.routines.filter(function(x){ return x.id!==id; });
             persist(); closeSheet(); render();
         }
-        // Task 5에서 실제 구현되기 전까지 안전한 임시 스텁:
-        function startWorkout(){ console.log('startWorkout (Task 5)'); }
+        // Task 5: 운동 모드(실행·세트 체크·타이머·기록 저장)
+        let workoutSession = null;
+        let workoutTimer = null;
+        function startWorkout(routineId){
+            const r = routineId ? state.routines.find(function(x){ return x.id===routineId; }) : null;
+            workoutSession = {
+                routineId: routineId || null,
+                emoji: r ? r.emoji : '⚡',
+                name: r ? r.name : '자유 운동',
+                startMs: Date.now(),
+                exercises: r ? r.exercises.map(function(ex){
+                    return { name: ex.name, sets: ex.sets.map(function(s){ return {weight:s.weight, reps:s.reps, done:false}; }) };
+                }) : []
+            };
+            document.getElementById('detail-ov').classList.remove('on');
+            document.getElementById('wo-title').textContent = workoutSession.emoji + ' ' + workoutSession.name;
+            renderWorkout();
+            document.getElementById('workout-ov').classList.add('on');
+            if(workoutTimer) clearInterval(workoutTimer);
+            workoutTimer = setInterval(tickTimer, 1000); tickTimer();
+        }
+        function tickTimer(){
+            if(!workoutSession) return;
+            const sec = Math.floor((Date.now()-workoutSession.startMs)/1000);
+            const mm = String(Math.floor(sec/60)).padStart(2,'0'), ss = String(sec%60).padStart(2,'0');
+            document.getElementById('wo-timer').textContent = mm + ':' + ss;
+        }
+        function renderWorkout(){
+            let h = '';
+            workoutSession.exercises.forEach(function(ex, i){
+                h += '<div class="wo-ex"><div class="we-name">' +
+                    '<input value="' + esc(ex.name) + '" placeholder="운동명" style="border:none;font:inherit;font-weight:700;width:100%" oninput="workoutSession.exercises[' + i + '].name=this.value"></div>';
+                ex.sets.forEach(function(s, j){
+                    h += '<div class="wo-set' + (s.done?' done':'') + '"><span class="s-idx">' + (j+1) + '</span>' +
+                        '<input type="number" min="0" value="' + s.weight + '" oninput="workoutEditSet(' + i + ',' + j + ',\'weight\',this.value)"><span class="s-unit">kg</span>' +
+                        '<input type="number" min="0" value="' + s.reps + '" oninput="workoutEditSet(' + i + ',' + j + ',\'reps\',this.value)"><span class="s-unit">회</span>' +
+                        '<button class="wo-check" onclick="toggleSet(' + i + ',' + j + ')">' + (s.done?'✓':'') + '</button></div>';
+                });
+                h += '<button class="mini-btn" onclick="workoutAddSet(' + i + ')">＋ 세트</button></div>';
+            });
+            h += '<button class="mini-btn" onclick="workoutAddExercise()">＋ 운동 추가</button>';
+            h += '<div class="wo-finish"><button class="cancel" onclick="cancelWorkout()">취소</button>' +
+                 '<button class="end" onclick="finishWorkout()">운동 종료</button></div>';
+            document.getElementById('wo-body').innerHTML = h;
+        }
+        function toggleSet(i,j){ const s=workoutSession.exercises[i].sets[j]; s.done=!s.done; renderWorkout(); }
+        function workoutEditSet(i,j,field,val){ workoutSession.exercises[i].sets[j][field]=Number(val); }
+        function workoutAddSet(i){ workoutSession.exercises[i].sets.push({weight:0,reps:0,done:false}); renderWorkout(); }
+        function workoutAddExercise(){ workoutSession.exercises.push({name:'', sets:[{weight:0,reps:0,done:false}]}); renderWorkout(); }
+        function closeWorkout(){
+            document.getElementById('workout-ov').classList.remove('on');
+            if(workoutTimer){ clearInterval(workoutTimer); workoutTimer=null; }
+            workoutSession=null;
+        }
+        function cancelWorkout(){
+            const anyDone = workoutSession.exercises.some(function(ex){ return ex.sets.some(function(s){ return s.done; }); });
+            if(anyDone && !document.getElementById('wo-confirm')){
+                const bar = document.querySelector('.wo-finish');
+                bar.insertAdjacentHTML('beforebegin',
+                    '<div id="wo-confirm" style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:.8rem;margin-bottom:.6rem">' +
+                    '기록하지 않고 종료할까요?<div class="confirm-row" style="display:flex;gap:.5rem;margin-top:.6rem">' +
+                    '<button class="mini-btn" onclick="document.getElementById(\'wo-confirm\').remove()">계속</button>' +
+                    '<button class="mini-btn danger" onclick="closeWorkout()">종료</button></div></div>');
+                return;
+            }
+            closeWorkout();
+        }
+        function finishWorkout(){
+            const doneEx = workoutSession.exercises
+                .map(function(ex){ return { name: ex.name.trim()||'운동', sets: ex.sets.filter(function(s){ return s.done; }) }; })
+                .filter(function(ex){ return ex.sets.length; });
+            const durationMin = Math.max(1, Math.round((Date.now()-workoutSession.startMs)/60000));
+            state.logs.push({
+                id: uid(), date: new Date().toISOString(), routineId: workoutSession.routineId,
+                emoji: workoutSession.emoji, name: workoutSession.name,
+                exercises: doneEx, durationMin: durationMin, note: ''
+            });
+            persist(); closeWorkout(); switchTab('history');
+        }
         function renderHistory(){ document.getElementById('tab-history').innerHTML = '<p>기록</p>'; }
         function renderStats(){ document.getElementById('tab-stats').innerHTML = '<p>통계</p>'; }
         render();
