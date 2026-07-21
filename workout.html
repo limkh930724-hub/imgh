@@ -103,6 +103,22 @@
             cursor:pointer; font-size:.8rem; font-weight:700; color:var(--muted); }
         .mini-btn.danger{ color:#b91c1c; }
         .field-err{ color:#b91c1c; font-size:.78rem; margin-top:.3rem; min-height:1rem; }
+        .detail-ex{ border:1px solid var(--line); border-radius:12px; padding:.7rem .8rem; margin-bottom:.5rem; background:#fff; }
+        .detail-ex .de-name{ font-weight:700; margin-bottom:.3rem; }
+        .detail-ex .de-sets{ color:var(--muted); font-size:.82rem; }
+        .start-cta{ position:sticky; bottom:0; padding:1rem 0; background:linear-gradient(transparent,var(--bg) 30%); }
+        .start-cta button{ width:100%; border:none; border-radius:var(--radius); padding:1rem; background:var(--accent);
+            color:#fff; font-weight:800; font-size:1rem; cursor:pointer; }
+        .sheet-ov{ position:fixed; inset:0; z-index:120; background:rgba(0,0,0,.35); display:none; align-items:flex-end; justify-content:center; }
+        .sheet-ov.on{ display:flex; }
+        .sheet{ background:#fff; width:100%; max-width:460px; border-radius:16px 16px 0 0; padding:.6rem; }
+        .sheet button{ width:100%; border:none; background:none; padding:1rem; font-size:.95rem; font-weight:700;
+            text-align:left; cursor:pointer; border-radius:10px; }
+        .sheet button:hover{ background:#f4f6f8; }
+        .sheet button.danger{ color:#b91c1c; }
+        .sheet .confirm-row{ display:flex; gap:.5rem; padding:.5rem; }
+        .sheet .confirm-row button{ text-align:center; border-radius:10px; }
+        .sheet .confirm-row .yes{ background:#b91c1c; color:#fff; }
     </style>
 </head>
 <body>
@@ -129,6 +145,16 @@
             <button class="ov-btn primary" onclick="saveRoutine()">저장</button>
         </div>
         <div class="ov-body" id="editor-body"></div>
+    </div>
+    <div id="detail-ov" class="overlay">
+        <div class="ov-header">
+            <button class="ov-btn ghost" onclick="document.getElementById('detail-ov').classList.remove('on')">← 닫기</button>
+            <span class="ov-title" id="detail-title"></span>
+        </div>
+        <div class="ov-body" id="detail-body"></div>
+    </div>
+    <div id="sheet-ov" class="sheet-ov" onclick="if(event.target===this)this.classList.remove('on')">
+        <div class="sheet" id="sheet-inner"></div>
     </div>
     <script>
         const STORAGE_KEY = 'fg-workout-v2';
@@ -254,9 +280,50 @@
             if(idx>=0) state.routines[idx]=d; else state.routines.push(d);
             persist(); closeEditor(); render();
         }
-        // Task 4~5에서 실제 구현되기 전까지 안전한 임시 스텁:
-        function openRoutineDetail(){ console.log('openRoutineDetail (Task 4)'); }
-        function openRoutineMenu(){ console.log('openRoutineMenu (Task 4)'); }
+        // Task 4: 루틴 상세 + ⋮ 액션 시트(수정/복제/삭제)
+        function openRoutineDetail(id){
+            const r = state.routines.find(function(x){ return x.id===id; });
+            if(!r) return;
+            document.getElementById('detail-title').textContent = r.emoji + ' ' + r.name;
+            let h = '';
+            if(r.note) h += '<p style="color:var(--muted);margin-bottom:.8rem;font-size:.86rem">' + esc(r.note) + '</p>';
+            h += r.exercises.map(function(ex){
+                const sets = ex.sets.map(function(s){ return s.weight + 'kg×' + s.reps; }).join('  ·  ');
+                return '<div class="detail-ex"><div class="de-name">' + esc(ex.name) + '</div>' +
+                    '<div class="de-sets">' + (sets||'세트 없음') + '</div></div>';
+            }).join('');
+            h += '<div class="start-cta"><button onclick="startWorkout(\'' + r.id + '\')">▶ 운동 시작</button></div>';
+            document.getElementById('detail-body').innerHTML = h;
+            document.getElementById('detail-ov').classList.add('on');
+        }
+        function openRoutineMenu(id){
+            const inner = document.getElementById('sheet-inner');
+            inner.innerHTML =
+                '<button onclick="closeSheet();openEditor(\'' + id + '\')">수정</button>' +
+                '<button onclick="closeSheet();duplicateRoutine(\'' + id + '\')">복제</button>' +
+                '<button class="danger" onclick="confirmDelete(\'' + id + '\')">삭제</button>' +
+                '<button onclick="closeSheet()">닫기</button>';
+            document.getElementById('sheet-ov').classList.add('on');
+        }
+        function closeSheet(){ document.getElementById('sheet-ov').classList.remove('on'); }
+        function confirmDelete(id){
+            document.getElementById('sheet-inner').innerHTML =
+                '<div style="padding:.8rem;font-weight:700">이 루틴을 삭제할까요?</div>' +
+                '<div class="confirm-row"><button onclick="closeSheet()">취소</button>' +
+                '<button class="yes" onclick="deleteRoutine(\'' + id + '\')">삭제</button></div>';
+        }
+        function duplicateRoutine(id){
+            const r = state.routines.find(function(x){ return x.id===id; });
+            if(!r) return;
+            const copy = JSON.parse(JSON.stringify(r));
+            copy.id = uid(); copy.name = r.name + ' (복사본)';
+            state.routines.push(copy); persist(); render();
+        }
+        function deleteRoutine(id){
+            state.routines = state.routines.filter(function(x){ return x.id!==id; });
+            persist(); closeSheet(); render();
+        }
+        // Task 5에서 실제 구현되기 전까지 안전한 임시 스텁:
         function startWorkout(){ console.log('startWorkout (Task 5)'); }
         function renderHistory(){ document.getElementById('tab-history').innerHTML = '<p>기록</p>'; }
         function renderStats(){ document.getElementById('tab-stats').innerHTML = '<p>통계</p>'; }
