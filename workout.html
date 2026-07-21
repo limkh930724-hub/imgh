@@ -60,7 +60,6 @@
         }
         @keyframes pageIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
         body{ animation:pageIn .35s cubic-bezier(.22,1,.36,1) both; }
-        /* 이후 Task들에서 카드/편집기/운동모드/차트 스타일 추가 */
         .list-card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
             box-shadow:var(--shadow); padding:.9rem 1rem; margin-bottom:.6rem; display:flex; align-items:center; gap:.8rem; cursor:pointer; }
         .list-card .emoji{ font-size:1.4rem; width:2rem; text-align:center; flex-shrink:0; }
@@ -248,7 +247,6 @@
             else if(activeTab==='history') renderHistory();
             else if(activeTab==='stats') renderStats();
         }
-        // 이후 Task에서 정의되는 렌더 함수들의 임시 스텁(Task 2~7에서 교체):
         function routineMinutes(r){
             const sets = r.exercises.reduce(function(a,e){ return a + e.sets.length; }, 0);
             return Math.round(r.exercises.length*4 + sets*0.5);
@@ -441,6 +439,15 @@
             const doneEx = workoutSession.exercises
                 .map(function(ex){ return { name: ex.name.trim()||'운동', sets: ex.sets.filter(function(s){ return s.done; }) }; })
                 .filter(function(ex){ return ex.sets.length; });
+            if(!doneEx.length){
+                if(!document.getElementById('wo-empty')){
+                    const bar = document.querySelector('.wo-finish');
+                    bar.insertAdjacentHTML('beforebegin',
+                        '<div id="wo-empty" style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:.8rem;margin-bottom:.6rem;color:var(--muted)">' +
+                        '완료한 세트가 없어요. 세트를 체크하거나 취소로 종료하세요.</div>');
+                }
+                return;
+            }
             const durationMin = Math.max(1, Math.round((Date.now()-workoutSession.startMs)/60000));
             state.logs.push({
                 id: uid(), date: new Date().toISOString(), routineId: workoutSession.routineId,
