@@ -401,13 +401,15 @@
         }
         function cancelWorkout(){
             const anyDone = workoutSession.exercises.some(function(ex){ return ex.sets.some(function(s){ return s.done; }); });
-            if(anyDone && !document.getElementById('wo-confirm')){
-                const bar = document.querySelector('.wo-finish');
-                bar.insertAdjacentHTML('beforebegin',
-                    '<div id="wo-confirm" style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:.8rem;margin-bottom:.6rem">' +
-                    '기록하지 않고 종료할까요?<div class="confirm-row" style="display:flex;gap:.5rem;margin-top:.6rem">' +
-                    '<button class="mini-btn" onclick="document.getElementById(\'wo-confirm\').remove()">계속</button>' +
-                    '<button class="mini-btn danger" onclick="closeWorkout()">종료</button></div></div>');
+            if(anyDone){
+                if(!document.getElementById('wo-confirm')){
+                    const bar = document.querySelector('.wo-finish');
+                    bar.insertAdjacentHTML('beforebegin',
+                        '<div id="wo-confirm" style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:.8rem;margin-bottom:.6rem">' +
+                        '기록하지 않고 종료할까요?<div class="confirm-row" style="display:flex;gap:.5rem;margin-top:.6rem">' +
+                        '<button class="mini-btn" onclick="document.getElementById(\'wo-confirm\').remove()">계속</button>' +
+                        '<button class="mini-btn danger" onclick="closeWorkout()">종료</button></div></div>');
+                }
                 return;
             }
             closeWorkout();
