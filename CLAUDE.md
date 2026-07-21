@@ -44,7 +44,7 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 | `goal.html` | Redirect stub → `/finance.html?tab=goal` | 12 |
 | `journal.html` | Redirect stub → `/finance.html?tab=journal` | 12 |
 | `backtest.html` | Redirect stub → `/finance.html?tab=backtest` | 10 |
-| `workout.html` | 운동 루틴 (workout routine dashboard) | ~432 |
+| `workout.html` | 운동 트래커 — RISE 스타일, 루틴/기록/통계 3탭 + 운동 모드 | ~587 |
 | `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~254 |
 | `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1266 |
 | `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1681 |
@@ -115,12 +115,21 @@ Password-gated private portfolio tracker. Key architecture:
 
 ### Workout (`workout.html`)
 
-State persisted to `localStorage('fg-workout')` as `{sessions: [], checks: {}, categories: []}`. Key features:
-- **Sessions** — log form (name, category, minutes, intensity, note); 6 most recent shown in reverse order
-- **Checklist** — per-day checkbox grid per category, stored in `state.checks['YYYY-MM-DD']`
-- **Week strip** — 7-cell row for the current week: `●` (session logged), `◐` (checklist only), `○` (empty)
-- **Templates** — `TEMPLATES` constant provides quick-fill presets (e.g. 상체, 하체, 유산소)
-- **Stats** — total minutes, session count, top category, streak (consecutive days with activity)
+RISE 스타일 운동 트래커. 라이트 전용 테마, 에메랄드 액센트(`#10b981`), 반응형(모바일 ≤460px는 하단 고정 탭바 1컬럼 / 데스크톱 ≥900px는 상단 필 탭의 와이드 레이아웃).
+
+State persisted to `localStorage('fg-workout-v2')` as `{routines: [], logs: []}`.
+- `routines[]` — 사용자가 만든 루틴: `{id, emoji, name, note, exercises: [{id, name, sets: [{weight, reps}]}]}`
+- `logs[]` — 완료된 운동 기록: `{id, date, routineId, emoji, name, exercises: [{name, sets: [{weight, reps, done}]}], durationMin, note}`
+- **최초 1회 마이그레이션** — `fg-workout-v2`가 없고 레거시 `fg-workout-dashboard`가 있으면 그 `sessions[]`를 `logs[]`로 가져옴(세트 데이터 없이). 레거시 키는 백업으로 그대로 남겨둠.
+
+**3탭 구조**:
+- **루틴** — 루틴 목록 + 생성/수정 에디터 + 시작 버튼
+- **기록** — 완료된 운동 히스토리 + 주간 스트립
+- **통계** — 요약 타일 + 순수 canvas 기반 8주 볼륨 차트 + PR(운동별 최고 무게) 목록
+
+플러스 **운동 모드**(fullscreen 오버레이) — 루틴 선택 또는 프리 운동으로 시작, 세트 체크, 무게·횟수 인라인 수정, 진행 타이머, 완료 시 `logs`에 저장.
+
+**파생 통계**: 볼륨(완료된 세트의 Σ weight×reps), 스트릭, 주간 합계, 최다 루틴, PR(운동별 최고 무게). 외부 라이브러리 없음 — 차트는 순수 canvas 2D.
 
 ### Fear & Greed app (`fear-greed.html`)
 
@@ -234,7 +243,8 @@ All persisted state lives in `localStorage` (or `sessionStorage` for auth). Keys
 | `fg-theme` | `fear-greed.html` | `'light'` \| `'dark'` |
 | `fg-portfolio` | `fear-greed.html` | `portfolioItems[]` (without `loading` field) |
 | `fg-watchlist` | `fear-greed.html` (Watchlist tab) | watchlist ticker array |
-| `fg-workout` | `workout.html` | `{sessions, checks, categories}` |
+| `fg-workout-v2` | `workout.html` | `{routines, logs}` |
+| `fg-workout-dashboard` | `workout.html` (legacy) | old `{sessions, checks, categories}` shape — read-only, kept as backup source for the one-time migration into `fg-workout-v2` |
 | `pt-auth` | `portfolio_tracker.html` | session auth flag (`sessionStorage`) |
 
 ## Coding conventions
@@ -261,7 +271,7 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 
 ### Service Worker (`sw.js`)
 
-Current `CACHE_NAME = 'fg-cache-v9'`. PRECACHE includes the main pages and assets. **Note:** `finance.html` (the actual finance hub), `disaster.html`, `Certificate.html`, `portfolio_tracker.html`, and `casestudy*.html` are not yet in PRECACHE — the listed finance entries (`/compound.html`, `/goal.html`, etc.) are only the redirect stubs, not the hub itself. When adding a new page, also add it to PRECACHE and bump `CACHE_NAME` to invalidate on deploy.
+Current `CACHE_NAME = 'fg-cache-v11'`. PRECACHE includes the main pages and assets. **Note:** `finance.html` (the actual finance hub), `disaster.html`, `Certificate.html`, `portfolio_tracker.html`, and `casestudy*.html` are not yet in PRECACHE — the listed finance entries (`/compound.html`, `/goal.html`, etc.) are only the redirect stubs, not the hub itself. When adding a new page, also add it to PRECACHE and bump `CACHE_NAME` to invalidate on deploy.
 
 ### Other files
 
