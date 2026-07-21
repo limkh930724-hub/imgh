@@ -577,6 +577,27 @@
                 return a + ex.sets.reduce(function(b,s){ return b + (Number(s.weight)||0)*(Number(s.reps)||0); }, 0);
             }, 0);
         }
+        // ── 칼로리 추정 (운동 부위 + 횟수 + 무게 기반) ──
+        const CAT_KCAL = { '하체':0.55, '등':0.5, '가슴':0.45, '어깨':0.35, '팔':0.28, '코어':0.3, '유산소':0.5, '기타':0.35 };
+        let _exCatMap = null;
+        function exerciseCategory(name){
+            if(!_exCatMap){
+                _exCatMap = {};
+                Object.keys(EXERCISE_LIBRARY).forEach(function(c){ EXERCISE_LIBRARY[c].forEach(function(n){ _exCatMap[n]=c; }); });
+            }
+            return _exCatMap[name] || '기타';
+        }
+        // set 1개 소모 칼로리 ≈ 횟수 × (부위 기본 kcal/rep + 무게 보정)
+        function logCalories(log){
+            const kcal = log.exercises.reduce(function(a,ex){
+                const base = CAT_KCAL[exerciseCategory(ex.name)] || CAT_KCAL['기타'];
+                return a + ex.sets.reduce(function(b,s){
+                    const reps = Number(s.reps)||0, w = Number(s.weight)||0;
+                    return b + reps * (base + w*0.015);
+                }, 0);
+            }, 0);
+            return Math.round(kcal);
+        }
         function weekStart(date){ const d=new Date(date); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d; }
         function weekStripHTML(){
             const start = weekStart(new Date());
@@ -601,7 +622,7 @@
                     return '<div class="log-card"><div class="log-top"><span class="emoji">' + esc(l.emoji||'🏋️') +
                         '</span><span class="lg-name">' + esc(l.name) + '</span><span class="lg-date">' + esc(l.date.slice(0,10)) +
                         '</span></div><div class="log-meta">볼륨 ' + sessionVolume(l).toLocaleString() + 'kg · ' +
-                        l.durationMin + '분 · ' + setCount + '세트</div></div>';
+                        l.durationMin + '분 · ' + setCount + '세트 · 🔥 약 ' + logCalories(l).toLocaleString() + 'kcal</div></div>';
                 }).join('');
             }
             el.innerHTML = h;
@@ -640,12 +661,16 @@
             const wl = weekLogs();
             const weekVol = wl.reduce(function(a,l){ return a+sessionVolume(l); }, 0);
             const weekMin = wl.reduce(function(a,l){ return a+(l.durationMin||0); }, 0);
+            const weekKcal = wl.reduce(function(a,l){ return a+logCalories(l); }, 0);
+            const totalKcal = state.logs.reduce(function(a,l){ return a+logCalories(l); }, 0);
             let h = '<h1 class="panel-title">통계</h1>';
             h += '<div class="stat-grid">' +
                 '<div class="stat-tile"><div class="st-label">THIS WEEK 볼륨</div><div class="st-value">' + weekVol.toLocaleString() + '<span style="font-size:.9rem">kg</span></div></div>' +
                 '<div class="stat-tile"><div class="st-label">THIS WEEK 시간</div><div class="st-value">' + weekMin + '<span style="font-size:.9rem">분</span></div></div>' +
+                '<div class="stat-tile"><div class="st-label">🔥 THIS WEEK 칼로리</div><div class="st-value">' + weekKcal.toLocaleString() + '<span style="font-size:.9rem">kcal</span></div></div>' +
                 '<div class="stat-tile"><div class="st-label">STREAK</div><div class="st-value">' + streak() + '<span style="font-size:.9rem">일</span></div></div>' +
                 '<div class="stat-tile"><div class="st-label">최다 루틴</div><div class="st-value" style="font-size:1.05rem">' + esc(topRoutine()) + '</div></div>' +
+                '<div class="stat-tile"><div class="st-label">🔥 누적 칼로리</div><div class="st-value">' + totalKcal.toLocaleString() + '<span style="font-size:.9rem">kcal</span></div></div>' +
                 '</div>';
             h += '<div class="chart-card"><div class="cc-title">최근 8주 볼륨</div><canvas id="volChart"></canvas></div>';
             const prs = prByExercise();
