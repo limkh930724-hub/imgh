@@ -61,6 +61,21 @@
         @keyframes pageIn{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:none;} }
         body{ animation:pageIn .35s cubic-bezier(.22,1,.36,1) both; }
         /* 이후 Task들에서 카드/편집기/운동모드/차트 스타일 추가 */
+        .list-card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+            box-shadow:var(--shadow); padding:.9rem 1rem; margin-bottom:.6rem; display:flex; align-items:center; gap:.8rem; cursor:pointer; }
+        .list-card .emoji{ font-size:1.4rem; width:2rem; text-align:center; flex-shrink:0; }
+        .list-card .lc-body{ flex:1; min-width:0; }
+        .list-card .lc-name{ font-weight:700; font-size:.95rem; }
+        .list-card .lc-sub{ color:var(--muted); font-size:.78rem; margin-top:.15rem; }
+        .lc-menu{ border:none; background:none; cursor:pointer; color:var(--muted); font-size:1.2rem; padding:.2rem .4rem; flex-shrink:0; }
+        .add-card{ border:1px dashed var(--line); border-radius:var(--radius); background:#fbfbfa; color:var(--muted);
+            padding:.9rem 1rem; width:100%; text-align:left; font-weight:700; cursor:pointer; margin-bottom:.6rem; }
+        .cta-free{ margin-top:.4rem; width:100%; border:none; border-radius:var(--radius); padding:.95rem;
+            background:var(--accent-tint); color:var(--accent-dark); font-weight:800; cursor:pointer; font-size:.95rem; }
+        .panel-title{ font-size:1.3rem; font-weight:800; letter-spacing:-.02em; margin:.2rem 0 1rem; }
+        .empty{ border:1px dashed var(--line); border-radius:var(--radius); padding:1.4rem 1rem; color:var(--muted);
+            text-align:center; font-size:.86rem; background:#fbfbfa; margin-bottom:.6rem; }
+        .rc-menu-pop{ position:relative; }
     </style>
 </head>
 <body>
@@ -127,7 +142,35 @@
             else if(activeTab==='stats') renderStats();
         }
         // 이후 Task에서 정의되는 렌더 함수들의 임시 스텁(Task 2~7에서 교체):
-        function renderRoutines(){ document.getElementById('tab-routines').innerHTML = '<p>루틴</p>'; }
+        function routineMinutes(r){
+            const sets = r.exercises.reduce(function(a,e){ return a + e.sets.length; }, 0);
+            return Math.round(r.exercises.length*4 + sets*0.5);
+        }
+        function routineCardHTML(r){
+            return '<div class="list-card" onclick="openRoutineDetail(\'' + r.id + '\')">' +
+                '<div class="emoji">' + esc(r.emoji||'🏋️') + '</div>' +
+                '<div class="lc-body"><div class="lc-name">' + esc(r.name) + '</div>' +
+                '<div class="lc-sub">운동 ' + r.exercises.length + '개 · 예상 ' + routineMinutes(r) + '분</div></div>' +
+                '<button class="lc-menu" onclick="event.stopPropagation(); openRoutineMenu(\'' + r.id + '\')">⋮</button>' +
+                '</div>';
+        }
+        function renderRoutines(){
+            const el = document.getElementById('tab-routines');
+            let html = '<h1 class="panel-title">한 눈에 보는 내 루틴</h1>';
+            if(!state.routines.length){
+                html += '<div class="empty">아직 루틴이 없어요.<br>첫 루틴을 만들어 시작해보세요.</div>';
+            } else {
+                html += state.routines.map(routineCardHTML).join('');
+            }
+            html += '<button class="add-card" onclick="openEditor()">＋ 루틴 만들기</button>';
+            html += '<button class="cta-free" onclick="startWorkout(null)">▶ 자유 운동 시작</button>';
+            el.innerHTML = html;
+        }
+        // Task 3~5에서 실제 구현되기 전까지 안전한 임시 스텁:
+        function openEditor(){ console.log('openEditor (Task 3)'); }
+        function openRoutineDetail(){ console.log('openRoutineDetail (Task 4)'); }
+        function openRoutineMenu(){ console.log('openRoutineMenu (Task 4)'); }
+        function startWorkout(){ console.log('startWorkout (Task 5)'); }
         function renderHistory(){ document.getElementById('tab-history').innerHTML = '<p>기록</p>'; }
         function renderStats(){ document.getElementById('tab-stats').innerHTML = '<p>통계</p>'; }
         render();
