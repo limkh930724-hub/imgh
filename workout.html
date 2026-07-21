@@ -76,6 +76,33 @@
         .empty{ border:1px dashed var(--line); border-radius:var(--radius); padding:1.4rem 1rem; color:var(--muted);
             text-align:center; font-size:.86rem; background:#fbfbfa; margin-bottom:.6rem; }
         .rc-menu-pop{ position:relative; }
+        .overlay{ position:fixed; inset:0; z-index:100; background:var(--bg); overflow-y:auto;
+            display:none; flex-direction:column; }
+        .overlay.on{ display:flex; }
+        .ov-header{ position:sticky; top:0; background:var(--card); border-bottom:1px solid var(--line);
+            height:52px; display:flex; align-items:center; gap:.6rem; padding:0 1rem; z-index:2; }
+        .ov-header .ov-title{ font-weight:800; flex:1; }
+        .ov-btn{ border:none; background:none; cursor:pointer; font-weight:700; font-size:.9rem; padding:.4rem .6rem; border-radius:8px; }
+        .ov-btn.primary{ background:var(--accent); color:#fff; }
+        .ov-btn.ghost{ color:var(--muted); }
+        .ov-body{ max-width:460px; margin:0 auto; width:100%; padding:1rem; }
+        .field{ display:flex; flex-direction:column; gap:.35rem; margin-bottom:.8rem; }
+        .field label{ font-size:.76rem; font-weight:700; color:var(--muted); }
+        .field input, .field textarea{ border:1px solid var(--line); border-radius:10px; padding:.7rem .8rem; font:inherit; background:#fff; }
+        .emoji-row{ display:flex; flex-wrap:wrap; gap:.4rem; }
+        .emoji-opt{ border:1px solid var(--line); background:#fff; border-radius:10px; width:2.4rem; height:2.4rem;
+            font-size:1.2rem; cursor:pointer; }
+        .emoji-opt.sel{ border-color:var(--accent); background:var(--accent-tint); }
+        .ex-block{ border:1px solid var(--line); border-radius:var(--radius); padding:.8rem; margin-bottom:.7rem; background:#fff; }
+        .ex-top{ display:flex; gap:.5rem; align-items:center; margin-bottom:.5rem; }
+        .ex-top input{ flex:1; border:1px solid var(--line); border-radius:8px; padding:.5rem .6rem; font:inherit; }
+        .set-row{ display:flex; gap:.5rem; align-items:center; margin-bottom:.4rem; }
+        .set-row .set-idx{ width:1.4rem; color:var(--muted); font-size:.8rem; font-weight:700; }
+        .set-row input{ width:5rem; border:1px solid var(--line); border-radius:8px; padding:.45rem .5rem; font:inherit; }
+        .mini-btn{ border:1px solid var(--line); background:#fbfbfa; border-radius:8px; padding:.45rem .7rem;
+            cursor:pointer; font-size:.8rem; font-weight:700; color:var(--muted); }
+        .mini-btn.danger{ color:#b91c1c; }
+        .field-err{ color:#b91c1c; font-size:.78rem; margin-top:.3rem; min-height:1rem; }
     </style>
 </head>
 <body>
@@ -95,10 +122,19 @@
         <section id="tab-history" class="tab-panel"></section>
         <section id="tab-stats" class="tab-panel"></section>
     </main>
+    <div id="editor-ov" class="overlay">
+        <div class="ov-header">
+            <button class="ov-btn ghost" onclick="closeEditor()">취소</button>
+            <span class="ov-title" id="editor-title">루틴 만들기</span>
+            <button class="ov-btn primary" onclick="saveRoutine()">저장</button>
+        </div>
+        <div class="ov-body" id="editor-body"></div>
+    </div>
     <script>
         const STORAGE_KEY = 'fg-workout-v2';
         const LEGACY_KEY = 'fg-workout-dashboard';
         const DAY_LABELS = ['일','월','화','수','목','금','토'];
+        const EMOJI_CHOICES = ['🏋️','🌱','🌹','🧸','🐢','👊','🔥','💪','🦵','🏃','🧘','⚡'];
         let activeTab = 'routines';
 
         function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -166,8 +202,59 @@
             html += '<button class="cta-free" onclick="startWorkout(null)">▶ 자유 운동 시작</button>';
             el.innerHTML = html;
         }
-        // Task 3~5에서 실제 구현되기 전까지 안전한 임시 스텁:
-        function openEditor(){ console.log('openEditor (Task 3)'); }
+        // Task 3: 루틴 편집기(생성/수정)
+        let editorDraft = null;
+        function openEditor(id){
+            const existing = id ? state.routines.find(function(r){ return r.id===id; }) : null;
+            editorDraft = existing
+                ? JSON.parse(JSON.stringify(existing))
+                : { id: uid(), emoji:'🏋️', name:'', note:'', exercises:[] };
+            document.getElementById('editor-title').textContent = existing ? '루틴 수정' : '루틴 만들기';
+            renderEditor();
+            document.getElementById('editor-ov').classList.add('on');
+        }
+        function closeEditor(){ document.getElementById('editor-ov').classList.remove('on'); editorDraft=null; }
+        function renderEditor(){
+            const d = editorDraft;
+            let h = '';
+            h += '<div class="field"><label>이모지</label><div class="emoji-row">' +
+                EMOJI_CHOICES.map(function(e){ return '<button type="button" class="emoji-opt' + (e===d.emoji?' sel':'') +
+                    '" onclick="editorSetEmoji(\'' + e + '\')">' + e + '</button>'; }).join('') + '</div></div>';
+            h += '<div class="field"><label>루틴명</label><input id="ed-name" value="' + esc(d.name) +
+                '" placeholder="예: 이두 루틴" oninput="editorDraft.name=this.value"></div>';
+            h += '<div class="field"><label>설명(선택)</label><input id="ed-note" value="' + esc(d.note) +
+                '" placeholder="간단한 메모" oninput="editorDraft.note=this.value"></div>';
+            h += '<div id="ed-err" class="field-err"></div>';
+            d.exercises.forEach(function(ex, i){
+                h += '<div class="ex-block"><div class="ex-top">' +
+                    '<input value="' + esc(ex.name) + '" placeholder="운동명" oninput="editorDraft.exercises[' + i + '].name=this.value">' +
+                    '<button class="mini-btn danger" onclick="editorRemoveExercise(' + i + ')">삭제</button></div>';
+                ex.sets.forEach(function(s, j){
+                    h += '<div class="set-row"><span class="set-idx">' + (j+1) + '</span>' +
+                        '<input type="number" min="0" value="' + s.weight + '" placeholder="kg" oninput="editorDraft.exercises[' + i + '].sets[' + j + '].weight=Number(this.value)">' +
+                        '<input type="number" min="0" value="' + s.reps + '" placeholder="회" oninput="editorDraft.exercises[' + i + '].sets[' + j + '].reps=Number(this.value)">' +
+                        '<button class="mini-btn danger" onclick="editorRemoveSet(' + i + ',' + j + ')">×</button></div>';
+                });
+                h += '<button class="mini-btn" onclick="editorAddSet(' + i + ')">＋ 세트</button></div>';
+            });
+            h += '<button class="mini-btn" onclick="editorAddExercise()">＋ 운동 추가</button>';
+            document.getElementById('editor-body').innerHTML = h;
+        }
+        function editorSetEmoji(e){ editorDraft.emoji=e; renderEditor(); }
+        function editorAddExercise(){ editorDraft.exercises.push({ id:uid(), name:'', sets:[{weight:0,reps:0}] }); renderEditor(); }
+        function editorRemoveExercise(i){ editorDraft.exercises.splice(i,1); renderEditor(); }
+        function editorAddSet(i){ editorDraft.exercises[i].sets.push({weight:0,reps:0}); renderEditor(); }
+        function editorRemoveSet(i,j){ editorDraft.exercises[i].sets.splice(j,1); renderEditor(); }
+        function saveRoutine(){
+            const d = editorDraft;
+            if(!d.name.trim()){ document.getElementById('ed-err').textContent='루틴명을 입력해주세요.'; return; }
+            if(!d.exercises.length){ document.getElementById('ed-err').textContent='운동을 하나 이상 추가해주세요.'; return; }
+            d.name = d.name.trim();
+            const idx = state.routines.findIndex(function(r){ return r.id===d.id; });
+            if(idx>=0) state.routines[idx]=d; else state.routines.push(d);
+            persist(); closeEditor(); render();
+        }
+        // Task 4~5에서 실제 구현되기 전까지 안전한 임시 스텁:
         function openRoutineDetail(){ console.log('openRoutineDetail (Task 4)'); }
         function openRoutineMenu(){ console.log('openRoutineMenu (Task 4)'); }
         function startWorkout(){ console.log('startWorkout (Task 5)'); }
