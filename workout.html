@@ -134,6 +134,18 @@
         .wo-finish button{ flex:1; border:none; border-radius:var(--radius); padding:1rem; font-weight:800; cursor:pointer; }
         .wo-finish .end{ background:var(--accent); color:#fff; }
         .wo-finish .cancel{ background:#fff; border:1px solid var(--line); color:var(--muted); }
+        .week-strip{ display:flex; gap:.4rem; margin-bottom:1rem; }
+        .week-day{ flex:1; text-align:center; border:1px solid var(--line); border-radius:10px; padding:.6rem .2rem; background:#fff; }
+        .week-day.done{ background:var(--accent-tint); border-color:var(--accent); }
+        .week-day .dow{ font-size:.68rem; color:var(--muted); font-weight:700; margin-bottom:.2rem; }
+        .week-day .mark{ font-weight:800; }
+        .log-card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow);
+            padding:.9rem 1rem; margin-bottom:.6rem; }
+        .log-top{ display:flex; align-items:center; gap:.5rem; }
+        .log-top .emoji{ font-size:1.2rem; }
+        .log-top .lg-name{ font-weight:700; flex:1; }
+        .log-top .lg-date{ color:var(--muted); font-size:.76rem; }
+        .log-meta{ color:var(--muted); font-size:.8rem; margin-top:.35rem; }
     </style>
 </head>
 <body>
@@ -426,7 +438,40 @@
             });
             persist(); closeWorkout(); switchTab('history');
         }
-        function renderHistory(){ document.getElementById('tab-history').innerHTML = '<p>기록</p>'; }
+        function sessionVolume(log){
+            return log.exercises.reduce(function(a,ex){
+                return a + ex.sets.reduce(function(b,s){ return b + (Number(s.weight)||0)*(Number(s.reps)||0); }, 0);
+            }, 0);
+        }
+        function weekStart(date){ const d=new Date(date); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d; }
+        function weekStripHTML(){
+            const start = weekStart(new Date());
+            let h = '<div class="week-strip">';
+            for(let i=0;i<7;i++){
+                const day = new Date(start); day.setDate(start.getDate()+i);
+                const key = day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
+                const has = state.logs.some(function(l){ return l.date.slice(0,10)===key; });
+                h += '<div class="week-day' + (has?' done':'') + '"><div class="dow">' + DAY_LABELS[day.getDay()] +
+                    '</div><div class="mark">' + (has?'●':'○') + '</div></div>';
+            }
+            return h + '</div>';
+        }
+        function renderHistory(){
+            const el = document.getElementById('tab-history');
+            let h = '<h1 class="panel-title">기록</h1>' + weekStripHTML();
+            const logs = state.logs.slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+            if(!logs.length){ h += '<div class="empty">아직 완료한 운동이 없어요.<br>루틴 탭에서 운동을 시작해보세요.</div>'; }
+            else {
+                h += logs.map(function(l){
+                    const setCount = l.exercises.reduce(function(a,ex){ return a+ex.sets.length; }, 0);
+                    return '<div class="log-card"><div class="log-top"><span class="emoji">' + esc(l.emoji||'🏋️') +
+                        '</span><span class="lg-name">' + esc(l.name) + '</span><span class="lg-date">' + esc(l.date.slice(0,10)) +
+                        '</span></div><div class="log-meta">볼륨 ' + sessionVolume(l).toLocaleString() + 'kg · ' +
+                        l.durationMin + '분 · ' + setCount + '세트</div></div>';
+                }).join('');
+            }
+            el.innerHTML = h;
+        }
         function renderStats(){ document.getElementById('tab-stats').innerHTML = '<p>통계</p>'; }
         render();
     </script>
