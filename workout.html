@@ -95,9 +95,27 @@
         .ex-block{ border:1px solid var(--line); border-radius:var(--radius); padding:.8rem; margin-bottom:.7rem; background:#fff; }
         .ex-top{ display:flex; gap:.5rem; align-items:center; margin-bottom:.5rem; }
         .ex-top input{ flex:1; border:1px solid var(--line); border-radius:8px; padding:.5rem .6rem; font:inherit; }
+        .set-head{ display:flex; gap:.5rem; align-items:center; margin-bottom:.3rem; }
+        .set-head .set-idx{ width:1.4rem; }
+        .set-head .set-lbl{ width:5.9rem; font-size:.7rem; font-weight:700; color:var(--muted); text-align:center; letter-spacing:.02em; }
         .set-row{ display:flex; gap:.5rem; align-items:center; margin-bottom:.4rem; }
-        .set-row .set-idx{ width:1.4rem; color:var(--muted); font-size:.8rem; font-weight:700; }
-        .set-row input{ width:5rem; border:1px solid var(--line); border-radius:8px; padding:.45rem .5rem; font:inherit; }
+        .set-row .set-idx{ width:1.4rem; color:var(--muted); font-size:.8rem; font-weight:700; text-align:center; }
+        .set-in{ display:inline-flex; align-items:center; gap:.3rem; width:5.9rem; }
+        .set-in input{ width:100%; border:1px solid var(--line); border-radius:8px; padding:.45rem .5rem; font:inherit; text-align:right; }
+        .set-in .unit{ font-size:.75rem; color:var(--muted); font-weight:700; flex-shrink:0; }
+        /* 운동 선택 피커 */
+        .ex-picker{ background:#fff; width:100%; max-width:460px; border-radius:16px 16px 0 0; padding:.6rem .7rem 1rem; max-height:78vh; display:flex; flex-direction:column; }
+        .ex-picker-title{ font-weight:800; padding:.4rem .2rem .6rem; }
+        .ex-cats{ display:flex; gap:.4rem; overflow-x:auto; padding-bottom:.6rem; }
+        .ex-cat{ flex:0 0 auto; border:1px solid var(--line); background:#fff; border-radius:999px; padding:.4rem .8rem; font-size:.82rem; font-weight:700; color:var(--muted); cursor:pointer; white-space:nowrap; }
+        .ex-cat.sel{ background:var(--accent-tint); color:var(--accent-dark); border-color:var(--accent); }
+        .ex-search{ width:100%; border:1px solid var(--line); border-radius:10px; padding:.6rem .8rem; font:inherit; margin-bottom:.4rem; }
+        .ex-list{ overflow-y:auto; flex:1; min-height:8rem; }
+        .ex-item{ width:100%; display:flex; justify-content:space-between; align-items:center; border:none; background:none; border-bottom:1px solid var(--line); padding:.8rem .3rem; font-size:.92rem; font-weight:600; color:var(--ink); cursor:pointer; text-align:left; }
+        .ex-item:hover{ background:#f4f6f8; }
+        .ex-item .ex-plus{ color:var(--accent-dark); font-weight:800; font-size:1.15rem; }
+        .ex-empty{ padding:1.4rem; color:var(--muted); text-align:center; font-size:.86rem; }
+        .ex-custom{ margin-top:.6rem; width:100%; }
         .mini-btn{ border:1px solid var(--line); background:#fbfbfa; border-radius:8px; padding:.45rem .7rem;
             cursor:pointer; font-size:.8rem; font-weight:700; color:var(--muted); }
         .mini-btn.danger{ color:#b91c1c; }
@@ -193,6 +211,15 @@
     <div id="sheet-ov" class="sheet-ov" onclick="if(event.target===this)this.classList.remove('on')">
         <div class="sheet" id="sheet-inner"></div>
     </div>
+    <div id="ex-picker-ov" class="sheet-ov" onclick="if(event.target===this)closeExPicker()">
+        <div class="ex-picker">
+            <div class="ex-picker-title">운동 선택</div>
+            <div class="ex-cats" id="ex-cats"></div>
+            <input class="ex-search" id="ex-search" placeholder="운동명 검색..." oninput="exPicker.q=this.value; renderExList()">
+            <div class="ex-list" id="ex-list"></div>
+            <button class="mini-btn ex-custom" onclick="pickCustomExercise()">✏ 직접 입력</button>
+        </div>
+    </div>
     <div id="workout-ov" class="overlay">
         <div class="ov-header">
             <span class="ov-title" id="wo-title"></span>
@@ -205,6 +232,15 @@
         const LEGACY_KEY = 'fg-workout-dashboard';
         const DAY_LABELS = ['일','월','화','수','목','금','토'];
         const EMOJI_CHOICES = ['🏋️','🌱','🌹','🧸','🐢','👊','🔥','💪','🦵','🏃','🧘','⚡'];
+        const EXERCISE_LIBRARY = {
+            '가슴': ['벤치프레스','인클라인 벤치프레스','덤벨 프레스','인클라인 덤벨 프레스','덤벨 플라이','체스트 프레스 머신','케이블 크로스오버','푸시업','딥스'],
+            '등': ['데드리프트','랫풀다운','바벨 로우','덤벨 로우','시티드 케이블 로우','T바 로우','풀업','친업','풀오버','백 익스텐션'],
+            '어깨': ['오버헤드 프레스','덤벨 숄더 프레스','아놀드 프레스','사이드 레터럴 레이즈','프론트 레이즈','벤트오버 레터럴 레이즈','페이스 풀','슈러그'],
+            '하체': ['백스쿼트','프론트 스쿼트','레그 프레스','런지','불가리안 스플릿 스쿼트','레그 익스텐션','레그 컬','루마니안 데드리프트','카프 레이즈','힙 쓰러스트'],
+            '팔': ['바벨 컬','덤벨 컬','해머 컬','프리처 컬','컨센트레이션 컬','트라이셉스 익스텐션','케이블 푸시다운','오버헤드 익스텐션','킥백'],
+            '코어': ['플랭크','크런치','레그 레이즈','행잉 레그레이즈','러시안 트위스트','케이블 크런치','마운틴 클라이머','사이드 플랭크'],
+            '유산소': ['러닝','인터벌 러닝','사이클','로잉','스텝밀','걷기','버피','점핑 잭']
+        };
         let activeTab = 'routines';
 
         function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -298,19 +334,52 @@
                 h += '<div class="ex-block"><div class="ex-top">' +
                     '<input value="' + esc(ex.name) + '" placeholder="운동명" oninput="editorDraft.exercises[' + i + '].name=this.value">' +
                     '<button class="mini-btn danger" onclick="editorRemoveExercise(' + i + ')">삭제</button></div>';
+                if(ex.sets.length){
+                    h += '<div class="set-head"><span class="set-idx"></span>' +
+                        '<span class="set-lbl">무게(kg)</span><span class="set-lbl">횟수(회)</span></div>';
+                }
                 ex.sets.forEach(function(s, j){
                     h += '<div class="set-row"><span class="set-idx">' + (j+1) + '</span>' +
-                        '<input type="number" min="0" value="' + s.weight + '" placeholder="kg" oninput="editorDraft.exercises[' + i + '].sets[' + j + '].weight=Number(this.value)">' +
-                        '<input type="number" min="0" value="' + s.reps + '" placeholder="회" oninput="editorDraft.exercises[' + i + '].sets[' + j + '].reps=Number(this.value)">' +
+                        '<span class="set-in"><input type="number" min="0" value="' + s.weight + '" oninput="editorDraft.exercises[' + i + '].sets[' + j + '].weight=Number(this.value)"><span class="unit">kg</span></span>' +
+                        '<span class="set-in"><input type="number" min="0" value="' + s.reps + '" oninput="editorDraft.exercises[' + i + '].sets[' + j + '].reps=Number(this.value)"><span class="unit">회</span></span>' +
                         '<button class="mini-btn danger" onclick="editorRemoveSet(' + i + ',' + j + ')">×</button></div>';
                 });
                 h += '<button class="mini-btn" onclick="editorAddSet(' + i + ')">＋ 세트</button></div>';
             });
-            h += '<button class="mini-btn" onclick="editorAddExercise()">＋ 운동 추가</button>';
+            h += '<button class="mini-btn" onclick="openExercisePicker()">＋ 운동 추가</button>';
             document.getElementById('editor-body').innerHTML = h;
         }
         function editorSetEmoji(e){ editorDraft.emoji=e; renderEditor(); }
-        function editorAddExercise(){ editorDraft.exercises.push({ id:uid(), name:'', sets:[{weight:0,reps:0}] }); renderEditor(); }
+        function editorAddExercise(name){
+            editorDraft.exercises.push({ id:uid(), name:name||'', sets:[{weight:0,reps:10},{weight:0,reps:10},{weight:0,reps:10}] });
+            renderEditor();
+        }
+        // ── 운동 선택 피커 ──
+        let exPicker = { cat:'가슴', q:'' };
+        function openExercisePicker(){ exPicker = { cat:'가슴', q:'' }; renderExPicker(); document.getElementById('ex-picker-ov').classList.add('on'); }
+        function closeExPicker(){ document.getElementById('ex-picker-ov').classList.remove('on'); }
+        function setExCat(cat){ exPicker.cat = cat; exPicker.q = ''; renderExPicker(); }
+        function renderExPicker(){
+            const cats = Object.keys(EXERCISE_LIBRARY);
+            document.getElementById('ex-cats').innerHTML = cats.map(function(c){
+                return '<button class="ex-cat' + (c===exPicker.cat?' sel':'') + '" onclick="setExCat(\'' + c + '\')">' + esc(c) + '</button>';
+            }).join('');
+            const search = document.getElementById('ex-search');
+            if(search) search.value = exPicker.q;
+            renderExList();
+        }
+        function renderExList(){
+            const q = exPicker.q.trim();
+            let items;
+            if(q){ items = []; Object.keys(EXERCISE_LIBRARY).forEach(function(c){ EXERCISE_LIBRARY[c].forEach(function(n){ if(n.indexOf(q)!==-1) items.push(n); }); }); }
+            else { items = EXERCISE_LIBRARY[exPicker.cat] || []; }
+            const el = document.getElementById('ex-list');
+            el.innerHTML = items.length
+                ? items.map(function(n){ return '<button class="ex-item" onclick="pickExercise(\'' + n + '\')"><span>' + esc(n) + '</span><span class="ex-plus">＋</span></button>'; }).join('')
+                : '<div class="ex-empty">검색 결과가 없어요. 아래 “직접 입력”을 눌러 추가하세요.</div>';
+        }
+        function pickExercise(name){ closeExPicker(); editorAddExercise(name); }
+        function pickCustomExercise(){ closeExPicker(); editorAddExercise(''); }
         function editorRemoveExercise(i){ editorDraft.exercises.splice(i,1); renderEditor(); }
         function editorAddSet(i){ editorDraft.exercises[i].sets.push({weight:0,reps:0}); renderEditor(); }
         function editorRemoveSet(i,j){ editorDraft.exercises[i].sets.splice(j,1); renderEditor(); }
