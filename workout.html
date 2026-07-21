@@ -174,6 +174,53 @@
         .pr-row:last-child{ border-bottom:none; }
         .pr-row .pr-w{ font-weight:800; color:var(--accent-dark); }
         @media (min-width:900px){ .stat-grid{ grid-template-columns:repeat(4,1fr); } }
+
+        /* ── 버튼/카드 인터랙션 ── */
+        .tabbtn, .list-card, .log-card, .add-card, .cta-free, .mini-btn, .ov-btn,
+        .lc-menu, .emoji-opt, .ex-cat, .ex-item, .wo-check, .start-cta button,
+        .wo-finish button, .sheet button, .stat-tile{
+            transition: transform .12s cubic-bezier(.34,1.56,.64,1),
+                        box-shadow .18s ease, background-color .18s ease,
+                        border-color .18s ease, color .18s ease;
+        }
+        /* 카드: 호버 시 살짝 떠오르고, 누르면 가라앉음 */
+        .list-card:hover, .log-card:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(15,23,42,.12); border-color:#d7dbd4; }
+        .list-card:active, .log-card:active{ transform:translateY(0) scale(.99); box-shadow:var(--shadow); }
+        .stat-tile:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(15,23,42,.10); }
+        /* 액센트 CTA: 호버 시 진해지고 뜨고, 누르면 눌림 */
+        .cta-free:hover{ background:var(--accent); color:#fff; transform:translateY(-1px); box-shadow:0 8px 20px rgba(16,185,129,.28); }
+        .cta-free:active{ transform:translateY(0) scale(.97); box-shadow:none; }
+        .start-cta button:hover, .wo-finish .end:hover, .ov-btn.primary:hover{
+            filter:brightness(1.06); transform:translateY(-1px); box-shadow:0 8px 20px rgba(16,185,129,.30); }
+        .start-cta button:active, .wo-finish .end:active, .ov-btn.primary:active{ transform:translateY(0) scale(.97); filter:none; box-shadow:none; }
+        /* 점선 추가 버튼 */
+        .add-card:hover{ border-color:var(--accent); color:var(--accent-dark); background:var(--accent-tint); }
+        .add-card:active{ transform:scale(.99); }
+        /* 작은 버튼/탭/칩: 누르면 살짝 축소 */
+        .mini-btn:hover{ border-color:var(--accent); color:var(--accent-dark); background:#fff; }
+        .mini-btn:active, .ov-btn:active, .lc-menu:active, .tabbtn:active,
+        .ex-cat:active, .ex-item:active, .wo-check:active, .emoji-opt:active,
+        .wo-finish .cancel:active{ transform:scale(.92); }
+        .lc-menu:hover{ background:var(--accent-tint); color:var(--accent-dark); border-radius:8px; }
+        .ex-cat:hover{ border-color:var(--accent); color:var(--accent-dark); }
+        .emoji-opt:hover{ border-color:var(--accent); transform:translateY(-1px); }
+        .wo-check:hover{ border-color:var(--accent); }
+        .wo-set.done .wo-check:active{ transform:scale(.92); }
+        .tabbtn:hover{ color:var(--accent-dark); }
+        .ov-btn:hover{ background:#f4f6f8; }
+        .ov-btn.primary:hover{ background:var(--accent); }
+        /* 세트 완료 체크 시 통통 튀는 피드백 */
+        @keyframes setPop{ 0%{transform:scale(1);} 40%{transform:scale(1.18);} 100%{transform:scale(1);} }
+        .wo-set.done .wo-check{ animation:setPop .28s ease; }
+        /* 접근성: 모션 최소화 사용자에겐 변형 애니메이션 비활성 */
+        @media (prefers-reduced-motion: reduce){
+            .tabbtn, .list-card, .log-card, .add-card, .cta-free, .mini-btn, .ov-btn,
+            .lc-menu, .emoji-opt, .ex-cat, .ex-item, .wo-check, .start-cta button,
+            .wo-finish button, .sheet button, .stat-tile{ transition:background-color .15s ease, color .15s ease, border-color .15s ease; }
+            .list-card:hover, .log-card:hover, .stat-tile:hover, .cta-free:hover, .emoji-opt:hover,
+            .start-cta button:hover, .wo-finish .end:hover, .ov-btn.primary:hover{ transform:none; }
+            .wo-set.done .wo-check{ animation:none; }
+        }
     </style>
 </head>
 <body>
