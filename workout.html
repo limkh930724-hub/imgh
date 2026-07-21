@@ -146,6 +146,17 @@
         .log-top .lg-name{ font-weight:700; flex:1; }
         .log-top .lg-date{ color:var(--muted); font-size:.76rem; }
         .log-meta{ color:var(--muted); font-size:.8rem; margin-top:.35rem; }
+        .stat-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:.6rem; margin-bottom:1rem; }
+        .stat-tile{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:.9rem 1rem; }
+        .stat-tile .st-label{ color:var(--muted); font-size:.72rem; font-weight:700; letter-spacing:.03em; }
+        .stat-tile .st-value{ font-size:1.5rem; font-weight:800; letter-spacing:-.02em; margin-top:.3rem; }
+        .chart-card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:1rem; margin-bottom:1rem; }
+        .chart-card .cc-title{ font-weight:700; margin-bottom:.6rem; font-size:.9rem; }
+        .chart-card canvas{ width:100%; height:160px; display:block; }
+        .pr-row{ display:flex; justify-content:space-between; padding:.5rem 0; border-bottom:1px solid var(--line); font-size:.86rem; }
+        .pr-row:last-child{ border-bottom:none; }
+        .pr-row .pr-w{ font-weight:800; color:var(--accent-dark); }
+        @media (min-width:900px){ .stat-grid{ grid-template-columns:repeat(4,1fr); } }
     </style>
 </head>
 <body>
@@ -472,7 +483,83 @@
             }
             el.innerHTML = h;
         }
-        function renderStats(){ document.getElementById('tab-stats').innerHTML = '<p>통계</p>'; }
+        function weekLogs(){
+            const start = weekStart(new Date()), end = new Date(start); end.setDate(start.getDate()+7);
+            return state.logs.filter(function(l){ const d=new Date(l.date); return d>=start && d<end; });
+        }
+        function streak(){
+            const days = Array.from(new Set(state.logs.map(function(l){ return l.date.slice(0,10); }))).sort().reverse();
+            if(!days.length) return 0;
+            let count=0; const cur=new Date(); cur.setHours(0,0,0,0);
+            while(true){
+                const key = cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
+                if(days.indexOf(key)===-1) break;
+                count++; cur.setDate(cur.getDate()-1);
+            }
+            return count;
+        }
+        function topRoutine(){
+            const freq={}; state.logs.forEach(function(l){ freq[l.name]=(freq[l.name]||0)+1; });
+            const keys=Object.keys(freq); if(!keys.length) return '-';
+            return keys.sort(function(a,b){ return freq[b]-freq[a]; })[0];
+        }
+        function prByExercise(){
+            const best={};
+            state.logs.forEach(function(l){ l.exercises.forEach(function(ex){ ex.sets.forEach(function(s){
+                const w=Number(s.weight)||0; if(!best[ex.name] || w>best[ex.name]) best[ex.name]=w;
+            }); }); });
+            return Object.keys(best).map(function(n){ return {name:n, weight:best[n]}; })
+                .filter(function(p){ return p.weight>0; })
+                .sort(function(a,b){ return b.weight-a.weight; }).slice(0,5);
+        }
+        function renderStats(){
+            const el = document.getElementById('tab-stats');
+            const wl = weekLogs();
+            const weekVol = wl.reduce(function(a,l){ return a+sessionVolume(l); }, 0);
+            const weekMin = wl.reduce(function(a,l){ return a+(l.durationMin||0); }, 0);
+            let h = '<h1 class="panel-title">통계</h1>';
+            h += '<div class="stat-grid">' +
+                '<div class="stat-tile"><div class="st-label">THIS WEEK 볼륨</div><div class="st-value">' + weekVol.toLocaleString() + '<span style="font-size:.9rem">kg</span></div></div>' +
+                '<div class="stat-tile"><div class="st-label">THIS WEEK 시간</div><div class="st-value">' + weekMin + '<span style="font-size:.9rem">분</span></div></div>' +
+                '<div class="stat-tile"><div class="st-label">STREAK</div><div class="st-value">' + streak() + '<span style="font-size:.9rem">일</span></div></div>' +
+                '<div class="stat-tile"><div class="st-label">최다 루틴</div><div class="st-value" style="font-size:1.05rem">' + esc(topRoutine()) + '</div></div>' +
+                '</div>';
+            h += '<div class="chart-card"><div class="cc-title">최근 8주 볼륨</div><canvas id="volChart"></canvas></div>';
+            const prs = prByExercise();
+            if(prs.length){
+                h += '<div class="chart-card"><div class="cc-title">개인 기록(PR)</div>' +
+                    prs.map(function(p){ return '<div class="pr-row"><span>' + esc(p.name) + '</span><span class="pr-w">' + p.weight + 'kg</span></div>'; }).join('') +
+                    '</div>';
+            }
+            el.innerHTML = h;
+            requestAnimationFrame(drawVolumeChart);
+        }
+        function drawVolumeChart(){
+            const cv = document.getElementById('volChart'); if(!cv) return;
+            const dpr = window.devicePixelRatio || 1;
+            const w = cv.clientWidth, hgt = cv.clientHeight;
+            cv.width = w*dpr; cv.height = hgt*dpr;
+            const ctx = cv.getContext('2d'); ctx.scale(dpr,dpr); ctx.clearRect(0,0,w,hgt);
+            // 최근 8주 버킷
+            const weeks=[]; const cur=weekStart(new Date());
+            for(let i=7;i>=0;i--){ const s=new Date(cur); s.setDate(cur.getDate()-i*7); weeks.push(s); }
+            const vols = weeks.map(function(ws){
+                const we=new Date(ws); we.setDate(ws.getDate()+7);
+                return state.logs.filter(function(l){ const d=new Date(l.date); return d>=ws && d<we; })
+                    .reduce(function(a,l){ return a+sessionVolume(l); }, 0);
+            });
+            const max = Math.max(1, Math.max.apply(null, vols));
+            const pad=8, gap=8, bw=(w-pad*2-gap*7)/8;
+            vols.forEach(function(v,i){
+                const bh=(hgt-pad*2)*(v/max);
+                const x=pad+i*(bw+gap), y=hgt-pad-bh;
+                ctx.fillStyle = i===7 ? '#10b981' : 'rgba(16,185,129,0.35)';
+                ctx.beginPath();
+                if(ctx.roundRect) ctx.roundRect(x,y,bw,bh,4); else ctx.rect(x,y,bw,bh);
+                ctx.fill();
+            });
+        }
+        window.addEventListener('resize', function(){ if(activeTab==='stats') drawVolumeChart(); });
         render();
     </script>
 <script>
