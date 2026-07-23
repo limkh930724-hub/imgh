@@ -154,12 +154,26 @@ body { animation: pageIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
+// ══════════════════════════════════════
+//  AGENTS — 서울 아파트 실거래 지도
+// ══════════════════════════════════════
+// 코드가 한 줄에 압축돼 있어 읽기 어렵다. 흐름만 먼저 잡을 것:
+//   restore() → init() → hydrateData() → run()
+//   run() = save() + applyFilters() + sync()
+//   sync()가 유일한 렌더 진입점이다. 지도의 moveend/zoomend에 묶여 있어서
+//   화면 이동만 해도 다시 돈다. 마커·목록·상세·상단 칩이 전부 여기서 갱신된다.
+//
+// ITEMS는 죽은 더미가 아니다 — 좌표 원장이다. /api/real-estate.js가 주는 실거래
+// 데이터에는 위경도가 없어서, hydrateData()가 ITEMS의 lat/lng에 API 가격을 얹는다.
+// 그래서 ITEMS에 짝이 없는 API 항목은 지도에 찍을 수 없어 버려진다(아래 참고).
 const STORAGE_KEY='fg-seoul-map-filters-v3';
 const BOUNDARY_CACHE_KEY='fg-seoul-boundary-cache-v1';
 const SEOUL_BOUNDS=[[37.482,126.900],[37.571,127.115]];
 const SEOUL_MAX_BOUNDS=[[37.435,126.820],[37.620,127.180]];
 const SEOUL_DISTRICT_GEOJSON_URL='https://raw.githubusercontent.com/southkorea/seoul-maps/master/kostat/2013/json/seoul_municipalities_geo_simple.json';
 const API_URL='/api/real-estate.js';
+// 좌표 원장 겸 API 실패 시 폴백. 항목을 추가할 때 lat/lng를 반드시 채울 것 —
+// 좌표가 없으면 hydrateData()의 매칭 대상이 되지 못하고 지도에도 찍히지 않는다.
 const ITEMS=[
 {id:'deal-001',region:'서울 마포구',address:'서울특별시 마포구 염리동 498',aptName:'마포프레스티지자이',dealType:'SALE',areaSize:84,floor:19,dealAmount:1510000000,depositAmount:0,dealDate:'2026-03-21',lat:37.5499,lng:126.9451},
 {id:'deal-002',region:'서울 마포구',address:'서울특별시 마포구 공덕동 477',aptName:'공덕SK리더스뷰',dealType:'RENT',areaSize:84,floor:14,dealAmount:0,depositAmount:820000000,dealDate:'2026-01-29',lat:37.5446,lng:126.9524},
@@ -202,11 +216,16 @@ const ITEMS=[
 {id:'deal-039',region:'서울 서초구',address:'서울특별시 서초구 방배동 755',aptName:'방배그랑자이',dealType:'RENT',areaSize:84,floor:13,dealAmount:0,depositAmount:1480000000,dealDate:'2026-02-05',lat:37.4833,lng:126.9960},
 {id:'deal-040',region:'서울 마포구',address:'서울특별시 마포구 아현동 437',aptName:'마포자이힐스테이트',dealType:'RENT',areaSize:84,floor:18,dealAmount:0,depositAmount:930000000,dealDate:'2026-03-09',lat:37.5573,lng:126.9557}
 ];
+// 여기 이름들은 어디에도 선언돼 있지 않다 — 브라우저가 id 속성을 전역 변수로 노출하는
+// 동작(named access on window)에 기대고 있다. 아래 searchBtn/resetBtn도 마찬가지.
+// 따라서 HTML에서 id를 바꾸거나 지우면 이 줄이 ReferenceError로 죽고 페이지 전체가 멈춘다.
 const s={keyword,region,dealType,area,priceRange,sort,resultList,updatedAt,visibleChip,avgChip,centerChip,resultNote,detailName,detailAddress,detailType,detailArea,detailFloor,detailDate,detailPrice,detailNote};
 let map,boundaryLayer,currentItems=ITEMS.slice(),markers=[],filtered=[],visible=[],selected='',selectedPopupId='';
 function restore(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');if(saved.keyword!==undefined)s.keyword.value=saved.keyword||'';if(saved.region!==undefined)s.region.value=saved.region||'';if(saved.dealType!==undefined)s.dealType.value=saved.dealType||'';if(saved.area!==undefined)s.area.value=saved.area||'';if(saved.priceRange!==undefined)s.priceRange.value=saved.priceRange||'';if(saved.sort!==undefined)s.sort.value=saved.sort||'latest'}catch(e){localStorage.removeItem(STORAGE_KEY)}}
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(getFilters()))}
 function getFilters(){return{keyword:s.keyword.value.trim().toLowerCase(),region:s.region.value,dealType:s.dealType.value,area:s.area.value,priceRange:s.priceRange.value,sort:s.sort.value}}
+// 원 단위 정수를 "15억 1,000만" 형태로. 매매는 dealAmount, 전월세는 depositAmount를 쓴다
+// (RENT 항목은 dealAmount가 0이라 그대로 넘기면 '-'로 표시됨 — displayPrice가 분기해준다).
 function fmt(v){if(!v)return '-';const e=Math.floor(v/100000000),r=v%100000000,m=Math.floor(r/10000);if(e>0&&m>0)return e+'억 '+m.toLocaleString('ko-KR')+'만';if(e>0)return e+'억';return v.toLocaleString('ko-KR')+'원'}
 function displayPrice(item){return item.dealType==='RENT'?fmt(item.depositAmount):fmt(item.dealAmount)}
 function sortItems(arr,by){const copy=arr.slice();if(by==='high')copy.sort((a,b)=>(b.dealAmount||b.depositAmount)-(a.dealAmount||a.depositAmount));else if(by==='low')copy.sort((a,b)=>(a.dealAmount||a.depositAmount)-(b.dealAmount||b.depositAmount));else copy.sort((a,b)=>b.dealDate.localeCompare(a.dealDate));return copy}
@@ -214,12 +233,18 @@ function getBasePrice(item){return item.dealType==='RENT'?(item.depositAmount||0
 function matchPriceRange(item,range){const price=getBasePrice(item);if(!range)return true;if(range==='under10')return price<1000000000;if(range==='10to20')return price>=1000000000&&price<2000000000;if(range==='20to30')return price>=2000000000&&price<3000000000;if(range==='over30')return price>=3000000000;return true}
 function coordsKey(item){return[item.region,item.aptName,item.address].join('|')}
 function regionNameFromFeature(feature){const p=feature.properties||{},n=p.name||p.SIG_KOR_NM||p.sigungu_nm||p.SIGUNGU_NM||'';return n?('서울 '+String(n).replace(/^서울특별시\\s*/,'').trim()):''}
+// 위경도를 격자에 반올림해 같은 칸끼리 묶는 단순 클러스터링. 격자 크기는 줌에 따라 2단계.
+// 실제 클러스터 라이브러리가 아니라, 줌 13 미만에서만 sync()가 호출한다.
 function clusterVisible(items,zoom){const size=zoom<=11?.03:.018,bucket=new Map();items.forEach(function(item){const key=Math.round(item.lat/size)+'_'+Math.round(item.lng/size);if(!bucket.has(key))bucket.set(key,[]);bucket.get(key).push(item)});return Array.from(bucket.values())}
 function clusterHtml(count,avg){return '<div class=\"cluster-marker\"><div class=\"value\">'+count+'개<br>'+fmt(avg)+'</div></div>'}
 function applyFilters(){const f=getFilters();filtered=sortItems(currentItems.filter(function(item){if(f.region&&item.region!==f.region)return false;if(f.dealType&&item.dealType!==f.dealType)return false;if(f.area&&String(item.areaSize)!==f.area)return false;if(!matchPriceRange(item,f.priceRange))return false;if(f.keyword&&!item.aptName.toLowerCase().includes(f.keyword)&&!item.address.toLowerCase().includes(f.keyword))return false;return true}),f.sort)}
 function markerHtml(item){return '<div class="marker'+(item.id===selected?' active':'')+(item.dealType==='RENT'?' rent':'')+'"><div class="value">'+displayPrice(item)+'</div></div>'}
 function clearMarkers(){markers.forEach(function(marker){map.removeLayer(marker)});markers=[]}
 function selectItem(item,move){selected=item.id;selectedPopupId=item.id;if(move){map.flyTo([item.lat,item.lng],16,{animate:true,duration:1.05})}sync()}
+// 유일한 렌더 진입점. 지도 이동/줌마다 호출되므로 무거운 작업을 넣지 말 것.
+// 순서: 화면 안(visible) 추리기 → 선택 항목 유효성 보정 → 마커 전량 재생성
+//       → 줌 13 미만이면 클러스터, 이상이면 개별 마커 → 목록·상세·칩 갱신.
+// selectedPopupId는 "이번 렌더에서 한 번만 팝업을 연다"는 1회용 플래그라 열고 나면 비운다.
 function sync(){const bounds=map.getBounds(),zoom=map.getZoom();visible=filtered.filter(function(item){return bounds.contains([item.lat,item.lng])});if(!selected||!visible.some(function(item){return item.id===selected})){selected=visible[0]?visible[0].id:'';selectedPopupId=''}clearMarkers();if(zoom<13){clusterVisible(visible,zoom).forEach(function(group){if(group.length===1){const item=group[0],marker=L.marker([item.lat,item.lng],{icon:L.divIcon({className:'',html:markerHtml(item),iconSize:[70,40],iconAnchor:[35,40]})});marker.on('click',function(){selected=item.id;selectedPopupId=item.id;sync()});marker.bindPopup('<strong>'+item.aptName+'</strong><br>'+item.region+'<br>'+displayPrice(item));marker.addTo(map);if(item.id===selectedPopupId){marker.openPopup();selectedPopupId=''}markers.push(marker);return}const lat=group.reduce((sum,item)=>sum+item.lat,0)/group.length,lng=group.reduce((sum,item)=>sum+item.lng,0)/group.length,avg=Math.round(group.reduce((sum,item)=>sum+getBasePrice(item),0)/group.length),cluster=L.marker([lat,lng],{icon:L.divIcon({className:'',html:clusterHtml(group.length,avg),iconSize:[78,46],iconAnchor:[39,46]})});cluster.on('click',function(){map.flyTo([lat,lng],Math.min(map.getZoom()+1,16),{animate:true,duration:.55})});cluster.addTo(map);markers.push(cluster)})}else{visible.forEach(function(item){const marker=L.marker([item.lat,item.lng],{icon:L.divIcon({className:'',html:markerHtml(item),iconSize:[70,40],iconAnchor:[35,40]})});marker.on('click',function(){selected=item.id;selectedPopupId=item.id;sync()});marker.bindPopup('<strong>'+item.aptName+'</strong><br>'+item.region+'<br>'+displayPrice(item));marker.addTo(map);if(item.id===selectedPopupId){marker.openPopup();selectedPopupId=''}markers.push(marker)})}renderList();renderDetail();updateInfo(bounds)}
 function renderList(){if(!visible.length){s.resultList.innerHTML='<div class="item">현재 화면 안에 보이는 단지가 없습니다. 지도를 옮기거나 줌을 조정해보세요.</div>';return}s.resultList.innerHTML=visible.map(function(item){return '<div class="item'+(item.id===selected?' active':'')+'" data-id="'+item.id+'"><div class="row"><div><div class="name">'+item.aptName+'</div><div class="sub">'+item.address+'</div></div><div class="price">'+displayPrice(item)+'</div></div><div class="meta"><div class="tag">'+item.region+'</div><div class="tag">'+(item.dealType==='SALE'?'매매':'전월세')+'</div><div class="tag">'+item.areaSize+'㎡</div><div class="tag">'+item.dealDate+'</div></div></div>'}).join('');Array.from(document.querySelectorAll('.item[data-id]')).forEach(function(node){node.addEventListener('click',function(){const item=visible.find(function(entry){return entry.id===node.dataset.id});if(item)selectItem(item,true)})})}
 function renderDetail(){const item=visible.find(function(entry){return entry.id===selected})||null;if(!item){s.detailName.textContent='-';s.detailAddress.textContent='-';s.detailType.textContent='-';s.detailArea.textContent='-';s.detailFloor.textContent='-';s.detailDate.textContent='-';s.detailPrice.textContent='-';s.detailNote.textContent='단지를 선택하면 현재 화면 안에서 비교 가능한 가격을 간단하게 보여줍니다.';return}s.detailName.textContent=item.aptName;s.detailAddress.textContent=item.address;s.detailType.textContent=item.dealType==='SALE'?'매매':'전월세';s.detailArea.textContent=item.areaSize+'㎡';s.detailFloor.textContent=item.floor+'층';s.detailDate.textContent=item.dealDate;s.detailPrice.textContent=displayPrice(item);s.detailNote.textContent=item.region+' 안에서 현재 보이는 단지들과 비교했을 때의 상대 가격을 읽기 쉬운 구조로 정리했습니다.'}
@@ -229,14 +254,27 @@ function addFallbackSeoulFocus(){L.rectangle(SEOUL_BOUNDS,{color:'#f8fafc',weigh
 function readBoundaryCache(){try{const raw=localStorage.getItem(BOUNDARY_CACHE_KEY);return raw?JSON.parse(raw):null}catch(e){return null}}
 function writeBoundaryCache(data){try{localStorage.setItem(BOUNDARY_CACHE_KEY,JSON.stringify(data))}catch(e){}}
 function addBoundaryLayers(data){boundaryLayer=L.geoJSON(data,{style:function(){return{color:'#f8fafc',weight:3.6,opacity:.98,fill:false}},interactive:true,onEachFeature:function(feature,layer){layer.on('mouseover',function(){layer.setStyle({color:'#fde68a',weight:4.2})});layer.on('mouseout',function(){boundaryLayer.resetStyle(layer)});layer.on('click',function(){const district=regionNameFromFeature(feature);if(district){s.region.value=district;run();if(layer.getBounds)map.fitBounds(layer.getBounds(),{padding:[22,22]})}})}}).addTo(map);L.geoJSON(data,{style:function(){return{color:'#1d4ed8',weight:1.5,opacity:.8,fill:false}},interactive:false}).addTo(map)}
+// 자치구 경계 GeoJSON은 GitHub raw에서 한 번만 받아 localStorage에 캐시한다.
+// 받기 실패하면 서울 전체를 감싸는 사각형(addFallbackSeoulFocus)으로 대체 — 지도는 계속 뜬다.
+// 경계 데이터가 바뀌면 BOUNDARY_CACHE_KEY의 버전을 올려야 사용자 캐시가 갱신된다.
 async function addDistrictBoundaries(){const cached=readBoundaryCache();if(cached){addBoundaryLayers(cached);return}try{const response=await fetch(SEOUL_DISTRICT_GEOJSON_URL);if(!response.ok)throw new Error('boundary fetch failed');const data=await response.json();writeBoundaryCache(data);addBoundaryLayers(data)}catch(error){addFallbackSeoulFocus()}}
+// API 실거래가를 ITEMS의 좌표에 얹는다. 매칭은 (지역|단지명|주소) 키가 1순위,
+// 실패하면 단지명+지역으로 2차 시도. 둘 다 실패한 항목은 좌표가 없어 버려진다(filter(Boolean)) —
+// "API는 200인데 지도에 안 뜬다"면 대개 ITEMS에 해당 단지의 좌표가 없는 경우다.
+// 에러는 의도적으로 삼킨다: 실패 시 currentItems가 ITEMS로 남아 화면이 비지 않는다.
 async function hydrateData(){const lookup=new Map(ITEMS.map(function(item){return[coordsKey(item),item]}));try{const response=await fetch(API_URL);if(!response.ok)throw new Error('api failed');const payload=await response.json();const merged=(payload.items||[]).map(function(item,index){const base=lookup.get(coordsKey(item))||ITEMS.find(function(entry){return entry.aptName===item.aptName&&entry.region===item.region})||null;if(!base)return null;return{id:item.id||('api-'+index),region:item.region,address:item.address,aptName:item.aptName,dealType:item.dealType,areaSize:item.areaSize||base.areaSize,floor:item.floor||base.floor||0,dealAmount:item.dealAmount||0,depositAmount:item.depositAmount||0,dealDate:item.dealDate||base.dealDate,lat:base.lat,lng:base.lng}}).filter(Boolean);if(merged.length){currentItems=merged}}catch(error){}}
 function init(){map=L.map('map',{zoomControl:true,attributionControl:true,minZoom:11,maxZoom:16,maxBounds:SEOUL_MAX_BOUNDS,maxBoundsViscosity:1,preferCanvas:true});map.fitBounds(SEOUL_BOUNDS);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);addDistrictBoundaries();map.on('moveend zoomend',sync)}
 searchBtn.addEventListener('click',run);
 resetBtn.addEventListener('click',function(){s.keyword.value='';s.region.value='';s.dealType.value='';s.area.value='';s.priceRange.value='';s.sort.value='latest';selected='';selectedPopupId='';save();map.fitBounds(SEOUL_BOUNDS);run()});
+// 부팅 순서: 저장된 필터 복원 → 지도 생성 → API 병합 시도 → 렌더.
+// finally를 쓰는 이유는 hydrateData()가 실패해도 ITEMS로 화면을 그려야 하기 때문.
 restore();init();hydrateData().finally(run);
 </script>
 <script>
+// ── 페이지 전환 페이드 오버레이 ──
+// 상단 네비 내부 링크만 가로채 280ms 페이드 후 이동시킨다(외부 링크·새 탭은 통과).
+// 스타일과 DOM을 JS로 주입하는 이유는 다른 페이지에도 같은 블록을 복붙해 쓰기 때문.
+// 뒤로가기(bfcache 복원)로 돌아오면 오버레이가 켜진 채 남으므로 pageshow에서 되돌린다.
 (function(){
     var s=document.createElement('style');
     s.textContent='#pg-ov{position:fixed;inset:0;z-index:9999;background:var(--bg,#09090b);opacity:0;pointer-events:none;transition:opacity .28s cubic-bezier(.4,0,.2,1)}#pg-ov.on{opacity:1;pointer-events:all}';

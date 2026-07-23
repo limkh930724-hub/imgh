@@ -246,6 +246,12 @@ All persisted state lives in `localStorage` (or `sessionStorage` for auth). Keys
 | `fg-workout-v2` | `workout.html` | `{routines, logs}` |
 | `fg-workout-dashboard` | `workout.html` (legacy) | old `{sessions, checks, categories}` shape — read-only, kept as backup source for the one-time migration into `fg-workout-v2` |
 | `pt-auth` | `portfolio_tracker.html` | session auth flag (`sessionStorage`) |
+| `dept-products` | `commerce.html` | PLM product master (seeded from `INIT_PRODUCTS`) |
+| `dept-inventory` | `commerce.html` | WMS stock per product `{qty, threshold}` |
+| `dept-orders` | `commerce.html` | OMS order history (seeded from `SEED_ORDERS`) |
+| `dept-cart` | `commerce.html` | cart line items |
+| `fg-seoul-map-filters-v3` | `agents.html` | saved map filters (keyword/region/dealType/area/priceRange/sort) |
+| `fg-seoul-boundary-cache-v1` | `agents.html` | cached Seoul district GeoJSON |
 
 ## Coding conventions
 
