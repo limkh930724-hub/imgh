@@ -1,3 +1,7 @@
+// 프록시를 통과시킬 상류 도메인 화이트리스트 — 여기 없는 주소는 403.
+// 새 도메인을 fetch하려면 접두사를 여기에 먼저 추가할 것.
+// 호출 측은 상류 URL 전체를 encodeURIComponent로 감싸야 한다. 인코딩하지 않으면
+// URL 안의 &가 별도 쿼리 파라미터로 파싱되어 req.query.url에 잘린 주소만 들어온다.
 const ALLOWED = [
     'https://production.dataviz.cnn.io/',
     'https://query1.finance.yahoo.com/',

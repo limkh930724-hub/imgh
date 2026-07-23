@@ -399,6 +399,8 @@ journal.html   → location.replace('/asset.html?tab=journal')
         document.querySelectorAll('.cs-tab-btn').forEach(btn => {
             btn.addEventListener('click', () => switchTab(btn.dataset.tab));
         });
+        // updateTabUI만 부를 것 — 여기서 switchTab을 부르면 switchTab이 다시 location.hash를
+        // 바꾸면서 hashchange가 재발화해 순환한다. hash → DOM 단방향으로 유지.
         window.addEventListener('hashchange', () => {
             updateTabUI(location.hash.replace('#', ''));
         });

@@ -1,6 +1,10 @@
+// PRECACHE를 수정하면 이 버전도 반드시 올릴 것 — 이름이 그대로면 activate 단계에서
+// 옛 캐시를 지우지 않아 배포 후에도 사용자에게 이전 페이지가 계속 서빙된다.
 const CACHE_NAME = 'fg-cache-v11';
 
 // Static assets to cache on install
+// 새 페이지를 추가하면 여기에도 넣고 CACHE_NAME을 올린다.
+// portfolio_tracker.html은 비밀번호 게이트가 걸린 비공개 페이지라 의도적으로 제외.
 const PRECACHE = ['/', '/index.html', '/fear-greed.html', '/finance.html', '/asset.html', '/compound.html', '/goal.html', '/journal.html', '/backtest.html', '/workout.html', '/agents.html', '/commerce.html', '/disaster.html', '/casestudy.html', '/casestudy-commerce.html', '/casestudy-feargreed.html', '/casestudy-disaster.html', '/casestudy-asset.html', '/casestudy-backtest.html', '/manifest.json', '/icon.svg'];
 
 // URL prefixes that use network-first (fall back to cache)

@@ -294,6 +294,9 @@
         function esc(v){ return String(v).replace(/[&<>"']/g, function(c){
             return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
+        // fg-workout-v2가 없을 때만 1회 실행된다. 레거시 sessions[]에는 세트 정보가 없어
+        // exercises는 빈 배열로 들어가고, 그 결과 볼륨·PR 통계에는 잡히지 않는다(의도된 손실).
+        // LEGACY_KEY는 백업용으로 남겨두고 절대 지우지 말 것 — 지우면 되돌릴 방법이 없다.
         function migrateFromLegacy(){
             let legacy;
             try { legacy = JSON.parse(localStorage.getItem(LEGACY_KEY)); } catch { return null; }

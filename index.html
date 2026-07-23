@@ -1876,6 +1876,8 @@
                 .slice(0, 5);
             const listEl = document.getElementById('perfResources');
             listEl.innerHTML = '';
+            // 리소스 이름은 반드시 textContent로 넣을 것 — innerHTML로 바꾸면
+            // 외부에서 불러온 URL 문자열이 그대로 마크업으로 해석된다(XSS 경로).
             list.forEach((r) => {
                 const name = r.name.split('/').pop().split('?')[0] || r.name;
                 const row = document.createElement('div');

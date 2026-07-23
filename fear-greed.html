@@ -1738,6 +1738,9 @@
         // ══════════════════════════════════════
         //  TRANSLATIONS
         // ══════════════════════════════════════
+        // 키를 추가할 때는 en과 ko 양쪽에 반드시 같이 넣을 것 — t()가 영어로 폴백하기 때문에
+        // ko에만 빠뜨리면 에러 없이 조용히 영어가 노출된다.
+        // 정적 텍스트는 HTML에 data-i18n="키"로, 동적 텍스트는 언어 토글 핸들러에서 직접 textContent 갱신.
         const TRANSLATIONS = {
             en: {
                 title: 'Fear & Greed Index',
@@ -2197,6 +2200,8 @@
                 const ly = GCY + Math.sin(angle) * labelR;
                 gCtx.save();
                 gCtx.translate(lx, ly);
+                // 이 공식은 그대로 둘 것 — 좌우 라벨을 뒤집으려고 조건문을 붙이면
+                // 게이지 양끝 라벨이 거꾸로 렌더됨 (과거 회귀 원인)
                 const rot = angle + Math.PI / 2;
                 gCtx.rotate(rot);
                 gCtx.fillStyle = zone.labelColor;
@@ -2414,6 +2419,8 @@
             // ── S&P 500 Overlay ──────────────────────────────────────────────────
             if (sp500OverlayEnabled && _sp500Cache) {
                 // Match each FG point to the closest SP500 trading day (±3 days)
+                // 날짜 문자열('YYYY-MM-DD')로 비교하지 말 것 — 타임존 오프셋 때문에 하루씩 어긋남.
+                // 양쪽 모두 ms 타임스탬프(_sp500Cache.ts는 Yahoo의 초 단위를 ×1000 해둔 값)로 최근접 매칭.
                 const spTS = _sp500Cache.ts;
                 const paired = filteredData.map(pt => {
                     let best = -1, bestDiff = Infinity;
@@ -2786,6 +2793,9 @@
         // ══════════════════════════════════════
         let indicatorsLoaded = false;
         let indicatorsFetching = false;
+        // 상류 URL 전체를 반드시 encodeURIComponent로 감싸서 붙일 것.
+        // 인코딩하지 않으면 URL 안의 &가 프록시의 별도 쿼리 파라미터로 파싱되어
+        // Yahoo에는 잘린 URL만 전달됨. 새 도메인을 추가하면 api/proxy.js의 ALLOWED에도 등록.
         const CORS_PROXY = '/api/proxy?url=';
         const YAHOO_CHART = 'https://query1.finance.yahoo.com/v8/finance/chart/';
 
@@ -3153,6 +3163,8 @@
         // shape: [{ sym: string, qty: number, buyPrice: number, currentPrice: number|null, loading: boolean }]
 
         function savePortfolio() {
+            // loading은 일부러 뺀다 — 저장 중 true였던 값이 그대로 복원되면
+            // 새로고침 직후 영구 로딩 상태로 굳는다. 필드를 늘려도 loading은 계속 제외할 것.
             const toSave = portfolioItems.map(({ sym, qty, buyPrice, currentPrice }) =>
                 ({ sym, qty, buyPrice, currentPrice }));
             localStorage.setItem('fg-portfolio', JSON.stringify(toSave));
@@ -3312,7 +3324,7 @@
                 updateInterpreter(current);
             }
             if (filteredData.length > 0) drawTimeline();
-            calendarDataMap = null;
+            calendarDataMap = null; // 셀 색상이 테마에 묶여 있어 캐시 무효화 필요
             if (document.getElementById('calendarView').classList.contains('active')) drawCalendar();
             if (document.getElementById('watchlistView').classList.contains('active')) renderWatchlist(watchlistData);
             // Reset indicators so they re-render with new theme colors
@@ -3324,7 +3336,7 @@
             currentLang = currentLang === 'en' ? 'ko' : 'en';
             localStorage.setItem('fg-lang', currentLang);
             applyTranslations();
-            calendarDataMap = null;
+            calendarDataMap = null; // 존 이름·월 라벨이 언어에 묶여 있어 캐시 무효화 필요
             updateCalYearBtnLabels();
             if (document.getElementById('calendarView').classList.contains('active')) drawCalendar();
             document.getElementById('wlInput').placeholder = t('wlAddPlaceholder');
@@ -3596,7 +3608,10 @@
         const CAL_PAD_B = 16;
 
         let calendarYear = new Date().getFullYear();
-        let calendarDataMap = null; // Map<'YYYY-MM-DD', score>
+        // Map<'YYYY-MM-DD', score> — null이면 다음 렌더 때 buildCalendarMap()이 다시 만든다.
+        // 무효화(= null 대입)를 빠뜨리면 옛 히트맵이 그대로 남으므로, 아래 3가지가 바뀌면 반드시 null:
+        //   applyData()  새 데이터 도착 / 테마 토글  셀 색상 변경 / 언어 토글  존·월 라벨 변경
+        let calendarDataMap = null;
 
         function buildCalendarMap() {
             calendarDataMap = new Map();

@@ -65,6 +65,8 @@ function normalizeFilters(query) {
 
 async function getRealEstateItems(filters) {
     const serviceKey = process.env.DATA_GO_KR_API_KEY || process.env.PUBLIC_DATA_API_KEY || '';
+    // 키가 없으면 에러 대신 MOCK_ITEMS를 조용히 돌려준다 — agents.html이 로컬에서도 뜨게 하려는 의도.
+    // "실데이터가 안 나온다"는 증상은 대개 Vercel에 DATA_GO_KR_API_KEY가 없는 것이니 여기부터 확인.
     if (!serviceKey) {
         return {
             source: 'Mock Real Estate API',
