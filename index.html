@@ -1502,6 +1502,8 @@
         function init() {
             W = canvas.width  = window.innerWidth;
             H = canvas.height = window.innerHeight;
+            /* draw()의 연결선 계산이 O(n²)라 개수 상한이 곧 프레임 예산이다.
+               110을 크게 올리면 저사양 기기에서 스크롤이 눈에 띄게 끊긴다. */
             const count = isMobile()
                 ? Math.min(50, Math.floor(W * H / 14000))
                 : Math.min(110, Math.floor(W * H / 9000));
@@ -1757,6 +1759,9 @@
         const scoreEl  = document.getElementById('perfScore');
         const metrics  = { lcp: null, cls: 0, inp: 0, fcp: null, ttfb: null, dcl: null };
 
+        /* 지원하지 않는 entry type은 observe()에서 던지므로 개별로 감싼다.
+           하나가 실패해도 나머지 지표는 계속 수집돼야 하기 때문에 전체를 한 try로 묶지 말 것.
+           buffered:true는 이 스크립트가 붙기 전에 이미 발생한 항목(LCP·FCP 등)까지 받기 위한 것. */
         function safeObserve(type, callback, extraOptions) {
             if (!window.PerformanceObserver) return;
             try {
@@ -1776,6 +1781,9 @@
             }
         });
 
+        /* INP 근사값 — 가장 느린 인터랙션 하나를 취한다(정식 INP는 상위 백분위수).
+           durationThreshold 기본값(104ms)은 짧은 인터랙션을 통째로 놓치므로 40으로 낮춤.
+           더 낮추면 관측 자체가 비용이 되어 측정 대상을 왜곡한다. */
         safeObserve('event', (list) => {
             for (const entry of list.getEntries()) {
                 if (entry.duration > metrics.inp) metrics.inp = entry.duration;
@@ -1791,6 +1799,8 @@
         let longtaskCount = 0;
         let totalBlockingTime = 0;
 
+        /* TBT = Σ max(0, duration − 50). 50ms는 Lighthouse가 정한 기준선으로,
+           그 이하는 블로킹으로 치지 않는다. 임의로 바꾸면 다른 도구 수치와 비교가 안 된다. */
         safeObserve('longtask', (list) => {
             for (const entry of list.getEntries()) {
                 longtaskCount += 1;
@@ -1806,6 +1816,9 @@
             }
         });
 
+        /* good 이하면 100점, poor 이상이면 0점, 사이는 선형 보간.
+           아직 측정되지 않은 지표(null)는 100으로 둔다 — 로드 직후 배지가 빨갛게 뜨는 걸 막기 위함.
+           그래서 배지는 3초 뒤에야 처음 갱신된다(아래 setTimeout 참고). */
         function scoreFromRange(value, good, poor) {
             if (value == null) return 100;
             if (value <= good) return 100;
@@ -1814,6 +1827,8 @@
         }
 
         function computeScore() {
+            /* 임계값 쌍은 Google Core Web Vitals의 good/poor 경계 그대로다.
+               자체 기준으로 바꾸면 PageSpeed Insights 점수와 어긋나 비교가 무의미해진다. */
             const lcpScore = scoreFromRange(metrics.lcp, 2500, 4000);
             const clsScore = scoreFromRange(metrics.cls, 0.1, 0.25);
             const inpScore = scoreFromRange(metrics.inp, 200, 500);
@@ -1928,6 +1943,9 @@
 
         let liveUpdateInterval = null;
 
+        /* rAF 루프와 1초 인터벌은 패널이 열려 있는 동안에만 돈다.
+           성능 측정 위젯이 스스로 프레임을 잡아먹으면 측정값 자체가 오염되므로,
+           openPanel/closePanel 짝을 반드시 유지할 것(닫을 때 둘 다 해제). */
         function openPanel() {
             panel.hidden = false;
             renderPanel();
@@ -1953,6 +1971,8 @@
             if (e.key === 'Escape' && !panel.hidden) closePanel();
         });
 
+        /* LCP·CLS가 자리 잡을 때까지 기다렸다가 배지를 한 번 갱신한다.
+           더 짧게 잡으면 아직 null인 지표 탓에 실제보다 높은 점수가 찍힌 채 굳는다. */
         setTimeout(updateBadge, 3000);
     })();
 
@@ -2005,6 +2025,9 @@
         }
 
         /* ── 3. 라이브 데이터 티커 (실패 시 스트립 미표시) ── */
+        /* fear-greed.html과 같은 프록시를 쓴다 — 상류 URL은 반드시 encodeURIComponent로
+           감쌀 것(인코딩 안 하면 URL 안의 &가 프록시 쿼리로 잘려 나간다).
+           새 도메인을 붙이려면 api/proxy.js의 ALLOWED에도 등록해야 한다. */
         const PROXY = '/api/proxy?url=';
         const strip = document.getElementById('liveStrip');
         async function fetchJson(url) {
@@ -2012,6 +2035,10 @@
             if (!res.ok) throw new Error(res.status);
             return res.json();
         }
+        /* html 인자를 innerHTML로 넣는다 — 호출부에서 조립한 문자열만 들어오고
+           API 값은 숫자로 파싱해 끼우기 때문에 안전하다. API의 문자열 필드를
+           그대로 넘기게 되면 반드시 textContent로 바꿀 것.
+           .on은 여기서만 붙는다 → 세 요청이 모두 실패하면 스트립이 아예 안 보인다. */
         function addChip(html, href) {
             const chip = document.createElement(href ? 'a' : 'span');
             chip.className = 'live-chip';
@@ -2027,6 +2054,8 @@
             if (score < 75) return '탐욕';
             return '극도의 탐욕';
         }
+        /* 세 요청은 서로 독립이고 실패는 조용히 삼킨다(.catch(() => {})) —
+           히어로가 외부 API 상태에 묶이면 안 되므로, 성공한 칩만 붙는 게 의도된 동작이다. */
         function loadTicker() {
             fetchJson('https://production.dataviz.cnn.io/index/fearandgreed/graphdata')
                 .then(d => {

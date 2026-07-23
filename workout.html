@@ -308,6 +308,8 @@
             });
             return { routines: [], logs: logs };
         }
+        // 우선순위: fg-workout-v2 → 레거시 1회 마이그레이션 → 빈 상태.
+        // v2를 읽는 데 실패해도(파싱 오류 등) 마이그레이션으로 넘어가므로 화면이 비지는 않는다.
         function loadState(){
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
@@ -333,6 +335,8 @@
             else if(activeTab==='history') renderHistory();
             else if(activeTab==='stats') renderStats();
         }
+        // 실측이 아니라 카드에 띄우는 어림값 — 운동당 4분 + 세트당 30초.
+        // 기록에 남는 durationMin은 finishWorkout()이 실제 경과 시간으로 따로 계산한다.
         function routineMinutes(r){
             const sets = r.exercises.reduce(function(a,e){ return a + e.sets.length; }, 0);
             return Math.round(r.exercises.length*4 + sets*0.5);
@@ -554,6 +558,9 @@
             }
             closeWorkout();
         }
+        // 체크된 세트만 기록에 남긴다 — 체크 안 한 세트는 안 한 것으로 본다.
+        // 남는 게 하나도 없으면 저장하지 않고 안내만 띄운다(빈 로그가 통계를 오염시키므로).
+        // 취소로 끝내려면 cancelWorkout()을 쓸 것.
         function finishWorkout(){
             const doneEx = workoutSession.exercises
                 .map(function(ex){ return { name: ex.name.trim()||'운동', sets: ex.sets.filter(function(s){ return s.done; }) }; })
@@ -575,14 +582,20 @@
             });
             persist(); closeWorkout(); switchTab('history');
         }
+        // 볼륨 = Σ(무게 × 횟수). 통계 전반의 기준 단위다.
+        // 레거시 마이그레이션으로 들어온 로그는 exercises가 비어 있어 항상 0이 나온다.
         function sessionVolume(log){
             return log.exercises.reduce(function(a,ex){
                 return a + ex.sets.reduce(function(b,s){ return b + (Number(s.weight)||0)*(Number(s.reps)||0); }, 0);
             }, 0);
         }
         // ── 칼로리 추정 (운동 부위 + 횟수 + 무게 기반) ──
+        // 의학적 근거가 있는 수치가 아니라 부위별 동원 근육량을 반영한 어림 계수다.
+        // 사용자에게도 "추정"으로 노출되므로 정밀도를 올리려 들 필요는 없다.
         const CAT_KCAL = { '하체':0.55, '등':0.5, '가슴':0.45, '어깨':0.35, '팔':0.28, '코어':0.3, '유산소':0.5, '기타':0.35 };
         let _exCatMap = null;
+        // EXERCISE_LIBRARY를 역인덱싱해 캐시한다(운동명 → 부위).
+        // 라이브러리에 없는 이름(사용자 직접 입력)은 전부 '기타'로 떨어진다.
         function exerciseCategory(name){
             if(!_exCatMap){
                 _exCatMap = {};
@@ -601,6 +614,8 @@
             }, 0);
             return Math.round(kcal);
         }
+        // 주의 시작을 일요일로 잡는다(getDay() 0 = 일). 월요일 기준으로 바꾸려면
+        // 여기와 DAY_LABELS를 함께 고쳐야 주간 스트립의 요일이 어긋나지 않는다.
         function weekStart(date){ const d=new Date(date); d.setHours(0,0,0,0); d.setDate(d.getDate()-d.getDay()); return d; }
         function weekStripHTML(){
             const start = weekStart(new Date());
@@ -634,6 +649,14 @@
             const start = weekStart(new Date()), end = new Date(start); end.setDate(start.getDate()+7);
             return state.logs.filter(function(l){ const d=new Date(l.date); return d>=start && d<end; });
         }
+        // 오늘부터 하루씩 거슬러 올라가며 기록이 끊기는 날에서 멈춘다.
+        // 오늘 아직 안 했으면 0이 된다 — 어제까지의 연속을 보여주려면 시작점을 하루 당길 것.
+        //
+        // ⚠ 알려진 문제: 두 날짜 키의 기준 시간대가 다르다.
+        //   days  는 log.date.slice(0,10)  → toISOString() 결과라 UTC 기준
+        //   key   는 cur.get*()            → 로컬(KST) 기준
+        //   그래서 KST 00:00~09:00 사이에 저장된 기록은 하루 전날로 잡혀 연속이 끊긴 것처럼 보인다.
+        //   고치려면 days 쪽도 로컬 기준으로 만들 것(같은 포맷 함수를 공유하는 게 안전).
         function streak(){
             const days = Array.from(new Set(state.logs.map(function(l){ return l.date.slice(0,10); }))).sort().reverse();
             if(!days.length) return 0;
@@ -645,11 +668,14 @@
             }
             return count;
         }
+        // 루틴 id가 아니라 이름(log.name)으로 센다 — 삭제된 루틴이나 프리 운동도 집계에 포함하기 위함.
         function topRoutine(){
             const freq={}; state.logs.forEach(function(l){ freq[l.name]=(freq[l.name]||0)+1; });
             const keys=Object.keys(freq); if(!keys.length) return '-';
             return keys.sort(function(a,b){ return freq[b]-freq[a]; })[0];
         }
+        // PR = 운동별 최고 '무게'. 횟수·볼륨은 보지 않으므로 1회 최대중량에 가깝다.
+        // 상위 5개만 노출하고, 맨몸 운동(무게 0)은 제외한다.
         function prByExercise(){
             const best={};
             state.logs.forEach(function(l){ l.exercises.forEach(function(ex){ ex.sets.forEach(function(s){
@@ -685,6 +711,11 @@
             el.innerHTML = h;
             requestAnimationFrame(drawVolumeChart);
         }
+        // 외부 차트 라이브러리 없이 canvas 2D로만 그린다.
+        // innerHTML 직후에는 clientWidth가 0이라 renderStats()가 rAF로 한 프레임 미루고 부른다 —
+        // 직접 호출하면 폭 0으로 그려져 빈 차트가 된다.
+        // dpr 스케일을 매번 다시 잡는 이유는 캔버스 크기를 여기서 재설정하기 때문(리사이즈 대응).
+        // 막대 높이는 8주 중 최댓값 기준 상대값이라, 축 눈금 없이 추세만 읽는 용도다.
         function drawVolumeChart(){
             const cv = document.getElementById('volChart'); if(!cv) return;
             const dpr = window.devicePixelRatio || 1;
