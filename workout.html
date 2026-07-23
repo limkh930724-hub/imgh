@@ -294,6 +294,14 @@
         function esc(v){ return String(v).replace(/[&<>"']/g, function(c){
             return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
+        // 로컬 시간대 기준 'YYYY-MM-DD'.
+        // logs[].date는 toISOString()이라 UTC다 — 그냥 slice(0,10)로 자르면 KST 00:00~09:00에
+        // 저장된 기록이 전날로 밀린다. 날짜 키가 필요한 곳은 예외 없이 이 함수를 쓸 것.
+        function dateKey(d){
+            const t = (d instanceof Date) ? d : new Date(d);
+            return t.getFullYear() + '-' + String(t.getMonth()+1).padStart(2,'0') + '-' + String(t.getDate()).padStart(2,'0');
+        }
+
         // fg-workout-v2가 없을 때만 1회 실행된다. 레거시 sessions[]에는 세트 정보가 없어
         // exercises는 빈 배열로 들어가고, 그 결과 볼륨·PR 통계에는 잡히지 않는다(의도된 손실).
         // LEGACY_KEY는 백업용으로 남겨두고 절대 지우지 말 것 — 지우면 되돌릴 방법이 없다.
@@ -622,8 +630,8 @@
             let h = '<div class="week-strip">';
             for(let i=0;i<7;i++){
                 const day = new Date(start); day.setDate(start.getDate()+i);
-                const key = day.getFullYear()+'-'+String(day.getMonth()+1).padStart(2,'0')+'-'+String(day.getDate()).padStart(2,'0');
-                const has = state.logs.some(function(l){ return l.date.slice(0,10)===key; });
+                const key = dateKey(day);
+                const has = state.logs.some(function(l){ return dateKey(l.date)===key; });
                 h += '<div class="week-day' + (has?' done':'') + '"><div class="dow">' + DAY_LABELS[day.getDay()] +
                     '</div><div class="mark">' + (has?'●':'○') + '</div></div>';
             }
@@ -638,7 +646,7 @@
                 h += logs.map(function(l){
                     const setCount = l.exercises.reduce(function(a,ex){ return a+ex.sets.length; }, 0);
                     return '<div class="log-card"><div class="log-top"><span class="emoji">' + esc(l.emoji||'🏋️') +
-                        '</span><span class="lg-name">' + esc(l.name) + '</span><span class="lg-date">' + esc(l.date.slice(0,10)) +
+                        '</span><span class="lg-name">' + esc(l.name) + '</span><span class="lg-date">' + esc(dateKey(l.date)) +
                         '</span></div><div class="log-meta">볼륨 ' + sessionVolume(l).toLocaleString() + 'kg · ' +
                         l.durationMin + '분 · ' + setCount + '세트 · 🔥 약 ' + logCalories(l).toLocaleString() + 'kcal</div></div>';
                 }).join('');
@@ -651,18 +659,13 @@
         }
         // 오늘부터 하루씩 거슬러 올라가며 기록이 끊기는 날에서 멈춘다.
         // 오늘 아직 안 했으면 0이 된다 — 어제까지의 연속을 보여주려면 시작점을 하루 당길 것.
-        //
-        // ⚠ 알려진 문제: 두 날짜 키의 기준 시간대가 다르다.
-        //   days  는 log.date.slice(0,10)  → toISOString() 결과라 UTC 기준
-        //   key   는 cur.get*()            → 로컬(KST) 기준
-        //   그래서 KST 00:00~09:00 사이에 저장된 기록은 하루 전날로 잡혀 연속이 끊긴 것처럼 보인다.
-        //   고치려면 days 쪽도 로컬 기준으로 만들 것(같은 포맷 함수를 공유하는 게 안전).
+        // 양쪽 키를 모두 dateKey()로 만든다 — 한쪽만 UTC로 자르면 새벽 기록에서 연속이 끊긴다.
         function streak(){
-            const days = Array.from(new Set(state.logs.map(function(l){ return l.date.slice(0,10); }))).sort().reverse();
+            const days = Array.from(new Set(state.logs.map(function(l){ return dateKey(l.date); }))).sort().reverse();
             if(!days.length) return 0;
             let count=0; const cur=new Date(); cur.setHours(0,0,0,0);
             while(true){
-                const key = cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
+                const key = dateKey(cur);
                 if(days.indexOf(key)===-1) break;
                 count++; cur.setDate(cur.getDate()-1);
             }
