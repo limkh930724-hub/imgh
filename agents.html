@@ -232,7 +232,11 @@ function sortItems(arr,by){const copy=arr.slice();if(by==='high')copy.sort((a,b)
 function getBasePrice(item){return item.dealType==='RENT'?(item.depositAmount||0):(item.dealAmount||0)}
 function matchPriceRange(item,range){const price=getBasePrice(item);if(!range)return true;if(range==='under10')return price<1000000000;if(range==='10to20')return price>=1000000000&&price<2000000000;if(range==='20to30')return price>=2000000000&&price<3000000000;if(range==='over30')return price>=3000000000;return true}
 function coordsKey(item){return[item.region,item.aptName,item.address].join('|')}
-function regionNameFromFeature(feature){const p=feature.properties||{},n=p.name||p.SIG_KOR_NM||p.sigungu_nm||p.SIGUNGU_NM||'';return n?('서울 '+String(n).replace(/^서울특별시\\s*/,'').trim()):''}
+// GeoJSON 속성명이 소스마다 달라 4개를 순서대로 시도한다.
+// 결과는 ITEMS[].region과 같은 '서울 OO구' 형태여야 자치구 클릭 필터가 동작한다.
+// \s는 백슬래시 하나 — \\s로 쓰면 "리터럴 백슬래시 + s"가 되어 접두어가 안 지워지고
+// '서울 서울특별시 마포구'가 만들어진다.
+function regionNameFromFeature(feature){const p=feature.properties||{},n=p.name||p.SIG_KOR_NM||p.sigungu_nm||p.SIGUNGU_NM||'';return n?('서울 '+String(n).replace(/^서울특별시\s*/,'').trim()):''}
 // 위경도를 격자에 반올림해 같은 칸끼리 묶는 단순 클러스터링. 격자 크기는 줌에 따라 2단계.
 // 실제 클러스터 라이브러리가 아니라, 줌 13 미만에서만 sync()가 호출한다.
 function clusterVisible(items,zoom){const size=zoom<=11?.03:.018,bucket=new Map();items.forEach(function(item){const key=Math.round(item.lat/size)+'_'+Math.round(item.lng/size);if(!bucket.has(key))bucket.set(key,[]);bucket.get(key).push(item)});return Array.from(bucket.values())}
