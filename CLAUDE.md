@@ -36,26 +36,26 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 
 | File | Purpose | Lines |
 |---|---|---|
-| `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact | ~1831 |
-| `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~3984 |
-| `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal | ~1546 |
-| `asset.html` | Redirect stub → `/finance.html?tab=compound` | 10 |
-| `compound.html` | Redirect stub → `/finance.html?tab=compound` | 12 |
-| `goal.html` | Redirect stub → `/finance.html?tab=goal` | 12 |
-| `journal.html` | Redirect stub → `/finance.html?tab=journal` | 12 |
-| `backtest.html` | Redirect stub → `/finance.html?tab=backtest` | 10 |
-| `workout.html` | 운동 트래커 — RISE 스타일, 루틴/기록/통계 3탭 + 운동 모드 | ~587 |
-| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~254 |
-| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1266 |
-| `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1681 |
-| `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용 | ~1157 |
-| `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 | ~1265 |
-| `casestudy.html` | 기획 케이스 스터디 갤러리 — 카드 그리드, 각 케이스 상세 페이지로 링크 | ~267 |
-| `casestudy-commerce.html` | 커머스 시스템 기획 케이스 스터디 상세 | ~366 |
-| `casestudy-feargreed.html` | 공포탐욕지수 기획 케이스 스터디 상세 | ~374 |
-| `casestudy-disaster.html` | 재난 대응 시뮬레이터 기획 케이스 스터디 상세 | ~420 |
-| `casestudy-asset.html` | 자산 계산기 기획 케이스 스터디 상세 | ~401 |
-| `casestudy-backtest.html` | 백테스트 비교기 기획 케이스 스터디 상세 | ~400 |
+| `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact | ~2088 |
+| `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~4038 |
+| `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal | ~1567 |
+| `asset.html` | Redirect stub → `/finance.html?tab=compound` | ~15 |
+| `compound.html` | Redirect stub → `/finance.html?tab=compound` | ~15 |
+| `goal.html` | Redirect stub → `/finance.html?tab=goal` | ~15 |
+| `journal.html` | Redirect stub → `/finance.html?tab=journal` | ~15 |
+| `backtest.html` | Redirect stub → `/finance.html?tab=backtest` | ~15 |
+| `workout.html` | 운동 트래커 — RISE 스타일, 루틴/기록/통계 3탭 + 운동 모드 | ~772 |
+| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~303 |
+| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1330 |
+| `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1688 |
+| `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용 | ~1164 |
+| `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 | ~1307 |
+| `casestudy.html` | 기획 케이스 스터디 갤러리 — 카드 그리드, 각 케이스 상세 페이지로 링크 | ~274 |
+| `casestudy-commerce.html` | 커머스 시스템 기획 케이스 스터디 상세 | ~376 |
+| `casestudy-feargreed.html` | 공포탐욕지수 기획 케이스 스터디 상세 | ~384 |
+| `casestudy-disaster.html` | 재난 대응 시뮬레이터 기획 케이스 스터디 상세 | ~430 |
+| `casestudy-asset.html` | 자산 계산기 기획 케이스 스터디 상세 | ~411 |
+| `casestudy-backtest.html` | 백테스트 비교기 기획 케이스 스터디 상세 | ~410 |
 
 Each HTML file is structured: `<head>` (font import + inline `<style>`) → `<body>` (markup) → `<script>` (all app logic).
 
@@ -110,7 +110,7 @@ Password-gated private portfolio tracker. Key architecture:
 
 ### Case Study Pages
 
-- **`casestudy.html`** — gallery index page. 3-card grid (`.cs-grid`), each card links to a detail page. Uses same `hub-theme` localStorage key as `index.html`. Add new case study by adding a `.cs-card` `<a>` element to `.cs-grid`.
+- **`casestudy.html`** — gallery index page. 5-card grid (`.cs-grid`) — commerce / feargreed / disaster / asset / backtest — each card links to a detail page. Uses same `hub-theme` localStorage key as `index.html`. Add new case study by adding a `.cs-card` `<a>` element to `.cs-grid`.
 - **Detail pages** (`casestudy-*.html`) — shared structure: sticky header with `← 케이스 스터디` back link + fixed FAB `↗ 라이브` button (bottom-right, links to the live tool). Tab bar (`.cs-tabs`) with `.cs-tabs-inner` wrapper for centering. Four tabs: 배경 / 고민과 결정 / 화면 설계 / 완성. Tab switching: `switchTab(id)` sets `location.hash`, `updateTabUI(id)` updates DOM — `hashchange` listener calls `updateTabUI()` only (not `switchTab()`) to avoid circular coupling.
 
 ### Workout (`workout.html`)
@@ -204,12 +204,12 @@ Add to both `TRANSLATIONS.en` and `TRANSLATIONS.ko` blocks before `fxTitle`. Upd
 
 ### Tab structure
 
-Five tabs: **Overview** (gauge + history cards + market chips), **Timeline** (canvas chart with period buttons 1W/1M/3M/6M/1Y/All), **Indicators** (Chart.js lazy-loaded charts), **Calendar** (heatmap), **Watchlist** (localStorage-backed `fg-watchlist`, Yahoo Finance price fetch). Tab switching is handled by a single `click` listener on `.tab` buttons using `data-tab` attributes.
+Six tabs, in DOM order: **Overview** (gauge + history cards + score interpreter), **Timeline** (canvas chart with period buttons 1W/1M/3M/6M/1Y/All), **Indicators** (Chart.js lazy-loaded charts), **Calendar** (heatmap), **Watchlist** (localStorage-backed `fg-watchlist`, Yahoo Finance price fetch), **Portfolio** (P&L calculator). Tab switching is handled by a single `click` listener on `.tab` buttons using `data-tab` attributes.
 
-Below the tab panels, outside the `.main-content` grid, sit two additional sections:
+Two sections worth calling out:
 
-- **Score Interpreter** (`.interpreter`) — shows a 3-line market reading based on the current FG score, split into 5 zones (0–25 Extreme Fear → 75–100 Extreme Greed). Updated by `updateInterpreter(score)`.
-- **Portfolio Calculator** (`.calc-section`) — lets the user add ticker symbols with buy price + quantity; fetches current price via Yahoo Finance (same proxy), computes P&L. State is in `portfolioItems` and saved to `localStorage('fg-portfolio')`. The `loading` field is excluded from what gets persisted.
+- **Score Interpreter** (`.interpreter`) — lives inside `#overviewView`, directly after the `.main-content` grid. Shows a 3-line market reading based on the current FG score, split into 5 zones (0–25 Extreme Fear → 75–100 Extreme Greed). Updated by `updateInterpreter(score)`.
+- **Portfolio Calculator** (`.calc-section` inside `#portfolioView`) — its own tab. Lets the user add ticker symbols with buy price + quantity; fetches current price via Yahoo Finance (same proxy), computes P&L. State is in `portfolioItems` and saved to `localStorage('fg-portfolio')`. The `loading` field is excluded from what gets persisted.
 
 ### Calendar heatmap
 
@@ -317,7 +317,11 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 
 ### Service Worker (`sw.js`)
 
-Current `CACHE_NAME = 'fg-cache-v11'`. PRECACHE includes the main pages and assets. **Note:** `finance.html` (the actual finance hub), `disaster.html`, `Certificate.html`, `portfolio_tracker.html`, and `casestudy*.html` are not yet in PRECACHE — the listed finance entries (`/compound.html`, `/goal.html`, etc.) are only the redirect stubs, not the hub itself. When adding a new page, also add it to PRECACHE and bump `CACHE_NAME` to invalidate on deploy.
+Current `CACHE_NAME = 'fg-cache-v11'`. PRECACHE covers `/`, `index.html`, `fear-greed.html`, `finance.html`, the five redirect stubs (`asset`/`compound`/`goal`/`journal`/`backtest`), `workout.html`, `agents.html`, `commerce.html`, `disaster.html`, all five `casestudy*.html` pages, plus `manifest.json` and `icon.svg`.
+
+**Not in PRECACHE:** `Certificate.html` (large generated file) and `portfolio_tracker.html` (password-gated private page, also blocked in `robots.txt`) — the latter is excluded deliberately.
+
+When adding a new page, also add it to PRECACHE and bump `CACHE_NAME` to invalidate on deploy.
 
 ### Other files
 
