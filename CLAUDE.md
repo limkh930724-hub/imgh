@@ -44,7 +44,7 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 | `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1330 |
 | `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1688 |
 | `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용, 문항 데이터 인라인 | ~1164 |
-| `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 | ~1346 |
+| `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 | ~1385 |
 | `casestudy.html` | 기획 케이스 스터디 갤러리 — 카드 그리드, 각 케이스 상세 페이지로 링크 | ~274 |
 | `casestudy-commerce.html` | 커머스 시스템 기획 케이스 스터디 상세 | ~376 |
 | `casestudy-feargreed.html` | 공포탐욕지수 기획 케이스 스터디 상세 | ~384 |
