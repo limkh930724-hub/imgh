@@ -8,3 +8,5 @@ node_modules/
 preview-*.png
 final-*.png
 *.backup.html
+# Unrelated IntelliJ Java scratch module (not part of the site)
+portfolio/
