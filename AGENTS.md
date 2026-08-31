@@ -2,9 +2,9 @@
 
 ## Project Structure & Module Organization
 This repository is a static multi-page web app. Root-level HTML files are the product:
-`index.html` is the hub, `fear-greed.html` is the main dashboard, and `finance.html` is the combined financial-tools page — `asset.html`, `compound.html`, `goal.html`, `journal.html`, and `backtest.html` are now thin redirect stubs pointing at `finance.html?tab=…`. Each page keeps its HTML, CSS, and JavaScript inline in one file.
+`index.html` is the hub, `fear-greed.html` is the main dashboard, and `finance.html` is the combined financial-tools page — `asset.html`, `compound.html`, `goal.html`, `journal.html`, and `backtest.html` are now thin redirect stubs pointing at `finance.html?tab=…`. The rest of the product is `workout.html`, `agents.html`, `commerce.html`, `disaster.html`, `Certificate.html`, the password-gated `portfolio_tracker.html`, and the case-study set (`casestudy.html` + five `casestudy-*.html` detail pages). Each page keeps its HTML, CSS, and JavaScript inline in one file.
 
-Server-side logic lives in `api/proxy.js`, a small Vercel-style proxy for approved upstream APIs. Planning and design notes live under `docs/superpowers/specs/` and `docs/superpowers/plans/`. Ignore local tooling folders like `.claude/`, `.playwright-mcp/`, and `.superpowers/` unless you are intentionally working on agent workflow artifacts.
+Server-side logic lives in `api/`: `proxy.js` (a small Vercel-style proxy for approved upstream APIs) and `real-estate.js` (공공데이터포털 apartment transactions for `agents.html`). `sw.js`, `sitemap.xml`, and `robots.txt` must be updated by hand when a page is added — see the cross-file checklist in `CLAUDE.md`. Planning and design notes live under `docs/superpowers/specs/` and `docs/superpowers/plans/`. Ignore local tooling folders like `.claude/`, `.playwright-mcp/`, and `.superpowers/` unless you are intentionally working on agent workflow artifacts.
 
 ## Build, Test, and Development Commands
 There is no build step or package manifest in this repo.

@@ -10,3 +10,5 @@ final-*.png
 *.backup.html
 # Unrelated IntelliJ Java scratch module (not part of the site)
 portfolio/
+# skills CLI (npx skills add) — 스킬 본체는 .claude/ 로 들어가므로 락 파일만 제외
+skills-lock.json

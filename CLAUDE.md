@@ -29,28 +29,28 @@ Two things that make local edits look like they did nothing:
 
 This is a **multi-page portfolio hub**. Each page is a self-contained HTML file (no modules, no bundler). All logic, styles, and markup are inline per file.
 
-| File | Purpose | Lines |
-|---|---|---|
-| `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact | ~2088 |
-| `fear-greed.html` | CNN Fear & Greed Index app (main app) | ~4038 |
-| `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal | ~1567 |
-| `asset.html` | Redirect stub → `/finance.html?tab=compound` | ~15 |
-| `compound.html` | Redirect stub → `/finance.html?tab=compound` | ~15 |
-| `goal.html` | Redirect stub → `/finance.html?tab=goal` | ~15 |
-| `journal.html` | Redirect stub → `/finance.html?tab=journal` | ~15 |
-| `backtest.html` | Redirect stub → `/finance.html?tab=backtest` | ~15 |
-| `workout.html` | 운동 트래커 — RISE 스타일, 루틴/기록/통계 3탭 + 운동 모드 | ~782 |
-| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) | ~303 |
-| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML | ~1330 |
-| `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 | ~1688 |
-| `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 라이트 테마 전용, 문항 데이터 인라인 | ~1164 |
-| `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 | ~1385 |
-| `casestudy.html` | 기획 케이스 스터디 갤러리 — 카드 그리드, 각 케이스 상세 페이지로 링크 | ~274 |
-| `casestudy-commerce.html` | 커머스 시스템 기획 케이스 스터디 상세 | ~376 |
-| `casestudy-feargreed.html` | 공포탐욕지수 기획 케이스 스터디 상세 | ~384 |
-| `casestudy-disaster.html` | 재난 대응 시뮬레이터 기획 케이스 스터디 상세 | ~430 |
-| `casestudy-asset.html` | 자산 계산기 기획 케이스 스터디 상세 | ~411 |
-| `casestudy-backtest.html` | 백테스트 비교기 기획 케이스 스터디 상세 | ~410 |
+| File | Purpose |
+|---|---|
+| `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact |
+| `fear-greed.html` | CNN Fear & Greed Index app (main app) |
+| `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal |
+| `asset.html` | Redirect stub → `/finance.html?tab=compound` |
+| `compound.html` | Redirect stub → `/finance.html?tab=compound` |
+| `goal.html` | Redirect stub → `/finance.html?tab=goal` |
+| `journal.html` | Redirect stub → `/finance.html?tab=journal` |
+| `backtest.html` | Redirect stub → `/finance.html?tab=backtest` |
+| `workout.html` | 운동 트래커 — RISE 스타일, 루틴/기록/통계 3탭 + 운동 모드 |
+| `agents.html` | AI 에이전트 부동산 조회 (Seoul map real estate search) |
+| `commerce.html` | 커머스 시스템 — OMS+WMS+PLM, React CDN + Context API, 단일 HTML |
+| `disaster.html` | 재난 대응 시뮬레이터 — 대피소 지도, 재난문자 시뮬레이션, 경보·경로 |
+| `Certificate.html` | 정보처리기사 문제풀이 — 퀴즈 앱, 다크/라이트 토글, 문항 데이터 인라인(1줄 ~853 KB) |
+| `portfolio_tracker.html` | 개인 주식 포트폴리오 트래커 — 비밀번호 게이트, 스냅샷 기반 수익률 추적 |
+| `casestudy.html` | 기획 케이스 스터디 갤러리 — 카드 그리드, 각 케이스 상세 페이지로 링크 |
+| `casestudy-commerce.html` | 커머스 시스템 기획 케이스 스터디 상세 |
+| `casestudy-feargreed.html` | 공포탐욕지수 기획 케이스 스터디 상세 |
+| `casestudy-disaster.html` | 재난 대응 시뮬레이터 기획 케이스 스터디 상세 |
+| `casestudy-asset.html` | 자산 계산기 기획 케이스 스터디 상세 |
+| `casestudy-backtest.html` | 백테스트 비교기 기획 케이스 스터디 상세 |
 
 Each HTML file is structured: `<head>` (font import + inline `<style>`) → `<body>` (markup) → `<script>` (all app logic).
 
@@ -121,7 +121,7 @@ Ticker inputs (`#sym-a/b/c`) accept any Yahoo Finance symbol directly (e.g. `005
 
 Password-gated private portfolio tracker. Key architecture:
 
-- **Password gate** — full-screen overlay (`#pt-gate`, `position:fixed;z-index:9999`) rendered before `.app`. Gate JS runs in a blocking IIFE in `<head>` area of body, using `crypto.subtle.digest('SHA-256', ...)` to compare against the stored hash. `sessionStorage('pt-auth')` persists auth for the browser session.
+- **Password gate** — full-screen overlay (`#pt-gate`, `position:fixed;z-index:9999`) rendered before `.app`. Gate JS runs in a blocking IIFE in `<head>` area of body, using `crypto.subtle.digest('SHA-256', ...)` to compare against the stored hash. `sessionStorage('pt-auth')` persists auth for the browser session. 비밀번호를 바꾸려면 `portfolio_tracker.html`의 `const HASH=` (≈377줄) 값을 새 SHA-256 hex로 교체하면 된다 — 평문은 저장소 어디에도 없다.
 - **Data** — all snapshots are hardcoded in the `snapshots` array (no API calls). Each snapshot: `{date, label, totalAsset, totalEval, totalPnl, returnPct, sections[]}`. Add new data by appending to `snapshots`.
 - **KPI Banner** — full-width 4-column strip (총투자자산 / 현재평가액 / 수익률 / 총손익) rendered by `renderKpiBanner()`. Rendered as large `28px` numbers above the main body.
 - **Layout** — `.app` → `.topbar` → `.kpi-banner` → `#chart-section` (full-width trend chart) → `.body` (`.left` sidebar 260px + `.right-wrap` flex:1). Desktop: `height:100vh; overflow:hidden`. Mobile (`≤768px`): stacks vertically, scrolling enabled.
@@ -155,6 +155,14 @@ State persisted to `localStorage('fg-workout-v2')` as `{routines: [], logs: []}`
 플러스 **운동 모드**(fullscreen 오버레이) — 루틴 선택 또는 프리 운동으로 시작, 세트 체크, 무게·횟수 인라인 수정, 진행 타이머, 완료 시 `logs`에 저장.
 
 **파생 통계**: 볼륨(완료된 세트의 Σ weight×reps), 스트릭, 주간 합계, 최다 루틴, PR(운동별 최고 무게). 외부 라이브러리 없음 — 차트는 순수 canvas 2D.
+
+### Certificate quiz (`Certificate.html`)
+
+정보처리기사 기출 문제풀이 앱. 다크/라이트 토글 있음 — `state.theme`이 비어 있으면 `prefers-color-scheme`을 따르고, `body.dataset.theme`으로 적용된다(`hub-theme`/`fg-theme`과는 별개 저장소).
+
+**파일을 통째로 읽지 말 것.** 1164줄인데 용량은 ~875 KB다 — 635번째 **한 줄**에 모든 기출 문항이 JSON 배열(`exams`)로 들어 있어 그 한 줄만 853 KB다. 편집·조회는 `grep -n` + `sed -n '<범위>p'`로 그 줄을 피해서 할 것. 이게 `sw.js` PRECACHE에서 제외된 이유이기도 하다.
+
+앱 로직은 636줄 이후에만 있다. 상태는 통째로 `defaultState` 한 객체이고 `save()`가 `q_study_app_v2` 키 하나에 직렬화한다. 대부분의 필드가 `{examId: ...}` 형태의 회차별 맵이라, 회차를 추가하면(`exams[]`에 항목 추가) 나머지는 자동으로 따라온다.
 
 ### Real Estate Map (`agents.html`)
 
@@ -297,6 +305,7 @@ All persisted state lives in `localStorage` (or `sessionStorage` for auth). Keys
 | `fg-workout-v2` | `workout.html` | `{routines, logs}` |
 | `fg-workout-dashboard` | `workout.html` (legacy) | old `{sessions, checks, categories}` shape — read-only, kept as backup source for the one-time migration into `fg-workout-v2` |
 | `pt-auth` | `portfolio_tracker.html` | session auth flag (`sessionStorage`) |
+| `q_study_app_v2` | `Certificate.html` | 진행 상태 전체 — 회차별 `answers`/`checked`/`bookmarks`/`notes`/`viewMode` + `theme` |
 | `dept-products` | `commerce.html` | PLM product master (seeded from `INIT_PRODUCTS`) |
 | `dept-inventory` | `commerce.html` | WMS stock per product `{qty, threshold}` |
 | `dept-orders` | `commerce.html` | OMS order history (seeded from `SEED_ORDERS`) |
@@ -364,7 +373,7 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 ### Serverless functions (`api/`)
 
 - **`api/proxy.js`** — CORS proxy. `ALLOWED` array gates which upstream domains are permitted (CNN dataviz, Yahoo Finance, open.er-api.com). To proxy a new domain, add its prefix to `ALLOWED`. Responses are cached with `s-maxage=60, stale-while-revalidate=300`.
-- **`api/real-estate.js`** — Korean apartment transaction data from 공공데이터포털 (data.go.kr), with `MOCK_ITEMS` fallback. Supports region codes for Seoul/Gyeonggi districts. Used by `agents.html`.
+- **`api/real-estate.js`** — Korean apartment transaction data from 공공데이터포털 (data.go.kr), with `MOCK_ITEMS` fallback. Used by `agents.html`. 조회 가능한 지역은 파일 상단 `REGION_CODES`(구 이름 → 법정동코드) 맵이 전부다 — `?region=`이 없으면 맵의 모든 구를 순회하고, 맵에 없는 구는 조용히 빈 결과가 된다. 새 지역을 지원하려면 여기와 `agents.html`의 `ITEMS` 좌표를 **둘 다** 추가해야 한다.
 
 ### Service Worker (`sw.js`)
 
@@ -387,9 +396,11 @@ When adding a new page, also add it to PRECACHE and bump `CACHE_NAME` to invalid
 - **`임광호_포트폴리오.pdf`** — resume PDF served from root, linked from the `index.html` hero CTA (`이력서 PDF ↗` outline button, opens in new tab).
 - **`*.png` files in root** — browser screenshots taken during development/verification; not served, safe to ignore.
 - **`portfolio/`** — an unrelated IntelliJ Java scratch module (`portfolio.iml` + `src/Main.java`, still the IDE's Hello World template). Nothing to do with the site; ignored via `.gitignore`. IntelliJ opens this directory as its project root, so a session can start with `portfolio/` as the working directory — the site lives one level up, in the repo root.
-- **`AGENTS.md`** — repository guidelines for other coding agents (Codex etc.); overlaps with this file, kept in sync manually.
+- **`AGENTS.md`** — repository guidelines for other coding agents (Codex etc.); a shorter summary of this file, kept in sync **manually**. It has no per-page architecture detail by design — when a page's structure changes, only this file needs updating; update `AGENTS.md` only when the conventions or the page inventory change.
+- **`.claude/`** — local skill packs installed by `npx skills add` plus `settings.local.json`. Entirely gitignored, untracked, and not served.
 - **`.codex-*.html`** / **`.codex-*.js`** — temporary test artifacts generated by Codex; not served, safe to ignore.
 - **`.superpowers/`** — brainstorm artifacts from the superpowers skill system; not served.
+- **`skills-lock.json`** — lock file written by the `skills` CLI (`npx skills add`); the skills themselves land in `.claude/`. Untracked (added to `.gitignore`), safe to ignore.
 - **`.gitignore` drift**: `.superpowers/`, `.codex-*`, `preview-*.png`, `final-*.png`, and `*.backup.html` are all listed in `.gitignore` but were committed before the rules were added, so they remain tracked. `git status` stays clean; the ignore rules only affect *new* files matching those patterns.
 - **`docs/superpowers/specs/`** — design specs (`*-design.md`) for planned features.
 - **`docs/superpowers/plans/`** — implementation plans generated from specs. Check this directory for pending feature plans before starting new work to avoid duplication.
