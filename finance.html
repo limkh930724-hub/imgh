@@ -2,7 +2,13 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FAF8F4">
+    <link rel="apple-touch-icon" href="/icon-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
     <title>금융 도구 | 임광호 포트폴리오</title>
     <meta name="description" content="백테스트 비교, 복리 계산, 목표 자산, 투자 일지 — 4가지 금융 도구를 하나로 모은 허브.">
     <meta property="og:type" content="website">
@@ -61,6 +67,7 @@
             backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
             padding: 0 2rem; display: flex; align-items: center; gap: 0; height: 56px;
+            padding-top: env(safe-area-inset-top);
         }
         .topnav-logo {
             font-family: 'Cormorant Garamond', serif;
@@ -109,7 +116,7 @@
         .main-tab-btn {
             flex: 1; min-width: 110px;
             display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-            padding: 0.75rem 1rem; border: none; border-right: 1px solid var(--border);
+            padding: 0.75rem 1rem; min-height: 44px; border: none; border-right: 1px solid var(--border);
             background: transparent; font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 0.82rem; font-weight: 500; color: var(--ink-3);
             cursor: pointer; transition: all 0.15s; white-space: nowrap;
@@ -215,6 +222,8 @@
 
         .period-row { display: flex; gap: 0.35rem; flex-wrap: wrap; }
         .period-btn {
+            /* 손가락 하한 44px — 글자 크기는 그대로, 세로만 확보 */
+            min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
             padding: 0.4rem 0.9rem; border: 1px solid var(--border-2);
             border-radius: 20px; background: var(--bg-2); font-family: inherit;
             font-size: 0.76rem; font-weight: 600; color: var(--ink-3);
@@ -428,6 +437,20 @@
         body { animation: pageIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
         /* 키보드 이동의 유일한 단서 — 어떤 규칙에서도 outline을 덮지 말 것 */
         :focus-visible { outline: 2px solid var(--accent, #16a34a); outline-offset: 3px; }
+
+        /* ── iOS 입력 확대 방지 ──
+           사파리는 16px 미만 입력창에 포커스가 가면 페이지를 강제로 확대하고
+           포커스를 풀어도 되돌리지 않는다. 시각적으로 작게 보이고 싶으면
+           font-size가 아니라 padding으로 줄일 것. */
+        input, select, textarea { font-size: 16px; }
+
+        /* ── 터치 타깃 하한 44px ── 글자 크기는 그대로, 세로만 확보 */
+        .topnav-link { min-height: 44px; display: inline-flex; align-items: center; }
+        .period-btn { min-width: 44px; }
+        .sym-input, .input-field { min-height: 44px; }
+        /* iOS 입력 확대 방지 */
+        .input-field, .sym-input, .form-field input { font-size: 16px; }
+        .cal-nav-btn { min-width: 44px; min-height: 44px; }
     </style>
 </head>
 <body>
@@ -1565,5 +1588,12 @@ function initJournalTool() {
     });
 })();
 </script>
+
+    <!-- Service Worker — 설치 프롬프트는 매니페스트 + SW가 둘 다 있어야 뜬다 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+        }
+    </script>
 </body>
 </html>

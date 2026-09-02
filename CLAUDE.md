@@ -377,19 +377,26 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 
 ### Service Worker (`sw.js`)
 
-Current `CACHE_NAME = 'fg-cache-v11'`. PRECACHE covers `/`, `index.html`, `fear-greed.html`, `finance.html`, the five redirect stubs (`asset`/`compound`/`goal`/`journal`/`backtest`), `workout.html`, `agents.html`, `commerce.html`, `disaster.html`, the `casestudy.html` gallery **and** all five `casestudy-*.html` detail pages (six case-study entries in total), plus `manifest.json` and `icon.svg`.
+**두 개의 캐시를 쓴다.** `CACHE_NAME = 'fg-cache-v13'`은 앱 셸(HTML·아이콘·매니페스트), `DATA_CACHE = 'fg-data-v1'`은 API 응답 전용이다. **절대 다시 합치지 말 것** — 한 칸에 섞으면 배포할 때 데이터까지 날아가고, 만료가 없어 오프라인에서 몇 달 전 시세가 현재 값처럼 나온다. `activate`는 `CACHE_NAME`도 `DATA_CACHE`도 아닌 캐시만 지운다.
 
-**Not in PRECACHE:** `Certificate.html` (~875 KB — too large to precache, but it *is* in `sitemap.xml`) and `portfolio_tracker.html` (password-gated private page, also blocked in `robots.txt`). Both exclusions are deliberate.
+PRECACHE covers `/`, `index.html`, `offline.html`, `fear-greed.html`, `finance.html`, the five redirect stubs (`asset`/`compound`/`goal`/`journal`/`backtest`), `workout.html`, `agents.html`, `commerce.html`, `disaster.html`, the `casestudy.html` gallery **and** all five `casestudy-*.html` detail pages, plus `manifest.json`, `icon.svg`, and the four icon PNGs (`icon-192`/`icon-512`/`icon-180`/`icon-maskable`).
+
+**Not in PRECACHE:** `Certificate.html` (~875 KB — too large to precache, but it *is* in `sitemap.xml`) and `portfolio_tracker.html` (password-gated private page, also blocked in `robots.txt`). Both exclusions are deliberate — 오프라인에서 이 둘을 열면 `offline.html`로 안내된다.
+
+**설치는 `addAll`이 아니라 한 건씩 한다** (`precacheOne`). `cache.addAll`은 하나라도 실패하면 전체가 무산돼 `offline.html`까지 같이 날아간다. 또 리다이렉트된 응답은 `cache.put`이 거부하므로 본문만 꺼내 새 `Response`로 다시 만든다. 이 구조를 `addAll` 한 줄로 되돌리지 말 것.
 
 When adding a new page, also add it to PRECACHE and bump `CACHE_NAME` to invalidate on deploy.
 
-**Registration scope**: only `fear-greed.html` calls `navigator.serviceWorker.register('/sw.js')` and only it links `manifest.json`. Every other page in PRECACHE is cached as a *side effect* of a visitor having opened the Fear & Greed app at some point — the SW is never installed for someone who lands directly on `index.html`. Adding a page to PRECACHE does not give it offline support on its own; it needs its own `register()` call for that.
+**Registration scope**: 앱 성격의 여섯 페이지(`index`, `fear-greed`, `finance`, `workout`, `commerce`, `disaster`)가 각각 `manifest`를 링크하고 `navigator.serviceWorker.register('/sw.js')`를 호출한다. 설치 프롬프트는 **그 페이지가 직접** 매니페스트와 SW를 들고 있어야 뜬다. 케이스 스터디·`agents`·`Certificate`·`portfolio_tracker`는 읽는 문서라 의도적으로 제외 — `viewport-fit`, `theme-color`, `apple-touch-icon`만 붙어 있다.
 
-**Fetch strategy**: own-origin GET and the hosts in `NETWORK_FIRST_PREFIXES` (CNN dataviz, Yahoo, open.er-api.com) are network-first with cache fallback; Google Fonts is cache-first. `corsproxy.io` is still listed in `NETWORK_FIRST_PREFIXES` but nothing calls it anymore — all proxying goes through `/api/proxy`.
+**Fetch strategy**: `DATA_PREFIXES`(CNN dataviz, Yahoo, open.er-api.com)와 `/api/` 경로는 `dataFirst` → `DATA_CACHE`. Google Fonts는 cache-first. 나머지 own-origin GET은 network-first이고, 실패한 요청이 내비게이션이면 `offline.html`을 돌려준다.
+
+**`X-From-Cache` 헤더**: `dataFirst`가 오프라인에서 캐시로 응답할 때 이 헤더를 붙인다. `index.html`(라이브 티커)과 `fear-greed.html`(게이지)이 이 헤더 + 응답의 `date`를 읽어 "N시간 전 값 · 오프라인" 배지를 띄운다. 헤더 이름을 바꾸면 두 페이지의 호출부도 같이 고칠 것.
 
 ### Other files
 
-- **`manifest.json`** + **`icon.svg`** — PWA web app manifest and home screen icon. Referenced in `sw.js` PRECACHE and `<link rel="manifest">` in `fear-greed.html`.
+- **`manifest.json`** + **`icon.svg`** + **`icon-192.png`** / **`icon-512.png`** / **`icon-180.png`** / **`icon-maskable.png`** — PWA 매니페스트와 아이콘. `icon-maskable.png`은 여백 20%를 준 버전으로, 없으면 안드로이드 런처가 사각 아이콘을 흰 원 안에 축소해 넣는다. `icon-180.png`은 `apple-touch-icon`용 — 없으면 iOS 홈 화면에 페이지 스크린샷이 박힌다. 넷 다 `sw.js` PRECACHE에 있다.
+- **`offline.html`** — 네트워크·캐시가 모두 비었을 때 `sw.js`가 내비게이션 요청에 돌려주는 화면. 설치된 앱 안에는 주소창이 없어 브라우저 기본 오류가 뜨면 빠져나갈 길이 없다. `robots.txt`에서 차단, `sitemap.xml`에는 없음.
 - **`robots.txt`** + **`sitemap.xml`** — crawl control (blocks `portfolio_tracker.html`) and sitemap for the production domain `imgh-one.vercel.app`. When adding a public page, add it to `sitemap.xml`.
 - **`assets/og-image.png`** — 1200×630 Open Graph card used by pages without a project thumbnail. Every page has `meta description` + OG tags in `<head>`.
 - **`index.backup.html`** — snapshot of `index.html` at an earlier redesign checkpoint; tracked in git but matched by `.gitignore`'s `*.backup.html`, so new backups will not be picked up. Not served, safe to ignore.

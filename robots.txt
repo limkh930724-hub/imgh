@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /portfolio_tracker.html
+Disallow: /offline.html
 
 Sitemap: https://imgh-one.vercel.app/sitemap.xml

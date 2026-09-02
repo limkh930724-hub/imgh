@@ -2,7 +2,12 @@
 <html lang="ko" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="apple-touch-icon" href="/icon-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
     <title>임광호 — Java Backend Developer</title>
     <meta name="description" content="Java 백엔드 개발자 임광호의 포트폴리오 — 공공 시스템 SM·SI 경력과 금융·커머스·재난 대응 등 셀프 기획 사이드 프로젝트 모음.">
     <link rel="canonical" href="https://imgh-one.vercel.app/">
@@ -146,7 +151,8 @@
 
         /* ── Fixed UI ── */
         .theme-toggle {
-            position: fixed; top: 1.25rem; right: 1.5rem; z-index: 1000;
+            position: fixed; z-index: 1000;
+            top: calc(1.25rem + env(safe-area-inset-top)); right: calc(1.5rem + env(safe-area-inset-right));
             width: 44px; height: 44px; border-radius: 50%;
             border: 1.5px solid var(--border-2);
             background: var(--bg); color: var(--text);
@@ -488,6 +494,9 @@
         .project-card__links {
             display: flex; align-items: center; gap: 0.7rem; margin-top: auto;
         }
+        /* 손가락 하한 44px — 카드가 커지지 않게 body 하단 패딩에서 되돌려 받는다 */
+        .project-card__link { min-height: 44px; }
+        .project-card__body { padding-bottom: 0.5rem; }
         .project-card__link {
             font-size: var(--fs-1); font-weight: 800;
             color: var(--accent-text); text-decoration: none;
@@ -808,7 +817,8 @@
            PERFORMANCE MONITOR WIDGET
         ═══════════════════════════ */
         .perf-widget {
-            position: fixed; bottom: 24px; right: 24px; z-index: 60;
+            position: fixed; z-index: 60;
+            bottom: calc(24px + env(safe-area-inset-bottom)); right: calc(24px + env(safe-area-inset-right));
             transition: opacity 0.35s, transform 0.35s;
         }
         /* Projects 진입 전 — 계측은 계속 돌지만 화면에서는 빠진다 */
@@ -932,6 +942,10 @@
             width: 6px; height: 6px; border-radius: 50%;
             background: var(--accent); animation: livePulse 2s ease-in-out infinite;
         }
+        .live-chip--stale {
+            border-color: rgba(180,83,9,0.45); color: #b45309; font-weight: 700;
+        }
+        [data-theme="dark"] .live-chip--stale { border-color: rgba(251,191,36,0.4); color: #fbbf24; }
         .live-chip .up { color: #dc2626; }
         .live-chip .down { color: #2563eb; }
         @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
@@ -961,6 +975,13 @@
                 scroll-behavior: auto !important;
             }
         }
+
+        /* ── 터치 타깃 하한 ──
+           애플·구글 모두 44px가 하한이다. 글자 크기는 그대로 두고 세로만 확보할 것.
+           문장 안에 섞인 인라인 링크(.career-site-link, .projects-cs-all)는
+           WCAG 2.5.8 예외라 그대로 둔다. */
+        .btn, .project-card__link { min-height: 44px; }
+        .project-card__link { min-width: 44px; }
     </style>
 </head>
 <body>
@@ -2037,10 +2058,33 @@
            새 도메인을 붙이려면 api/proxy.js의 ALLOWED에도 등록해야 한다. */
         const PROXY = '/api/proxy?url=';
         const strip = document.getElementById('liveStrip');
+        /* sw.js(dataFirst)가 오프라인에서 캐시로 응답하면 X-From-Cache를 달아 준다.
+           값은 그대로 쓰되 "언제 받은 값인지"를 칩에 남긴다 — 시세를 표시 없이
+           현재 값처럼 보여주는 게 이 페이지에서 가장 나쁜 실수다. */
+        let tickerStale = null;
         async function fetchJson(url) {
             const res = await fetch(PROXY + encodeURIComponent(url));
             if (!res.ok) throw new Error(res.status);
+            if (res.headers.get('X-From-Cache') === '1' && tickerStale === null) {
+                const served = Date.parse(res.headers.get('date') || '');
+                if (!served) { tickerStale = '캐시된 값'; }
+                else {
+                    const mins = Math.max(1, Math.round((Date.now() - served) / 60000));
+                    tickerStale = mins < 60 ? mins + '분 전 값'
+                        : mins < 1440 ? Math.round(mins / 60) + '시간 전 값'
+                        : Math.round(mins / 1440) + '일 전 값';
+                }
+                markStripStale();
+            }
             return res.json();
+        }
+        function markStripStale() {
+            if (!tickerStale || strip.querySelector('.live-chip--stale')) return;
+            const chip = document.createElement('span');
+            chip.className = 'live-chip live-chip--stale';
+            chip.textContent = tickerStale + ' · 오프라인';
+            strip.prepend(chip);
+            strip.classList.add('on');
         }
         /* html 인자를 innerHTML로 넣는다 — 호출부에서 조립한 문자열만 들어오고
            API 값은 숫자로 파싱해 끼우기 때문에 안전하다. API의 문자열 필드를
@@ -2090,6 +2134,13 @@
         if (document.readyState === 'complete') loadTicker();
         else window.addEventListener('load', loadTicker);
     })();
+    </script>
+
+    <!-- Service Worker — 설치 프롬프트는 매니페스트 + SW가 둘 다 있어야 뜬다 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+        }
     </script>
 </body>
 </html>

@@ -2,7 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#FAFAF8">
+  <link rel="apple-touch-icon" href="/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
   <title>IGH | 임광호 포트폴리오</title>
   <meta name="description" content="OMS·WMS·PLM을 하나로 묶은 커머스 시스템 데모 — React 기반 주문·재고·상품 관리 시뮬레이션.">
   <meta property="og:type" content="website">
@@ -41,7 +47,8 @@
     body { font-family: 'Plus Jakarta Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; min-height: 100svh; word-break: keep-all; overflow-wrap: break-word; }
 
     /* ── TopNav ── */
-    .topnav { position: sticky; top: 0; z-index: 200; background: rgba(250,250,248,0.94); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); height: 56px; padding: 0 2rem; display: flex; align-items: center; }
+    /* height 고정 금지 — standalone에서 노치만큼 더 내려와야 한다 */
+    .topnav { position: sticky; top: 0; z-index: 200; background: rgba(250,250,248,0.94); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); min-height: 56px; padding: env(safe-area-inset-top) 2rem 0; display: flex; align-items: center; }
     .topnav-brand { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; letter-spacing: 0.18em; color: var(--ink); margin-right: 2rem; }
     .topnav-back { font-size: .72rem; color: var(--ink-3); text-decoration: none; padding: .28rem .65rem; border: 1px solid var(--border-2); border-radius: 6px; margin-right: 1rem; transition: color .15s, border-color .15s, background .15s; white-space: nowrap; }
     .topnav-back:hover { color: var(--ink); border-color: var(--ink-3); background: var(--bg-3); }
@@ -98,7 +105,7 @@
 
     /* ── Modal ── */
     .overlay { position: fixed; inset: 0; background: rgba(28,24,20,0.5); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-    .modal { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 64px rgba(28,24,20,0.18); width: 100%; }
+    .modal { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; max-height: 90vh; overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 24px 64px rgba(28,24,20,0.18); width: 100%; }
     .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .modal-title { font-size: .95rem; font-weight: 700; color: var(--ink); }
     .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--ink-3); padding: .2rem; line-height: 1; transition: color .15s; }
@@ -272,6 +279,15 @@
       .topnav-tab { padding: 0 .4rem; font-size: .72rem; }
       .product-grid { gap: .55rem; }
     }
+
+        /* ── iOS 입력 확대 방지 ──
+           사파리는 16px 미만 입력창에 포커스가 가면 페이지를 강제로 확대하고
+           포커스를 풀어도 되돌리지 않는다. 시각적으로 작게 보이고 싶으면
+           font-size가 아니라 padding으로 줄일 것. */
+        input, select, textarea { font-size: 16px; }
+
+    /* iOS 입력 확대 방지 — 개별 규칙이 하한을 덮지 않도록 여기서 다시 못 박는다 */
+    .form-input, .form-select, .form-textarea, .search-bar { font-size: 16px; }
   </style>
 </head>
 <body>
@@ -1329,5 +1345,12 @@
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
+
+    <!-- Service Worker — 설치 프롬프트는 매니페스트 + SW가 둘 다 있어야 뜬다 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>오프라인 — 임광호 포트폴리오</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" href="/icon-180.png">
+    <link rel="icon" href="/icon.svg">
+    <style>
+        /* ── Tokens (index.html과 동일) ── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #ffffff; --bg-3: #eef0f2;
+            --text: #0d1117; --text-2: #6b7280;
+            --accent: #16a34a; --accent-text: #15803d;
+            --accent-2: rgba(22,163,74,0.10); --accent-3: rgba(22,163,74,0.20);
+            --border: #e5e7eb;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0a0c10; --bg-3: #1c2030;
+                --text: #f0f4f8; --text-2: #8b9ab4;
+                --accent: #4ade80; --accent-text: #4ade80;
+                --accent-2: rgba(74,222,128,0.10); --accent-3: rgba(74,222,128,0.18);
+                --border: #1e2535;
+            }
+        }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: 'Plus Jakarta Sans', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+            word-break: keep-all; overflow-wrap: break-word;
+            min-height: 100vh;
+            min-height: 100svh;   /* 모바일 주소창 높이 보정 — vh는 폴백 */
+            display: flex; align-items: center; justify-content: center;
+            padding: 3rem 1.25rem;
+            /* standalone에서 노치·홈 인디케이터를 피한다 */
+            padding-top: max(3rem, env(safe-area-inset-top));
+            padding-bottom: max(3rem, env(safe-area-inset-bottom));
+        }
+        /* 키보드 이동의 유일한 단서 — outline을 덮지 말 것 */
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+        .wrap { text-align: center; max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+        .mark {
+            width: 56px; height: 56px; border-radius: 14px; background: var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'JetBrains Mono', ui-monospace, monospace;
+            font-weight: 800; font-size: 1.25rem; color: #fff;
+        }
+        @media (prefers-color-scheme: dark) { .mark { color: #0a0c10; } }
+        h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
+        .sub { font-size: 0.875rem; line-height: 1.8; color: var(--text-2); }
+        .btn {
+            margin-top: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 8px;
+            background: var(--accent); color: #fff; font-size: 0.875rem; font-weight: 700;
+            text-decoration: none; min-height: 44px; display: inline-flex; align-items: center;
+        }
+        @media (prefers-color-scheme: dark) { .btn { color: #0a0c10; } }
+        .saved-label { font-size: 0.75rem; font-weight: 700; color: var(--text-2); margin-top: 1.25rem; }
+        .saved { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
+        .saved a {
+            font-size: 0.75rem; font-weight: 700; color: var(--accent-text);
+            background: var(--accent-2); border: 1px solid var(--accent-3);
+            border-radius: 6px; padding: 0.5rem 0.75rem; text-decoration: none;
+            min-height: 44px; display: inline-flex; align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="mark">KH</div>
+        <h1>지금은 오프라인입니다</h1>
+        <p class="sub">이 페이지는 저장해 두지 않았습니다.<br>연결되면 다시 열립니다.</p>
+        <a class="btn" href="/">포트폴리오로</a>
+
+        <p class="saved-label">저장해 둔 것 — 오프라인에서도 열립니다</p>
+        <div class="saved">
+            <a href="/fear-greed.html">공포탐욕지수</a>
+            <a href="/finance.html">금융 도구</a>
+            <a href="/workout.html">운동 트래커</a>
+            <a href="/commerce.html">커머스</a>
+            <a href="/disaster.html">재난 시뮬레이터</a>
+        </div>
+    </div>
+
+    <script>
+        // 연결이 돌아오면 원래 가려던 페이지로 스스로 복귀한다
+        addEventListener('online', () => location.reload());
+    </script>
+</body>
+</html>

@@ -2,7 +2,13 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0f1e">
+    <link rel="apple-touch-icon" href="/icon-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
     <title>재난 대응 시뮬레이터</title>
     <meta name="description" content="대피소 지도, 재난문자 시뮬레이션, 경보·대피 경로를 제공하는 재난 대응 시뮬레이터.">
     <meta property="og:type" content="website">
@@ -41,7 +47,8 @@
         /* ── 헤더 ── */
         .header {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            height: 56px; padding: 0 1.5rem;
+            /* 노치 아래로 내려오도록 — height 고정이면 제목이 가려진다 */
+            min-height: 56px; padding: env(safe-area-inset-top) 1.5rem 0;
             display: flex; align-items: center; gap: 1rem;
             background: rgba(13,27,42,0.92);
             backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
@@ -62,6 +69,8 @@
         :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
         .disaster-tabs { display: flex; gap: 0.4rem; }
         .disaster-tab {
+            /* 손가락 하한 44px — 글자 크기는 그대로 두고 세로만 확보 */
+            min-height: 44px; display: inline-flex; align-items: center;
             padding: 0.35rem 0.9rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
             border: 1px solid var(--border); background: transparent; color: var(--text-2);
             cursor: pointer; transition: all 0.15s; white-space: nowrap;
@@ -95,6 +104,8 @@
         .location-status.set { color: var(--shelter); }
         .ctrl-btn-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
         .ctrl-btn {
+            /* 손가락 하한 44px — 글자 크기는 그대로, 세로만 확보 */
+            min-height: 44px;
             flex: 1; padding: 0.45rem 0; border-radius: 8px; font-size: 0.74rem; font-weight: 600;
             border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
             cursor: pointer; transition: background 0.15s;
@@ -128,14 +139,14 @@
         .panel-title { font-size: 0.88rem; font-weight: 700; flex: 1; }
         .panel-sub { font-size: 0.72rem; color: var(--text-2); }
         .panel-close {
-            width: 28px; height: 28px; border-radius: 6px;
+            width: 44px; height: 44px; border-radius: 6px;
             border: 1px solid var(--border); background: transparent;
             color: var(--text-2); cursor: pointer; font-size: 0.9rem;
             display: flex; align-items: center; justify-content: center;
             transition: background 0.15s;
         }
         .panel-close:hover { background: var(--surface-2); color: var(--text); }
-        .panel-body { overflow-y: auto; padding: 0.75rem; flex: 1; }
+        .panel-body { overflow-y: auto; overscroll-behavior: contain; padding: 0.75rem; flex: 1; }
 
         /* ── 추천 카드 ── */
         .rec-card {
@@ -242,6 +253,8 @@
 
         /* ── SMS 버튼 ── */
         .sms-btn {
+            /* 손가락 하한 44px — 글자 크기는 그대로, 세로만 확보 */
+            min-height: 44px; display: inline-flex; align-items: center;
             position: relative; padding: 0.32rem 0.75rem;
             border-radius: 20px; font-size: 0.76rem; font-weight: 600;
             border: 1px solid var(--border); background: transparent; color: var(--text-2);
@@ -679,6 +692,20 @@
         /* ── Leaflet 줌 버튼 위치 ── */
         .leaflet-bottom.leaflet-right { bottom: 152px; }
     }
+
+        /* ── 터치 타깃 하한 44px ── 글자 크기는 그대로, 세로만 확보 */
+        .header-back, .run-btn, .sms-tab, .sms-popup-dismiss, .sms-popup-view {
+            min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .sms-popup-head-close { width: 44px; height: 44px; }
+        /* Leaflet 기본 줌 컨트롤은 30px다 — 지도 위에서 특히 누르기 어렵다.
+           .leaflet-touch .leaflet-bar a (0,3,1)를 이기려면 선택자를 더 길게 잡아야 한다. */
+        .leaflet-touch .leaflet-bar a.leaflet-control-zoom-in,
+        .leaflet-touch .leaflet-bar a.leaflet-control-zoom-out,
+        .leaflet-bar a.leaflet-control-zoom-in,
+        .leaflet-bar a.leaflet-control-zoom-out {
+            width: 44px; height: 44px; line-height: 44px;
+        }
     </style>
 </head>
 <body>
@@ -1685,6 +1712,13 @@
     renderAlertLevel(currentDisaster);
     renderDamageCounter(currentDisaster);
     setTimeout(() => showSmsPopup(currentDisaster), 1200);
+    </script>
+
+    <!-- Service Worker — 설치 프롬프트는 매니페스트 + SW가 둘 다 있어야 뜬다 -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+        }
     </script>
 </body>
 </html>
