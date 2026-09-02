@@ -31,17 +31,33 @@
             --text-2:    #6b7280;
             --text-3:    #9ca3af;
             --accent:    #16a34a;
+            /* --accent는 흰 배경에서 3.30:1 — 도형·보더에만 쓰고 작은 글자에는 절대 쓰지 말 것.
+               글자용으로 5.02:1인 --accent-text를 따로 둔다 (WCAG AA 본문 4.5:1). */
+            --accent-text: #15803d;
             --accent-2:  rgba(22,163,74,0.10);
             --accent-3:  rgba(22,163,74,0.20);
             --border:    #e5e7eb;
             --border-2:  #d1d5db;
+            /* --text-3는 2.5:1이라 글자에 쓰면 안 된다. 보조 텍스트는 --text-meta(6.6:1). */
+            --text-meta: #4b5563;
             --card-bg:   #fafafa;
             --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
             --shadow:    0 4px 20px rgba(0,0,0,0.08);
             --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
-            --perf-good: #16a34a;
-            --perf-mid:  #d97706;
-            --perf-poor: #dc2626;
+            --perf-good: #15803d;
+            --perf-mid:  #b45309;
+            /* 라이브 티커의 상승(#dc2626)과 같은 빨강을 피한다 — 한 화면에서 뜻이 갈린다 */
+            --perf-poor: #9f1239;
+
+            /* ── Type ramp ──
+               크기는 이 7단이 전부다. 새 값을 만들지 말 것.
+               본문 최소 14px, 라벨 최소 12px (한글 가독성 하한). */
+            --fs-1: 0.75rem;    /* 12px — 라벨·태그·기간 */
+            --fs-2: 0.8125rem;  /* 13px — 메타·보조 */
+            --fs-3: 0.875rem;   /* 14px — 본문 */
+            --fs-4: 1rem;       /* 16px — 카드 제목 */
+            --fs-5: 1.25rem;    /* 20px — 소제목 */
+            --fs-6: 1.875rem;   /* 30px — 섹션 제목·숫자 */
         }
         [data-theme="dark"] {
             --bg:        #0a0c10;
@@ -51,19 +67,28 @@
             --text-2:    #8b9ab4;
             --text-3:    #4a5568;
             --accent:    #4ade80;
+            /* 다크는 #4ade80이 11.3:1이라 글자에 그대로 써도 통과 */
+            --accent-text: #4ade80;
             --accent-2:  rgba(74,222,128,0.10);
             --accent-3:  rgba(74,222,128,0.18);
             --border:    #1e2535;
             --border-2:  #2d3550;
+            --text-meta: #8b9ab4;
             --card-bg:   #13161e;
             --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
             --shadow:    0 4px 20px rgba(0,0,0,0.4);
             --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+            /* 라이트용 진한 색을 그대로 물려받으면 다크에서 안 읽힌다 */
+            --perf-good: #4ade80;
+            --perf-mid:  #fbbf24;
+            --perf-poor: #fb7185;
         }
 
         /* ── Base ── */
         html {
-            scroll-snap-type: y mandatory;
+            /* mandatory 금지 — career/projects 섹션은 100vh를 넘어서, 강제 스냅이면
+               넘친 아래쪽에서 스크롤이 멈추지 않는다. proximity는 근처에서만 붙는다. */
+            scroll-snap-type: y proximity;
             overflow-y: scroll;
             scroll-behavior: smooth;
         }
@@ -84,10 +109,21 @@
         }
         .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
 
+        /* ── Focus ──
+           키보드 이동의 유일한 단서다. 어떤 규칙에서도 outline을 0/none으로 덮지 말 것.
+           :focus-visible이라 마우스 클릭에는 뜨지 않는다. */
+        :focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 3px;
+        }
+        /* 7px 점이라 3px offset으로는 링이 점에 붙어버린다 */
+        .dot-nav__dot:focus-visible { outline-offset: 5px; }
+
         /* ── Scroll Sections ── */
         .section {
             scroll-snap-align: start;
             min-height: 100vh;
+            min-height: 100svh;   /* 모바일 주소창 높이 보정 — vh는 폴백 */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -114,7 +150,7 @@
             width: 44px; height: 44px; border-radius: 50%;
             border: 1.5px solid var(--border-2);
             background: var(--bg); color: var(--text);
-            font-size: 1rem; cursor: pointer;
+            font-size: var(--fs-4); cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: background 0.2s, border-color 0.2s, transform 0.2s;
             box-shadow: var(--shadow-sm);
@@ -139,8 +175,8 @@
         /* ── Section Label ── */
         .s-label {
             display: inline-flex; align-items: center; gap: 0.6rem;
-            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.15em;
-            text-transform: uppercase; color: var(--accent);
+            font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.15em;
+            text-transform: uppercase; color: var(--accent-text);
             margin-bottom: 1.25rem;
         }
         .s-label::before {
@@ -160,7 +196,7 @@
         .btn {
             display: inline-flex; align-items: center; gap: 0.45rem;
             padding: 0.7rem 1.5rem; border-radius: 8px;
-            font-family: inherit; font-size: 0.875rem; font-weight: 700;
+            font-family: inherit; font-size: var(--fs-3); font-weight: 700;
             cursor: pointer; text-decoration: none;
             transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
         }
@@ -168,19 +204,26 @@
         .btn--primary { background: var(--accent); color: #fff; border: none; }
         [data-theme="dark"] .btn--primary { color: #0a0c10; }
         .btn--outline { background: transparent; color: var(--text); border: 1.5px solid var(--border-2); }
-        .btn--outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-2); }
+        .btn--outline:hover { border-color: var(--accent); color: var(--accent-text); background: var(--accent-2); }
+        /* 3순위 행동 — 버튼 모양을 뺀 텍스트 링크. 히어로에 주 행동은 하나만 남긴다. */
+        .btn--ghost {
+            padding: 0.7rem 0.2rem; background: transparent;
+            color: var(--accent-text); border: 1.5px solid transparent;
+        }
+        .btn--ghost:hover { box-shadow: none; text-decoration: underline; }
+        .hero-ctas__sep { width: 1px; height: 22px; background: var(--border-2); margin: 0 0.4rem; }
 
         /* ── Tags ── */
         .tag {
             padding: 0.22rem 0.6rem; border-radius: 5px;
             background: var(--bg-3); border: 1px solid var(--border);
-            font-size: 0.7rem; font-weight: 700; color: var(--text-2);
+            font-size: var(--fs-1); font-weight: 700; color: var(--text-2);
             white-space: nowrap;
         }
         .tag--core {
             background: var(--accent-2);
             border-color: var(--accent-3);
-            color: var(--accent);
+            color: var(--accent-text);
         }
 
         /* ══════════════════════════════════════
@@ -207,8 +250,8 @@
 
         .hero-eyebrow {
             display: inline-flex; align-items: center; gap: 0.5rem;
-            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em;
-            text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+            font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.14em;
+            text-transform: uppercase; color: var(--accent-text); margin-bottom: 1rem;
         }
         .hero-eyebrow::before {
             content: ''; display: inline-block; width: 18px; height: 2px;
@@ -221,7 +264,7 @@
         }
         .hero-title {
             font-size: clamp(0.95rem, 1.8vw, 1.2rem);
-            font-weight: 600; color: var(--accent);
+            font-weight: 600; color: var(--accent-text);
             font-family: 'JetBrains Mono', monospace;
             margin-bottom: 1.6rem;
         }
@@ -232,7 +275,7 @@
             margin-bottom: 0.85rem; line-height: 1.4;
         }
         .hero-tagline {
-            font-size: 0.9rem; line-height: 1.9;
+            font-size: var(--fs-3); line-height: 1.9;
             color: var(--text-2); margin-bottom: 1.75rem;
         }
         .hero-ctas { display: flex; gap: 0.65rem; flex-wrap: wrap; }
@@ -251,14 +294,14 @@
         }
         .stat-box:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
         .stat-box__num {
-            font-size: 1.85rem; font-weight: 800;
+            font-size: var(--fs-6); font-weight: 800;
             color: var(--text); line-height: 1;
             font-family: 'JetBrains Mono', monospace;
             letter-spacing: -0.04em;
         }
-        .stat-box__num span { color: var(--accent); font-size: 1.1rem; }
+        .stat-box__num span { color: var(--accent-text); font-size: var(--fs-4); }
         .stat-box__label {
-            font-size: 0.68rem; font-weight: 600;
+            font-size: var(--fs-1); font-weight: 600;
             color: var(--text-2); margin-top: 0.35rem;
             letter-spacing: 0.02em;
         }
@@ -268,8 +311,8 @@
             position: absolute; bottom: 2rem; left: 50%;
             transform: translateX(-50%);
             display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-            font-size: 0.62rem; font-weight: 700; letter-spacing: 0.15em;
-            text-transform: uppercase; color: var(--text-3);
+            font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.15em;
+            text-transform: uppercase; color: var(--text-meta);
             pointer-events: none;
         }
         .hero-scroll-hint::after {
@@ -283,47 +326,12 @@
             60% { opacity: 1; transform: scaleY(1); }
         }
 
-        /* ══════════════════════════════════════
-           ABOUT
-        ══════════════════════════════════════ */
-        .about-headline {
-            font-size: clamp(1.8rem, 4vw, 2.75rem);
-            font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;
-            color: var(--text); margin-bottom: 1.5rem;
-        }
-        .about-body {
-            font-size: 1rem; line-height: 1.9;
-            color: var(--text-2); max-width: 600px; margin-bottom: 2.5rem;
-        }
-        .about-body strong { color: var(--text); font-weight: 700; }
-
-        /* Number stats row */
-        .about-stats {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 1px; background: var(--border);
-            border: 1px solid var(--border); border-radius: 14px;
-            overflow: hidden; margin-bottom: 2rem;
-        }
-        .about-stat {
-            background: var(--card-bg);
-            padding: 1.5rem 1.25rem; text-align: center;
-        }
-        .about-stat__num {
-            font-size: 1.85rem; font-weight: 800;
-            color: var(--accent); line-height: 1;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: -0.04em; margin-bottom: 0.35rem;
-        }
-        .about-stat__label {
-            font-size: 0.72rem; font-weight: 600;
-            color: var(--text-2); line-height: 1.4;
-        }
         .about-chips { display: flex; flex-wrap: wrap; gap: 0.65rem; }
         .chip {
             display: inline-flex; align-items: center; gap: 0.4rem;
             padding: 0.45rem 1rem; border-radius: 100px;
             background: var(--accent-2); border: 1px solid var(--accent-3);
-            color: var(--accent); font-size: 0.8rem; font-weight: 700;
+            color: var(--accent-text); font-size: var(--fs-2); font-weight: 700;
         }
         .chip svg { width: 13px; height: 13px; flex-shrink: 0; }
 
@@ -355,7 +363,7 @@
             display: inline-flex; align-items: center; gap: 0.35rem;
             padding: 0.2rem 0.6rem; border-radius: 100px;
             background: var(--accent); color: #fff;
-            font-size: 0.65rem; font-weight: 800; letter-spacing: 0.05em;
+            font-size: var(--fs-1); font-weight: 800; letter-spacing: 0.05em;
             white-space: nowrap;
         }
         [data-theme="dark"] .career-badge { color: #0a0c10; }
@@ -366,19 +374,19 @@
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
         .career-period {
-            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
-            text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem;
+            font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--accent-text); margin-bottom: 0.4rem;
             font-family: 'JetBrains Mono', monospace;
         }
         .career-role {
-            font-size: 1.05rem; font-weight: 800; color: var(--text); margin-bottom: 0.2rem;
+            font-size: var(--fs-4); font-weight: 800; color: var(--text); margin-bottom: 0.2rem;
         }
         .career-project {
-            font-size: 0.82rem; font-weight: 600; color: var(--text-2);
+            font-size: var(--fs-2); font-weight: 600; color: var(--text-2);
         }
         .career-card__body { padding: 1.25rem 1.5rem; }
         .career-meta {
-            font-size: 0.75rem; color: var(--text-3);
+            font-size: var(--fs-1); color: var(--text-meta);
             padding: 0.5rem 0.75rem; border-radius: 6px;
             background: var(--bg-3); margin-bottom: 1.1rem;
             font-weight: 600;
@@ -388,18 +396,18 @@
             margin-bottom: 1.1rem;
         }
         .career-list li {
-            font-size: 0.84rem; line-height: 1.6; color: var(--text-2);
+            font-size: var(--fs-3); line-height: 1.6; color: var(--text-2);
             padding-left: 1.1rem; position: relative;
         }
         .career-list li::before {
             content: '▸'; position: absolute; left: 0;
-            color: var(--accent); font-size: 0.7rem; top: 0.2rem;
+            color: var(--accent-text); font-size: var(--fs-1); top: 0.2rem;
         }
         .career-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
         .career-site-link {
             display: inline-flex; align-items: center; gap: 0.25rem;
-            margin-top: 0.85rem; font-size: 0.74rem; font-weight: 700;
-            color: var(--accent); text-decoration: none; letter-spacing: 0.02em;
+            margin-top: 0.85rem; font-size: var(--fs-2); font-weight: 700;
+            color: var(--accent-text); text-decoration: none; letter-spacing: 0.02em;
         }
         .career-site-link:hover { text-decoration: underline; }
 
@@ -424,12 +432,12 @@
             width: 28px; height: 28px; border-radius: 7px;
             background: var(--accent-2); border: 1px solid var(--accent-3);
             display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; color: var(--accent);
+            flex-shrink: 0; color: var(--accent-text);
         }
         .skill-card__icon svg { width: 15px; height: 15px; }
         .skill-card__title {
-            font-size: 0.7rem; font-weight: 800;
-            letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);
+            font-size: var(--fs-1); font-weight: 800;
+            letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-text);
         }
         .skill-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 
@@ -437,7 +445,7 @@
            PROJECTS
         ══════════════════════════════════════ */
         .projects-meta {
-            font-size: 0.875rem; color: var(--text-2); margin-bottom: 1.75rem;
+            font-size: var(--fs-3); color: var(--text-2); margin-bottom: 1.75rem;
             padding-bottom: 1.25rem; border-bottom: 1px solid var(--border);
         }
         .projects-grid {
@@ -469,11 +477,11 @@
         }
         .project-card__body { padding: 1.3rem; flex: 1; display: flex; flex-direction: column; }
         .project-card__name {
-            font-size: 0.95rem; font-weight: 800;
+            font-size: var(--fs-4); font-weight: 800;
             color: var(--text); margin-bottom: 0.2rem;
         }
         .project-card__sub {
-            font-size: 0.775rem; color: var(--text-2);
+            font-size: var(--fs-3); color: var(--text-2);
             margin-bottom: 0.9rem; line-height: 1.55; flex: 1;
         }
         .project-card__tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-bottom: 0.85rem; }
@@ -481,16 +489,16 @@
             display: flex; align-items: center; gap: 0.7rem; margin-top: auto;
         }
         .project-card__link {
-            font-size: 0.75rem; font-weight: 800;
-            color: var(--accent); text-decoration: none;
+            font-size: var(--fs-1); font-weight: 800;
+            color: var(--accent-text); text-decoration: none;
             display: flex; align-items: center; gap: 0.25rem;
         }
         .project-card__link::after { content: '↗'; font-size: 0.85em; }
         .project-card__link--cs { color: var(--text-2); }
         .project-card__link--cs::after { content: '→'; }
-        .project-card__link--cs:hover { color: var(--accent); }
+        .project-card__link--cs:hover { color: var(--accent-text); }
         .projects-cs-all {
-            color: var(--accent); font-weight: 700; text-decoration: none;
+            color: var(--accent-text); font-weight: 700; text-decoration: none;
             white-space: nowrap; margin-left: 0.4rem;
         }
         .projects-cs-all:hover { text-decoration: underline; }
@@ -521,7 +529,7 @@
             font-style: normal; color: var(--accent);
         }
         .contact-sub {
-            font-size: 0.975rem; color: var(--text-2);
+            font-size: var(--fs-4); color: var(--text-2);
             line-height: 1.8; margin-bottom: 2rem;
         }
         .contact-links { display: flex; flex-direction: column; gap: 1rem; }
@@ -530,23 +538,23 @@
             padding: 1rem 1.25rem;
             background: var(--bg); border: 1px solid var(--border);
             border-radius: 12px; text-decoration: none; color: var(--text);
-            font-weight: 600; font-size: 0.9rem;
+            font-weight: 600; font-size: var(--fs-3);
             transition: border-color 0.2s, box-shadow 0.2s, color 0.2s;
         }
         .contact-link:hover {
-            border-color: var(--accent); color: var(--accent);
+            border-color: var(--accent); color: var(--accent-text);
             box-shadow: var(--shadow-sm);
         }
         .contact-link__icon {
             width: 36px; height: 36px; border-radius: 8px;
             background: var(--bg-3); border: 1px solid var(--border);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; flex-shrink: 0;
+            font-size: var(--fs-4); flex-shrink: 0;
         }
         .contact-link__icon svg { width: 17px; height: 17px; }
         .contact-link__text { flex: 1; }
-        .contact-link__arrow { font-size: 0.75rem; color: var(--text-3); }
-        .contact-link:hover .contact-link__arrow { color: var(--accent); }
+        .contact-link__arrow { font-size: var(--fs-1); color: var(--text-meta); }
+        .contact-link:hover .contact-link__arrow { color: var(--accent-text); }
 
         /* Right side decorative card */
         .contact-card {
@@ -556,11 +564,11 @@
             box-shadow: var(--shadow);
         }
         .contact-card__name {
-            font-size: 1.5rem; font-weight: 800;
+            font-size: var(--fs-5); font-weight: 800;
             color: var(--text); margin-bottom: 0.25rem;
         }
         .contact-card__title {
-            font-size: 0.82rem; color: var(--accent); font-weight: 700;
+            font-size: var(--fs-2); color: var(--accent-text); font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
             margin-bottom: 1.5rem;
         }
@@ -570,41 +578,42 @@
         .contact-card__rows { display: flex; flex-direction: column; gap: 0.75rem; }
         .contact-card__row {
             display: flex; gap: 0.75rem;
-            font-size: 0.82rem; color: var(--text-2);
+            font-size: var(--fs-2); color: var(--text-2);
         }
-        .contact-card__row-label { color: var(--text-3); font-weight: 600; min-width: 56px; }
+        .contact-card__row-label { color: var(--text-meta); font-weight: 600; min-width: 56px; }
         .contact-card__footer {
             margin-top: 1.5rem; padding-top: 1.25rem;
             border-top: 1px solid var(--border);
-            font-size: 0.72rem; color: var(--text-3); font-weight: 600;
+            font-size: var(--fs-1); color: var(--text-meta); font-weight: 600;
         }
 
         /* ══════════════════════════════════════
            CUSTOM CURSOR
         ══════════════════════════════════════ */
-        * { cursor: none !important; }
-        .cursor-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: var(--accent);
-            position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
-            transform: translate(-50%,-50%);
-            transition: width 0.2s, height 0.2s, background 0.2s;
-        }
+        /* * 전체에 걸지 말 것 — 스크립트가 죽으면 포인터가 통째로 사라진다.
+           커서 JS가 뜬 뒤 body에 .has-custom-cursor를 붙여서 켠다. */
+        body.has-custom-cursor, body.has-custom-cursor * { cursor: none; }
+        /* 점과 링을 두 요소로 나누면 고정 레이어가 하나 더 는다 — ::after로 한 겹에 담는다 */
         .cursor-ring {
             width: 32px; height: 32px; border-radius: 50%;
             border: 1.5px solid var(--accent);
             position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9998;
             transform: translate(-50%,-50%);
             transition: width 0.3s, height 0.3s, border-color 0.3s, opacity 0.3s;
-            opacity: 0.5;
+            opacity: 0.55;
+        }
+        .cursor-ring::after {
+            content: '';
+            position: absolute; top: 50%; left: 50%;
+            width: 6px; height: 6px; margin: -3px 0 0 -3px;
+            border-radius: 50%; background: var(--accent);
         }
         .cursor-ring.hover {
             width: 48px; height: 48px;
             border-color: var(--accent); opacity: 0.9;
         }
         @media (pointer: coarse) {
-            * { cursor: auto !important; }
-            .cursor-dot, .cursor-ring { display: none; }
+            .cursor-ring { display: none; }
         }
 
         /* ══════════════════════════════════════
@@ -650,14 +659,6 @@
         [data-reveal="right"] { transform: translateX(44px); }
         [data-reveal="scale"] { transform: scale(0.92); }
         [data-reveal].revealed { opacity: 1; transform: none; }
-
-        /* Stagger delay classes */
-        .delay-1 { transition-delay: 0.08s !important; }
-        .delay-2 { transition-delay: 0.16s !important; }
-        .delay-3 { transition-delay: 0.24s !important; }
-        .delay-4 { transition-delay: 0.32s !important; }
-        .delay-5 { transition-delay: 0.40s !important; }
-        .delay-6 { transition-delay: 0.48s !important; }
 
         /* ══════════════════════════════════════
            STAT BOX GLOW
@@ -750,6 +751,7 @@
             .section,
             .section--free {
                 min-height: 100vh;
+            min-height: 100svh;   /* 모바일 주소창 높이 보정 — vh는 폴백 */
                 padding: 5rem 1.25rem 3.5rem;
             }
 
@@ -757,8 +759,8 @@
 
             /* 히어로 */
             .hero-name { font-size: clamp(2.6rem, 10vw, 3.5rem); }
-            .hero-philosophy { font-size: 1rem; }
-            .hero-tagline { font-size: 0.85rem; }
+            .hero-philosophy { font-size: var(--fs-4); }
+            .hero-tagline { font-size: var(--fs-3); }
             .hero-scroll-hint { display: none; }
 
             /* 섹션 타이포 */
@@ -778,10 +780,6 @@
 
             /* 프로젝트 카드 — 3D 틸트 제거 */
             .project-card { transform-style: flat !important; will-change: auto; }
-
-            /* orb 사이즈 축소 */
-            #hero::before { width: 300px; height: 300px; }
-            #hero::after  { width: 200px; height: 200px; }
         }
 
         /* ═══════════════════════════
@@ -791,26 +789,38 @@
             .section { padding: 4.5rem 1rem 3rem; }
 
             .hero-name { font-size: clamp(2.2rem, 11vw, 3rem); }
-            .hero-ctas { flex-direction: column; }
-            .btn { justify-content: center; width: 100%; }
+            /* 풀폭으로 쌓이는 건 주 행동 둘까지. ghost 둘은 한 줄에 나란히 —
+               넷 다 풀폭 버튼이면 히어로가 한 화면을 크게 넘는다. */
+            .hero-ctas { flex-wrap: wrap; row-gap: 0.5rem; }
+            .btn--primary, .btn--outline { flex: 1 1 100%; justify-content: center; }
+            .btn--ghost { flex: 0 0 auto; padding-left: 0; padding-right: 0.9rem; }
+            .hero-ctas__sep { display: none; }
 
             .skills-layout { grid-template-columns: 1fr; }
             .projects-grid { grid-template-columns: 1fr; }
             .hero-stat-grid { grid-template-columns: repeat(2, 1fr); }
 
             .about-chips { gap: 0.5rem; }
-            .chip { font-size: 0.72rem; padding: 0.35rem 0.75rem; }
+            .chip { font-size: var(--fs-1); padding: 0.35rem 0.75rem; }
         }
 
         /* ═══════════════════════════
            PERFORMANCE MONITOR WIDGET
         ═══════════════════════════ */
-        .perf-widget { position: fixed; bottom: 24px; right: 24px; z-index: 60; }
+        .perf-widget {
+            position: fixed; bottom: 24px; right: 24px; z-index: 60;
+            transition: opacity 0.35s, transform 0.35s;
+        }
+        /* Projects 진입 전 — 계측은 계속 돌지만 화면에서는 빠진다 */
+        .perf-widget--idle {
+            opacity: 0; transform: translateY(12px) scale(0.9);
+            pointer-events: none;
+        }
         .perf-badge {
             display: flex; align-items: center; gap: 0.35rem;
             padding: 0.55rem 0.9rem; border-radius: 999px;
             border: 1.5px solid var(--border-2); background: var(--bg-2);
-            color: var(--text); font-size: 0.85rem; font-weight: 700;
+            color: var(--text); font-size: var(--fs-3); font-weight: 700;
             cursor: pointer; box-shadow: var(--shadow-sm);
             transition: transform 0.2s, border-color 0.2s;
         }
@@ -828,17 +838,17 @@
         .perf-panel[hidden] { display: none; }
         .perf-panel__header {
             display: flex; align-items: center; justify-content: space-between;
-            font-weight: 700; font-size: 0.9rem; margin-bottom: 0.75rem; color: var(--text);
+            font-weight: 700; font-size: var(--fs-3); margin-bottom: 0.75rem; color: var(--text);
         }
         .perf-panel__close {
-            background: none; border: none; color: var(--text-2); font-size: 1.1rem;
+            background: none; border: none; color: var(--text-2); font-size: var(--fs-4);
             cursor: pointer; line-height: 1; padding: 0 0.25rem;
         }
         .perf-panel__close:hover { color: var(--text); }
         .perf-section { margin-bottom: 0.9rem; }
         .perf-section:last-child { margin-bottom: 0; }
         .perf-section__title {
-            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+            font-size: var(--fs-1); font-weight: 700; text-transform: uppercase;
             letter-spacing: 0.05em; color: var(--text-2); margin-bottom: 0.4rem;
         }
         .perf-chips { display: flex; gap: 0.5rem; }
@@ -847,16 +857,16 @@
             padding: 0.4rem 0.3rem; border-radius: 10px; border: 1px solid var(--border);
             background: var(--bg-3);
         }
-        .perf-chip__label { font-size: 0.65rem; color: var(--text-2); font-weight: 700; }
-        .perf-chip__value { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+        .perf-chip__label { font-size: var(--fs-1); color: var(--text-2); font-weight: 700; }
+        .perf-chip__value { font-size: var(--fs-3); font-weight: 700; color: var(--text); }
         .perf-chip[data-band="good"] .perf-chip__value { color: var(--perf-good); }
         .perf-chip[data-band="mid"]  .perf-chip__value { color: var(--perf-mid); }
         .perf-chip[data-band="poor"] .perf-chip__value { color: var(--perf-poor); }
         .perf-rows { display: flex; flex-direction: column; gap: 0.3rem; }
-        .perf-row { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-2); }
+        .perf-row { display: flex; justify-content: space-between; font-size: var(--fs-2); color: var(--text-2); }
         .perf-row span:last-child { color: var(--text); font-weight: 600; }
         .perf-resource-list { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.5rem; }
-        .perf-resource-row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.72rem; color: var(--text-2); }
+        .perf-resource-row { display: flex; justify-content: space-between; gap: 0.5rem; font-size: var(--fs-1); color: var(--text-2); }
         .perf-resource-row__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
         .perf-resource-row__dur { color: var(--text); font-weight: 600; flex-shrink: 0; }
 
@@ -891,11 +901,11 @@
         /* 터미널 타이핑 로테이션 */
         .hero-typer {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.82rem; color: var(--text-2);
+            font-size: var(--fs-2); color: var(--text-2);
             margin: -0.9rem 0 1.6rem; min-height: 1.5em;
             opacity: 0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.40s forwards;
         }
-        .hero-typer .typer-prompt { color: var(--accent); font-weight: 700; }
+        .hero-typer .typer-prompt { color: var(--accent-text); font-weight: 700; }
         .typer-caret {
             display: inline-block; width: 8px; height: 1.05em; margin-left: 2px;
             background: var(--accent); vertical-align: text-bottom;
@@ -913,7 +923,7 @@
             display: inline-flex; align-items: center; gap: 0.45rem;
             padding: 0.35rem 0.8rem;
             border: 1px solid var(--border-2); border-radius: 999px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+            font-family: 'JetBrains Mono', monospace; font-size: var(--fs-1);
             color: var(--text-2); text-decoration: none;
             transition: border-color 0.2s, color 0.2s;
         }
@@ -929,7 +939,7 @@
         /* 섹션 넘버링 */
         .s-label__num {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.62rem; opacity: 0.55; letter-spacing: 0;
+            font-size: var(--fs-1); opacity: 0.55; letter-spacing: 0;
         }
 
         /* 프로젝트 카드 컬러 스트립 스윕 */
@@ -958,8 +968,7 @@
     <!-- Particles & Nodes 캔버스 배경 -->
     <canvas id="bgCanvas" aria-hidden="true"></canvas>
 
-    <!-- Custom cursor -->
-    <div class="cursor-dot" id="cursorDot"></div>
+    <!-- Custom cursor (한 겹: 링 + ::after 점) -->
     <div class="cursor-ring" id="cursorRing"></div>
 
     <div class="scroll-progress" aria-hidden="true"><div class="scroll-progress__bar" id="scrollProgressBar"></div></div>
@@ -1035,8 +1044,7 @@
                         <mark class="hl">안정성</mark>을 설계하는 개발자입니다.
                     </p>
                     <p class="hero-tagline">
-                        공공 재난·안전 시스템을 6년간 운영·개발하며
-                        60개 부서, 연 500건 이상의 요청을 처리했습니다.
+                        공공 재난·안전 시스템의 운영과 고도화를 함께 맡아왔습니다.
                         단순 수정이 아닌, 구조적 문제를 찾아 개선하는
                         방식으로 일해왔습니다.
                     </p>
@@ -1049,10 +1057,11 @@
                     </div>
 
                     <div class="hero-ctas">
-                        <a class="btn btn--primary" href="https://github.com/limkh930724-hub" target="_blank" rel="noopener">GitHub ↗</a>
+                        <a class="btn btn--primary btn--resume" href="/임광호_포트폴리오.pdf" target="_blank" rel="noopener">이력서 PDF ↗</a>
                         <a class="btn btn--outline" href="#contact">Contact</a>
-                        <a class="btn btn--outline btn--resume" href="/임광호_포트폴리오.pdf" target="_blank" rel="noopener">이력서 PDF ↗</a>
-                        <a class="btn btn--outline" href="#projects">사이드 프로젝트 ↓</a>
+                        <span class="hero-ctas__sep" aria-hidden="true"></span>
+                        <a class="btn btn--ghost" href="https://github.com/limkh930724-hub" target="_blank" rel="noopener">GitHub ↗</a>
+                        <a class="btn btn--ghost" href="#projects">사이드 프로젝트 ↓</a>
                     </div>
 
                     <!-- 라이브 데이터 티커 (fetch 성공 시에만 .on) -->
@@ -1412,14 +1421,6 @@
                     <div class="contact-card__divider"></div>
                     <div class="contact-card__rows">
                         <div class="contact-card__row">
-                            <span class="contact-card__row-label">위치</span>
-                            <span>서울, 대한민국</span>
-                        </div>
-                        <div class="contact-card__row">
-                            <span class="contact-card__row-label">경력</span>
-                            <span>6년 (2020.12 ~ 현재)</span>
-                        </div>
-                        <div class="contact-card__row">
                             <span class="contact-card__row-label">도메인</span>
                             <span>공공 재난·안전 시스템</span>
                         </div>
@@ -1618,11 +1619,12 @@
         sections.forEach(id => { const el = document.getElementById(id); if (el) navObserver.observe(el); });
 
         /* ── 3. CUSTOM CURSOR (desktop only) ── */
-        const cursorDot  = document.getElementById('cursorDot');
         const cursorRing = document.getElementById('cursorRing');
-        if (cursorDot && cursorRing && window.matchMedia('(pointer: fine)').matches) {
+        if (cursorRing && window.matchMedia('(pointer: fine)').matches) {
+            // 여기까지 왔을 때만 실제 커서를 숨긴다. 위에서 죽으면 포인터는 그대로 남는다.
+            document.body.classList.add('has-custom-cursor');
+
             let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-            let dotX = mouseX, dotY = mouseY;
             let ringX = mouseX, ringY = mouseY;
             let rafId;
 
@@ -1632,13 +1634,9 @@
             });
 
             function tickCursor() {
-                // Dot snaps fast; ring lags with lerp
-                dotX  += (mouseX - dotX)  * 0.85;
-                dotY  += (mouseY - dotY)  * 0.85;
-                ringX += (mouseX - ringX) * 0.12;
-                ringY += (mouseY - ringY) * 0.12;
-                cursorDot.style.left  = dotX  + 'px';
-                cursorDot.style.top   = dotY  + 'px';
+                // 점을 따로 두지 않으므로 lerp를 0.12에서 올린다 — 너무 느리면 포인터가 안 따라온다
+                ringX += (mouseX - ringX) * 0.4;
+                ringY += (mouseY - ringY) * 0.4;
                 cursorRing.style.left = ringX + 'px';
                 cursorRing.style.top  = ringY + 'px';
                 rafId = requestAnimationFrame(tickCursor);
@@ -1653,14 +1651,8 @@
             });
 
             // Hide cursor when leaving window
-            document.addEventListener('mouseleave', () => {
-                cursorDot.style.opacity  = '0';
-                cursorRing.style.opacity = '0';
-            });
-            document.addEventListener('mouseenter', () => {
-                cursorDot.style.opacity  = '';
-                cursorRing.style.opacity = '';
-            });
+            document.addEventListener('mouseleave', () => { cursorRing.style.opacity = '0'; });
+            document.addEventListener('mouseenter', () => { cursorRing.style.opacity = ''; });
         }
 
         /* ── 4. SCROLL REVEAL ── */
@@ -1974,6 +1966,21 @@
         /* LCP·CLS가 자리 잡을 때까지 기다렸다가 배지를 한 번 갱신한다.
            더 짧게 잡으면 아직 null인 지표 탓에 실제보다 높은 점수가 찍힌 채 굳는다. */
         setTimeout(updateBadge, 3000);
+
+        /* 계측은 계속 돌리되 배지는 Projects 이후에만 띄운다.
+           히어로부터 상시 떠 있으면 콘텐츠와 경쟁하고, 맥락도 없다.
+           패널이 열려 있는 동안에는 사라지지 않게 막는다. */
+        const widget = document.getElementById('perfWidget');
+        const projectsEl = document.getElementById('projects');
+        if (widget && projectsEl && 'IntersectionObserver' in window) {
+            widget.classList.add('perf-widget--idle');
+            new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) widget.classList.remove('perf-widget--idle');
+                    else if (panel.hidden) widget.classList.add('perf-widget--idle');
+                });
+            }, { rootMargin: '0px 0px -30% 0px' }).observe(projectsEl);
+        }
     })();
 
     /* ══════════════════════════════════════════

@@ -44,7 +44,7 @@
             background: var(--bg);
             color: var(--ink);
             transition: background 0.3s, color 0.3s;
-            min-height: 100vh;
+            min-height: 100vh; min-height: 100svh;
         }
 
         /* HEADER */
@@ -191,6 +191,7 @@
             .cs-tabs { padding: 0 0.5rem; }
             .cs-tab-btn { padding: 0.85rem 0.7rem; font-size: 0.76rem; }
         }
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
     </style>
     <script>
         (function() {
@@ -308,7 +309,7 @@
             </div>
 
             <h2>localStorage 키</h2>
-            <p>언어(<code>fg-lang</code>), 테마(<code>fg-theme</code>), 워치리스트(<code>fg-watchlist</code>), 포트폴리오(<code>fg-portfolio</code>)를 각각 독립적으로 저장한다. 갤러리 허브와 테마를 공유하지 않고 앱 전용 키를 사용해 키 충돌을 방지했다.</p>
+            <p>언어(<code>fg-lang</code>), 테마(<code>fg-theme</code>), 워치리스트(<code>fg-watchlist</code>), 포트폴리오(<code>fg-portfolio</code>)를 각각 독립적으로 저장한다. 갤러리 허브와 키를 공유하지 않아 충돌을 막되, 앱에서 테마를 고른 적이 없을 때만 허브의 선택(<code>hub-theme</code>)을 물려받아 첫 진입의 단절을 없앴다.</p>
         </section>
 
         <section id="tab-result" class="cs-panel">

@@ -44,7 +44,7 @@
             background: var(--bg);
             color: var(--ink);
             transition: background 0.3s, color 0.3s;
-            min-height: 100vh;
+            min-height: 100vh; min-height: 100svh;
         }
 
         .cs-header {
@@ -186,6 +186,7 @@
             .feature-grid { grid-template-columns: 1fr; }
             .cs-tab-btn { padding: 0.85rem 0.7rem; font-size: 0.76rem; }
         }
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
     </style>
     <script>
         (function() {

@@ -30,7 +30,7 @@
 html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR','Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:13px;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s}
 
-.app{display:flex;flex-direction:column;height:100vh}
+.app{display:flex;flex-direction:column;height:100vh;height:100svh}
 
 /* ── TOPBAR ── */
 .topbar{
@@ -299,14 +299,15 @@ canvas{display:block;width:100%;cursor:crosshair;border-radius:8px}
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:768px){
   html,body{height:auto!important;overflow-y:auto!important;overflow-x:hidden!important}
-  .app{height:auto;min-height:100vh}
+  .app{height:auto;min-height:100vh;min-height:100svh}
 
   /* topbar */
   .topbar{padding:10px 14px;gap:8px}
   .bsub{display:none}
   .hero-val{font-size:13px}
   .hero-sub{font-size:10px}
-  .back-link{display:none}
+  /* 허브로 돌아가는 유일한 동선이다 — 숨기지 말 것 */
+  .back-link{font-size:11px;padding:4px 8px}
 
   /* kpi banner: 2×2 grid */
   .kpi-banner{grid-template-columns:1fr 1fr}
@@ -356,6 +357,7 @@ canvas{display:block;width:100%;cursor:crosshair;border-radius:8px}
   transition:color .15s,border-color .15s;margin-right:4px;
 }
 .back-link:hover{color:var(--text);border-color:var(--sub)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 </style>
 </head>
 <body>

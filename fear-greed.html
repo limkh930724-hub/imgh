@@ -84,7 +84,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
             word-break: keep-all;
             overflow-wrap: break-word;
-            min-height: 100vh;
+            min-height: 100vh; min-height: 100svh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -1437,6 +1437,8 @@
         @media (max-width: 560px) { .page-footer { flex-direction: column; gap: 0.3rem; text-align: center; } }
         @keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
         body { animation: pageIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
+        /* 키보드 이동의 유일한 단서 — 어떤 규칙에서도 outline을 덮지 말 것 */
+        :focus-visible { outline: 2px solid var(--accent, #16a34a); outline-offset: 3px; }
     </style>
 </head>
 <body>
@@ -2054,7 +2056,9 @@
         };
 
         let currentLang = localStorage.getItem('fg-lang') || 'ko';
-        let currentTheme = localStorage.getItem('fg-theme') || 'light';
+        /* 앱 전용 키를 쓰되(키 충돌 방지), fg-theme가 아직 없으면 허브에서 고른 테마를 물려받는다.
+           랜딩에서 다크를 켜고 넘어왔는데 라이트로 열리는 단절을 막기 위한 것. */
+        let currentTheme = localStorage.getItem('fg-theme') || localStorage.getItem('hub-theme') || 'light';
 
         function t(key) {
             return TRANSLATIONS[currentLang][key] ?? TRANSLATIONS.en[key] ?? key;

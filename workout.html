@@ -19,12 +19,13 @@
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
         :root{
             --bg:#f4f6f8; --card:#fff; --line:#e8eae6; --ink:#161616; --muted:#6b7280;
-            --accent:#10b981; --accent-dark:#059669; --accent-tint:rgba(16,185,129,0.12);
+            /* 허브(index.html)와 같은 초록. 프로젝트마다 다른 초록을 쓰면 한 사람 작업으로 안 읽힌다 */
+            --accent:#16a34a; --accent-dark:#15803d; --accent-tint:rgba(22,163,74,0.12);
             --radius:14px; --shadow:0 6px 20px rgba(15,23,42,0.06);
         }
         body{
             font-family:'Inter','Segoe UI',Arial,'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;
-            background:var(--bg); color:var(--ink); min-height:100vh; word-break:keep-all; overflow-wrap:break-word;
+            background:var(--bg); color:var(--ink); min-height:100vh; min-height:100svh; word-break:keep-all; overflow-wrap:break-word;
             padding-bottom:76px; /* 하단 탭바 공간 */
         }
         .app-header{
@@ -33,9 +34,16 @@
             border-bottom:1px solid var(--line); height:52px; display:flex; align-items:center;
             gap:.75rem; padding:0 1rem;
         }
-        .app-back{ color:var(--muted); text-decoration:none; font-size:.85rem; font-weight:600; }
+        /* 모든 페이지 공통 back 필 — 라벨·크기·모양을 바꾸지 말 것 (허브 왕복 동선) */
+        .app-back{
+            color:var(--muted); text-decoration:none; font-size:.75rem; font-weight:600;
+            padding:.3rem .7rem; border:1px solid var(--line); border-radius:6px;
+            white-space:nowrap; transition:color .15s, border-color .15s;
+        }
+        .app-back:hover{ color:var(--ink); border-color:var(--muted); }
+        :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
         .app-logo{ font-weight:800; font-size:1.05rem; letter-spacing:-.02em;
-            background:linear-gradient(90deg,#3b82f6,#10b981); -webkit-background-clip:text; background-clip:text; color:transparent; }
+            background:linear-gradient(90deg,#3b82f6,#16a34a); -webkit-background-clip:text; background-clip:text; color:transparent; }
         .app-shell{ max-width:460px; margin:0 auto; padding:1rem; }
         .tab-panel{ display:none; }
         .tab-panel.active{ display:block; }
@@ -188,10 +196,10 @@
         .list-card:active, .log-card:active{ transform:translateY(0) scale(.99); box-shadow:var(--shadow); }
         .stat-tile:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(15,23,42,.10); }
         /* 액센트 CTA: 호버 시 진해지고 뜨고, 누르면 눌림 */
-        .cta-free:hover{ background:var(--accent); color:#fff; transform:translateY(-1px); box-shadow:0 8px 20px rgba(16,185,129,.28); }
+        .cta-free:hover{ background:var(--accent); color:#fff; transform:translateY(-1px); box-shadow:0 8px 20px rgba(22,163,74,.28); }
         .cta-free:active{ transform:translateY(0) scale(.97); box-shadow:none; }
         .start-cta button:hover, .wo-finish .end:hover, .ov-btn.primary:hover{
-            filter:brightness(1.06); transform:translateY(-1px); box-shadow:0 8px 20px rgba(16,185,129,.30); }
+            filter:brightness(1.06); transform:translateY(-1px); box-shadow:0 8px 20px rgba(22,163,74,.30); }
         .start-cta button:active, .wo-finish .end:active, .ov-btn.primary:active{ transform:translateY(0) scale(.97); filter:none; box-shadow:none; }
         /* 점선 추가 버튼 */
         .add-card:hover{ border-color:var(--accent); color:var(--accent-dark); background:var(--accent-tint); }
@@ -748,7 +756,7 @@
             vols.forEach(function(v,i){
                 const bh=(hgt-pad*2)*(v/max);
                 const x=pad+i*(bw+gap), y=hgt-pad-bh;
-                ctx.fillStyle = i===7 ? '#10b981' : 'rgba(16,185,129,0.35)';
+                ctx.fillStyle = i===7 ? '#16a34a' : 'rgba(22,163,74,0.35)';
                 ctx.beginPath();
                 if(ctx.roundRect) ctx.roundRect(x,y,bw,bh,4); else ctx.rect(x,y,bw,bh);
                 ctx.fill();

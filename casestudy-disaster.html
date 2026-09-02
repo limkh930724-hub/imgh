@@ -44,7 +44,7 @@
             background: var(--bg);
             color: var(--ink);
             transition: background 0.3s, color 0.3s;
-            min-height: 100vh;
+            min-height: 100vh; min-height: 100svh;
         }
 
         .cs-header {
@@ -201,6 +201,7 @@
             .cs-tab-btn { padding: 0.9rem 0.7rem; font-size: 0.76rem; }
             .score-table { font-size: 0.75rem; }
         }
+        :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
     </style>
     <script>
         (function() {

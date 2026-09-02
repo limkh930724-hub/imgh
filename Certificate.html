@@ -70,6 +70,7 @@
     }
     .app {
       min-height: 100vh;
+      min-height: 100svh;
       display: grid;
       grid-template-columns: 272px minmax(0, 1fr);
       width: 100%;
@@ -82,7 +83,7 @@
       padding: 14px;
       position: sticky;
       top: 48px;
-      height: calc(100vh - 48px);
+      height: calc(100svh - 48px);
       min-width: 0;
       overflow: auto;
     }
@@ -556,6 +557,8 @@
     @media (max-width: 700px) {
       .hub-nav-link:not(.active) { display: none; }
     }
+  /* 키보드 이동의 유일한 단서 — 어떤 규칙에서도 outline을 덮지 말 것 */
+  :focus-visible { outline: 2px solid var(--accent, #16a34a); outline-offset: 3px; }
   </style>
 </head>
 <body>
@@ -693,6 +696,9 @@
     }
     function preferredTheme() {
       if (state.theme) return state.theme;
+      // 앱에서 한 번도 고른 적 없으면 허브(index.html)에서 고른 테마를 물려받는다
+      const hub = localStorage.getItem("hub-theme");
+      if (hub === "dark" || hub === "light") return hub;
       return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
     function applyTheme() {

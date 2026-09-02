@@ -85,6 +85,8 @@ body{font-family:'Inter','Segoe UI',Arial,sans-serif;background:radial-gradient(
 @media (max-width:480px){.topnav-logo{width:12px;min-width:12px;overflow:hidden;font-size:0;gap:0}.topnav-link:not(.active){display:none}.page{padding:1rem .8rem 2rem}.filters{grid-template-columns:1fr}}
 @keyframes pageIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 body { animation: pageIn 0.38s cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* 키보드 이동의 유일한 단서 — 어떤 규칙에서도 outline을 덮지 말 것 */
+:focus-visible { outline: 2px solid var(--accent, #16a34a); outline-offset: 3px; }
 </style>
 </head>
 <body>
