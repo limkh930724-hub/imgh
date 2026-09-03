@@ -46,6 +46,9 @@
             /* --text-3는 2.5:1이라 글자에 쓰면 안 된다. 보조 텍스트는 --text-meta(6.6:1). */
             --text-meta: #4b5563;
             --card-bg:   #fafafa;
+            /* 도면 격자 배경. --border보다 반드시 연해야 한다 —
+               같거나 진하면 격자가 카드 테두리를 이겨서 화면이 웅성거린다. */
+            --grid:      #f1f3f5;
             --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
             --shadow:    0 4px 20px rgba(0,0,0,0.08);
             --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
@@ -80,6 +83,7 @@
             --border-2:  #2d3550;
             --text-meta: #8b9ab4;
             --card-bg:   #13161e;
+            --grid:      #131824;
             --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
             --shadow:    0 4px 20px rgba(0,0,0,0.4);
             --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
@@ -107,10 +111,16 @@
             word-break: keep-all;
             overflow-wrap: break-word;
         }
-        /* html이 솔리드 배경 담당 */
+        /* html이 솔리드 배경 + 도면 격자 담당.
+           26px는 임의 값이 아니다 — 섹션 좌우 패딩(3rem=48px)과 척추선 오프셋(46px)이
+           격자 위에 얹히도록 잡은 눈금이다. 바꾸면 셋 다 같이 맞출 것. */
         html {
-            background: var(--bg);
-            transition: background 0.35s;
+            background-color: var(--bg);
+            background-image:
+                linear-gradient(to right, var(--grid) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+            background-size: 26px 26px;
+            transition: background-color 0.35s;
         }
         .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
 
@@ -144,15 +154,60 @@
             padding-bottom: 6rem;
             min-height: auto;
         }
+        /* 척추선 — 섹션마다 하나씩 그리지만 섹션이 맞닿아 있어 한 줄로 이어져 보인다.
+           left 값은 .section__inner의 왼쪽 모서리와 정확히 같아야 한다.
+           inner는 max-width 1126px 가운데 정렬이므로 넓을 때 50%-563px, 좁으면 섹션 패딩값. */
+        .section::before {
+            content: '';
+            position: absolute; top: 0; bottom: 0;
+            left: max(3rem, calc(50% - 563px));
+            /* --border는 격자(--grid)와 너무 가까워 흰 배경에서 선이 사라진다 */
+            width: 1px; background: var(--border-2);
+            pointer-events: none;
+        }
         .section__inner {
             width: 100%;
-            max-width: 1080px;
+            /* 1126 = 콘텐츠 1080 + 척추선까지의 여백 46 */
+            max-width: 1126px;
+            padding-left: 46px;
         }
 
         /* ── Fixed UI ── */
+        /* 도면 표제란. 이름·직무·지역·상태를 한 줄에 고정해 두고,
+           히어로에서는 같은 정보를 반복하지 않는다(칩 4개를 여기로 흡수했다). */
+        .titleblock {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem;
+            min-height: 44px;
+            padding: env(safe-area-inset-top) calc(1.5rem + env(safe-area-inset-right)) 0 1.5rem;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border-2);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-1); letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        .titleblock__id {
+            font-weight: 700; color: var(--text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+        }
+        .titleblock__right { display: flex; align-items: center; gap: 1.25rem; flex-shrink: 0; }
+        .titleblock__loc { font-weight: 500; color: var(--text-meta); white-space: nowrap; }
+        .titleblock__status {
+            display: inline-flex; align-items: center; gap: 0.45rem;
+            padding: 0.25rem 0.65rem; border-radius: 100px;
+            background: var(--accent-2); border: 1px solid var(--accent-3);
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+            color: var(--accent-text); white-space: nowrap;
+        }
+        .titleblock__status::before {
+            content: ''; width: 5px; height: 5px; border-radius: 50%;
+            background: var(--accent); animation: pulse 1.5s infinite;
+        }
+
         .theme-toggle {
             position: fixed; z-index: 1000;
-            top: calc(1.25rem + env(safe-area-inset-top)); right: calc(1.5rem + env(safe-area-inset-right));
+            top: calc(4rem + env(safe-area-inset-top)); right: calc(1.5rem + env(safe-area-inset-right));
             width: 44px; height: 44px; border-radius: 50%;
             border: 1.5px solid var(--border-2);
             background: var(--bg); color: var(--text);
@@ -178,17 +233,29 @@
         }
         .dot-nav__dot:hover { background: var(--accent); transform: scale(1.3); }
 
-        /* ── Section Label ── */
+        /* ── Section Label (도면 FIG 마커) ──
+           -46px로 왼쪽으로 빠져나와 노드 점이 척추선 위에 정확히 얹힌다.
+           .section__inner의 padding-left와 같은 값 — 한쪽만 바꾸면 점이 선에서 떨어진다. */
         .s-label {
-            display: inline-flex; align-items: center; gap: 0.6rem;
-            font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.15em;
+            display: flex; align-items: center; gap: 0.875rem;
+            margin-left: -46px; margin-bottom: 0.9rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.2em;
             text-transform: uppercase; color: var(--accent-text);
-            margin-bottom: 1.25rem;
         }
-        .s-label::before {
+        .s-label__node {
+            display: flex; align-items: center; gap: 0.875rem; flex-shrink: 0;
+        }
+        .s-label__node::before {
             content: '';
-            display: inline-block; width: 20px; height: 2px;
-            background: var(--accent); border-radius: 1px;
+            width: 9px; height: 9px; border-radius: 50%; background: var(--accent);
+        }
+        .s-label__node::after {
+            content: ''; width: 23px; height: 1px; background: var(--border-2);
+        }
+        /* 라벨 오른쪽으로 뻗는 괘선 — 진입할 때 쓸리듯 그려진다 */
+        .s-label::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
         }
 
         /* ── Section Title ── */
@@ -235,45 +302,71 @@
         /* ══════════════════════════════════════
            HERO
         ══════════════════════════════════════ */
-        #hero {
-            background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
-            background-size: 28px 28px;
-            background-color: transparent;
+        /* 배경 격자는 html이 그린다 — 여기서 또 깔면 두 겹으로 겹쳐 모아레가 생긴다 */
+
+        /* 도면의 부품 프레임: 얇은 실선 + 네 귀퉁이 틱 */
+        .hero-frame {
+            position: relative;
+            border: 1px solid var(--border-2);
+            /* 격자가 비쳐 보이되 본문 대비는 지키는 정도 */
+            background: color-mix(in srgb, var(--bg) 88%, transparent);
+            padding: 2.75rem 2.875rem;
         }
-        [data-theme="dark"] #hero {
-            background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+        .hero-frame__tick {
+            position: absolute; width: 11px; height: 11px;
+            pointer-events: none;
         }
+        .hero-frame__tick--tl { top: -1px; left: -1px;  border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+        .hero-frame__tick--tr { top: -1px; right: -1px; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+        .hero-frame__tick--bl { bottom: -1px; left: -1px;  border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
+        .hero-frame__tick--br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
 
         /* 2-column: left narrative / right stats */
         .hero-layout {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            grid-template-columns: minmax(0, 1fr) 348px;
             gap: 3.5rem;
-            align-items: center;
+            align-items: start;
         }
         .hero-left-col { display: flex; flex-direction: column; }
-        .hero-right-col { align-self: stretch; display: flex; align-items: center; }
+        /* 스탯은 이름 줄에 맞춰 위로 붙인다 — 가운데 정렬하면 6년이 허공에 뜬다 */
+        .hero-right-col { display: flex; align-items: flex-start; }
 
-        .hero-eyebrow {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.14em;
-            text-transform: uppercase; color: var(--accent-text); margin-bottom: 1rem;
-        }
-        .hero-eyebrow::before {
-            content: ''; display: inline-block; width: 18px; height: 2px;
-            background: var(--accent);
-        }
         .hero-name {
-            font-size: clamp(3.2rem, 7vw, 5.5rem);
-            font-weight: 800; letter-spacing: -0.04em; line-height: 0.95;
-            color: var(--text); margin-bottom: 0.65rem;
+            font-size: clamp(3.2rem, 7vw, 5.25rem);
+            font-weight: 800; letter-spacing: -0.045em; line-height: 0.95;
+            color: var(--text); margin-bottom: 0.75rem;
         }
+        /* 직무 + 도메인을 한 줄에. 도메인이 차별점인데 예전엔 태그라인 안에 묻혀 있었다. */
         .hero-title {
-            font-size: clamp(0.95rem, 1.8vw, 1.2rem);
-            font-weight: 600; color: var(--accent-text);
-            font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 1.6rem;
+            display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap;
+            font-size: clamp(0.95rem, 1.6vw, 1.0625rem);
+            font-weight: 600; color: var(--text-meta);
+            margin-bottom: 1.35rem;
         }
+        .hero-title__role {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700; color: var(--accent-text);
+        }
+        .hero-title__sep {
+            width: 4px; height: 4px; border-radius: 50%;
+            background: var(--border-2); flex-shrink: 0;
+        }
+
+        /* 치수선 — 경력 구간을 도면처럼 잰다 */
+        .hero-dim {
+            display: flex; align-items: center; gap: 0.55rem;
+            width: min(340px, 100%); margin-bottom: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.1em;
+            color: var(--accent-text); white-space: nowrap;
+        }
+        .hero-dim::before, .hero-dim::after,
+        .hero-dim__rule { background: var(--accent); }
+        .hero-dim::before, .hero-dim::after {
+            content: ''; width: 1px; height: 10px; flex-shrink: 0;
+        }
+        .hero-dim__rule { flex: 1; height: 1px; }
         /* 철학 한 줄 — 이름과 자연스럽게 이어짐 */
         .hero-philosophy {
             font-size: clamp(1.05rem, 2vw, 1.25rem);
@@ -286,31 +379,40 @@
         }
         .hero-ctas { display: flex; gap: 0.65rem; flex-wrap: wrap; }
 
-        /* 2×2 stat grid */
-        .hero-stat-grid {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 0.85rem; width: 100%;
-        }
-        .stat-box {
+        /* 스탯 위계 — 4개가 같은 크기면 아무것도 안 읽힌다.
+           6년 하나만 카드로 키우고 나머지 셋은 괘선 행으로 내린다. */
+        .hero-stat-grid { width: 100%; }
+        .stat-lead {
+            position: relative; overflow: hidden;
             background: var(--card-bg);
-            border: 1px solid var(--border); border-radius: 14px;
-            padding: 1.2rem 1.25rem;
-            border-left: 3px solid var(--accent);
-            transition: box-shadow 0.2s, transform 0.2s;
+            border: 1px solid var(--border-2);
+            padding: 1.5rem 1.375rem 1.25rem;
+            margin-bottom: 0.25rem;
         }
-        .stat-box:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
-        .stat-box__num {
-            font-size: var(--fs-6); font-weight: 800;
-            color: var(--text); line-height: 1;
+        .stat-lead__idx {
             font-family: 'JetBrains Mono', monospace;
-            letter-spacing: -0.04em;
+            font-size: 0.625rem; letter-spacing: 0.18em; color: var(--text-3);
         }
-        .stat-box__num span { color: var(--accent-text); font-size: var(--fs-4); }
-        .stat-box__label {
-            font-size: var(--fs-1); font-weight: 600;
-            color: var(--text-2); margin-top: 0.35rem;
-            letter-spacing: 0.02em;
+        .stat-lead__num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3.875rem; font-weight: 700; letter-spacing: -0.05em;
+            line-height: 1; color: var(--text);
+            margin: 0.625rem 0 0.5rem;
         }
+        .stat-lead__num span { font-size: 1.375rem; color: var(--accent-text); margin-left: 3px; }
+        .stat-lead__label { font-size: var(--fs-2); font-weight: 700; color: var(--text-meta); }
+
+        .stat-row {
+            display: flex; justify-content: space-between; align-items: baseline;
+            padding: 0.9rem 0.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .stat-row__num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-5); font-weight: 700;
+            letter-spacing: -0.03em; color: var(--text);
+        }
+        .stat-row__label { font-size: var(--fs-1); font-weight: 600; color: var(--text-2); }
 
         /* Scroll hint */
         .hero-scroll-hint {
@@ -332,63 +434,83 @@
             60% { opacity: 1; transform: scaleY(1); }
         }
 
-        .about-chips { display: flex; flex-wrap: wrap; gap: 0.65rem; }
-        .chip {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            padding: 0.45rem 1rem; border-radius: 100px;
-            background: var(--accent-2); border: 1px solid var(--accent-3);
-            color: var(--accent-text); font-size: var(--fs-2); font-weight: 700;
-        }
-        .chip svg { width: 13px; height: 13px; flex-shrink: 0; }
-
         /* ══════════════════════════════════════
            CAREER
         ══════════════════════════════════════ */
-        .career-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem;
-        }
+        /* SM → SI 를 두 부품과 연결선으로 그린다. 나란한 카드 두 장이 아니라
+           "한 도메인에서 이어진 경로"라는 게 이 섹션의 요지다. */
+        .career-grid { display: flex; align-items: stretch; }
         .career-card {
+            flex: 1 1 0; min-width: 0;
             background: var(--card-bg);
-            border: 1px solid var(--border); border-radius: 16px;
-            overflow: hidden;
+            border: 1px solid var(--border-2);
             transition: box-shadow 0.2s;
         }
         .career-card:hover { box-shadow: var(--shadow); }
-        .career-card--current { border-color: var(--accent); }
+        .career-card--current { border: 1.5px solid var(--accent); }
+
+        .career-conn {
+            width: 78px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .career-conn__line { width: 100%; height: 1px; background: var(--accent); }
+        .career-conn__head {
+            position: absolute; right: 0;
+            width: 0; height: 0;
+            border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+            border-left: 8px solid var(--accent);
+        }
+        .career-conn__label {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -22px);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.625rem; letter-spacing: 0.14em;
+            color: var(--text-3); white-space: nowrap;
+        }
+
+        /* 두 카드를 아우르는 치수선 */
+        .career-span {
+            display: flex; align-items: center; gap: 0.55rem; margin-top: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-1); letter-spacing: 0.1em;
+            color: var(--text-meta); white-space: nowrap;
+        }
+        .career-span::before, .career-span::after {
+            content: ''; width: 1px; height: 9px; background: var(--text-3); flex-shrink: 0;
+        }
+        .career-span__rule { flex: 1; height: 1px; background: var(--border-2); }
 
         .career-card__header {
-            padding: 1.25rem 1.5rem 1rem;
+            padding: 0.8rem 1.25rem;
             border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: flex-start;
+            display: flex; justify-content: space-between; align-items: center; gap: 0.75rem;
         }
         .career-card--current .career-card__header {
             background: var(--accent-2);
             border-bottom-color: var(--accent-3);
         }
-        .career-badge {
-            display: inline-flex; align-items: center; gap: 0.35rem;
-            padding: 0.2rem 0.6rem; border-radius: 100px;
-            background: var(--accent); color: #fff;
-            font-size: var(--fs-1); font-weight: 800; letter-spacing: 0.05em;
-            white-space: nowrap;
-        }
-        [data-theme="dark"] .career-badge { color: #0a0c10; }
-        .career-badge::before {
-            content: ''; width: 5px; height: 5px; border-radius: 50%;
-            background: currentColor; animation: pulse 1.5s infinite;
-        }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
         .career-period {
             font-size: var(--fs-1); font-weight: 700; letter-spacing: 0.1em;
-            text-transform: uppercase; color: var(--accent-text); margin-bottom: 0.4rem;
+            color: var(--text-meta);
             font-family: 'JetBrains Mono', monospace;
         }
+        .career-card--current .career-period { color: var(--accent-text); }
+        .career-dur {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.625rem; letter-spacing: 0.18em;
+            color: var(--text-3); white-space: nowrap;
+        }
+        .career-card--current .career-dur { color: var(--accent-text); }
         .career-role {
-            font-size: var(--fs-4); font-weight: 800; color: var(--text); margin-bottom: 0.2rem;
+            font-size: var(--fs-5); font-weight: 800; letter-spacing: -0.02em;
+            color: var(--text); margin-bottom: 0.2rem;
         }
         .career-project {
-            font-size: var(--fs-2); font-weight: 600; color: var(--text-2);
+            font-size: var(--fs-2); font-weight: 600; color: var(--text-meta);
+            margin-bottom: 1rem;
         }
         .career-card__body { padding: 1.25rem 1.5rem; }
         .career-meta {
@@ -425,25 +547,34 @@
         }
         .skill-card {
             background: var(--card-bg);
-            border: 1px solid var(--border); border-radius: 12px;
-            padding: 1.25rem 1.4rem;
+            border: 1px solid var(--border-2);
+            padding: 1.125rem 1.25rem 1.25rem;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .skill-card:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); }
         .skill-card__head {
             display: flex; align-items: center; gap: 0.6rem;
-            margin-bottom: 0.9rem;
+            margin-bottom: 0.875rem; padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
         }
         .skill-card__icon {
-            width: 28px; height: 28px; border-radius: 7px;
+            width: 26px; height: 26px;
             background: var(--accent-2); border: 1px solid var(--accent-3);
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; color: var(--accent-text);
         }
         .skill-card__icon svg { width: 15px; height: 15px; }
         .skill-card__title {
-            font-size: var(--fs-1); font-weight: 800;
-            letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-text);
+            flex: 1;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-1); font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-text);
+        }
+        /* 주력/차별점 — 6개 카드가 다 같은 무게로 보이지 않게 하는 유일한 장치 */
+        .skill-card__mark {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.625rem; letter-spacing: 0.16em;
+            color: var(--text-3); white-space: nowrap;
         }
         .skill-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 
@@ -455,11 +586,40 @@
             padding-bottom: 1.25rem; border-bottom: 1px solid var(--border);
         }
         .projects-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.125rem;
+        }
+        /* 6장이 같은 크기면 대표작이 없다. 첫 장만 2×2로 키우고 나머지는 조역으로 둔다.
+           마크업 순서는 그대로 — 배치만 바뀐다. */
+        .project-card--lead { grid-column: span 2; grid-row: span 2; }
+        .project-card--lead .project-card__thumb {
+            aspect-ratio: auto; flex: 1 1 auto; min-height: 200px;
+        }
+        /* 옆 두 칸의 썸네일은 16:10이 아니라 배너 비율로 눌러 둔다.
+           이 둘이 1·2행의 높이를 정하고, 2행을 걸친 대표작 썸네일이 그 합만큼 늘어난다 —
+           16:10로 두면 대표작 썸네일이 800px 넘게 자란다. */
+        .projects-grid > .project-card:nth-child(2) .project-card__thumb,
+        .projects-grid > .project-card:nth-child(3) .project-card__thumb {
+            aspect-ratio: 16 / 7;
+        }
+        .project-card--lead .project-card__name { font-size: var(--fs-5); letter-spacing: -0.02em; }
+        .project-card--lead .project-card__sub { font-size: var(--fs-3); line-height: 1.7; }
+        .project-card__badge {
+            padding: 0.15rem 0.55rem; border-radius: 100px;
+            background: var(--accent-2); border: 1px solid var(--accent-3);
+            font-size: var(--fs-1); font-weight: 800; color: var(--accent-text);
+            white-space: nowrap;
+        }
+        .project-card__idx {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.625rem; letter-spacing: 0.18em; color: var(--text-3);
+        }
+        .project-card__head {
+            display: flex; align-items: center; gap: 0.5rem;
+            flex-wrap: wrap; margin-bottom: 0.3rem;
         }
         .project-card {
             background: var(--card-bg);
-            border: 1px solid var(--border); border-radius: 14px;
+            border: 1px solid var(--border-2);
             overflow: hidden; display: flex; flex-direction: column;
             text-decoration: none; color: inherit;
             transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
@@ -483,8 +643,7 @@
         }
         .project-card__body { padding: 1.3rem; flex: 1; display: flex; flex-direction: column; }
         .project-card__name {
-            font-size: var(--fs-4); font-weight: 800;
-            color: var(--text); margin-bottom: 0.2rem;
+            font-size: var(--fs-4); font-weight: 800; color: var(--text);
         }
         .project-card__sub {
             font-size: var(--fs-3); color: var(--text-2);
@@ -545,8 +704,8 @@
         .contact-link {
             display: flex; align-items: center; gap: 1rem;
             padding: 1rem 1.25rem;
-            background: var(--bg); border: 1px solid var(--border);
-            border-radius: 12px; text-decoration: none; color: var(--text);
+            background: var(--bg); border: 1px solid var(--border-2);
+            text-decoration: none; color: var(--text);
             font-weight: 600; font-size: var(--fs-3);
             transition: border-color 0.2s, box-shadow 0.2s, color 0.2s;
         }
@@ -555,7 +714,7 @@
             box-shadow: var(--shadow-sm);
         }
         .contact-link__icon {
-            width: 36px; height: 36px; border-radius: 8px;
+            width: 36px; height: 36px;
             background: var(--bg-3); border: 1px solid var(--border);
             display: flex; align-items: center; justify-content: center;
             font-size: var(--fs-4); flex-shrink: 0;
@@ -565,35 +724,42 @@
         .contact-link__arrow { font-size: var(--fs-1); color: var(--text-meta); }
         .contact-link:hover .contact-link__arrow { color: var(--accent-text); }
 
-        /* Right side decorative card */
+        /* 명함 → 도면 표제란. 라벨 칸과 값 칸을 세로선으로 나눈 도면 표기법 그대로. */
         .contact-card {
             background: var(--bg);
-            border: 1px solid var(--border); border-radius: 20px;
-            padding: 2rem;
-            box-shadow: var(--shadow);
+            border: 1px solid var(--text);
         }
-        .contact-card__name {
-            font-size: var(--fs-5); font-weight: 800;
-            color: var(--text); margin-bottom: 0.25rem;
-        }
-        .contact-card__title {
-            font-size: var(--fs-2); color: var(--accent-text); font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 1.5rem;
-        }
-        .contact-card__divider {
-            height: 1px; background: var(--border); margin-bottom: 1.5rem;
-        }
-        .contact-card__rows { display: flex; flex-direction: column; gap: 0.75rem; }
         .contact-card__row {
-            display: flex; gap: 0.75rem;
-            font-size: var(--fs-2); color: var(--text-2);
+            display: flex;
+            border-bottom: 1px solid var(--border-2);
         }
-        .contact-card__row-label { color: var(--text-meta); font-weight: 600; min-width: 56px; }
-        .contact-card__footer {
-            margin-top: 1.5rem; padding-top: 1.25rem;
-            border-top: 1px solid var(--border);
-            font-size: var(--fs-1); color: var(--text-meta); font-weight: 600;
+        /* 첫 행(성명)만 굵은 선으로 끊어 표제란 머리라는 걸 표시한다 */
+        .contact-card__row--head { border-bottom-color: var(--text); }
+        .contact-card__row:last-child { border-bottom: none; }
+        .contact-card__row-label {
+            width: 92px; flex-shrink: 0;
+            padding: 0.875rem;
+            border-right: 1px solid var(--border-2);
+            background: var(--card-bg);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.625rem; letter-spacing: 0.16em;
+            color: var(--text-meta);
+        }
+        .contact-card__row-value {
+            flex: 1; min-width: 0;
+            display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+            padding: 0.875rem 1.125rem;
+            font-size: var(--fs-2); font-weight: 600; color: var(--text);
+        }
+        .contact-card__name { font-size: var(--fs-5); font-weight: 800; letter-spacing: -0.02em; }
+        .contact-card__title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-2); font-weight: 700; color: var(--accent-text);
+        }
+        .contact-card__note {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: var(--fs-1); font-weight: 400; color: var(--text-3);
+            white-space: nowrap;
         }
 
         /* ══════════════════════════════════════
@@ -636,24 +802,16 @@
             from { opacity: 0; transform: translateX(32px); }
             to   { opacity: 1; transform: translateX(0); }
         }
-        .hero-eyebrow  { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.05s forwards; }
-        .hero-name     { opacity:0; animation: heroIn 0.8s cubic-bezier(0.22,1,0.36,1) 0.18s forwards; }
-        .hero-title    { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.32s forwards; }
-        .hero-philosophy { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.46s forwards; }
-        .hero-tagline  { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.58s forwards; }
-        .about-chips   { opacity:0; animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) 0.70s forwards; }
-        .hero-ctas     { opacity:0; animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) 0.82s forwards; }
+        .hero-name     { opacity:0; animation: heroIn 0.8s cubic-bezier(0.22,1,0.36,1) 0.10s forwards; }
+        .hero-title    { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.24s forwards; }
+        .hero-dim      { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.36s forwards; }
+        .hero-philosophy { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.50s forwards; }
+        .hero-tagline  { opacity:0; animation: heroIn 0.7s cubic-bezier(0.22,1,0.36,1) 0.62s forwards; }
+        .hero-ctas     { opacity:0; animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) 0.74s forwards; }
         .hero-stat-grid { opacity:0; animation: heroInRight 0.9s cubic-bezier(0.22,1,0.36,1) 0.4s forwards; }
 
-        /* Stat box individual stagger via nth-child */
-        .hero-stat-grid .stat-box:nth-child(1) { animation-delay: 0.50s; }
-        .hero-stat-grid .stat-box:nth-child(2) { animation-delay: 0.62s; }
-        .hero-stat-grid .stat-box:nth-child(3) { animation-delay: 0.74s; }
-        .hero-stat-grid .stat-box:nth-child(4) { animation-delay: 0.86s; }
-        .hero-stat-grid .stat-box {
-            opacity: 0;
-            animation: heroIn 0.6s cubic-bezier(0.22,1,0.36,1) forwards;
-        }
+        /* 프레임 귀퉁이 틱은 프레임이 다 그려진 뒤 찍힌다 */
+        .hero-frame__tick { opacity: 0; animation: heroIn 0.4s ease 0.9s forwards; }
 
         /* ══════════════════════════════════════
            SCROLL REVEAL
@@ -670,19 +828,16 @@
         [data-reveal].revealed { opacity: 1; transform: none; }
 
         /* ══════════════════════════════════════
-           STAT BOX GLOW
+           STAT LEAD GLOW
         ══════════════════════════════════════ */
-        .stat-box {
-            position: relative; overflow: hidden;
-        }
-        .stat-box::before {
+        .stat-lead::before {
             content: '';
             position: absolute; inset: 0;
             background: radial-gradient(circle at 20% 50%, var(--accent-3), transparent 70%);
             opacity: 0; transition: opacity 0.4s;
             pointer-events: none;
         }
-        .stat-box:hover::before { opacity: 1; }
+        .stat-lead:hover::before { opacity: 1; }
 
         /* ══════════════════════════════════════
            PROJECT CARD 3D TILT
@@ -693,11 +848,11 @@
         /* ══════════════════════════════════════
            SECTION LABEL LINE ANIMATION
         ══════════════════════════════════════ */
-        .s-label::before {
+        .s-label::after {
             transform: scaleX(0); transform-origin: left;
             transition: transform 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s;
         }
-        .s-label.revealed::before { transform: scaleX(1); }
+        .s-label.revealed::after { transform: scaleX(1); }
 
         /* ══════════════════════════════════════
            SKILLS TAG STAGGER (JS sets --i)
@@ -710,17 +865,6 @@
         .skill-card.revealed .skill-tags .tag {
             opacity: 1; transform: none;
         }
-
-        /* ══════════════════════════════════════
-           PARTICLES & NODES CANVAS 배경
-        ══════════════════════════════════════ */
-        #bgCanvas {
-            position: fixed; inset: 0;
-            width: 100%; height: 100%;
-            z-index: 0; pointer-events: none;
-        }
-        /* 섹션/UI 는 canvas 위에 */
-        .section { position: relative; z-index: 1; }
 
         /* Career card left/right slide */
         .career-card:first-child { transform: translateX(-44px); }
@@ -739,12 +883,19 @@
            TABLET  ≤ 900px
         ═══════════════════════════ */
         @media (max-width: 900px) {
-            .hero-layout { grid-template-columns: 1fr; gap: 2.5rem; }
-            /* 2×2 그리드로 — 4열은 너무 좁음 */
-            .hero-stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-layout { grid-template-columns: 1fr; gap: 2.25rem; }
             .contact-layout { grid-template-columns: 1fr; gap: 2rem; }
-            /* ID 카드는 모바일에서 숨김 */
+            /* 표제란은 모바일에서 숨김 */
             .contact-card { display: none; }
+            /* 대표작 2×2는 3열 격자가 있어야 성립한다 — 2열부터는 가로 2칸만 */
+            .projects-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .project-card--lead { grid-column: span 2; grid-row: auto; }
+            .project-card--lead .project-card__thumb { aspect-ratio: 16 / 9; flex: none; min-height: 0; }
+            /* 2열부터는 2행 걸침이 없으니 배너 비율로 눌러 둘 이유도 없다 */
+            .projects-grid > .project-card:nth-child(2) .project-card__thumb,
+            .projects-grid > .project-card:nth-child(3) .project-card__thumb {
+                aspect-ratio: 16 / 10;
+            }
         }
 
         /* ═══════════════════════════
@@ -766,6 +917,32 @@
 
             .dot-nav { display: none; }
 
+            /* 척추선·치수선은 폭이 안 나온다 — FIG 라벨의 노드 점만 남긴다 */
+            .section::before { display: none; }
+            .section__inner { padding-left: 0; }
+            .s-label { margin-left: 0; letter-spacing: 0.16em; }
+            .hero-dim { width: 100%; }
+
+            /* 표제란은 이름+상태만 — 390px에서 직무·지역까지 넣으면 칩이 잘린다 */
+            .titleblock { padding-left: 1rem; padding-right: 1rem; letter-spacing: 0.1em; }
+            .titleblock__loc, .titleblock__status-more { display: none; }
+
+            .hero-frame { padding: 1.5rem 1.25rem; }
+
+            /* SM → SI 가로 화살표를 세로로 세운다 */
+            .career-grid { flex-direction: column; }
+            .career-conn {
+                width: 100%; height: 62px;
+                flex-direction: column; justify-content: center;
+            }
+            .career-conn__line { width: 1px; height: 100%; }
+            .career-conn__head {
+                right: auto; bottom: 0;
+                border-left: 5px solid transparent; border-right: 5px solid transparent;
+                border-top: 8px solid var(--accent); border-bottom: none;
+            }
+            .career-conn__label { transform: translate(calc(-50% + 46px), -50%); }
+
             /* 히어로 */
             .hero-name { font-size: clamp(2.6rem, 10vw, 3.5rem); }
             .hero-philosophy { font-size: var(--fs-4); }
@@ -777,10 +954,7 @@
             .contact-headline { font-size: clamp(2rem, 9vw, 3rem); }
 
             /* 그리드 */
-            .career-grid { grid-template-columns: 1fr; }
             .skills-layout { grid-template-columns: repeat(2, 1fr); }
-            .projects-grid { grid-template-columns: repeat(2, 1fr); }
-            .hero-stat-grid { grid-template-columns: repeat(2, 1fr); }
 
             /* career 카드 — 모바일에선 슬라이드 없이 바로 노출 */
             .career-card:first-child { transform: none; }
@@ -807,10 +981,9 @@
 
             .skills-layout { grid-template-columns: 1fr; }
             .projects-grid { grid-template-columns: 1fr; }
-            .hero-stat-grid { grid-template-columns: repeat(2, 1fr); }
-
-            .about-chips { gap: 0.5rem; }
-            .chip { font-size: var(--fs-1); padding: 0.35rem 0.75rem; }
+            /* 1열에서는 대표작도 한 칸 — span 2가 남으면 격자가 깨진다 */
+            .project-card--lead { grid-column: span 1; }
+            .project-card--lead .project-card__thumb { aspect-ratio: 16 / 10; }
         }
 
         /* ═══════════════════════════
@@ -950,12 +1123,6 @@
         .live-chip .down { color: #2563eb; }
         @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 
-        /* 섹션 넘버링 */
-        .s-label__num {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: var(--fs-1); opacity: 0.55; letter-spacing: 0;
-        }
-
         /* 프로젝트 카드 컬러 스트립 스윕 */
         .project-card__strip { position: relative; overflow: hidden; }
         .project-card__strip::after {
@@ -986,8 +1153,14 @@
 </head>
 <body>
 
-    <!-- Particles & Nodes 캔버스 배경 -->
-    <canvas id="bgCanvas" aria-hidden="true"></canvas>
+    <!-- Title Block — 도면 표제란 -->
+    <div class="titleblock">
+        <span class="titleblock__id">임광호 · Java Backend Developer</span>
+        <span class="titleblock__right">
+            <span class="titleblock__loc">Seoul · 2026</span>
+            <span class="titleblock__status">재직 중<span class="titleblock__status-more"> · SI 고도화</span></span>
+        </span>
+    </div>
 
     <!-- Custom cursor (한 겹: 링 + ::after 점) -->
     <div class="cursor-ring" id="cursorRing"></div>
@@ -1052,30 +1225,42 @@
     <!-- ══ 1. HERO ══ -->
     <section class="section" id="hero">
         <div class="section__inner">
+            <p class="s-label"><span class="s-label__node" aria-hidden="true"></span>Fig. 01 — Profile</p>
+
+            <div class="hero-frame">
+                <span class="hero-frame__tick hero-frame__tick--tl" aria-hidden="true"></span>
+                <span class="hero-frame__tick hero-frame__tick--tr" aria-hidden="true"></span>
+                <span class="hero-frame__tick hero-frame__tick--bl" aria-hidden="true"></span>
+                <span class="hero-frame__tick hero-frame__tick--br" aria-hidden="true"></span>
+
             <div class="hero-layout">
 
                 <!-- Left: 이름 → 철학 → 행동 (하나의 흐름) -->
                 <div class="hero-left-col">
-                    <p class="hero-eyebrow">Portfolio 2026</p>
                     <h1 class="hero-name">임광호</h1>
-                    <p class="hero-title">Java Backend Developer</p>
+                    <p class="hero-title">
+                        <span class="hero-title__role">Java Backend Developer</span>
+                        <span class="hero-title__sep" aria-hidden="true"></span>
+                        <span>공공 재난·안전 시스템</span>
+                    </p>
+
+                    <!-- 치수선 — 경력 구간을 도면처럼 잰다 -->
+                    <p class="hero-dim">
+                        <span class="hero-dim__rule" aria-hidden="true"></span>
+                        2020.12 — 현재
+                        <span class="hero-dim__rule" aria-hidden="true"></span>
+                    </p>
+
                     <p class="hero-typer" aria-hidden="true"><span class="typer-prompt">$&nbsp;</span><span id="typerText"></span><span class="typer-caret"></span></p>
 
                     <p class="hero-philosophy">
                         <mark class="hl">안정성</mark>을 설계하는 개발자입니다.
                     </p>
                     <p class="hero-tagline">
-                        공공 재난·안전 시스템의 운영과 고도화를 함께 맡아왔습니다.
+                        운영과 고도화를 함께 맡아왔습니다.
                         단순 수정이 아닌, 구조적 문제를 찾아 개선하는
                         방식으로 일해왔습니다.
                     </p>
-
-                    <div class="about-chips" style="margin-bottom:2rem;">
-                        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>서울</span>
-                        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>공공 SI/SM</span>
-                        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>Java</span>
-                        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>GIS</span>
-                    </div>
 
                     <div class="hero-ctas">
                         <a class="btn btn--primary btn--resume" href="/임광호_포트폴리오.pdf" target="_blank" rel="noopener">이력서 PDF ↗</a>
@@ -1089,28 +1274,30 @@
                     <div class="live-strip" id="liveStrip" aria-label="실시간 시장 데이터"></div>
                 </div>
 
-                <!-- Right: 숫자 스탯 2×2 -->
+                <!-- Right: 6년 하나가 주역, 나머지 셋은 괘선 행 -->
                 <div class="hero-right-col">
                     <div class="hero-stat-grid">
-                        <div class="stat-box">
-                            <div class="stat-box__num mono">6<span>년</span></div>
-                            <div class="stat-box__label">공공 시스템 경력</div>
+                        <div class="stat-lead">
+                            <span class="stat-lead__idx">M-01</span>
+                            <p class="stat-lead__num">6<span>년</span></p>
+                            <p class="stat-lead__label">공공 시스템 경력 · SM 2년 + SI 3년</p>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-box__num mono">60<span>+</span></div>
-                            <div class="stat-box__label">협업 부서 수</div>
+                        <div class="stat-row">
+                            <span class="stat-row__num">60<span>+</span></span>
+                            <span class="stat-row__label">협업 부서 수</span>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-box__num mono">500<span>+</span></div>
-                            <div class="stat-box__label">연간 처리 실적</div>
+                        <div class="stat-row">
+                            <span class="stat-row__num">500<span>+</span></span>
+                            <span class="stat-row__label">연간 처리 실적</span>
                         </div>
-                        <div class="stat-box">
-                            <div class="stat-box__num mono">20<span>억</span></div>
-                            <div class="stat-box__label">SI 사업 참여 규모</div>
+                        <div class="stat-row">
+                            <span class="stat-row__num">20<span>억</span></span>
+                            <span class="stat-row__label">SI 사업 참여 규모</span>
                         </div>
                     </div>
                 </div>
 
+            </div>
             </div>
         </div>
         <div class="hero-scroll-hint" aria-hidden="true">scroll</div>
@@ -1119,20 +1306,19 @@
     <!-- ══ 2. CAREER ══ -->
     <section class="section section--free" id="career">
         <div class="section__inner">
-            <p class="s-label" data-reveal="up"><span class="s-label__num">01</span>Career</p>
+            <p class="s-label" data-reveal="up"><span class="s-label__node" aria-hidden="true"></span>Fig. 02 — Career Path</p>
             <h2 class="s-title" data-reveal="up">경력</h2>
             <div class="career-grid">
 
                 <!-- SM -->
                 <div class="career-card">
                     <div class="career-card__header">
-                        <div>
-                            <p class="career-period">2020.12 — 2023.01</p>
-                            <p class="career-role">SM · 시스템 유지관리</p>
-                            <p class="career-project">서울안전누리 · 통합재난관리시스템</p>
-                        </div>
+                        <span class="career-period">2020.12 — 2023.01</span>
+                        <span class="career-dur">SM · 26개월</span>
                     </div>
                     <div class="career-card__body">
+                        <p class="career-role">시스템 유지관리</p>
+                        <p class="career-project">서울안전누리 · 통합재난관리시스템</p>
                         <p class="career-meta">연 4~5억 규모 · 2인 운영 · 60개 부서 협업</p>
                         <ul class="career-list">
                             <li>연 500건 이상 유지관리 요청 처리 (요구사항 분석 → 분류·처리)</li>
@@ -1154,17 +1340,23 @@
                     </div>
                 </div>
 
+                <!-- SM → SI 연결선. 두 카드 사이에만 놓는다 —
+                     .career-card:first-child/:last-child 슬라이드 리빌이 이 순서에 의존한다. -->
+                <div class="career-conn" aria-hidden="true">
+                    <span class="career-conn__line"></span>
+                    <span class="career-conn__head"></span>
+                    <span class="career-conn__label">동일 도메인</span>
+                </div>
+
                 <!-- SI (Current) -->
                 <div class="career-card career-card--current">
                     <div class="career-card__header">
-                        <div>
-                            <p class="career-period">2023.02 — 현재</p>
-                            <p class="career-role">SI · 시스템 고도화</p>
-                            <p class="career-project">재난정보관리시스템 고도화 사업</p>
-                        </div>
-                        <span class="career-badge">현재 재직 중</span>
+                        <span class="career-period">2023.02 — 현재</span>
+                        <span class="career-dur">SI · 37개월</span>
                     </div>
                     <div class="career-card__body">
+                        <p class="career-role">시스템 고도화</p>
+                        <p class="career-project">재난정보관리시스템 고도화 사업</p>
                         <p class="career-meta">약 20억 규모 · 5인 개발팀 · COSA 등록 공식 이력</p>
                         <ul class="career-list">
                             <li>사업계획서·기술제안서 작성 참여</li>
@@ -1188,19 +1380,24 @@
                 </div>
 
             </div>
+            <p class="career-span" data-reveal="up">
+                <span class="career-span__rule" aria-hidden="true"></span>
+                한 도메인에서 운영 → 고도화로 이어진 63개월
+                <span class="career-span__rule" aria-hidden="true"></span>
+            </p>
         </div>
     </section>
 
     <!-- ══ 3. SKILLS ══ -->
     <section class="section" id="skills">
         <div class="section__inner">
-            <p class="s-label" data-reveal="up"><span class="s-label__num">02</span>Skills</p>
+            <p class="s-label" data-reveal="up"><span class="s-label__node" aria-hidden="true"></span>Fig. 03 — Stack</p>
             <h2 class="s-title" data-reveal="up">기술 스택</h2>
             <div class="skills-layout">
                 <div class="skill-card" data-reveal="up">
                     <div class="skill-card__head">
                         <div class="skill-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg></div>
-                        <p class="skill-card__title">Backend</p>
+                        <p class="skill-card__title">S-01 · Backend</p><span class="skill-card__mark">주력</span>
                     </div>
                     <div class="skill-tags">
                         <span class="tag tag--core">Java 8</span>
@@ -1216,7 +1413,7 @@
                 <div class="skill-card" data-reveal="up" style="--reveal-delay:0.1s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg></div>
-                        <p class="skill-card__title">Database</p>
+                        <p class="skill-card__title">S-02 · Database</p><span class="skill-card__mark">주력</span>
                     </div>
                     <div class="skill-tags">
                         <span class="tag tag--core">Oracle</span>
@@ -1231,7 +1428,7 @@
                 <div class="skill-card" data-reveal="up" style="--reveal-delay:0.2s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg></div>
-                        <p class="skill-card__title">GIS · Map</p>
+                        <p class="skill-card__title">S-03 · GIS · Map</p><span class="skill-card__mark">차별점</span>
                     </div>
                     <div class="skill-tags">
                         <span class="tag tag--core">OpenLayers</span>
@@ -1243,7 +1440,7 @@
                 <div class="skill-card" data-reveal="up" style="--reveal-delay:0.3s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-                        <p class="skill-card__title">보안 · 인증</p>
+                        <p class="skill-card__title">S-04 · 보안 · 인증</p>
                     </div>
                     <div class="skill-tags">
                         <span class="tag">Spring Security</span>
@@ -1256,7 +1453,7 @@
                 <div class="skill-card" data-reveal="up" style="--reveal-delay:0.4s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
-                        <p class="skill-card__title">외부 연동</p>
+                        <p class="skill-card__title">S-05 · 외부 연동</p>
                     </div>
                     <div class="skill-tags">
                         <span class="tag">FCM (Firebase)</span>
@@ -1270,7 +1467,7 @@
                 <div class="skill-card" data-reveal="up" style="--reveal-delay:0.5s">
                     <div class="skill-card__head">
                         <div class="skill-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg></div>
-                        <p class="skill-card__title">서버 · Infra</p>
+                        <p class="skill-card__title">S-06 · 서버 · Infra</p>
                     </div>
                     <div class="skill-tags">
                         <span class="tag">Linux</span>
@@ -1289,18 +1486,22 @@
     <!-- ══ 4. PROJECTS ══ -->
     <section class="section section--free" id="projects">
         <div class="section__inner">
-            <p class="s-label" data-reveal="up"><span class="s-label__num">03</span>Projects</p>
+            <p class="s-label" data-reveal="up"><span class="s-label__node" aria-hidden="true"></span>Fig. 04 — Side Projects</p>
             <h2 class="s-title" data-reveal="up">사이드 프로젝트</h2>
             <p class="projects-meta" data-reveal="up">업무 외 시간에 직접 기획·설계·개발한 개인 프로젝트입니다. 기획부터 배포까지 단독 수행. <a class="projects-cs-all" href="casestudy.html">기획 케이스 스터디 전체 보기 →</a></p>
             <div class="projects-grid">
 
-                <div class="project-card" data-reveal="scale">
+                <div class="project-card project-card--lead" data-reveal="scale">
                     <a class="project-card__thumb" href="fear-greed.html" aria-label="공포탐욕지수 열기">
                         <img src="assets/thumbs/thumb-feargreed.webp" alt="공포탐욕지수 스크린샷" loading="lazy">
                     </a>
                     <div class="project-card__strip strip--green"></div>
                     <div class="project-card__body">
-                        <p class="project-card__name">공포탐욕지수</p>
+                        <div class="project-card__head">
+                            <span class="project-card__idx">P-01</span>
+                            <p class="project-card__name">공포탐욕지수</p>
+                            <span class="project-card__badge">대표작</span>
+                        </div>
                         <p class="project-card__sub">CNN Fear & Greed Index 실시간 조회. 캘린더 히트맵, S&P500 오버레이, 포트폴리오 계산기.</p>
                         <div class="project-card__tags">
                             <span class="tag">Canvas API</span><span class="tag">Chart.js</span><span class="tag">Yahoo Finance</span>
@@ -1318,7 +1519,10 @@
                     </a>
                     <div class="project-card__strip strip--blue"></div>
                     <div class="project-card__body">
-                        <p class="project-card__name">커머스 시스템</p>
+                        <div class="project-card__head">
+                            <span class="project-card__idx">P-02</span>
+                            <p class="project-card__name">커머스 시스템</p>
+                        </div>
                         <p class="project-card__sub">OMS·WMS·PLM 통합 커머스. 관리자 대시보드, 장바구니·주문 플로우.</p>
                         <div class="project-card__tags">
                             <span class="tag">React CDN</span><span class="tag">Context API</span>
@@ -1336,7 +1540,10 @@
                     </a>
                     <div class="project-card__strip strip--amber"></div>
                     <div class="project-card__body">
-                        <p class="project-card__name">금융 도구 모음</p>
+                        <div class="project-card__head">
+                            <span class="project-card__idx">P-03</span>
+                            <p class="project-card__name">금융 도구 모음</p>
+                        </div>
                         <p class="project-card__sub">백테스트 비교기 · 복리 계산기 · 목표 자산 · 매매 일지 — 4탭 통합.</p>
                         <div class="project-card__tags">
                             <span class="tag">Yahoo Finance API</span><span class="tag">Chart.js</span><span class="tag">Flatpickr</span>
@@ -1354,7 +1561,10 @@
                     </a>
                     <div class="project-card__strip strip--red"></div>
                     <div class="project-card__body">
-                        <p class="project-card__name">재난 대응 시뮬레이터</p>
+                        <div class="project-card__head">
+                            <span class="project-card__idx">P-04</span>
+                            <p class="project-card__name">재난 대응 시뮬레이터</p>
+                        </div>
                         <p class="project-card__sub">대피소 지도, 재난문자 시뮬레이션, 경보·경로 안내. 실무 도메인 기반 기획.</p>
                         <div class="project-card__tags">
                             <span class="tag">GIS · Map</span><span class="tag">Vanilla JS</span>
@@ -1372,7 +1582,10 @@
                     </a>
                     <div class="project-card__strip strip--violet"></div>
                     <div class="project-card__body">
-                        <p class="project-card__name">운동 루틴 트래커</p>
+                        <div class="project-card__head">
+                            <span class="project-card__idx">P-05</span>
+                            <p class="project-card__name">운동 루틴 트래커</p>
+                        </div>
                         <p class="project-card__sub">세션 기록, 체크리스트, 주간 스트릭, 통계 대시보드.</p>
                         <div class="project-card__tags">
                             <span class="tag">localStorage</span><span class="tag">Vanilla JS</span>
@@ -1389,7 +1602,10 @@
                     </a>
                     <div class="project-card__strip strip--teal"></div>
                     <div class="project-card__body">
-                        <p class="project-card__name">포트폴리오 트래커</p>
+                        <div class="project-card__head">
+                            <span class="project-card__idx">P-06</span>
+                            <p class="project-card__name">포트폴리오 트래커</p>
+                        </div>
                         <p class="project-card__sub">비밀번호 게이트, 스냅샷 기반 수익률 추적, 섹터 도넛 차트.</p>
                         <div class="project-card__tags">
                             <span class="tag">SHA-256 Auth</span><span class="tag">Canvas API</span>
@@ -1410,7 +1626,7 @@
             <div class="contact-layout">
                 <!-- Left -->
                 <div>
-                    <p class="s-label" data-reveal="up"><span class="s-label__num">04</span>Contact</p>
+                    <p class="s-label" data-reveal="up"><span class="s-label__node" aria-hidden="true"></span>Fig. 05 — Contact</p>
                     <h2 class="contact-headline" data-reveal="up" style="--reveal-delay:0.08s">함께 성장하고<br><em>싶습니다.</em></h2>
                     <p class="contact-sub" data-reveal="up" style="--reveal-delay:0.18s">
                         새로운 기술과 기능을 배우는 걸 즐깁니다.<br>
@@ -1437,173 +1653,38 @@
                 </div>
                 <!-- Right: ID Card -->
                 <div class="contact-card" data-reveal="right">
-                    <p class="contact-card__name">임광호</p>
-                    <p class="contact-card__title mono">Java Backend Developer</p>
-                    <div class="contact-card__divider"></div>
-                    <div class="contact-card__rows">
-                        <div class="contact-card__row">
-                            <span class="contact-card__row-label">도메인</span>
-                            <span>공공 재난·안전 시스템</span>
-                        </div>
-                        <div class="contact-card__row">
-                            <span class="contact-card__row-label">전문</span>
-                            <span>Java · Oracle · GIS · eGovFrame</span>
-                        </div>
-                        <div class="contact-card__row">
-                            <span class="contact-card__row-label">유형</span>
-                            <span>SM 유지관리 · SI 고도화</span>
-                        </div>
+                    <div class="contact-card__row contact-card__row--head">
+                        <span class="contact-card__row-label">성명</span>
+                        <span class="contact-card__row-value">
+                            <span class="contact-card__name">임광호</span>
+                            <span class="contact-card__note">LIM KWANGHO</span>
+                        </span>
                     </div>
-                    <div class="contact-card__footer">© 2026 임광호 · Portfolio</div>
+                    <div class="contact-card__row">
+                        <span class="contact-card__row-label">직무</span>
+                        <span class="contact-card__row-value"><span class="contact-card__title">Java Backend Developer</span></span>
+                    </div>
+                    <div class="contact-card__row">
+                        <span class="contact-card__row-label">도메인</span>
+                        <span class="contact-card__row-value">공공 재난·안전 시스템</span>
+                    </div>
+                    <div class="contact-card__row">
+                        <span class="contact-card__row-label">전문</span>
+                        <span class="contact-card__row-value">Java · Oracle · GIS · eGovFrame</span>
+                    </div>
+                    <div class="contact-card__row">
+                        <span class="contact-card__row-label">유형</span>
+                        <span class="contact-card__row-value">
+                            <span>SM 유지관리 · SI 고도화</span>
+                            <span class="contact-card__note">© 2026</span>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <script>
-    /* ══════════════════════════════════════════
-       PARTICLES & NODES CANVAS BACKGROUND
-    ══════════════════════════════════════════ */
-    (function () {
-        const canvas = document.getElementById('bgCanvas');
-        const ctx    = canvas.getContext('2d');
-        const isMobile = () => window.innerWidth <= 768;
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-        let W, H, particles, animId;
-        let mouse = { x: -9999, y: -9999 };
-
-        /* ── 테마에 따른 색 반환 ── */
-        function getThemeColors() {
-            const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-            return {
-                dot:  dark ? 'rgba(74,222,128,'  : 'rgba(22,163,74,',
-                line: dark ? 'rgba(74,222,128,'  : 'rgba(22,163,74,',
-                dotAlpha:  dark ? 0.75 : 0.55,
-                lineAlphaMax: dark ? 0.30 : 0.20,
-            };
-        }
-
-        /* ── Particle 클래스 ── */
-        class Particle {
-            constructor() { this.reset(true); }
-            reset(random) {
-                this.x  = random ? Math.random() * W : Math.random() * W;
-                this.y  = random ? Math.random() * H : Math.random() * H;
-                const spd = isMobile() ? 0.18 : 0.28;
-                const angle = Math.random() * Math.PI * 2;
-                const speed = (Math.random() * 0.5 + 0.3) * spd;
-                this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed;
-                this.r  = Math.random() * 1.8 + 0.8;
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                /* 벽 반사 */
-                if (this.x < 0)  { this.x = 0;  this.vx *= -1; }
-                if (this.x > W)  { this.x = W;  this.vx *= -1; }
-                if (this.y < 0)  { this.y = 0;  this.vy *= -1; }
-                if (this.y > H)  { this.y = H;  this.vy *= -1; }
-                /* 마우스 반발 */
-                const mx = mouse.x - this.x;
-                const my = mouse.y - this.y;
-                const md = Math.sqrt(mx * mx + my * my);
-                if (md < 100 && md > 0) {
-                    const force = (100 - md) / 100 * 0.8;
-                    this.vx -= (mx / md) * force;
-                    this.vy -= (my / md) * force;
-                    /* 속도 제한 */
-                    const v = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-                    if (v > 2.5) { this.vx = (this.vx/v)*2.5; this.vy = (this.vy/v)*2.5; }
-                }
-            }
-        }
-
-        /* ── 초기화 ── */
-        function init() {
-            W = canvas.width  = window.innerWidth;
-            H = canvas.height = window.innerHeight;
-            /* draw()의 연결선 계산이 O(n²)라 개수 상한이 곧 프레임 예산이다.
-               110을 크게 올리면 저사양 기기에서 스크롤이 눈에 띄게 끊긴다. */
-            const count = isMobile()
-                ? Math.min(50, Math.floor(W * H / 14000))
-                : Math.min(110, Math.floor(W * H / 9000));
-            particles = Array.from({ length: count }, () => new Particle());
-        }
-
-        /* ── 렌더 루프 ── */
-        function draw() {
-            ctx.clearRect(0, 0, W, H);
-            const { dot, line, dotAlpha, lineAlphaMax } = getThemeColors();
-            const maxDist = isMobile() ? 110 : 150;
-
-            /* 연결선 */
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx   = particles[i].x - particles[j].x;
-                    const dy   = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < maxDist) {
-                        const alpha = (1 - dist / maxDist) * lineAlphaMax;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = line + alpha.toFixed(3) + ')';
-                        ctx.lineWidth   = 0.9;
-                        ctx.stroke();
-                    }
-                }
-            }
-
-            /* 점 */
-            particles.forEach(p => {
-                if (!reduceMotion.matches) p.update();
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                ctx.fillStyle = dot + dotAlpha + ')';
-                ctx.fill();
-            });
-
-            /* 모션 감소 설정 시 정적 1프레임만 렌더 */
-            if (!reduceMotion.matches) animId = requestAnimationFrame(draw);
-        }
-
-        /* ── 리사이즈 ── */
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                init();
-                if (reduceMotion.matches) draw();
-            }, 200);
-        });
-
-        /* ── 모션 감소 설정 변경 시 루프 재시작/정지 ── */
-        reduceMotion.addEventListener('change', () => {
-            cancelAnimationFrame(animId);
-            draw();
-        });
-
-        /* ── 정적 프레임일 때 테마 전환 색상 반영 ── */
-        new MutationObserver(() => {
-            if (reduceMotion.matches) draw();
-        }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-
-        /* ── 마우스 ── */
-        document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-        document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
-
-        /* ── 탭 비활성 시 일시정지 ── */
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) { cancelAnimationFrame(animId); }
-            else { draw(); }
-        });
-
-        init();
-        draw();
-    })();
-
     (function () {
         /* ── 1. THEME ── */
         const html = document.documentElement;
@@ -1665,7 +1746,7 @@
             tickCursor();
 
             // Scale up ring on hover targets
-            const hoverSels = 'a, button, .project-card, .stat-box, .skill-card, .career-card, .contact-link';
+            const hoverSels = 'a, button, .project-card, .stat-lead, .skill-card, .career-card, .contact-link';
             document.querySelectorAll(hoverSels).forEach(el => {
                 el.addEventListener('mouseenter', () => cursorRing.classList.add('hover'));
                 el.addEventListener('mouseleave', () => cursorRing.classList.remove('hover'));
@@ -1726,18 +1807,17 @@
             requestAnimationFrame(step);
         }
 
-        // Stat boxes: run counters after CSS hero-entrance delay (~1 s)
-        const statData = [
-            { n: 1, target: 6   },
-            { n: 2, target: 60  },
-            { n: 3, target: 500 },
-            { n: 4, target: 20  },
+        // 히어로 진입 애니메이션(~1s)이 끝난 뒤 카운터를 돌린다.
+        // runCounter는 접미사를 <span>에서만 읽는다 — 마크업에서 +/년/억을 span으로 감쌀 것.
+        const statTargets = [
+            ['.stat-lead__num', 6],
+            ['.stat-row:nth-child(2) .stat-row__num', 60],
+            ['.stat-row:nth-child(3) .stat-row__num', 500],
+            ['.stat-row:nth-child(4) .stat-row__num', 20],
         ];
         setTimeout(() => {
-            statData.forEach(({ n, target }) => {
-                const numEl = document.querySelector(
-                    `.hero-stat-grid .stat-box:nth-child(${n}) .stat-box__num`
-                );
+            statTargets.forEach(([sel, target]) => {
+                const numEl = document.querySelector(sel);
                 if (numEl) runCounter(numEl, target, 1400);
             });
         }, 950);

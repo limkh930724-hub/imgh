@@ -84,24 +84,24 @@ Current coverage gaps that are intentional, not oversights: `Certificate.html` a
 
 이직용 단일 페이지 스크롤 포트폴리오. 폰트: **Plus Jakarta Sans** (body) + **JetBrains Mono** (numbers/code). 다크/라이트 토글: `data-theme` on `<html>`, `localStorage('hub-theme')`, 기본 라이트.
 
-**섹션 구조** (`scroll-snap-type: y mandatory`):
-1. `#hero` — 2-column (left: 이름·철학·CTA / right: 2×2 stat grid). 카운터 애니메이션(0→target), 히어로 stagger entrance.
-2. `#career` — 2-col grid, SM(2020–2023) vs SI(2023–현재). SI 카드에 `career-card--current` + pulse badge.
-3. `#skills` — 3-col skill card grid. 카드 진입 시 내부 태그 stagger(`--i` CSS variable).
-4. `#projects` — 6개 프로젝트 카드(3×2), `section--free`. 카드는 `<div class="project-card">`(중첩 앵커 방지를 위해 `<a>`에서 변경), 상단 썸네일(`assets/thumbs/thumb-<slug>.webp`, slug: feargreed/commerce/finance/disaster/workout/pt, 16:10 cover, lazy) + 3px 컬러 strip + 푸터 `Live ↗ · 케이스 스터디 →` 2링크(케이스 스터디는 4개 카드만: feargreed/commerce/backtest/disaster), 3D tilt 유지. 섹션 부제: casestudy.html 갤러리로 링크. **썸네일 재캡처**: 프로덕션(imgh-one.vercel.app)에서 라이트 테마·1280×800 캡처 → sharp `.resize(1280,800,{fit:'cover',position:'top'}).webp({quality:80})` → `assets/thumbs/` (Node 18은 sharp@0.32 필요).
-5. `#contact` — 2-col (left: 링크 목록 / right: ID 카드, 모바일 숨김).
+**디자인 언어 — 설계 도면(2026-09 개편)**: 페이지 전체가 한 장의 도면이다. `html`이 26px 격자 배경(`--grid`)을 깔고, 각 섹션이 `::before`로 좌측 척추선을 그리며, 섹션 라벨(`.s-label`)이 그 선 위에 노드 점으로 얹힌다. 카드류는 모두 각진 모서리 + `--border-2` 실선. **세 값은 한 몸이다** — 격자 26px / `.section__inner`의 `padding-left: 46px` / `.section::before`의 `left: max(3rem, calc(50% - 563px))`. 하나만 바꾸면 노드 점이 척추선에서 떨어진다.
 
-**고정 UI**: `.theme-toggle`(top-right), `.dot-nav`(right side, 5 dots), `#cursorDot`+`#cursorRing`(custom cursor, desktop only), `.perf-widget`(bottom-right).
+**섹션 구조** (`scroll-snap-type: y proximity`):
+1. `#hero` — `.hero-frame`(코너 틱 4개)로 감싼 2-column (left: 이름·도메인·치수선·철학·CTA / right: 스탯). 스탯은 균등 4개가 아니라 `.stat-lead`(6년) 하나 + `.stat-row` 셋. 카운터는 접미사를 `<span>`에서만 읽으므로 `60<span>+</span>` 형태를 유지할 것.
+2. `#career` — flex 2-column + 가운데 `.career-conn`(SM→SI 화살표), 아래 `.career-span` 치수선. `.career-card:first-child/:last-child`가 좌/우 슬라이드 리빌을 잡으므로 연결선은 반드시 두 카드 **사이**에 둘 것.
+3. `#skills` — 3-col skill card grid, 각 카드에 `S-01`~`S-06` 인덱스 + `.skill-card__mark`(주력/차별점). 카드 진입 시 내부 태그 stagger(`--i` CSS variable).
+4. `#projects` — 6개 프로젝트 카드, `section--free`. 3열 격자에서 **첫 카드만 `.project-card--lead`로 2열×2행**(대표작 배지 + 큰 썸네일), 2·3번째 카드는 썸네일을 `16/7`로 눌러 1·2행 높이를 잡는다 — 이 둘을 `16/10`으로 되돌리면 2행을 걸친 대표작 썸네일이 800px 넘게 자란다. ≤900px에서는 대표작이 전체 폭, 나머지는 균등. 카드는 `<div class="project-card">`(중첩 앵커 방지를 위해 `<a>`에서 변경), 상단 썸네일(`assets/thumbs/thumb-<slug>.webp`, slug: feargreed/commerce/finance/disaster/workout/pt, 16:10 cover, lazy) + 3px 컬러 strip + 푸터 `Live ↗ · 케이스 스터디 →` 2링크(케이스 스터디는 4개 카드만: feargreed/commerce/backtest/disaster), 3D tilt 유지. 섹션 부제: casestudy.html 갤러리로 링크. **썸네일 재캡처**: 프로덕션(imgh-one.vercel.app)에서 라이트 테마·1280×800 캡처 → sharp `.resize(1280,800,{fit:'cover',position:'top'}).webp({quality:80})` → `assets/thumbs/` (Node 18은 sharp@0.32 필요).
+5. `#contact` — 2-col (left: 링크 목록 / right: `.contact-card` = 도면 표제란, 라벨 칸 + 값 칸의 행 테이블, ≤900px 숨김).
+
+**고정 UI**: `.titleblock`(상단 고정 표제란 — 이름·직무·지역·재직 상태. 히어로에서 같은 정보를 반복하지 말 것), `.theme-toggle`(표제란 아래, `top: 4rem`), `.dot-nav`(right side, 5 dots), `#cursorDot`+`#cursorRing`(custom cursor, desktop only), `.perf-widget`(bottom-right).
 
 **성능 모니터링 위젯** (`.perf-widget`): fixed bottom-right ⚡ badge (`#perfBadge`) showing a live score; click toggles `#perfPanel`. All measurement via `PerformanceObserver` wrapped in `safeObserve()` (silently skips unsupported entry types). Panel sections: Core Web Vitals chips (LCP/CLS/INP — INP observer uses `durationThreshold: 40`), loading metrics (FCP/TTFB/DCL from the navigation entry on `load`), runtime (FPS via rAF loop with 250ms windows — the rAF loop and a 1s `renderPanel()` interval run only while the panel is open; Long Task count + TBT = Σ max(0, duration−50)), and resource timing (top-5 slowest by duration + per-type CSS/JS/img/etc totals; resource names inserted via `textContent`, not innerHTML — keep it that way). Score formula: `LCP×0.4 + CLS×0.3 + INP×0.3`, each scored 100→0 linearly across Google's good/poor thresholds (2500/4000ms, 0.1/0.25, 200/500ms). Badge bands: ≥90 good, ≥50 mid, else poor (`data-band` attribute drives color).
 
-**`#bgCanvas`**: `position:fixed; z-index:0` — Particles & Nodes Canvas 배경. 파티클 수 = `min(110, W*H/9000)`. 150px 이내 파티클끼리 선 연결, 마우스 100px 이내 반발. 테마 전환 시 색상 자동변경(라이트: `#16a34a` / 다크: `#4ade80`). 모든 `.section`은 `z-index:1`로 canvas 위에 렌더.
-
 **스크롤 리빌 시스템**: `[data-reveal]` 속성 요소에 `IntersectionObserver`로 `.revealed` 클래스 추가. `--reveal-delay` CSS 변수로 stagger 제어. `.career-card`는 좌/우 slideIn, `.skill-card.revealed`는 내부 태그 stagger.
 
-**모바일(≤768px)**: `scroll-snap-type` 유지, 모든 섹션 `min-height:100vh` 강제. dot-nav 숨김, custom cursor 숨김, 3D tilt 비활성.
+**모바일(≤768px)**: `scroll-snap-type` 해제, 모든 섹션 `min-height:100vh` 강제. 척추선(`.section::before`)과 `.section__inner`의 padding-left를 끄고 FIG 라벨의 노드 점만 남긴다. `.career-conn`은 세로 화살표로 전환. 표제란은 지역·`SI 고도화`를 감춘다. dot-nav 숨김, custom cursor 숨김, 3D tilt 비활성.
 
-**구조 및 스타일**: `.section__inner` max-width는 1080px. 스킬 태그 위계: `.tag--core`(그린 틴트, 6개 핵심 태그). 히어로 칩·스킬 헤더·contact 아이콘은 인라인 스트로크 SVG(24×24 viewBox, `currentColor`).
+**구조 및 스타일**: `.section__inner` max-width는 1126px(콘텐츠 1080 + 척추선 여백 46). 스킬 태그 위계: `.tag--core`(그린 틴트, 6개 핵심 태그). 스킬 헤더·contact 아이콘은 인라인 스트로크 SVG(24×24 viewBox, `currentColor`).
 
 ### Finance Hub (`finance.html`)
 
