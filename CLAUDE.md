@@ -33,7 +33,7 @@ This is a **multi-page portfolio hub**. Each page is a self-contained HTML file 
 |---|---|
 | `index.html` | 이직용 포트폴리오 랜딩 — 5-섹션 스크롤 스냅, Hero·Career·Skills·Projects·Contact |
 | `fear-greed.html` | CNN Fear & Greed Index app (main app) |
-| `fg.html` | 공포탐욕 모바일 앱 — 시장·환율·게이지만 떼어낸 PWA (자체 `fg-manifest.json`, 라이트=가을 노을 카페 톤·다크 토글, `?gauge`는 게이지만 표시, noindex) |
+| `fg.html` | 공포탐욕 모바일 앱 — 시장·환율·게이지만 떼어낸 PWA (자체 `fg-manifest.json` + `fg-icon*` 아이콘(계기판 디자인), 라이트=가을 노을 카페 톤·다크 토글, `?gauge`는 게이지만 표시, noindex) |
 | `finance.html` | 금융 도구 통합 허브 — 4 tabs: backtest, compound, goal, journal |
 | `asset.html` | Redirect stub → `/finance.html?tab=compound` |
 | `compound.html` | Redirect stub → `/finance.html?tab=compound` |
@@ -379,7 +379,7 @@ No other env vars are needed; all other external calls go through `api/proxy.js`
 
 ### Service Worker (`sw.js`)
 
-**두 개의 캐시를 쓴다.** `CACHE_NAME = 'fg-cache-v14'`은 앱 셸(HTML·아이콘·매니페스트), `DATA_CACHE = 'fg-data-v1'`은 API 응답 전용이다. **절대 다시 합치지 말 것** — 한 칸에 섞으면 배포할 때 데이터까지 날아가고, 만료가 없어 오프라인에서 몇 달 전 시세가 현재 값처럼 나온다. `activate`는 `CACHE_NAME`도 `DATA_CACHE`도 아닌 캐시만 지운다.
+**두 개의 캐시를 쓴다.** `CACHE_NAME = 'fg-cache-v15'`은 앱 셸(HTML·아이콘·매니페스트), `DATA_CACHE = 'fg-data-v1'`은 API 응답 전용이다. **절대 다시 합치지 말 것** — 한 칸에 섞으면 배포할 때 데이터까지 날아가고, 만료가 없어 오프라인에서 몇 달 전 시세가 현재 값처럼 나온다. `activate`는 `CACHE_NAME`도 `DATA_CACHE`도 아닌 캐시만 지운다.
 
 PRECACHE covers `/`, `index.html`, `offline.html`, `fear-greed.html`, `finance.html`, the five redirect stubs (`asset`/`compound`/`goal`/`journal`/`backtest`), `workout.html`, `agents.html`, `commerce.html`, `disaster.html`, the `casestudy.html` gallery **and** all five `casestudy-*.html` detail pages, plus `manifest.json`, `icon.svg`, and the four icon PNGs (`icon-192`/`icon-512`/`icon-180`/`icon-maskable`).
 

@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <link rel="apple-touch-icon" href="/icon-180.png">
+    <link rel="apple-touch-icon" href="/fg-icon-180.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="공포탐욕">
+    <meta name="apple-mobile-web-app-title" content="공포탐욕지수">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" id="themeColor" content="#f4e4d0">
     <meta name="robots" content="noindex">
     <title>공포탐욕지수</title>
     <link rel="manifest" href="/fg-manifest.json">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link rel="icon" href="/fg-icon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -157,7 +157,14 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .chip-change { font-size: 0.68rem; font-weight: 600; }
+        .chip-change { font-size: 0.68rem; font-weight: 600; white-space: nowrap; }
+        /* 값과 등락을 한 줄에 — 폭이 모자라면 등락만 아랫줄로 내려간다 */
+        .chip-body {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            column-gap: 0.4rem;
+        }
         .up   { color: var(--up); }
         .down { color: var(--down); }
         .chip.skeleton {
@@ -240,8 +247,29 @@
         @media (max-width: 680px) {
             .chips { grid-template-columns: repeat(2, 1fr); }
         }
+        /* 폰에서는 스크롤 없이 한 화면에 다 들어오게 — 게이지는 그대로 두고 아래 칸들만 조인다 */
         @media (max-width: 480px) {
-            .chip-value { font-size: 0.88rem; }
+            .container { padding: calc(0.75rem + env(safe-area-inset-top)) 0.85rem calc(0.75rem + env(safe-area-inset-bottom)); }
+            .app-header { margin-bottom: 0; }
+            .app-title { font-size: 1.05rem; }
+            .app-date { font-size: 0.7rem; margin-top: 0.05rem; }
+            .theme-toggle { width: 32px; height: 32px; }
+            .gauge-canvas { max-width: 320px; }
+            .zone-now { font-size: 1.2rem; margin-top: -0.35rem; }
+            .last-updated { font-size: 0.72rem; margin-top: 0.15rem; }
+            .main-content { margin-bottom: 0.75rem; }
+            .history { margin-top: 0.6rem; padding-top: 0.55rem; }
+            .history-period, .history-label { font-size: 0.72rem; }
+            .history-score { font-size: 1.15rem; margin: 0.05rem 0; }
+
+            .strip { padding: 0.6rem 0.7rem; margin-bottom: 0.6rem; }
+            .strip-header { margin-bottom: 0.45rem; }
+            .chips { gap: 0.4rem; }
+            .chip { padding: 0.4rem 0.6rem; }
+            .chip-name { font-size: 0.62rem; margin-bottom: 0.05rem; }
+            .chip-value { font-size: 0.92rem; margin-bottom: 0; }
+            .chip-change { font-size: 0.66rem; }
+            .chip.skeleton { height: 42px; }
         }
     </style>
 </head>
@@ -397,9 +425,9 @@
                 const active = i === activeIdx;
                 const [x, y] = at(labelR + (active ? LIFT / 2 : 0), (zone.start + zone.end) / 2);
                 gCtx.fillStyle = active ? '#2b1a10' : tc('#6f4f3a', '#adbac7');
-                gCtx.font = `${active ? 800 : 700} 15px ${GAUGE_FONT}`;
+                gCtx.font = `${active ? 800 : 700} 17px ${GAUGE_FONT}`;
                 zone.label.split('\n').forEach((line, j, arr) => {
-                    gCtx.fillText(line, x, y + (j - (arr.length - 1) / 2) * 17);
+                    gCtx.fillText(line, x, y + (j - (arr.length - 1) / 2) * 19);
                 });
             });
             gCtx.globalAlpha = 1;
@@ -416,7 +444,7 @@
             }
 
             gCtx.fillStyle = tc('#6f4f3a', '#adbac7');
-            gCtx.font = `600 15px ${GAUGE_FONT}`;
+            gCtx.font = `600 16px ${GAUGE_FONT}`;
             [0, 25, 50, 75, 100].forEach(v => {
                 gCtx.fillText(String(v), ...at(OUTER_R + LIFT + 20, v));
             });
@@ -438,7 +466,7 @@
                 // 큰 눈금 숫자와 겹치는 자리면 글자는 생략하고 표식만 남긴다
                 if ([0, 25, 50, 75, 100].every(v => Math.abs(v - prevScore) > 5)) {
                     gCtx.fillStyle = tc('#3a2618', '#e6edf3');
-                    gCtx.font = `700 13px ${GAUGE_FONT}`;
+                    gCtx.font = `700 15px ${GAUGE_FONT}`;
                     gCtx.fillText('전일', ...at(OUTER_R + LIFT + 21, prevScore));
                 }
             }
@@ -586,8 +614,10 @@
             return `
                 <div class="chip">
                     <div class="chip-name">${name}</div>
-                    <div class="chip-value">${value}</div>
-                    ${change}
+                    <div class="chip-body">
+                        <div class="chip-value">${value}</div>
+                        ${change}
+                    </div>
                 </div>`;
         }
 
