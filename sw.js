@@ -1,6 +1,6 @@
 // PRECACHE를 수정하면 이 버전도 반드시 올릴 것 — 이름이 그대로면 activate 단계에서
 // 옛 캐시를 지우지 않아 배포 후에도 사용자에게 이전 페이지가 계속 서빙된다.
-const CACHE_NAME = 'fg-cache-v13';
+const CACHE_NAME = 'fg-cache-v14';
 
 // 시세·환율 같은 API 응답은 앱 셸과 절대 같은 칸에 두지 말 것.
 // 한 칸에 섞으면 (1) 배포할 때 데이터까지 날아가고 (2) 만료가 없어 오프라인에서
@@ -11,7 +11,7 @@ const DATA_CACHE = 'fg-data-v1';
 // 새 페이지를 추가하면 여기에도 넣고 CACHE_NAME을 올린다.
 // portfolio_tracker.html은 비밀번호 게이트가 걸린 비공개 페이지라 의도적으로 제외.
 // Certificate.html은 ~875KB라 제외 — 둘 다 오프라인에서는 offline.html로 안내된다.
-const PRECACHE = ['/', '/index.html', '/offline.html', '/fear-greed.html', '/finance.html', '/asset.html', '/compound.html', '/goal.html', '/journal.html', '/backtest.html', '/workout.html', '/agents.html', '/commerce.html', '/disaster.html', '/casestudy.html', '/casestudy-commerce.html', '/casestudy-feargreed.html', '/casestudy-disaster.html', '/casestudy-asset.html', '/casestudy-backtest.html', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png', '/icon-180.png', '/icon-maskable.png'];
+const PRECACHE = ['/', '/index.html', '/offline.html', '/fear-greed.html', '/fg.html', '/fg-manifest.json', '/finance.html', '/asset.html', '/compound.html', '/goal.html', '/journal.html', '/backtest.html', '/workout.html', '/agents.html', '/commerce.html', '/disaster.html', '/casestudy.html', '/casestudy-commerce.html', '/casestudy-feargreed.html', '/casestudy-disaster.html', '/casestudy-asset.html', '/casestudy-backtest.html', '/manifest.json', '/icon.svg', '/icon-192.png', '/icon-512.png', '/icon-180.png', '/icon-maskable.png'];
 
 // 데이터로 취급할 upstream — 앱 셸이 아니라 DATA_CACHE로 간다
 const DATA_PREFIXES = [
