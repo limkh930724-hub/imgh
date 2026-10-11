@@ -271,22 +271,42 @@
             .app-title { font-size: 1.05rem; }
             .app-date { font-size: 0.7rem; margin-top: 0.05rem; }
             .theme-toggle { width: 32px; height: 32px; }
-            .gauge-canvas { max-width: 320px; }
+            /* 게이지는 컨테이너 여백을 넘어 화면 폭을 거의 다 쓴다 — 눈금 숫자 자리까지 캔버스에 포함돼 있어 잘리지 않음 */
+            .gauge-canvas { width: calc(100% + 1.2rem); max-width: none; margin: 0 -0.6rem; }
             .zone-now { font-size: 1.2rem; margin-top: -0.35rem; }
             .last-updated { font-size: 0.72rem; margin-top: 0.15rem; }
-            .main-content { margin-bottom: 1.1rem; }
+            .main-content { margin-bottom: 0.8rem; }
             .history { margin-top: 0.85rem; padding-top: 0.75rem; }
             .history-period, .history-label { font-size: 0.72rem; }
             .history-score { font-size: 1.15rem; margin: 0.05rem 0; }
 
-            .strip { padding: 0.75rem 0.75rem; margin-bottom: 0.85rem; }
-            .strip-header { margin-bottom: 0.6rem; }
+            .strip { padding: 0.7rem 0.75rem; margin-bottom: 0.7rem; }
+            .strip-header { margin-bottom: 0.5rem; }
             .chips { gap: 0.5rem; }
             .chip { padding: 0.5rem 0.6rem; }
             .chip-name { font-size: 0.62rem; margin-bottom: 0.05rem; }
             .chip-value { font-size: 0.92rem; margin-bottom: 0; }
             .chip-change { font-size: 0.66rem; }
             .chip.skeleton { height: 42px; }
+        }
+        /* 키 큰 폰: 남는 높이를 게이지 쪽이 쓰게 한다 — 시세 칸은 그대로, 위쪽만 키우고 띄운다 */
+        @media (max-width: 480px) and (min-height: 720px) {
+            .container { min-height: 100svh; display: flex; flex-direction: column; }
+            .app-header { width: 100%; }
+            .main-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-evenly;
+                width: 100%;
+            }
+            .app-title { font-size: 1.2rem; }
+            .app-date { font-size: 0.75rem; }
+            .zone-now { font-size: 1.45rem; }
+            .last-updated { font-size: 0.78rem; margin-top: 0.2rem; }
+            .history { margin-top: 0.7rem; padding-top: 0.65rem; }
+            .history-period, .history-label { font-size: 0.78rem; }
+            .history-score { font-size: 1.3rem; margin: 0.05rem 0; }
         }
     </style>
 </head>
